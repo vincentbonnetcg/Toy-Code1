@@ -1,7 +1,7 @@
 # Numerical Bric-a-Brac
 Numerical Methods with Python, Numpy and Matplotlib
 
-## . PDE - Explicit Integrators
+## . Partial Differential Equations - Numerical Integration
 **File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/spring1D_integrator.py)<br>
 **Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
 - Explicit Euler
