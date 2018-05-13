@@ -10,7 +10,7 @@ Numerical Methods with Python, Numpy and Matplotlib
 - Semi-Implicit Euler (also called Euler-Cromer)
 - Leap Frog
 
-![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/spring1D_integrator.png)
+![Explicit Integrators](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/spring1D_integrator.png)
 
 ## . Inverse Kinematics
 **File** [inverseKinematics_pseudoInverse.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/inverseKinematics_pseudoInverse.py)<br>
@@ -25,11 +25,17 @@ Numerical Methods with Python, Numpy and Matplotlib
 **Description** Implementation of Gradient Descent for multivariable functions
 - with/without normalized step
 
-![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/optimisation_gradientDescent.png)
+![Gradient Descent](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/optimisation_gradientDescent.png)
 
 ## . Local Deformations
 **File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/optimalTransformation_covarianceMatrix.py)<br>
 **Description** Optimal rigid transformation by using Principal Component Analysis (Eigen Decomposition)
 - Compute Covariance Matrix from point cloud
 
-![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/optimalTransformation_covarianceMatrix.png)
+![PCA](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/optimalTransformation_covarianceMatrix.png)
+
+## . Interpolation and Regression
+**File** [scatteredDataInterpolation_radialBasisFunction.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/scatteredDataInterpolation_radialBasisFunction.py)<br>
+**Description** Interpolation of a 1D function with Radial Basis Functions
+
+![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
