@@ -39,3 +39,9 @@ Numerical Methods with Python, Numpy and Matplotlib
 **Description** Interpolation of a 1D function with Radial Basis Functions
 
 ![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
+
+## . Graph Colouring
+**File** [scatteredDataInterpolation_radialBasisFunction.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/graphColouring_greedyAlgorithm.py)<br>
+**Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
+
+![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/graphColouring_greedyAlgorithm.png)
