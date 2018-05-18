@@ -108,7 +108,7 @@ def drawRBF_1D(points, weights, kernel, referenceFunction, minRange, maxRange, s
     plt.plot(t, referenceFunction(t), linestyle='solid', color="green", label="reference function")
     # draw rbf
     t = np.linspace(minRange, maxRange, int((maxRange - minRange) / step), endpoint=True)
-    plt.plot(t, radialBasisFunction(points, weights, kernel, t), linestyle='dotted', color="blue", label="rbd interpolation")
+    plt.plot(t, radialBasisFunction(points, weights, kernel, t), linestyle='dotted', color="blue", label="rbf interpolation")
     # draw points
     x, y = zip(*points)
     plt.plot(x, y, '*', color='red', label="samples")   
