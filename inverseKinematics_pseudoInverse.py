@@ -86,7 +86,7 @@ def draw(chain, targetPosition):
 Layout of the partial differential matrix of size(m x n)
 'm' is the number of DOF for the end effector (only translate XY)
 'n' is the number of joints multiplied by the number of joint DOF
-    joint1  joint2
+    joint0      joint1     joint2
     [angle0]   [angle1]   [angle2]
 x :  dx/da0     dx/da1     dx/da2
 y :  dy/da0     dy/da1     dy/da2
