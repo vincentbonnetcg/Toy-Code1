@@ -49,7 +49,7 @@ class AnchorSpringConstraint(BaseConstraint):
     
     def computeJacobians(self, data):
         x = data.x[self.ids[0]]
-        self.dfdx[0] = stretchNumericalJacobiandf0dx0(x,  self.targetPos, self.restLength, self.stiffness) * -1
+        self.dfdx[0] = numericalJacobianMatrix(springStretchForce, 0, x, self.targetPos, self.restLength, self.stiffness) * -1.0
         
     def getJacobian(self, data, fi, xj):
         return self.dfdx[0]
@@ -76,7 +76,7 @@ class SpringConstraint(BaseConstraint):
     def computeJacobians(self, data):
         x0 = data.x[self.ids[0]]
         x1 = data.x[self.ids[1]]
-        self.dfdx[1] = stretchNumericalJacobiandf0dx0(x0, x1, self.restLength, self.stiffness)
+        self.dfdx[1] = numericalJacobianMatrix(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
         self.dfdx[0] = self.dfdx[1] * -1
 
     def getJacobian(self, data, fi, xj):
@@ -87,7 +87,7 @@ class SpringConstraint(BaseConstraint):
         return self.dfdx[1]
 
 '''
- Spring Utility Functions
+ Constraint Utility Functions
 '''
 def springStretchForce(x0, x1, rest, stiffness):
     direction = x0 - x1
@@ -105,33 +105,50 @@ def springDampingForce(x0, x1, v0, v1, damping):
     relativeVelocity = v0 - v1
     return direction * (np.dot(relativeVelocity, direction) * damping)
 
+# TODO : implement spring energy
+
 '''
- Jacobian Forces Utility Functions
+ Numerical Jacobian Utility Function
   |dfx/dx   dfx/dy|
   |dfy/dx   dfy/dy|
 '''
-def stretchNumericalJacobiandf0dx0(x0, x1, rest, stiffness):
-    stencilSize = 0.0001 # stencil size for the central difference
-    jacobian = np.zeros(shape=(2,2))
+# This function returns a jacobian matrix with the following dimension :
+# [function codomain dimension, function domain dimension]
+# 'Function codomain dimension' : dimension of the function output
+# 'Function domain dimension' : dimension of the input argumentId of the function
+# Warning : Only use scalar as argument (no integer/boolean)
+def numericalJacobianMatrix(function, argumentId, *args):
+    stencilSize = 1e-6 # stencil for the central difference
+    functionCodomainDimension = 1
+    functionDomainDimension = 1
     
-    # Derivative respective to x
-    rx0 = np.add(x0, [stencilSize, 0])
-    lx0 = np.add(x0, [-stencilSize, 0])
-    rforce0 = springStretchForce(rx0, x1, rest, stiffness)
-    lforce0 = springStretchForce(lx0, x1, rest, stiffness)
-    gradientX = (rforce0 - lforce0) / (stencilSize * 2.0)
-    
-    # Derivative respective to y
-    bx0 = np.add(x0, [0, -stencilSize])
-    tx0 = np.add(x0, [0, stencilSize])
-    bforce0 = springStretchForce(bx0, x1, rest, stiffness)
-    tforce0 = springStretchForce(tx0, x1, rest, stiffness)
-    gradientY = (tforce0 - bforce0) / (stencilSize * 2.0)
-    
-    # Set jacobian with gradients
-    jacobian[0, 0] = gradientX[0]
-    jacobian[1, 0] = gradientX[1]
-    jacobian[0, 1] = gradientY[0]
-    jacobian[1, 1] = gradientY[1]
-    
-    return jacobian
+    gradientList = []
+
+    # compute gradients    
+    if (np.isscalar(args[argumentId])):
+        functionDomainDimension = 1
+        # TODO - implement case for scalar
+    else:
+        functionDomainDimension = len(args[argumentId])
+        stencil = np.zeros(functionDomainDimension)
+        for i in range(functionDomainDimension):
+            argsListR = list(args)
+            argsListL = list(args)
+            stencil.fill(0)
+            stencil[i] = stencilSize
+            argsListR[argumentId] = np.add(args[argumentId], stencil)
+            argsListL[argumentId] = np.subtract(args[argumentId], stencil)
+            valueR = function(*argsListR)
+            valueL = function(*argsListL)
+            gradient = (valueR - valueL) / (stencilSize * 2.0)
+            gradientList.append(gradient)
+
+    # assemble jacobian from gradients
+    if len(gradientList)>0:
+        # TODO : implement case for scalar function
+        functionCodomainDimension = len(gradientList[0])
+        jacobian = np.zeros(shape=(functionCodomainDimension, functionDomainDimension))
+        for gradientId in range(len(gradientList)):
+            jacobian[0:functionCodomainDimension, gradientId] = gradientList[gradientId]
+
+        return jacobian
