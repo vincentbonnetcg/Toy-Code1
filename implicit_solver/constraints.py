@@ -1,6 +1,6 @@
 """
 @author: Vincent Bonnet
-@description : Constraint models
+@description : Constraint descriptions for implicit solver 
 """
 
 import numpy as np
