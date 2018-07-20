@@ -14,8 +14,10 @@ class BaseConstraint:
         self.stiffness = stiffness
         self.damping = damping
         self.ids = ids
-        self.f = np.zeros((len(ids), 2)) # TODO - no need to store that - should be not be allocated in Baseconstraint
-        self.dfdx = np.zeros((len(ids),2,2)) # TODO - no need to store that - should be not be allocated in Baseconstraint
+        self.f = np.zeros((len(ids), 2))
+        # Precomputed jacobians.
+        # TODO - should improve that to have better support of constraint with more than two particles
+        self.dfdx = np.zeros((len(ids),2,2))
 
     def applyForces(self, data):
         for i in range(len(self.ids)):

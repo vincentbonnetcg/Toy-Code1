@@ -79,7 +79,7 @@ class Beam(BaseObject):
 
         # Initialize anchor constraints
         for pid in range(0, (cellX+1)*cellY+1, cellX+1):
-            self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [pid], np.copy(self.x[pid]), self))
-            self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [pid+cellX], np.copy(self.x[pid+cellX]), self))
+            self.constraints.append(cn.AnchorSpringConstraint(stiffness * 100, damping, [pid], np.copy(self.x[pid]), self))
+            self.constraints.append(cn.AnchorSpringConstraint(stiffness * 100, damping, [pid+cellX], np.copy(self.x[pid+cellX]), self))
             
             

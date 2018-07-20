@@ -1,7 +1,6 @@
 """
 @author: Vincent Bonnet
-@description : rod simulation with backward euler integrator
-Implicit formulation and Conjugate Gradient (WIP)
+@description : symplectic and backward Euler integrators
 """
 
 import numpy as np
@@ -44,7 +43,7 @@ def implicitStep(data, dt, gravity):
             for xj in range(len(constraint.ids)):
                 Jx = constraint.getJacobian(data, fi, xj)
                 dfdxMatrix[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
-        
+
     A += dfdxMatrix
     
     # Assemble b = h *( f0 + h * df/dx * v0)
@@ -55,12 +54,13 @@ def implicitStep(data, dt, gravity):
     
     for constraint in data.constraints:
         ids = constraint.ids
-        for xi in range(len(constraint.ids)):
-            fi = xi
-            Jx = constraint.getJacobian(data, fi, xi)
-            b[fi*2:fi*2+2] += np.reshape(np.matmul(data.v[ids[xi]], Jx), (2,1)) * dt * dt
+        for fi in range(len(constraint.ids)):
+            for xi in range(len(constraint.ids)):
+                Jx = constraint.getJacobian(data, fi, xi)
+                b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(data.v[ids[xi]], Jx), (2,1)) * dt * dt
 
     # Solve the system (Ax=b)
+    # TODO - will be replaced with conjugate gradient or similar
     deltaVArray = np.linalg.solve(A, b)
        
     # Advect

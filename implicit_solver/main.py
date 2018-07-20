@@ -21,7 +21,7 @@ BEAM_CELL_X = 6 # number of cells along x
 BEAM_CELL_Y = 3 # number of cells along y
 
 STIFFNESS = 1.0 # in newtons per meter (N/m)
-DAMPING = 0.01
+DAMPING = 0.0
 PARTICLE_MASS = 0.001 # in Kg
 
 GRAVITY = (0.0, -9.81) # in meters per second^2
@@ -36,13 +36,14 @@ wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, ST
 beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
 
 simulatedObj = beam
+
 ds.draw(simulatedObj, 0)
 
 for frameId in range(1, NUM_FRAME+1): 
     print("")
     dt = FRAME_TIMESTEP / NUM_SUBSTEP
     for substepId in range(NUM_SUBSTEP): 
-        sl.semiImplicitStep(simulatedObj, dt, GRAVITY)
-        #sl.implicitStep(simulatedObj, dt, GRAVITY)
+        #sl.semiImplicitStep(simulatedObj, dt, GRAVITY)
+        sl.implicitStep(simulatedObj, dt, GRAVITY)
     ds.draw(simulatedObj, frameId)
     
