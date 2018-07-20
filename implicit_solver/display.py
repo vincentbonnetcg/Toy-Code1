@@ -22,14 +22,14 @@ def draw(data, frameId):
     ax.set_ylim(-5,5)
     
     # Draw constraints
-    linedata = []
     for constraint in data.constraints:
         ids = constraint.ids
         if (len(ids) >= 2):
+            linedata = []
             for pid in ids:
                 linedata.append(data.x[pid])
-    x, y = zip(*linedata)
-    ax.plot(x, y, 'k-', lw=1)       
+            x, y = zip(*linedata)
+            ax.plot(x, y, 'k-', lw=1)
     
     # Draw particles
     x, y = zip(*data.x)
