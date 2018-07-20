@@ -14,20 +14,20 @@ WIRE_ROOT_POS = [0., 0.] # in meters
 WIRE_LENGTH = 2.0 # in meters
 WIRE_NUM_SEGMENTS = 4
 
-BEAM_POS = [0.0, 0.0] # in meters
-BEAM_WIDTH = 4.0 # in meters
+BEAM_POS = [-4.0, 0.0] # in meters
+BEAM_WIDTH = 8.0 # in meters
 BEAM_HEIGHT = 1.0 # in meters
-BEAM_CELL_X = 5 # number of cells along x
+BEAM_CELL_X = 6 # number of cells along x
 BEAM_CELL_Y = 3 # number of cells along y
 
-STIFFNESS = 5.0 # in newtons per meter (N/m)
+STIFFNESS = 1.0 # in newtons per meter (N/m)
 DAMPING = 0.01
 PARTICLE_MASS = 0.001 # in Kg
 
 GRAVITY = (0.0, -9.81) # in meters per second^2
 NUM_FRAME = 100;
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
-NUM_SUBSTEP = 8 # number of substep per frame
+NUM_SUBSTEP = 4 # number of substep per frame
 
 '''
  Execute
