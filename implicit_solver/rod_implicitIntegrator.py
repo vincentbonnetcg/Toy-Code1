@@ -38,7 +38,6 @@ class Chain:
         self.m = np.ones(self.numVertices) * particleMass# mass
         self.im = 1.0 / self.m # inverse mass
         self.f = np.zeros((self.numVertices, 2)) #  force
-        self.dfdx = np.zeros((self.numVertices,2,2)) # jacobian  # TODO - not really good !
         
         # Set position : start the rod in a horizontal position
         axisx = np.linspace(root[0], root[0]+length, num=self.numVertices, endpoint=True)
@@ -64,7 +63,7 @@ class Chain:
 '''
 def implicitStep(chain, dt, gravity):   
     chain.f.fill(0.0)
-    chain.dfdx.fill(0.0)
+
     # Add gravity
     for i in range(chain.numVertices):
         chain.f[i] += np.multiply(gravity, chain.m[i])

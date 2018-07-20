@@ -49,7 +49,7 @@ class AnchorSpringConstraint(BaseConstraint):
     
     def computeJacobians(self, data):
         x = data.x[self.ids[0]]
-        self.dfdx[0] = numericalJacobianMatrix(springStretchForce, 0, x, self.targetPos, self.restLength, self.stiffness) * -1.0
+        self.dfdx[0] = numericalJacobian(springStretchForce, 0, x, self.targetPos, self.restLength, self.stiffness) * -1.0
         
     def getJacobian(self, data, fi, xj):
         return self.dfdx[0]
@@ -76,7 +76,7 @@ class SpringConstraint(BaseConstraint):
     def computeJacobians(self, data):
         x0 = data.x[self.ids[0]]
         x1 = data.x[self.ids[1]]
-        self.dfdx[1] = numericalJacobianMatrix(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
+        self.dfdx[1] = numericalJacobian(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
         self.dfdx[0] = self.dfdx[1] * -1
 
     def getJacobian(self, data, fi, xj):
@@ -94,8 +94,12 @@ def springStretchForce(x0, x1, rest, stiffness):
     stretch = np.linalg.norm(direction)
     if (not np.isclose(stretch, 0.0)):
          direction /= stretch
-
     return direction * ((stretch - rest) * stiffness)
+
+def elasticPotentialEnergy(x0, x1, rest, stiffness):
+    direction = x0 - x1
+    displacement = np.linalg.norm(direction) - rest
+    return 0.5 * stiffness * (displacement * displacement)
 
 def springDampingForce(x0, x1, v0, v1, damping):
     direction = x0 - x1
@@ -105,50 +109,57 @@ def springDampingForce(x0, x1, v0, v1, damping):
     relativeVelocity = v0 - v1
     return direction * (np.dot(relativeVelocity, direction) * damping)
 
-# TODO : implement spring energy
-
 '''
- Numerical Jacobian Utility Function
-  |dfx/dx   dfx/dy|
-  |dfy/dx   dfy/dy|
+ Numerical differentiation Functions
 '''
+# Private function to compute the gradient of a function with n arguments
+# Used by numericalJacobian function
+def _numericalGradient(function, argumentId, stencils, *args):
+    stencilSize = 1e-6 # stencil for the central difference - Move to numericalGradient
+    argsListR = list(args)
+    argsListL = list(args)   
+    argsListR[argumentId] = np.add(args[argumentId], stencils)
+    argsListL[argumentId] = np.subtract(args[argumentId], stencils)
+    valueR = function(*argsListR)
+    valueL = function(*argsListL)
+    gradient = (valueR - valueL) / (stencilSize * 2.0)
+    return gradient
+    
 # This function returns a jacobian matrix with the following dimension :
 # [function codomain dimension, function domain dimension]
 # 'Function codomain dimension' : dimension of the function output
 # 'Function domain dimension' : dimension of the input argumentId of the function
 # Warning : Only use scalar as argument (no integer/boolean)
-def numericalJacobianMatrix(function, argumentId, *args):
-    stencilSize = 1e-6 # stencil for the central difference
+def numericalJacobian(function, argumentId, *args):
+    stencilSize = 1e-6 # stencil for the central difference - Move to numericalGradient
     functionCodomainDimension = 1
     functionDomainDimension = 1
-    
+
     gradientList = []
 
     # compute gradients    
     if (np.isscalar(args[argumentId])):
-        functionDomainDimension = 1
-        # TODO - implement case for scalar
+        functionDomainDimension = 1        
+        gradient = _numericalGradient(function, argumentId, stencilSize, *args)        
+        gradientList.append(gradient)
     else:
         functionDomainDimension = len(args[argumentId])
-        stencil = np.zeros(functionDomainDimension)
+        stencils = np.zeros(functionDomainDimension)
         for i in range(functionDomainDimension):
-            argsListR = list(args)
-            argsListL = list(args)
-            stencil.fill(0)
-            stencil[i] = stencilSize
-            argsListR[argumentId] = np.add(args[argumentId], stencil)
-            argsListL[argumentId] = np.subtract(args[argumentId], stencil)
-            valueR = function(*argsListR)
-            valueL = function(*argsListL)
-            gradient = (valueR - valueL) / (stencilSize * 2.0)
+            stencils.fill(0)
+            stencils[i] = stencilSize
+            gradient = _numericalGradient(function, argumentId, stencils, *args)           
             gradientList.append(gradient)
 
     # assemble jacobian from gradients
     if len(gradientList)>0:
-        # TODO : implement case for scalar function
-        functionCodomainDimension = len(gradientList[0])
+        if (np.isscalar(gradientList[0])):
+            functionCodomainDimension = 1
+        else:
+            functionCodomainDimension = len(gradientList[0])
+
         jacobian = np.zeros(shape=(functionCodomainDimension, functionDomainDimension))
         for gradientId in range(len(gradientList)):
             jacobian[0:functionCodomainDimension, gradientId] = gradientList[gradientId]
-
-        return jacobian
+    
+        return jacobian            
