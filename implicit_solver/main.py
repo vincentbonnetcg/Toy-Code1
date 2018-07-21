@@ -4,7 +4,7 @@
 """
 
 import objects as obj
-import display as ds
+import render as rd
 import solvers as sl
 
 '''
@@ -29,21 +29,28 @@ NUM_FRAME = 100;
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
 
+RENDER_FOLDER_PATH = "" # specify a folder to export png files
+# Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
+
 '''
  Execute
 '''
+# Create dynamic object
 wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
 beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
 
 simulatedObj = beam
 
-ds.draw(simulatedObj, 0)
+# Run simulation and render
+dt = FRAME_TIMESTEP / NUM_SUBSTEP
+render = rd.Render()
+render.setRenderFolderPath(RENDER_FOLDER_PATH)
 
-for frameId in range(1, NUM_FRAME+1): 
-    print("")
-    dt = FRAME_TIMESTEP / NUM_SUBSTEP
+for frameId in range(1, NUM_FRAME+1):
     for substepId in range(NUM_SUBSTEP): 
         #sl.semiImplicitStep(simulatedObj, dt, GRAVITY)
         sl.implicitStep(simulatedObj, dt, GRAVITY)
-    ds.draw(simulatedObj, frameId)
-    
+
+    print("")
+    render.showCurrentFrame(simulatedObj, frameId)
+    render.exportCurrentFrame(str(frameId).zfill(4) + " .png")

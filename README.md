@@ -2,6 +2,11 @@
 Numerical Methods with Python, Numpy and Matplotlib
 
 ## . Partial Differential Equations - Numerical Integration
+**Files** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
+**Description** Implicit Solver
+
+![Implicit Solver](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver.png)
+
 **File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/spring1D_integrator.py)<br>
 **Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
 - Explicit Euler
