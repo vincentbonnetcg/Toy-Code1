@@ -35,11 +35,13 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 '''
  Execute
 '''
-# Create dynamic object
+# Create dynamic object and solver
 wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
 beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
-
 simulatedObj = beam
+
+#solver = sl.SemiImplicitSolver(GRAVITY) #- only debugging - unstable with beam
+solver = sl.ImplicitSolver(GRAVITY)
 
 # Run simulation and render
 dt = FRAME_TIMESTEP / NUM_SUBSTEP
@@ -47,9 +49,8 @@ render = rd.Render()
 render.setRenderFolderPath(RENDER_FOLDER_PATH)
 
 for frameId in range(1, NUM_FRAME+1):
-    for substepId in range(NUM_SUBSTEP): 
-        #sl.semiImplicitStep(simulatedObj, dt, GRAVITY)
-        sl.implicitStep(simulatedObj, dt, GRAVITY)
+    for substepId in range(NUM_SUBSTEP):
+        solver.step(simulatedObj, dt)
 
     print("")
     render.showCurrentFrame(simulatedObj, frameId)
