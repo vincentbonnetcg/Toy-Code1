@@ -18,6 +18,7 @@ class BaseConstraint:
         # Precomputed jacobians.
         # TODO - should improve that to have better support of constraint with more than two particles
         self.dfdx = np.zeros((len(ids),2,2))
+        self.dfdv = np.zeros((len(ids),2,2))
 
     def applyForces(self, data):
         for i in range(len(self.ids)):
@@ -29,8 +30,11 @@ class BaseConstraint:
     def computeJacobians(self, data):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'computeJacobians'")
 
-    def getJacobian(self, data, fi, xj):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'getJacobian'")
+    def getJacobianDx(self, data, fi, xj):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'getJacobianDx'")
+        
+    def getJacobianDv(self, data, fi, xj):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'getJacobianDv'")
 
 '''
  Anchor Spring Constraint
@@ -51,10 +55,15 @@ class AnchorSpringConstraint(BaseConstraint):
     
     def computeJacobians(self, data):
         x = data.x[self.ids[0]]
+        v = data.v[self.ids[0]]
         self.dfdx[0] = numericalJacobian(springStretchForce, 0, x, self.targetPos, self.restLength, self.stiffness) * -1.0
+        self.dfdv[0] = numericalJacobian(springDampingForce, 2, x, self.targetPos, v, (0,0), self.damping) * -1.0
         
-    def getJacobian(self, data, fi, xj):
+    def getJacobianDx(self, data, fi, xj):
         return self.dfdx[0]
+
+    def getJacobianDv(self, data, fi, xj):
+        return self.dfdv[0]
 
 '''
  Spring Constraint
@@ -78,15 +87,26 @@ class SpringConstraint(BaseConstraint):
     def computeJacobians(self, data):
         x0 = data.x[self.ids[0]]
         x1 = data.x[self.ids[1]]
+        v0 = data.v[self.ids[0]]
+        v1 = data.v[self.ids[1]]
         self.dfdx[1] = numericalJacobian(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
         self.dfdx[0] = self.dfdx[1] * -1
+        self.dfdv[1] = numericalJacobian(springDampingForce, 2, x0, x1, v0, v1, self.damping)
+        self.dfdv[0] = self.dfdv[1] * -1
 
-    def getJacobian(self, data, fi, xj):
+    def getJacobianDx(self, data, fi, xj):
         #(df/dx)ji = (df/dx)ij = Jx 
         #(df/dx)ii = (df/dx)jj = -Jx
         if (fi == xj):
             return self.dfdx[0]
         return self.dfdx[1]
+
+    def getJacobianDv(self, data, fi, xj):
+        #(df/dv)ji = (df/dv)ij = Jx 
+        #(df/dv)ii = (df/dv)jj = -Jx
+        if (fi == xj):
+            return self.dfdv[0]
+        return self.dfdv[1]
 
 '''
  Constraint Utility Functions

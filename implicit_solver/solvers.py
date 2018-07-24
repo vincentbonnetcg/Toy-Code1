@@ -18,7 +18,7 @@ class BaseSolver:
 '''
  Implicit Step
  Solve : 
-     (M - h^2 * df/dx) * deltaV = h * (fo + h * df/dx * v0)
+     (M - h * df/dv - h^2 * df/dx) * deltaV = h * (fo + h * df/dx * v0)
        A = (M - h^2 * df/dx)
        b = h * (fo + h * df/dx * v0)
      => A * deltaV = b <=> deltaV = A^-1 * b    
@@ -44,7 +44,7 @@ class ImplicitSolver(BaseSolver):
             constraint.applyForces(data)
     
         # Assemble the system (Ax=b) where x is the change of velocity
-        # Assemble A = (M - h^2 * df/dx)
+        # Assemble A = (M - h * df/dv - h^2 * df/dx)
         A = np.zeros((data.numParticles * 2, data.numParticles * 2))
         for i in range(data.numParticles):
             massMatrix = np.matlib.identity(2) * data.m[i]
@@ -55,10 +55,20 @@ class ImplicitSolver(BaseSolver):
             ids = constraint.ids
             for fi in range(len(constraint.ids)):
                 for xj in range(len(constraint.ids)):
-                    Jx = constraint.getJacobian(data, fi, xj)
+                    Jx = constraint.getJacobianDx(data, fi, xj)
                     dfdxMatrix[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
     
         A += dfdxMatrix
+        
+        dfdvMatrix = np.zeros((data.numParticles * 2, data.numParticles * 2))
+        for constraint in data.constraints:
+            ids = constraint.ids
+            for fi in range(len(constraint.ids)):
+                for vj in range(len(constraint.ids)):
+                    Jv = constraint.getJacobianDv(data, fi, vj)
+                    dfdvMatrix[ids[fi]*2:ids[fi]*2+2,ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
+        
+        A += dfdvMatrix
         
         # Assemble b = h *( f0 + h * df/dx * v0)
         # (f0 * h) + (df/dx * v0 * h * h)
@@ -70,7 +80,7 @@ class ImplicitSolver(BaseSolver):
             ids = constraint.ids
             for fi in range(len(constraint.ids)):
                 for xi in range(len(constraint.ids)):
-                    Jx = constraint.getJacobian(data, fi, xi)
+                    Jx = constraint.getJacobianDx(data, fi, xi)
                     b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(data.v[ids[xi]], Jx), (2,1)) * dt * dt
     
         # Solve the system (Ax=b)
