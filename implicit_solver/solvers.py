@@ -4,15 +4,23 @@
 """
 
 import numpy as np
+import profiler as profiler
 
 '''
  Base Solver
 '''
 class BaseSolver:
-    def __init__(self, gravity):
+    def __init__(self, gravity, dt, stepsPerFrame):
         self.gravity = gravity
-        
-    def step(self, data, dt, gravity):
+        self.dt = dt # delta time per step
+        self.stepsPerFrame = stepsPerFrame # number of step per frame
+
+    @profiler.timeit
+    def solveFrame(self, data):
+        for substepId in range(self.stepsPerFrame):
+            self.step(data, self.dt)
+
+    def step(self, data, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'step'")
 
 '''
@@ -27,8 +35,8 @@ class BaseSolver:
      x = x + deltaX
 '''
 class ImplicitSolver(BaseSolver):
-    def __init__(self, gravity):
-        BaseSolver.__init__(self, gravity)
+    def __init__(self, gravity, dt, stepsPerFrame):
+        BaseSolver.__init__(self, gravity, dt, stepsPerFrame)
 
     def step(self, data, dt):   
         data.f.fill(0.0)
@@ -98,8 +106,8 @@ class ImplicitSolver(BaseSolver):
  Semi Implicit Step
 '''
 class SemiImplicitSolver(BaseSolver):
-    def __init__(self, gravity):
-        BaseSolver.__init__(self, gravity)
+    def __init__(self, gravity, dt, stepsPerFrame):
+        BaseSolver.__init__(self, gravity, dt, stepsPerFrame)
 
     def step(self, data, dt):
         data.f.fill(0.0)

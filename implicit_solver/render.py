@@ -4,6 +4,7 @@
 """
 
 import matplotlib.pyplot as plt
+import profiler as profiler
 
 class Render:
     
@@ -20,7 +21,7 @@ class Render:
         self.renderFolderPath = path
     
     # Render in the current figure
-    def render(self, data, frameId):
+    def _render(self, data, frameId):
         # Reset figure and create subplot
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
@@ -48,12 +49,14 @@ class Render:
         self.ax.plot(x, y, 'go')
 
     # Draw and display single frame
+    @profiler.timeit
     def showCurrentFrame(self, data, frameId):
         self.fig = plt.figure()
-        self.render(data, frameId)
+        self._render(data, frameId)
         plt.show()
         
     # Export frame
+    @profiler.timeit
     def exportCurrentFrame(self, filename):
         if len(filename) > 0 and len(self.renderFolderPath) > 0:
             self.fig.savefig(self.renderFolderPath + "/" + filename)
