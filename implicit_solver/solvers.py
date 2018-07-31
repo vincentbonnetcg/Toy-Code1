@@ -19,9 +19,17 @@ class BaseSolver:
     def solveFrame(self, data):
         for substepId in range(self.stepsPerFrame):
             self.step(data, self.dt)
-
+            
     def step(self, data, dt):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'step'")
+        self.assembleSystem(data, dt)
+        self.solveSystem(data, dt)
+
+    def assembleSystem(self, data, dt):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'assembleSystem'")
+
+    def solveSystem(self, data, dt):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solveSystem'")
+
 
 '''
  Implicit Step
@@ -37,8 +45,12 @@ class BaseSolver:
 class ImplicitSolver(BaseSolver):
     def __init__(self, gravity, dt, stepsPerFrame):
         BaseSolver.__init__(self, gravity, dt, stepsPerFrame)
+        # used to store system Ax=b
+        self.A = None
+        self.b = None
 
-    def step(self, data, dt):   
+    @profiler.timeit
+    def assembleSystem(self, data, dt):   
         data.f.fill(0.0)
     
         # Add gravity
@@ -53,10 +65,10 @@ class ImplicitSolver(BaseSolver):
     
         # Assemble the system (Ax=b) where x is the change of velocity
         # Assemble A = (M - h * df/dv - h^2 * df/dx)
-        A = np.zeros((data.numParticles * 2, data.numParticles * 2))
+        self.A = np.zeros((data.numParticles * 2, data.numParticles * 2))
         for i in range(data.numParticles):
             massMatrix = np.matlib.identity(2) * data.m[i]
-            A[i*2:i*2+2,i*2:i*2+2] = massMatrix
+            self.A[i*2:i*2+2,i*2:i*2+2] = massMatrix
         
         dfdxMatrix = np.zeros((data.numParticles * 2, data.numParticles * 2))
         for constraint in data.constraints:
@@ -66,7 +78,7 @@ class ImplicitSolver(BaseSolver):
                     Jx = constraint.getJacobianDx(data, fi, xj)
                     dfdxMatrix[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
     
-        A += dfdxMatrix
+        self.A += dfdxMatrix
         
         dfdvMatrix = np.zeros((data.numParticles * 2, data.numParticles * 2))
         for constraint in data.constraints:
@@ -76,24 +88,26 @@ class ImplicitSolver(BaseSolver):
                     Jv = constraint.getJacobianDv(data, fi, vj)
                     dfdvMatrix[ids[fi]*2:ids[fi]*2+2,ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
         
-        A += dfdvMatrix
+        self.A += dfdvMatrix
         
         # Assemble b = h *( f0 + h * df/dx * v0)
         # (f0 * h) + (df/dx * v0 * h * h)
-        b = np.zeros((data.numParticles * 2, 1))
+        self.b = np.zeros((data.numParticles * 2, 1))
         for i in range(data.numParticles):
-            b[i*2:i*2+2] += (np.reshape(data.f[i], (2,1)) * dt)
+            self.b[i*2:i*2+2] += (np.reshape(data.f[i], (2,1)) * dt)
         
         for constraint in data.constraints:
             ids = constraint.ids
             for fi in range(len(constraint.ids)):
                 for xi in range(len(constraint.ids)):
                     Jx = constraint.getJacobianDx(data, fi, xi)
-                    b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(data.v[ids[xi]], Jx), (2,1)) * dt * dt
-    
+                    self.b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(data.v[ids[xi]], Jx), (2,1)) * dt * dt
+
+    @profiler.timeit
+    def solveSystem(self, data, dt):
         # Solve the system (Ax=b)
         # TODO - will be replaced with conjugate gradient or similar
-        deltaVArray = np.linalg.solve(A, b)
+        deltaVArray = np.linalg.solve(self.A, self.b)
            
         # Advect
         for i in range(data.numParticles):
@@ -101,6 +115,7 @@ class ImplicitSolver(BaseSolver):
             deltaX = (data.v[i] + deltaV) * dt
             data.v[i] += deltaV
             data.x[i] += deltaX
+        
 
 '''
  Semi Implicit Step
@@ -109,7 +124,8 @@ class SemiImplicitSolver(BaseSolver):
     def __init__(self, gravity, dt, stepsPerFrame):
         BaseSolver.__init__(self, gravity, dt, stepsPerFrame)
 
-    def step(self, data, dt):
+    @profiler.timeit
+    def assembleSystem(self, data, dt):
         data.f.fill(0.0)
         # Add gravity
         for i in range(data.numParticles):
@@ -119,7 +135,9 @@ class SemiImplicitSolver(BaseSolver):
         for constraint in data.constraints:
             constraint.computeForces(data)
             constraint.applyForces(data)
-    
+
+    @profiler.timeit
+    def solveSystem(self, data, dt):
         # Integrator
         for i in range(data.numParticles):
             data.v[i] += data.f[i] * data.im[i] * dt
