@@ -5,6 +5,7 @@
 
 import numpy as np
 import profiler as profiler
+import scipy.sparse as sparse
 
 '''
  Base Solver
@@ -65,10 +66,12 @@ class ImplicitSolver(BaseSolver):
     
         # Assemble the system (Ax=b) where x is the change of velocity
         # Assemble A = (M - h * df/dv - h^2 * df/dx)
-        self.A = np.zeros((data.numParticles * 2, data.numParticles * 2))
+        #self.A = np.zeros((data.numParticles * 2, data.numParticles * 2))
+        # create 'row-based linked list' sparse matrix for simple sparse matrix construction
+        A = sparse.lil_matrix((data.numParticles * 2, data.numParticles * 2))
         for i in range(data.numParticles):
             massMatrix = np.matlib.identity(2) * data.m[i]
-            self.A[i*2:i*2+2,i*2:i*2+2] = massMatrix
+            A[i*2:i*2+2,i*2:i*2+2] = massMatrix
         
         dfdxMatrix = np.zeros((data.numParticles * 2, data.numParticles * 2))
         for constraint in data.constraints:
@@ -78,7 +81,7 @@ class ImplicitSolver(BaseSolver):
                     Jx = constraint.getJacobianDx(data, fi, xj)
                     dfdxMatrix[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
     
-        self.A += dfdxMatrix
+        A += dfdxMatrix
         
         dfdvMatrix = np.zeros((data.numParticles * 2, data.numParticles * 2))
         for constraint in data.constraints:
@@ -88,7 +91,7 @@ class ImplicitSolver(BaseSolver):
                     Jv = constraint.getJacobianDv(data, fi, vj)
                     dfdvMatrix[ids[fi]*2:ids[fi]*2+2,ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
         
-        self.A += dfdvMatrix
+        A += dfdvMatrix
         
         # Assemble b = h *( f0 + h * df/dx * v0)
         # (f0 * h) + (df/dx * v0 * h * h)
@@ -102,13 +105,15 @@ class ImplicitSolver(BaseSolver):
                 for xi in range(len(constraint.ids)):
                     Jx = constraint.getJacobianDx(data, fi, xi)
                     self.b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(data.v[ids[xi]], Jx), (2,1)) * dt * dt
+                    
+        # Convert matrix to csr matrix (Compressed Sparse Row format) for efficiency reasons
+        self.A = A.tocsr()
 
     @profiler.timeit
     def solveSystem(self, data, dt):
         # Solve the system (Ax=b)
-        # TODO - will be replaced with conjugate gradient or similar
-        deltaVArray = np.linalg.solve(self.A, self.b)
-           
+        cgResult = sparse.linalg.cg(self.A, self.b)
+        deltaVArray = cgResult[0]
         # Advect
         for i in range(data.numParticles):
             deltaV = [float(deltaVArray[i*2]), float(deltaVArray[i*2+1])]
