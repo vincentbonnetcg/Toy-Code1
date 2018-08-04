@@ -56,8 +56,12 @@ class AnchorSpringConstraint(BaseConstraint):
     def computeJacobians(self, data):
         x = data.x[self.ids[0]]
         v = data.v[self.ids[0]]
-        self.dfdx[0] = numericalJacobian(springStretchForce, 0, x, self.targetPos, self.restLength, self.stiffness)
-        self.dfdv[0] = numericalJacobian(springDampingForce, 2, x, self.targetPos, v, (0,0), self.damping)
+        # Numerical jacobians
+        #self.dfdx[0] = numericalJacobian(springStretchForce, 0, x, self.targetPos, self.restLength, self.stiffness)
+        #self.dfdv[0] = numericalJacobian(springDampingForce, 2, x, self.targetPos, v, (0,0), self.damping)
+        # Analytic jacobians
+        self.dfdx[0] = springStretchJacobian(x, self.targetPos, self.restLength, self.stiffness)
+        self.dfdv[0] = springDampingJacobian(x, self.targetPos, v, (0, 0), self.damping)
         
     def getJacobianDx(self, data, fi, xj):
         return self.dfdx[0]
@@ -88,10 +92,14 @@ class SpringConstraint(BaseConstraint):
         x0 = data.x[self.ids[0]]
         x1 = data.x[self.ids[1]]
         v0 = data.v[self.ids[0]]
-        v1 = data.v[self.ids[1]]       
-        self.dfdx[0] = numericalJacobian(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
+        v1 = data.v[self.ids[1]]     
+        # Numerical jacobians
+        #self.dfdx[0] = numericalJacobian(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
+        #self.dfdv[0] = numericalJacobian(springDampingForce, 2, x0, x1, v0, v1, self.damping)
+        # Analytic jacobians
+        self.dfdx[0] = springStretchJacobian(x0, x1, self.restLength, self.stiffness)
+        self.dfdv[0] = springDampingJacobian(x0, x1, v0, v1, self.damping)
         self.dfdx[1] = self.dfdx[0] * -1
-        self.dfdv[0] = numericalJacobian(springDampingForce, 2, x0, x1, v0, v1, self.damping)
         self.dfdv[1] = self.dfdv[1] * -1
 
     def getJacobianDx(self, data, fi, xj):
@@ -111,6 +119,36 @@ class SpringConstraint(BaseConstraint):
 '''
  Constraint Utility Functions
 '''
+# direction = normalized(x0-x1)
+# stretch = norm(direction)
+# A = outerProduct(direction, direction)
+# I = identity matrix
+# J =  -stiffness * [(1 - rest / stretch)(I - A) + A]
+def springStretchJacobian(x0, x1, rest, stiffness):
+    jacobian = np.zeros(shape=(2, 2))
+    direction = x0 - x1
+    stretch = np.linalg.norm(direction)
+    I = np.identity(2)
+    if (not np.isclose(stretch, 0.0)):
+        direction /= stretch
+        A = np.outer(direction, direction)
+        jacobian = -1.0 * stiffness * ((1 - (rest / stretch)) * (I - A) + A)
+    else:
+        jacobian = -1.0 * stiffness * I
+        
+    return jacobian
+
+def springDampingJacobian(x0, x1, v0, v1, damping):
+    jacobian = np.zeros(shape=(2, 2))
+    direction = x1 - x0
+    stretch = np.linalg.norm(direction)
+    if (not np.isclose(stretch, 0.0)):
+        direction /= stretch
+        A = np.outer(direction, direction)
+        jacobian = -1.0 *damping * A
+    
+    return jacobian
+
 def springStretchForce(x0, x1, rest, stiffness):
     direction = x1 - x0
     stretch = np.linalg.norm(direction)
@@ -130,6 +168,7 @@ def springDampingForce(x0, x1, v0, v1, damping):
         direction /= stretch
     relativeVelocity = v1 - v0
     return direction * (np.dot(relativeVelocity, direction) * damping)
+
 
 '''
  Numerical differentiation Functions
