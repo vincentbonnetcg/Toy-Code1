@@ -13,27 +13,31 @@ class BaseConstraint:
     def __init__(self, stiffness, damping, ids):
         self.stiffness = stiffness
         self.damping = damping
-        self.ids = ids
         self.f = np.zeros((len(ids), 2))
+        # Particle identifications
+        self.objectIds = np.zeros(len(ids), dtype=int) # set after the constraint is added to the scene
+        self.globalIds = np.copy(ids) # set after the constraint is added to the scene
+        self.ids = ids # particleId
         # Precomputed jacobians.
         # TODO - should improve that to have better support of constraint with more than two particles
         self.dfdx = np.zeros((len(ids),2,2))
         self.dfdv = np.zeros((len(ids),2,2))
 
-    def applyForces(self, data):
+    def applyForces(self, scene):      
         for i in range(len(self.ids)):
+            data = scene.objects[self.objectIds[i]] 
             data.f[self.ids[i]] += self.f[i]
 
-    def computeForces(self, data):
+    def computeForces(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'computeForces'")
 
-    def computeJacobians(self, data):
+    def computeJacobians(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'computeJacobians'")
 
-    def getJacobianDx(self, data, fi, xj):
+    def getJacobianDx(self, fi, xj):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'getJacobianDx'")
         
-    def getJacobianDv(self, data, fi, xj):
+    def getJacobianDv(self, fi, xj):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'getJacobianDv'")
 
 '''
@@ -46,14 +50,16 @@ class AnchorSpringConstraint(BaseConstraint):
        self.restLength = np.linalg.norm(targetPos - data.x[self.ids[0]])
        self.targetPos = targetPos
 
-    def computeForces(self, data):
+    def computeForces(self, scene):
+        data = scene.objects[self.objectIds[0]]
         x = data.x[self.ids[0]]
         v = data.v[self.ids[0]]
         force = springStretchForce(x, self.targetPos, self.restLength, self.stiffness)
         force += springDampingForce(x, self.targetPos, v, (0,0), self.damping)
         self.f[0] = force
     
-    def computeJacobians(self, data):
+    def computeJacobians(self, scene):
+        data = scene.objects[self.objectIds[0]]
         x = data.x[self.ids[0]]
         v = data.v[self.ids[0]]
         # Numerical jacobians
@@ -63,10 +69,10 @@ class AnchorSpringConstraint(BaseConstraint):
         self.dfdx[0] = springStretchJacobian(x, self.targetPos, self.restLength, self.stiffness)
         self.dfdv[0] = springDampingJacobian(x, self.targetPos, v, (0, 0), self.damping)
         
-    def getJacobianDx(self, data, fi, xj):
+    def getJacobianDx(self, fi, xj):
         return self.dfdx[0]
 
-    def getJacobianDv(self, data, fi, xj):
+    def getJacobianDv(self, fi, xj):
         return self.dfdv[0]
 
 '''
@@ -76,23 +82,29 @@ class AnchorSpringConstraint(BaseConstraint):
 class SpringConstraint(BaseConstraint):
     def __init__(self, stiffness, damping, ids, data):
         BaseConstraint.__init__(self, stiffness, damping, ids)
-        self.restLength = np.linalg.norm(data.x[ids[0]] - data.x[ids[1]])
+        data0 = data
+        data1 = data
+        self.restLength = np.linalg.norm(data0.x[ids[0]] - data1.x[ids[1]])
 
-    def computeForces(self, data):
-        x0 = data.x[self.ids[0]]
-        x1 = data.x[self.ids[1]]
-        v0 = data.v[self.ids[0]]
-        v1 = data.v[self.ids[1]]
+    def computeForces(self, scene):
+        data0 = scene.objects[self.objectIds[0]]
+        data1 = scene.objects[self.objectIds[1]]
+        x0 = data0.x[self.ids[0]]
+        x1 = data1.x[self.ids[1]]
+        v0 = data0.v[self.ids[0]]
+        v1 = data1.v[self.ids[1]]
         force = springStretchForce(x0, x1, self.restLength, self.stiffness)
         force += springDampingForce(x0, x1, v0, v1, self.damping)
         self.f[0] = force
         self.f[1] = force * -1
 
-    def computeJacobians(self, data):
-        x0 = data.x[self.ids[0]]
-        x1 = data.x[self.ids[1]]
-        v0 = data.v[self.ids[0]]
-        v1 = data.v[self.ids[1]]     
+    def computeJacobians(self, scene):
+        data0 = scene.objects[self.objectIds[0]]
+        data1 = scene.objects[self.objectIds[1]]
+        x0 = data0.x[self.ids[0]]
+        x1 = data1.x[self.ids[1]]
+        v0 = data0.v[self.ids[0]]
+        v1 = data1.v[self.ids[1]]     
         # Numerical jacobians
         #self.dfdx[0] = numericalJacobian(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
         #self.dfdv[0] = numericalJacobian(springDampingForce, 2, x0, x1, v0, v1, self.damping)
@@ -102,14 +114,14 @@ class SpringConstraint(BaseConstraint):
         self.dfdx[1] = self.dfdx[0] * -1
         self.dfdv[1] = self.dfdv[1] * -1
 
-    def getJacobianDx(self, data, fi, xj):
+    def getJacobianDx(self, fi, xj):
         #(df/dx)ji = (df/dx)ij = Jx 
         #(df/dx)ii = (df/dx)jj = -Jx
         if (fi == xj):
             return self.dfdx[0]
         return self.dfdx[1]
 
-    def getJacobianDv(self, data, fi, xj):
+    def getJacobianDv(self, fi, xj):
         #(df/dv)ji = (df/dv)ij = Jx 
         #(df/dv)ii = (df/dv)jj = -Jx
         if (fi == xj):

@@ -7,6 +7,7 @@ import objects as obj
 import render as rd
 import solvers as sl
 import profiler as profiler
+import scene as sc
 
 '''
  Global Constants
@@ -39,7 +40,11 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Create dynamic object and solver
 wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
 beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
-simulatedObj = beam
+
+# Scene
+scene = sc.Scene(GRAVITY)
+#scene.addObject(wire)
+scene.addObject(beam)
 
 #solver = sl.SemiImplicitSolver(GRAVITY, FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam
 solver = sl.ImplicitSolver(GRAVITY, FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
@@ -52,10 +57,10 @@ profiler = profiler.ProfilerSingleton()
 for frameId in range(1, NUM_FRAME+1):
     profiler.clearLogs()
     
-    solver.solveFrame(simulatedObj)
+    solver.solveFrame(scene)
 
     print("")
-    render.showCurrentFrame(simulatedObj, frameId)
+    render.showCurrentFrame(scene, frameId)
     render.exportCurrentFrame(str(frameId).zfill(4) + " .png")
     
     profiler.printLogs()

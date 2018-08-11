@@ -21,7 +21,7 @@ class Render:
         self.renderFolderPath = path
     
     # Render in the current figure
-    def _render(self, data, frameId):
+    def _render(self, scene, frameId):
         # Reset figure and create subplot
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
@@ -35,24 +35,26 @@ class Render:
         plt.ylabel('y (in meters)')
         
         # Draw constraints
-        for constraint in data.constraints:
-            ids = constraint.ids
-            if (len(ids) >= 2):
-                linedata = []
-                for pid in ids:
-                    linedata.append(data.x[pid])
-                x, y = zip(*linedata)
-                self.ax.plot(x, y, 'k-', lw=1)
+        for data in scene.objects:
+            for constraint in data.constraints:              
+                ids = constraint.ids
+                if (len(ids) >= 2):
+                    linedata = []
+                    for pid in ids:
+                        linedata.append(data.x[pid])
+                    x, y = zip(*linedata)
+                    self.ax.plot(x, y, 'k-', lw=1)
         
         # Draw particles
-        x, y = zip(*data.x)
-        self.ax.plot(x, y, 'go')
+        for data in scene.objects:
+            x, y = zip(*data.x)
+            self.ax.plot(x, y, 'go')
 
     # Draw and display single frame
     @profiler.timeit
-    def showCurrentFrame(self, data, frameId):
+    def showCurrentFrame(self, scene, frameId):
         self.fig = plt.figure()
-        self._render(data, frameId)
+        self._render(scene, frameId)
         plt.show()
         
     # Export frame

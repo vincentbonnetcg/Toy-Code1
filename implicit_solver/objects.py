@@ -18,9 +18,18 @@ class BaseObject:
         self.m = np.ones(self.numParticles) * particleMass# mass
         self.im = 1.0 / self.m # inverse mass
         self.f = np.zeros((self.numParticles, 2)) #  force
+        self.globalOffset = 0 # set after the constraint is added to the scene
+        self.objectId = 0 # set after the constraint is added to the scene
         
         # Initialize constraints
         self.constraints = []
+    
+    def setGlobalIds(self, objectId, globalOffset):
+        self.objectId = objectId
+        self.globalOffset = globalOffset
+        for constraint in self.constraints:
+            constraint.objectIds.fill(objectId)
+            constraint.globalIds = np.add(constraint.ids, globalOffset)
 
 '''
  Wire
