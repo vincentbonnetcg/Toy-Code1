@@ -47,7 +47,7 @@ class BaseConstraint:
 class AnchorSpringConstraint(BaseConstraint):
     def __init__(self, stiffness, damping, ids, targetPos, data):
        BaseConstraint.__init__(self, stiffness, damping, ids)
-       self.restLength = np.linalg.norm(targetPos - data.x[self.ids[0]])
+       self.restLength = np.linalg.norm(targetPos - data[0].x[self.ids[0]])
        self.targetPos = targetPos
 
     def computeForces(self, scene):
@@ -82,9 +82,7 @@ class AnchorSpringConstraint(BaseConstraint):
 class SpringConstraint(BaseConstraint):
     def __init__(self, stiffness, damping, ids, data):
         BaseConstraint.__init__(self, stiffness, damping, ids)
-        data0 = data
-        data1 = data
-        self.restLength = np.linalg.norm(data0.x[ids[0]] - data1.x[ids[1]])
+        self.restLength = np.linalg.norm(data[0].x[ids[0]] - data[1].x[ids[1]])
 
     def computeForces(self, scene):
         data0 = scene.objects[self.objectIds[0]]

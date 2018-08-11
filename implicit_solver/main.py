@@ -12,7 +12,7 @@ import scene as sc
 '''
  Global Constants
 '''
-WIRE_ROOT_POS = [0., 0.] # in meters
+WIRE_ROOT_POS = [0., -1.] # in meters
 WIRE_LENGTH = 2.0 # in meters
 WIRE_NUM_SEGMENTS = 4
 
@@ -43,11 +43,11 @@ beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PAR
 
 # Scene
 scene = sc.Scene(GRAVITY)
-#scene.addObject(wire)
+scene.addObject(wire)
 scene.addObject(beam)
 
 #solver = sl.SemiImplicitSolver(GRAVITY, FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam
-solver = sl.ImplicitSolver(GRAVITY, FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
+solver = sl.ImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
 
 # Run simulation and render
 render = rd.Render()

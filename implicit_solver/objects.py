@@ -45,9 +45,9 @@ class Wire(BaseObject):
             self.x[i] = (axisx[i], root[1])
 
         # Initialize constraints
-        self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [0], root, self))
+        self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [0], root, [self]))
         for i in range(self.numEdges):
-            self.constraints.append(cn.SpringConstraint(stiffness, damping, [i, i+1], self))
+            self.constraints.append(cn.SpringConstraint(stiffness, damping, [i, i+1], [self, self]))
 
 '''
  Beam
@@ -75,20 +75,20 @@ class Beam(BaseObject):
             for i in range(cellX):
                 pids = cell_to_pids(i, j)
                 
-                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[1], pids[3]], self))
+                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[1], pids[3]], [self, self]))
                 if (i == 0):
-                    self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[0], pids[2]], self))
+                    self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[0], pids[2]], [self, self]))
                 
-                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[2], pids[3]], self))
+                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[2], pids[3]], [self, self]))
                 if (j == 0): 
-                    self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[0], pids[1]], self))
+                    self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[0], pids[1]], [self, self]))
                     
-                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[0], pids[3]], self))
-                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[1], pids[2]], self))
+                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[0], pids[3]], [self, self]))
+                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[1], pids[2]], [self, self]))
 
         # Initialize anchor constraints
         for pid in range(0, (cellX+1)*cellY+1, cellX+1):
-            self.constraints.append(cn.AnchorSpringConstraint(stiffness * 100, damping, [pid], np.copy(self.x[pid]), self))
-            self.constraints.append(cn.AnchorSpringConstraint(stiffness * 100, damping, [pid+cellX], np.copy(self.x[pid+cellX]), self))
+            self.constraints.append(cn.AnchorSpringConstraint(stiffness * 100, damping, [pid], np.copy(self.x[pid]), [self]))
+            self.constraints.append(cn.AnchorSpringConstraint(stiffness * 100, damping, [pid+cellX], np.copy(self.x[pid+cellX]), [self]))
             
             

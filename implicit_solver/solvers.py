@@ -11,8 +11,7 @@ import scipy.sparse as sparse
  Base Solver
 '''
 class BaseSolver:
-    def __init__(self, gravity, dt, stepsPerFrame):
-        self.gravity = gravity # will be in scene !
+    def __init__(self, dt, stepsPerFrame):
         self.dt = dt # delta time per step
         self.stepsPerFrame = stepsPerFrame # number of step per frame
 
@@ -44,8 +43,8 @@ class BaseSolver:
      x = x + deltaX
 '''
 class ImplicitSolver(BaseSolver):
-    def __init__(self, gravity, dt, stepsPerFrame):
-        BaseSolver.__init__(self, gravity, dt, stepsPerFrame)
+    def __init__(self, dt, stepsPerFrame):
+        BaseSolver.__init__(self, dt, stepsPerFrame)
         # used to store system Ax=b
         self.A = None
         self.b = None
@@ -56,7 +55,7 @@ class ImplicitSolver(BaseSolver):
         for data in scene.objects:
             data.f.fill(0.0)
             for i in range(data.numParticles):
-                data.f[i] += np.multiply(self.gravity, data.m[i])
+                data.f[i] += np.multiply(scene.gravity, data.m[i])
 
         # Prepare forces and jacobians
         for data in scene.objects:
@@ -66,48 +65,47 @@ class ImplicitSolver(BaseSolver):
                 constraint.applyForces(scene)
         
         # Assemble the system (Ax=b) where x is the change of velocity
-        #self.A = np.zeros((data.numParticles * 2, data.numParticles * 2))
-        # create 'row-based linked list' sparse matrix for simple sparse matrix construction
         totalParticles = scene.numParticles()
-        A = sparse.lil_matrix((totalParticles * 2, totalParticles * 2))
-        dfdxMatrix = np.zeros((totalParticles * 2, totalParticles * 2))
-        dfdvMatrix = np.zeros((totalParticles * 2, totalParticles * 2))
+        # attempt to create 'row-based linked list' sparse matrix for simple sparse matrix construction
+        # with A = sparse.lil_matrix((totalParticles * 2, totalParticles * 2)) 
+        # ... But building a sparse matrix with 'row-based linked list' is too slow, hence the use of dense matrix for now
+        denseA = np.zeros((totalParticles * 2, totalParticles * 2))
         self.b = np.zeros((totalParticles * 2, 1))
         
-        # Assemble A = (M - h * df/dv - h^2 * df/dx)
+        ## Assemble A = (M - h * df/dv - h^2 * df/dx)
+        # set mass matrix
         for data in scene.objects:
             for i in range(data.numParticles):
                 massMatrix = np.matlib.identity(2) * data.m[i]
                 ids = data.globalOffset + i
-                A[ids*2:ids*2+2,ids*2:ids*2+2] = massMatrix
+                denseA[ids*2:ids*2+2,ids*2:ids*2+2] = massMatrix
         
+        # set h * df/dv
         for data in scene.objects:
             for constraint in data.constraints:
                 ids = constraint.globalIds
                 for fi in range(len(ids)):
                     for xj in range(len(ids)):
                         Jx = constraint.getJacobianDx(fi, xj)
-                        dfdxMatrix[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
-    
-        A += dfdxMatrix
+                        denseA[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
         
+        # set h^2 * df/dx
         for data in scene.objects:
             for constraint in data.constraints:
                 ids = constraint.globalIds
                 for fi in range(len(ids)):
                     for vj in range(len(ids)):
                         Jv = constraint.getJacobianDv(fi, vj)
-                        dfdvMatrix[ids[fi]*2:ids[fi]*2+2,ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
+                        denseA[ids[fi]*2:ids[fi]*2+2,ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
         
-        A += dfdvMatrix
-        
-        # Assemble b = h *( f0 + h * df/dx * v0)
-        # (f0 * h) + (df/dx * v0 * h * h)
+        ## Assemble b = h *( f0 + h * df/dx * v0)
+        # set (f0 * h)
         for data in scene.objects:
             for i in range(data.numParticles):
                 ids = data.globalOffset + i
                 self.b[ids*2:ids*2+2] += (np.reshape(data.f[i], (2,1)) * dt)
-        
+
+        # set (df/dx * v0 * h * h)
         for constraint in data.constraints:
             ids = constraint.globalIds
             localIds = constraint.ids
@@ -115,9 +113,9 @@ class ImplicitSolver(BaseSolver):
                 for xi in range(len(ids)):
                     Jx = constraint.getJacobianDx(fi, xi)
                     self.b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(data.v[localIds[xi]], Jx), (2,1)) * dt * dt
-                    
+
         # Convert matrix A to csr matrix (Compressed Sparse Row format) for efficiency reasons
-        self.A = A.tocsr()
+        self.A = sparse.csr_matrix(denseA)
 
     @profiler.timeit
     def solveSystem(self, scene, dt):
@@ -137,8 +135,8 @@ class ImplicitSolver(BaseSolver):
  Semi Implicit Step
 '''
 class SemiImplicitSolver(BaseSolver):
-    def __init__(self, gravity, dt, stepsPerFrame):
-        BaseSolver.__init__(self, gravity, dt, stepsPerFrame)
+    def __init__(self, dt, stepsPerFrame):
+        BaseSolver.__init__(self, dt, stepsPerFrame)
 
     @profiler.timeit
     def assembleSystem(self, scene, dt):
@@ -146,7 +144,7 @@ class SemiImplicitSolver(BaseSolver):
         for data in scene.objects:
             data.f.fill(0.0)
             for i in range(data.numParticles):
-                data.f[i] += np.multiply(self.gravity, data.m[i])
+                data.f[i] += np.multiply(scene.gravity, data.m[i])
     
         # Compute and add internal forces
         for data in scene.objects:
