@@ -1,5 +1,5 @@
 # Numerical Bric-a-Brac
-Numerical Methods with Python, Numpy and Matplotlib
+Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Matplotlib ...)
 
 ## . Partial Differential Equations - Numerical Integration
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
@@ -26,6 +26,8 @@ Numerical Methods with Python, Numpy and Matplotlib
 - Analytic Jacobian matrix
 
 ![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/inverseKinematics_pseudoInverse.png)
+
+- Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
 
 ## . Local Optimisations
 **File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/optimisation_gradientDescent.py)<br>
