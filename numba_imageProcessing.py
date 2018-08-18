@@ -10,12 +10,10 @@ from skimage import data, io, color
 import skimage as skimage
 import math
 
-# Simple addition to test the vectorize capabilities
 @vectorize(['float32(float32, float32)'], target='cuda')
 def CombineImages(a, b):
     return max(min(a+b, 1.0), 0.0)
 
-# Test with threadId and blockId
 @cuda.jit
 def applyKernel(image, imageResult, Gx):
     #x = cuda.threadIdx.x + (cuda.blockIdx.x * cuda.blockDim.x)
