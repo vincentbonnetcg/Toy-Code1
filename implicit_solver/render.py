@@ -53,7 +53,8 @@ class Render:
             
         # Draw kinematics
         for data in scene.kinematics:
-            polygon  = patches.Polygon(data.vertices, facecolor='orange', alpha=0.8)
+            vertices = data.getWorldSpaceVertices()
+            polygon  = patches.Polygon(vertices, facecolor='orange', alpha=0.8)
             self.ax.add_patch(polygon)
 
     # Draw and display single frame
