@@ -3,7 +3,10 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ## . Partial Differential Equations - Numerical Integration
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
-**Description** Implicit Solver
+**Description** Implicit Solver.
+- Implicit / Semi-Implicit integrators
+- Spring Constraint
+- Kinematic Objects 
 
 ![Implicit Solver](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver.gif)
 
