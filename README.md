@@ -7,7 +7,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![Implicit Solver](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver.gif)
 
-- Baraff, David, and Andrew Witkin. "Large steps in cloth simulation." Proceedings of the 25th annual conference on Computer graphics and interactive techniques. ACM, 1998.
+[1] Baraff, David, and Andrew Witkin. "Large steps in cloth simulation." Proceedings of the 25th annual conference on Computer graphics and interactive techniques. ACM, 1998.
 
 **File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/spring1D_integrator.py)<br>
 **Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
@@ -27,7 +27,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/inverseKinematics_pseudoInverse.png)
 
-- Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
+[1] Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
 
 ## . Local Optimisations
 **File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/optimisation_gradientDescent.py)<br>
