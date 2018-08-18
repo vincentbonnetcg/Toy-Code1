@@ -47,8 +47,14 @@ Numerical Methods with Python, Numpy and Matplotlib
 
 ![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
 
+## . Numba and Cuda
+**File** [numba_imageProcessing.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/numba_imageProcessing.py)<br>
+**Description** Evaluate simple image processing on Cuda
+
+![NUMBA](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/numba_imageProcessing.png)
+
 ## . Graph Colouring
 **File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/graphColouring_greedyAlgorithm.py)<br>
 **Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
 
-![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/graphColouring_greedyAlgorithm.png)
+![COLOURING](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/graphColouring_greedyAlgorithm.png)
