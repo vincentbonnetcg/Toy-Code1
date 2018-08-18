@@ -43,8 +43,6 @@ blocksPerGrid = (blocksPerGridX, blocksPerGridY)
 
 # Common Kernels
 sobelXKernel = np.array([[1.0, 0.0, -1.0], [2.0, 0.0, -2.0], [1.0, 0.0, -1.0]])
-
-sobelXKernel = np.array([[1.0, 2.0, 1.0], [0.0, 0.0, 0.0], [-1.0, -2.0, -1.0]])
 sobelYKernel = np.array([[1.0, 2.0, 1.0], [0.0, 0.0, 0.0], [-1.0, -2.0, -1.0]])
 identityKernel = np.array([[0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]])
 sharpenKernel = np.array([[0.0, -1.0, 0.0], [-1.0, 5.0, -1.0], [0.0, -1.0, 0.0]])
@@ -52,7 +50,7 @@ embossKernel = np.array([[-2.0, -1.0, 0.0], [-1.0, 1.0, 1.0], [0.0, 1.0, 2.0]])
 gaussianBlurKernel = np.array([[1.0, 2.0, 1.0], [2.0, 4.0, 2.0], [1.0, 2.0, 1.0]]) / 16
 
 # Run kernel on Cuda
-applyKernel[blocksPerGrid, threadsPerBlock](images[0], images[1], sobelXKernel)
+applyKernel[blocksPerGrid, threadsPerBlock](images[0], images[1], sobelYKernel)
 applyKernel[blocksPerGrid, threadsPerBlock](images[1], images[0], gaussianBlurKernel)
 
 # Show Result
