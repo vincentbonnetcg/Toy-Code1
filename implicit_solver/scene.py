@@ -5,13 +5,21 @@
 
 class Scene:
     def __init__(self, gravity):
-        self.objects = []
+        self.objects = [] # dynamic objects
+        self.kinematics = [] # kinematic objects
         self.gravity = gravity
         
     def addObject(self, obj):
         objectId = (len(self.objects))
         self.objects.append(obj)
         obj.setGlobalIds(objectId, self.computeParticlesOffset(objectId))       
+
+    def addKinematic(self, obj):
+        self.kinematics.append(obj)
+
+    def updateKinematics(self, time):
+        for obj in self.kinematics:
+            obj.update(time)
 
     def computeParticlesOffset(self, objectId):
         offset = 0

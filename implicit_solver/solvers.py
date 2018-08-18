@@ -14,12 +14,18 @@ class BaseSolver:
     def __init__(self, dt, stepsPerFrame):
         self.dt = dt # delta time per step
         self.stepsPerFrame = stepsPerFrame # number of step per frame
+        self.currentTime = 0.0
 
     @profiler.timeit
     def solveFrame(self, scene):
         for substepId in range(self.stepsPerFrame):
+            self.currentTime += self.dt
+            self.substep(scene, self.currentTime)
             self.step(scene, self.dt)
-            
+
+    def substep(self, scene, time):
+        scene.updateKinematics(time)
+
     def step(self, scene, dt):
         self.assembleSystem(scene, dt)
         self.solveSystem(scene, dt)
@@ -80,7 +86,7 @@ class ImplicitSolver(BaseSolver):
                 ids = data.globalOffset + i
                 denseA[ids*2:ids*2+2,ids*2:ids*2+2] = massMatrix
         
-        # set h * df/dv
+        # set h^2 * df/dx
         for data in scene.objects:
             for constraint in data.constraints:
                 ids = constraint.globalIds
@@ -89,7 +95,7 @@ class ImplicitSolver(BaseSolver):
                         Jx = constraint.getJacobianDx(fi, xj)
                         denseA[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
         
-        # set h^2 * df/dx
+        # set h * df/dv
         for data in scene.objects:
             for constraint in data.constraints:
                 ids = constraint.globalIds

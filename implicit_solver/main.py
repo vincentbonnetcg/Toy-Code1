@@ -4,6 +4,7 @@
 """
 
 import objects as obj
+import kinematics as kin
 import render as rd
 import solvers as sl
 import profiler as profiler
@@ -37,15 +38,20 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 '''
  Execute
 '''
-# Create dynamic object and solver
+# Create dynamic object
 wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
 beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
 
-# Scene
+# Create kinematic object
+cube = kin.RectangleKinematics([0,0])
+
+# Create Scene
 scene = sc.Scene(GRAVITY)
 scene.addObject(wire)
-scene.addObject(beam)
+#scene.addObject(beam)
+scene.addKinematic(cube)
 
+# Create Solver
 #solver = sl.SemiImplicitSolver(GRAVITY, FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam
 solver = sl.ImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
 
