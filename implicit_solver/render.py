@@ -5,6 +5,7 @@
 
 import matplotlib.pyplot as plt
 import profiler as profiler
+import matplotlib.patches as patches
 
 class Render:
     
@@ -49,6 +50,11 @@ class Render:
         for data in scene.objects:
             x, y = zip(*data.x)
             self.ax.plot(x, y, 'go')
+            
+        # Draw kinematics
+        for data in scene.kinematics:
+            polygon  = patches.Polygon(data.vertices, facecolor='orange', alpha=0.8)
+            self.ax.add_patch(polygon)
 
     # Draw and display single frame
     @profiler.timeit
