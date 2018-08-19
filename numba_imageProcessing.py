@@ -23,8 +23,8 @@ def applyKernel(image, imageResult, Gx):
     for i in (range(-1,2)):
         for j in (range(-1,2)):
             xi = x + i
-            yi = y + i
-            if xi < image.shape[0] and yi < image.shape[1]:
+            yi = y + j
+            if xi >= 0 and yi >= 0 and xi < image.shape[0] and yi < image.shape[1]:
                 value += (image[xi, yi] * Gx[i, j])
 
     imageResult[x, y] = value
@@ -36,13 +36,13 @@ images[0] = image.copy()
 images[1] = image.copy()
 
 # Setup blocks
-threadsPerBlock = (16, 16)
+threadsPerBlock = (1, 1)
 blocksPerGridX = math.ceil(images[0].shape[0] / threadsPerBlock[0])
 blocksPerGridY = math.ceil(images[0].shape[1] / threadsPerBlock[1])
 blocksPerGrid = (blocksPerGridX, blocksPerGridY)
 
 # Common Kernels
-sobelXKernel = np.array([[1.0, 0.0, -1.0], [2.0, 0.0, -2.0], [1.0, 0.0, -1.0]])
+sobelXKernel = np.array([[-1.0, 0.0, 1.0], [-2.0, 0.0, 2.0], [-1.0, 0.0, 1.0]])
 sobelYKernel = np.array([[1.0, 2.0, 1.0], [0.0, 0.0, 0.0], [-1.0, -2.0, -1.0]])
 identityKernel = np.array([[0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]])
 sharpenKernel = np.array([[0.0, -1.0, 0.0], [-1.0, 5.0, -1.0], [0.0, -1.0, 0.0]])
