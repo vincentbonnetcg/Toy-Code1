@@ -20,10 +20,10 @@ class BaseSolver:
     def solveFrame(self, scene):
         for substepId in range(self.stepsPerFrame):
             self.currentTime += self.dt
-            self.substep(scene, self.currentTime)
+            self.preStep(scene, self.currentTime)
             self.step(scene, self.dt)
 
-    def substep(self, scene, time):
+    def preStep(self, scene, time):
         scene.updateKinematics(time)
 
     def step(self, scene, dt):
