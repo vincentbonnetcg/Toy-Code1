@@ -9,7 +9,7 @@ import numpy as np
 '''
 class BaseKinematics:
     def __init__(self, position):
-        self.localSpaceVertices = [] # vertices describing the polygon
+        self.localSpaceVertices = [] # vertices describing the polygon - requires at least one point
         self.position = position
         self.rotation = 0.0 # in degrees
         self.animationFunc = None
@@ -28,8 +28,31 @@ class BaseKinematics:
             self.position = state[0]
             self.rotation = state[1]
 
-    #def closestPoint(self, point):
-    #    raise NotImplementedError(type(self).__name__ + " needs to implement the method 'closestPoint'")
+    def getClosestPoint(self, point):
+        worldSpaceVertices = self.getWorldSpaceVertices()
+        if (len(worldSpaceVertices) == 0):
+            return None
+        elif (len(worldSpaceVertices) == 1):
+            return worldSpaceVertices[0]
+       
+        minPoint = [0, 0]
+        minDistance = np.finfo(np.float64).max
+        numEdges = len(worldSpaceVertices)
+        for edgeId in range(numEdges):
+            # project point on line
+            edge = worldSpaceVertices[(edgeId+1)%numEdges] - worldSpaceVertices[edgeId]
+            d = point - worldSpaceVertices[edgeId]
+            u2 = np.inner(edge, edge)
+            t = np.dot(d, edge) / u2
+            t = max(min(t,1.0),0.0)
+            projectedPoint = worldSpaceVertices[edgeId] + (t * edge)
+            normal = (point - projectedPoint)
+            dist2 = np.inner(normal, normal)
+            if (dist2 < minDistance):
+                minDistance = dist2
+                minPoint = projectedPoint
+
+        return minPoint
 
 '''
  Base Kinematics

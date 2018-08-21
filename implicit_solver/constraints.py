@@ -22,6 +22,10 @@ class BaseConstraint:
         # TODO - should improve that to have better support of constraint with more than two particles
         self.dfdx = np.zeros((len(ids),2,2))
         self.dfdv = np.zeros((len(ids),2,2))
+        
+    def setGlobalIds(self, objectId, globalOffset):
+        self.objectIds.fill(objectId)
+        self.globalIds = np.add(self.ids, globalOffset)
 
     def applyForces(self, scene):      
         for i in range(len(self.ids)):

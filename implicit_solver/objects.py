@@ -18,8 +18,8 @@ class BaseObject:
         self.m = np.ones(self.numParticles) * particleMass# mass
         self.im = 1.0 / self.m # inverse mass
         self.f = np.zeros((self.numParticles, 2)) #  force
-        self.globalOffset = 0 # set after the constraint is added to the scene
-        self.objectId = 0 # set after the constraint is added to the scene
+        self.globalOffset = 0 # set after the object is added to the scene
+        self.objectId = 0 # set after the object is added to the scene
         
         # Initialize constraints
         self.constraints = []
@@ -28,8 +28,7 @@ class BaseObject:
         self.objectId = objectId
         self.globalOffset = globalOffset
         for constraint in self.constraints:
-            constraint.objectIds.fill(objectId)
-            constraint.globalIds = np.add(constraint.ids, globalOffset)
+            constraint.setGlobalIds(objectId, globalOffset)
 
 '''
  Wire
@@ -45,7 +44,6 @@ class Wire(BaseObject):
             self.x[i] = (axisx[i], root[1])
 
         # Initialize constraints
-        self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [0], root, [self]))
         for i in range(self.numEdges):
             self.constraints.append(cn.SpringConstraint(stiffness, damping, [i, i+1], [self, self]))
 
