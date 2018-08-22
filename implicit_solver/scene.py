@@ -4,6 +4,7 @@
 """
 
 import constraints as cn
+import itertools
 
 class Scene:
     def __init__(self, gravity):
@@ -39,4 +40,12 @@ class Scene:
     def addAttachment(self, obj, kinematic, stiffness, damping):
         attachmentPoint = kinematic.getClosestPoint(obj.x[0])
         self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [0], attachmentPoint, [obj]))
+        
+    def getConstraintsIterator(self):
+        values = []
+        values.append(self.constraints)
+        for obj in self.objects:
+            values.append(obj.constraints)
+
+        return itertools.chain.from_iterable(values)
         

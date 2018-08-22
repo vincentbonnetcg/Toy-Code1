@@ -64,12 +64,12 @@ class ImplicitSolver(BaseSolver):
                 data.f[i] += np.multiply(scene.gravity, data.m[i])
 
         # Prepare forces and jacobians
-        for data in scene.objects:
-            for constraint in data.constraints:
-                constraint.computeForces(scene)
-                constraint.computeJacobians(scene)
-                constraint.applyForces(scene)
-        
+        constraintsIterator = scene.getConstraintsIterator()
+        for constraint in constraintsIterator:
+            constraint.computeForces(scene)
+            constraint.computeJacobians(scene)
+            constraint.applyForces(scene)        
+
         # Assemble the system (Ax=b) where x is the change of velocity
         totalParticles = scene.numParticles()
         # attempt to create 'row-based linked list' sparse matrix for simple sparse matrix construction
@@ -87,22 +87,22 @@ class ImplicitSolver(BaseSolver):
                 denseA[ids*2:ids*2+2,ids*2:ids*2+2] = massMatrix
         
         # set h^2 * df/dx
-        for data in scene.objects:
-            for constraint in data.constraints:
-                ids = constraint.globalIds
-                for fi in range(len(ids)):
-                    for xj in range(len(ids)):
-                        Jx = constraint.getJacobianDx(fi, xj)
-                        denseA[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
+        constraintsIterator = scene.getConstraintsIterator()
+        for constraint in constraintsIterator:
+            ids = constraint.globalIds
+            for fi in range(len(ids)):
+                for xj in range(len(ids)):
+                    Jx = constraint.getJacobianDx(fi, xj)
+                    denseA[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
         
         # set h * df/dv
-        for data in scene.objects:
-            for constraint in data.constraints:
-                ids = constraint.globalIds
-                for fi in range(len(ids)):
-                    for vj in range(len(ids)):
-                        Jv = constraint.getJacobianDv(fi, vj)
-                        denseA[ids[fi]*2:ids[fi]*2+2,ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
+        constraintsIterator = scene.getConstraintsIterator()
+        for constraint in constraintsIterator:
+            ids = constraint.globalIds
+            for fi in range(len(ids)):
+                for vj in range(len(ids)):
+                    Jv = constraint.getJacobianDv(fi, vj)
+                    denseA[ids[fi]*2:ids[fi]*2+2,ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
         
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
@@ -112,7 +112,8 @@ class ImplicitSolver(BaseSolver):
                 self.b[ids*2:ids*2+2] += (np.reshape(data.f[i], (2,1)) * dt)
 
         # set (df/dx * v0 * h * h)
-        for constraint in data.constraints:
+        constraintsIterator = scene.getConstraintsIterator()
+        for constraint in constraintsIterator:
             ids = constraint.globalIds
             localIds = constraint.ids
             for fi in range(len(ids)):
@@ -151,12 +152,14 @@ class SemiImplicitSolver(BaseSolver):
             data.f.fill(0.0)
             for i in range(data.numParticles):
                 data.f[i] += np.multiply(scene.gravity, data.m[i])
+                
+        # Get iterator on constraint to access from objects and scene at once
+        constraintsIterator = scene.getConstraintsIterator()
     
         # Compute and add internal forces
-        for data in scene.objects:
-            for constraint in data.constraints:
-                constraint.computeForces(scene)
-                constraint.applyForces(scene)
+        for constraint in constraintsIterator:
+            constraint.computeForces(scene)
+            constraint.applyForces(scene)
 
     @profiler.timeit
     def solveSystem(self, scene, dt):
