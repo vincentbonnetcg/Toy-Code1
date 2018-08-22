@@ -42,21 +42,25 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
 beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
 
-# Create kinematic object
-cube = kin.RectangleKinematics([1,0], 2.0, 2.0)
-def cubeAnimation(time):
-    position = [1.0 * time, 0.0]
-    rotation = 0.0
-    return [position, rotation]
+# Create kinematic objects (Cube)
+#cube = kin.RectangleKinematics([0,0], 1.0, 1.0)
+#def cubeAnimation(time):
+#    position = [1.0 * time, 0.0]
+#    rotation = 0.0
+#    return [position, rotation]
 #cube.animationFunc = cubeAnimation
+leftAnchor = kin.RectangleKinematics([-4.5, 0.5], 1.0, 1.5)
+rightAnchor = kin.RectangleKinematics([4.5, 0.5], 1.0, 1.5)
 
 # Create Scene
 scene = sc.Scene(GRAVITY)
-scene.addObject(wire)
-#scene.addObject(beam)
-scene.addKinematic(cube)
+#scene.addObject(wire)
+scene.addObject(beam)
+scene.addKinematic(leftAnchor)
+scene.addKinematic(rightAnchor)
 scene.updateKinematics(0.0)
-scene.addAttachment(wire, cube, 100.0, 0.0)
+scene.addAttachment(beam, leftAnchor, 100.0, 0.0, 0.1)
+scene.addAttachment(beam, rightAnchor, 100.0, 0.0, 0.1)
 
 # Create Solver
 #solver = sl.SemiImplicitSolver(GRAVITY, FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam

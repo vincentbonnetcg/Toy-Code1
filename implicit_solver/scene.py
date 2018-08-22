@@ -4,6 +4,7 @@
 """
 
 import constraints as cn
+import numpy as np
 import itertools
 
 class Scene:
@@ -37,9 +38,17 @@ class Scene:
             numParticles += obj.numParticles
         return numParticles
 
-    def addAttachment(self, obj, kinematic, stiffness, damping):
-        attachmentPoint = kinematic.getClosestPoint(obj.x[0])
-        self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [0], attachmentPoint, [obj]))
+    def addAttachment(self, obj, kinematic, stiffness, damping, distance):
+        # Linear search => it will be inefficient for dynamic objects with many particles
+        distance2 = distance * distance
+        xid = 0
+        for x in obj.x:
+            attachmentPoint = kinematic.getClosestPoint(x)
+            direction = (attachmentPoint - x)
+            dist2 = np.inner(direction, direction)
+            if (dist2 < distance2):
+                self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [xid], attachmentPoint, [obj]))
+            xid+=1        
         
     def getConstraintsIterator(self):
         values = []

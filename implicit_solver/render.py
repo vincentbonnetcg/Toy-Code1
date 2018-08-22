@@ -27,15 +27,15 @@ class Render:
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
         self.ax.axis('equal')
-        self.ax.set_xlim(-5,5)
-        self.ax.set_ylim(-5,5)
+        self.ax.set_xlim(-3.5,3.5)
+        self.ax.set_ylim(-3.5,3.5)
         
         # Set label
         plt.title('Mass-spring-damper - frame ' + str(frameId), fontdict=self.font)
         plt.xlabel('x (in meters)')
         plt.ylabel('y (in meters)')
         
-        # Draw constraints
+        # Draw objects constraints
         for data in scene.objects:
             for constraint in data.constraints:              
                 ids = constraint.ids
