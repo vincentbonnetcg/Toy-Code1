@@ -28,14 +28,15 @@ class BaseKinematics:
             self.position = state[0]
             self.rotation = state[1]
 
-    def getClosestPoint(self, point):
+    def getClosestParametricValues(self, point):
+        # return edgeId and line parameter (t) to define point on this edge
         worldSpaceVertices = self.getWorldSpaceVertices()
         if (len(worldSpaceVertices) == 0):
             return None
         elif (len(worldSpaceVertices) == 1):
-            return worldSpaceVertices[0]
+            return [-1, 0.0] # No edge
        
-        minPoint = [0, 0]
+        result = [-1 ,0.0]
         minDistance = np.finfo(np.float64).max
         numEdges = len(worldSpaceVertices)
         for edgeId in range(numEdges):
@@ -50,9 +51,30 @@ class BaseKinematics:
             dist2 = np.inner(normal, normal)
             if (dist2 < minDistance):
                 minDistance = dist2
-                minPoint = projectedPoint
+                result = [edgeId, t]
 
-        return minPoint
+        return result
+
+    def getPointFromParametricValues(self, parametricValues):
+        worldSpaceVertices = self.getWorldSpaceVertices()
+        numEdges = len(worldSpaceVertices)
+        edgeId = parametricValues[0]
+        if edgeId == -1: # a single point
+            return worldSpaceVertices[0]
+        else:
+            A = worldSpaceVertices[edgeId]
+            B = worldSpaceVertices[(edgeId+1)%numEdges]
+            t = parametricValues[1]
+            return A * (1.0 - t) + B * t
+        
+        return None
+
+    def getClosestPoint(self, point):
+        params = self.getClosestParametricValues(point)
+        if (params is None):
+            return None
+        
+        return self.getPointFromParametricValues(params)
 
 '''
  Base Kinematics
