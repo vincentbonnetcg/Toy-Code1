@@ -38,7 +38,7 @@ class Render:
         # Draw objects constraints
         for data in scene.objects:
             for constraint in data.constraints:              
-                ids = constraint.ids
+                ids = constraint.localIds
                 if (len(ids) >= 2):
                     linedata = []
                     for pid in ids:

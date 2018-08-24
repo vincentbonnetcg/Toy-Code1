@@ -115,7 +115,7 @@ class ImplicitSolver(BaseSolver):
         constraintsIterator = scene.getConstraintsIterator()
         for constraint in constraintsIterator:
             ids = constraint.globalIds
-            localIds = constraint.ids
+            localIds = constraint.localIds
             for fi in range(len(ids)):
                 for xi in range(len(ids)):
                     Jx = constraint.getJacobianDx(fi, xi)

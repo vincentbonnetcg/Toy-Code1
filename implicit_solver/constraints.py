@@ -17,7 +17,7 @@ class BaseConstraint:
         # Particle identifications
         self.objectIds = np.zeros(len(ids), dtype=int) # set after the constraint is added to the scene
         self.globalIds = np.copy(ids) # set after the constraint is added to the scene
-        self.ids = ids # particleId
+        self.localIds = np.copy(ids) # local particleIds
         # Precomputed jacobians.
         # TODO - should improve that to have better support of constraint with more than two particles
         self.dfdx = np.zeros((len(ids),2,2))
@@ -25,12 +25,12 @@ class BaseConstraint:
         
     def setGlobalIds(self, objectId, globalOffset):
         self.objectIds.fill(objectId)
-        self.globalIds = np.add(self.ids, globalOffset)
+        self.globalIds = np.add(self.localIds, globalOffset)
 
     def applyForces(self, scene):      
-        for i in range(len(self.ids)):
+        for i in range(len(self.localIds)):
             data = scene.objects[self.objectIds[i]] 
-            data.f[self.ids[i]] += self.f[i]
+            data.f[self.localIds[i]] += self.f[i]
 
     def computeForces(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'computeForces'")
@@ -51,21 +51,21 @@ class BaseConstraint:
 class AnchorSpringConstraint(BaseConstraint):
     def __init__(self, stiffness, damping, ids, targetPos, data):
        BaseConstraint.__init__(self, stiffness, damping, ids)
-       self.restLength = np.linalg.norm(targetPos - data[0].x[self.ids[0]])
+       self.restLength = np.linalg.norm(targetPos - data[0].x[self.localIds[0]])
        self.targetPos = targetPos
 
     def computeForces(self, scene):
         data = scene.objects[self.objectIds[0]]
-        x = data.x[self.ids[0]]
-        v = data.v[self.ids[0]]
+        x = data.x[self.localIds[0]]
+        v = data.v[self.localIds[0]]
         force = springStretchForce(x, self.targetPos, self.restLength, self.stiffness)
         force += springDampingForce(x, self.targetPos, v, (0,0), self.damping)
         self.f[0] = force
     
     def computeJacobians(self, scene):
         data = scene.objects[self.objectIds[0]]
-        x = data.x[self.ids[0]]
-        v = data.v[self.ids[0]]
+        x = data.x[self.localIds[0]]
+        v = data.v[self.localIds[0]]
         # Numerical jacobians
         #self.dfdx[0] = numericalJacobian(springStretchForce, 0, x, self.targetPos, self.restLength, self.stiffness)
         #self.dfdv[0] = numericalJacobian(springDampingForce, 2, x, self.targetPos, v, (0,0), self.damping)
@@ -91,10 +91,10 @@ class SpringConstraint(BaseConstraint):
     def computeForces(self, scene):
         data0 = scene.objects[self.objectIds[0]]
         data1 = scene.objects[self.objectIds[1]]
-        x0 = data0.x[self.ids[0]]
-        x1 = data1.x[self.ids[1]]
-        v0 = data0.v[self.ids[0]]
-        v1 = data1.v[self.ids[1]]
+        x0 = data0.x[self.localIds[0]]
+        x1 = data1.x[self.localIds[1]]
+        v0 = data0.v[self.localIds[0]]
+        v1 = data1.v[self.localIds[1]]
         force = springStretchForce(x0, x1, self.restLength, self.stiffness)
         force += springDampingForce(x0, x1, v0, v1, self.damping)
         self.f[0] = force
@@ -103,10 +103,10 @@ class SpringConstraint(BaseConstraint):
     def computeJacobians(self, scene):
         data0 = scene.objects[self.objectIds[0]]
         data1 = scene.objects[self.objectIds[1]]
-        x0 = data0.x[self.ids[0]]
-        x1 = data1.x[self.ids[1]]
-        v0 = data0.v[self.ids[0]]
-        v1 = data1.v[self.ids[1]]     
+        x0 = data0.x[self.localIds[0]]
+        x1 = data1.x[self.localIds[1]]
+        v0 = data0.v[self.localIds[0]]
+        v1 = data1.v[self.localIds[1]]     
         # Numerical jacobians
         #self.dfdx[0] = numericalJacobian(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
         #self.dfdv[0] = numericalJacobian(springDampingForce, 2, x0, x1, v0, v1, self.damping)
