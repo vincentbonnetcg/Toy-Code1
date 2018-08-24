@@ -58,11 +58,15 @@ class BaseKinematics:
  Base Kinematics
 '''
 class RectangleKinematics(BaseKinematics):
-    def __init__(self, position, width, height):
-        BaseKinematics.__init__(self, position)
+    def __init__(self, minX, minY, maxX, maxY):
+        BaseKinematics.__init__(self, [0,0])
+        width = maxX - minX
+        height = maxY - minY
         halfWidth = width * 0.5
         halfHeight = height * 0.5
         self.localSpaceVertices.append([-halfWidth, -halfHeight])
         self.localSpaceVertices.append([-halfWidth, halfHeight])
         self.localSpaceVertices.append([halfWidth, halfHeight])
         self.localSpaceVertices.append([halfWidth,-halfHeight])
+        self.position = [minX + halfWidth, minY + halfHeight]
+        

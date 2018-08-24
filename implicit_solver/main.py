@@ -42,7 +42,7 @@ def createWireScene():
     # Create dynamic objects / kinematic objects / scene
     wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
     
-    cube = kin.RectangleKinematics([0,-0.5], 1.0, 1.0)
+    cube = kin.RectangleKinematics(WIRE_ROOT_POS[0]-0.1, WIRE_ROOT_POS[1]+0.5, WIRE_ROOT_POS[0]+0.1, WIRE_ROOT_POS[1])
     #def cubeAnimation(time):
     #    position = [0.0 * time, 0.0]
     #    rotation = 0.0
@@ -60,8 +60,8 @@ def createBeamScene():
     # Create dynamic objects / kinematic objects / scene
     beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
     
-    leftAnchor = kin.RectangleKinematics([-4.5, 0.5], 1.0, 1.5)
-    rightAnchor = kin.RectangleKinematics([4.5, 0.5], 1.0, 1.5)
+    leftAnchor = kin.RectangleKinematics(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
+    rightAnchor = kin.RectangleKinematics(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
     
     scene = sc.Scene(GRAVITY)
     scene.addObject(beam)
