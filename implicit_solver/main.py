@@ -38,29 +38,42 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 '''
  Execute
 '''
-# Create dynamic object
-wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
-beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
+def createWireScene():
+    # Create dynamic objects / kinematic objects / scene
+    wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
+    
+    cube = kin.RectangleKinematics([0,-0.5], 1.0, 1.0)
+    #def cubeAnimation(time):
+    #    position = [0.0 * time, 0.0]
+    #    rotation = 0.0
+    #    return [position, rotation]
+    #cube.animationFunc = cubeAnimation
+    
+    scene = sc.Scene(GRAVITY)
+    scene.addObject(wire)
+    scene.addKinematic(cube)
+    scene.updateKinematics(0.0) # set kinematic objects at start frame
+    scene.addAttachment(wire, cube, 100.0, 0.0, 0.1)
+    return scene
 
-# Create kinematic objects (Cube)
-#cube = kin.RectangleKinematics([0,0], 1.0, 1.0)
-#def cubeAnimation(time):
-#    position = [1.0 * time, 0.0]
-#    rotation = 0.0
-#    return [position, rotation]
-#cube.animationFunc = cubeAnimation
-leftAnchor = kin.RectangleKinematics([-4.5, 0.5], 1.0, 1.5)
-rightAnchor = kin.RectangleKinematics([4.5, 0.5], 1.0, 1.5)
+def createBeamScene():
+    # Create dynamic objects / kinematic objects / scene
+    beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
+    
+    leftAnchor = kin.RectangleKinematics([-4.5, 0.5], 1.0, 1.5)
+    rightAnchor = kin.RectangleKinematics([4.5, 0.5], 1.0, 1.5)
+    
+    scene = sc.Scene(GRAVITY)
+    scene.addObject(beam)
+    scene.addKinematic(leftAnchor)
+    scene.addKinematic(rightAnchor)
+    scene.updateKinematics(0.0) # set kinematic objects at start frame
+    scene.addAttachment(beam, leftAnchor, 100.0, 0.0, 0.1)
+    scene.addAttachment(beam, rightAnchor, 100.0, 0.0, 0.1)
+    return scene
 
-# Create Scene
-scene = sc.Scene(GRAVITY)
-#scene.addObject(wire)
-scene.addObject(beam)
-scene.addKinematic(leftAnchor)
-scene.addKinematic(rightAnchor)
-scene.updateKinematics(0.0)
-scene.addAttachment(beam, leftAnchor, 100.0, 0.0, 0.1)
-scene.addAttachment(beam, rightAnchor, 100.0, 0.0, 0.1)
+scene = createBeamScene()
+
 
 # Create Solver
 #solver = sl.SemiImplicitSolver(GRAVITY, FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam
