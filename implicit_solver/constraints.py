@@ -49,29 +49,33 @@ class BaseConstraint:
  Describes a constraint between particle and static point
 '''
 class AnchorSpringConstraint(BaseConstraint):
-    def __init__(self, stiffness, damping, ids, targetPos, data):
+    def __init__(self, stiffness, damping, data, ids, kinematic, pointParams):
        BaseConstraint.__init__(self, stiffness, damping, ids)
+       targetPos = kinematic.getPointFromParametricValues(pointParams)
        self.restLength = np.linalg.norm(targetPos - data[0].x[self.localIds[0]])
-       self.targetPos = targetPos
+       self.pointParams = pointParams
+       self.kinematic = kinematic
 
     def computeForces(self, scene):
         data = scene.objects[self.objectIds[0]]
         x = data.x[self.localIds[0]]
         v = data.v[self.localIds[0]]
-        force = springStretchForce(x, self.targetPos, self.restLength, self.stiffness)
-        force += springDampingForce(x, self.targetPos, v, (0,0), self.damping)
+        targetPos = self.kinematic.getPointFromParametricValues(self.pointParams)
+        force = springStretchForce(x, targetPos, self.restLength, self.stiffness)
+        force += springDampingForce(x, targetPos, v, (0,0), self.damping)
         self.f[0] = force
     
     def computeJacobians(self, scene):
         data = scene.objects[self.objectIds[0]]
         x = data.x[self.localIds[0]]
         v = data.v[self.localIds[0]]
+        targetPos = self.kinematic.getPointFromParametricValues(self.pointParams)
         # Numerical jacobians
-        #self.dfdx[0] = numericalJacobian(springStretchForce, 0, x, self.targetPos, self.restLength, self.stiffness)
-        #self.dfdv[0] = numericalJacobian(springDampingForce, 2, x, self.targetPos, v, (0,0), self.damping)
+        #self.dfdx[0] = numericalJacobian(springStretchForce, 0, x, targetPos, self.restLength, self.stiffness)
+        #self.dfdv[0] = numericalJacobian(springDampingForce, 2, x, targetPos, v, (0,0), self.damping)
         # Analytic jacobians
-        self.dfdx[0] = springStretchJacobian(x, self.targetPos, self.restLength, self.stiffness)
-        self.dfdv[0] = springDampingJacobian(x, self.targetPos, v, (0, 0), self.damping)
+        self.dfdx[0] = springStretchJacobian(x, targetPos, self.restLength, self.stiffness)
+        self.dfdv[0] = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)
         
     def getJacobianDx(self, fi, xj):
         return self.dfdx[0]
@@ -84,7 +88,7 @@ class AnchorSpringConstraint(BaseConstraint):
  Describes a constraint between two particles
 '''
 class SpringConstraint(BaseConstraint):
-    def __init__(self, stiffness, damping, ids, data):
+    def __init__(self, stiffness, damping, data, ids):
         BaseConstraint.__init__(self, stiffness, damping, ids)
         self.restLength = np.linalg.norm(data[0].x[ids[0]] - data[1].x[ids[1]])
 

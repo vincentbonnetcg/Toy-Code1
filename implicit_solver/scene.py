@@ -43,12 +43,13 @@ class Scene:
         distance2 = distance * distance
         xid = 0
         for x in obj.x:
-            attachmentPoint = kinematic.getClosestPoint(x)
+            attachmentPointParams = kinematic.getClosestParametricValues(x)
+            attachmentPoint = kinematic.getPointFromParametricValues(attachmentPointParams)
             direction = (attachmentPoint - x)
             dist2 = np.inner(direction, direction)
             if (dist2 < distance2):
-                self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [xid], attachmentPoint, [obj]))
-            xid+=1        
+                self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [obj], [xid], kinematic, attachmentPointParams))
+            xid+=1
         
     def getConstraintsIterator(self):
         values = []

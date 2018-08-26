@@ -45,7 +45,7 @@ class Wire(BaseObject):
 
         # Initialize constraints
         for i in range(self.numEdges):
-            self.constraints.append(cn.SpringConstraint(stiffness, damping, [i, i+1], [self, self]))
+            self.constraints.append(cn.SpringConstraint(stiffness, damping, [self, self], [i, i+1]))
 
 '''
  Beam
@@ -73,13 +73,13 @@ class Beam(BaseObject):
             for i in range(cellX):
                 pids = cell_to_pids(i, j)
                 
-                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[1], pids[3]], [self, self]))
+                self.constraints.append(cn.SpringConstraint(stiffness, damping, [self, self], [pids[1], pids[3]]))
                 if (i == 0):
-                    self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[0], pids[2]], [self, self]))
+                    self.constraints.append(cn.SpringConstraint(stiffness, damping, [self, self], [pids[0], pids[2]]))
                 
-                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[2], pids[3]], [self, self]))
+                self.constraints.append(cn.SpringConstraint(stiffness, damping, [self, self], [pids[2], pids[3]]))
                 if (j == 0): 
-                    self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[0], pids[1]], [self, self]))
+                    self.constraints.append(cn.SpringConstraint(stiffness, damping, [self, self], [pids[0], pids[1]]))
                     
-                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[0], pids[3]], [self, self]))
-                self.constraints.append(cn.SpringConstraint(stiffness, damping, [pids[1], pids[2]], [self, self]))
+                self.constraints.append(cn.SpringConstraint(stiffness, damping, [self, self], [pids[0], pids[3]]))
+                self.constraints.append(cn.SpringConstraint(stiffness, damping, [self, self], [pids[1], pids[2]]))

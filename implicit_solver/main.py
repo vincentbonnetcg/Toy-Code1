@@ -9,6 +9,7 @@ import render as rd
 import solvers as sl
 import profiler as profiler
 import scene as sc
+import math
 
 '''
  Global Constants
@@ -23,12 +24,12 @@ BEAM_HEIGHT = 1.0 # in meters
 BEAM_CELL_X = 6 # number of cells along x
 BEAM_CELL_Y = 3 # number of cells along y
 
-STIFFNESS = 1.0 # in newtons per meter (N/m)
+STIFFNESS = 2.0 # in newtons per meter (N/m)
 DAMPING = 0.0
 PARTICLE_MASS = 0.001 # in Kg
 
 GRAVITY = (0.0, -9.81) # in meters per second^2
-NUM_FRAME = 100;
+NUM_FRAME = 58;
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
 
@@ -57,11 +58,15 @@ def createBeamScene():
     
     leftAnchor = kin.RectangleKinematics(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     rightAnchor = kin.RectangleKinematics(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
-    RPos = rightAnchor.position
-
-    moveRightAnchor = lambda time : [[RPos[0] + 2.0 * time, RPos[1]], 0.0]
-    rightAnchor.animationFunc = moveRightAnchor
     
+    LPos = leftAnchor.position
+    moveLeftAnchor = lambda time : [[LPos[0] + math.sin(2.0 * time) * 0.1, LPos[1] + math.sin(time * 4.0)], 0.0]
+    leftAnchor.animationFunc = moveLeftAnchor
+
+    RPos = rightAnchor.position
+    moveRightAnchor = lambda time : [[RPos[0] + math.sin(2.0 * time) * -0.1, RPos[1]], 0.0]
+    rightAnchor.animationFunc = moveRightAnchor
+
     scene = sc.Scene(GRAVITY)
     scene.addObject(beam)
     scene.addKinematic(leftAnchor)
