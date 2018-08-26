@@ -27,8 +27,12 @@ class BaseSolver:
         scene.updateKinematics(time)
 
     def step(self, scene, dt):
+        self.prepareSystem(scene, dt)
         self.assembleSystem(scene, dt)
         self.solveSystem(scene, dt)
+
+    def prepareSystem(self, scene, dt):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'prepareSystem'")
 
     def assembleSystem(self, scene, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'assembleSystem'")
@@ -56,7 +60,7 @@ class ImplicitSolver(BaseSolver):
         self.b = None
 
     @profiler.timeit
-    def assembleSystem(self, scene, dt):
+    def prepareSystem(self, scene, dt):
         # Set gravity
         for dynamic in scene.dynamics:
             dynamic.f.fill(0.0)
@@ -68,8 +72,10 @@ class ImplicitSolver(BaseSolver):
         for constraint in constraintsIterator:
             constraint.computeForces(scene)
             constraint.computeJacobians(scene)
-            constraint.applyForces(scene)        
+            constraint.applyForces(scene)
 
+    @profiler.timeit
+    def assembleSystem(self, scene, dt):
         # Assemble the system (Ax=b) where x is the change of velocity
         totalParticles = scene.numParticles()
         # attempt to create 'row-based linked list' sparse matrix for simple sparse matrix construction
@@ -144,9 +150,9 @@ class ImplicitSolver(BaseSolver):
 class SemiImplicitSolver(BaseSolver):
     def __init__(self, dt, stepsPerFrame):
         BaseSolver.__init__(self, dt, stepsPerFrame)
-
-    @profiler.timeit
-    def assembleSystem(self, scene, dt):
+    
+    @profiler.timeit    
+    def prepareSystem(self, scene, dt):
         # Set gravity
         for dynamic in scene.dynamics:
             dynamic.f.fill(0.0)
@@ -160,6 +166,10 @@ class SemiImplicitSolver(BaseSolver):
         for constraint in constraintsIterator:
             constraint.computeForces(scene)
             constraint.applyForces(scene)
+
+    @profiler.timeit
+    def assembleSystem(self, scene, dt):
+        pass
 
     @profiler.timeit
     def solveSystem(self, scene, dt):

@@ -81,7 +81,7 @@ scene = createBeamScene()
 
 
 # Create Solver
-#solver = sl.SemiImplicitSolver(GRAVITY, FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam
+#solver = sl.SemiImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam
 solver = sl.ImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
 
 # Run simulation and render
