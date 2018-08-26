@@ -4,8 +4,8 @@
 """
 
 import matplotlib.pyplot as plt
-import profiler as profiler
 import matplotlib.patches as patches
+import profiler
 
 class Render:
     
@@ -36,7 +36,7 @@ class Render:
         plt.ylabel('y (in meters)')
         
         # Draw objects constraints
-        for data in scene.objects:
+        for data in scene.dynamics:
             for constraint in data.constraints:              
                 ids = constraint.localIds
                 if (len(ids) >= 2):
@@ -47,7 +47,7 @@ class Render:
                     self.ax.plot(x, y, 'k-', lw=1)
         
         # Draw particles
-        for data in scene.objects:
+        for data in scene.dynamics:
             x, y = zip(*data.x)
             self.ax.plot(x, y, 'go')
             

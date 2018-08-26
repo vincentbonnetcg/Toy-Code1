@@ -9,14 +9,14 @@ import itertools
 
 class Scene:
     def __init__(self, gravity):
-        self.objects = [] # dynamic objects
+        self.dynamics = [] # dynamic objects
         self.kinematics = [] # kinematic objects
         self.constraints = [] # constraints
         self.gravity = gravity
         
     def addObject(self, obj):
-        objectId = (len(self.objects))
-        self.objects.append(obj)
+        objectId = (len(self.dynamics))
+        self.dynamics.append(obj)
         obj.setGlobalIds(objectId, self.computeParticlesOffset(objectId))       
 
     def addKinematic(self, kinematic):
@@ -29,13 +29,13 @@ class Scene:
     def computeParticlesOffset(self, objectId):
         offset = 0
         for i in range(objectId):
-            offset += self.objects[i].numParticles
+            offset += self.dynamics[i].numParticles
         return offset
 
     def numParticles(self):
         numParticles = 0
-        for obj in self.objects:
-            numParticles += obj.numParticles
+        for dynamic in self.dynamics:
+            numParticles += dynamic.numParticles
         return numParticles
 
     def addAttachment(self, obj, kinematic, stiffness, damping, distance):
@@ -54,7 +54,7 @@ class Scene:
     def getConstraintsIterator(self):
         values = []
         values.append(self.constraints)
-        for obj in self.objects:
+        for obj in self.dynamics:
             values.append(obj.constraints)
 
         return itertools.chain.from_iterable(values)

@@ -4,8 +4,8 @@
 """
 
 import numpy as np
-import profiler as profiler
 import scipy.sparse as sparse
+import profiler
 
 '''
  Base Solver
@@ -58,10 +58,10 @@ class ImplicitSolver(BaseSolver):
     @profiler.timeit
     def assembleSystem(self, scene, dt):
         # Set gravity
-        for data in scene.objects:
-            data.f.fill(0.0)
-            for i in range(data.numParticles):
-                data.f[i] += np.multiply(scene.gravity, data.m[i])
+        for dynamic in scene.dynamics:
+            dynamic.f.fill(0.0)
+            for i in range(dynamic.numParticles):
+                dynamic.f[i] += np.multiply(scene.gravity, dynamic.m[i])
 
         # Prepare forces and jacobians
         constraintsIterator = scene.getConstraintsIterator()
@@ -80,10 +80,10 @@ class ImplicitSolver(BaseSolver):
         
         ## Assemble A = (M - h * df/dv - h^2 * df/dx)
         # set mass matrix
-        for data in scene.objects:
-            for i in range(data.numParticles):
-                massMatrix = np.matlib.identity(2) * data.m[i]
-                ids = data.globalOffset + i
+        for dynamic in scene.dynamics:
+            for i in range(dynamic.numParticles):
+                massMatrix = np.matlib.identity(2) * dynamic.m[i]
+                ids = dynamic.globalOffset + i
                 denseA[ids*2:ids*2+2,ids*2:ids*2+2] = massMatrix
         
         # set h^2 * df/dx
@@ -106,10 +106,10 @@ class ImplicitSolver(BaseSolver):
         
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
-        for data in scene.objects:
-            for i in range(data.numParticles):
-                ids = data.globalOffset + i
-                self.b[ids*2:ids*2+2] += (np.reshape(data.f[i], (2,1)) * dt)
+        for dynamic in scene.dynamics:
+            for i in range(dynamic.numParticles):
+                ids = dynamic.globalOffset + i
+                self.b[ids*2:ids*2+2] += (np.reshape(dynamic.f[i], (2,1)) * dt)
 
         # set (df/dx * v0 * h * h)
         constraintsIterator = scene.getConstraintsIterator()
@@ -119,7 +119,7 @@ class ImplicitSolver(BaseSolver):
             for fi in range(len(ids)):
                 for xi in range(len(ids)):
                     Jx = constraint.getJacobianDx(fi, xi)
-                    self.b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(data.v[localIds[xi]], Jx), (2,1)) * dt * dt
+                    self.b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(dynamic.v[localIds[xi]], Jx), (2,1)) * dt * dt
 
         # Convert matrix A to csr matrix (Compressed Sparse Row format) for efficiency reasons
         self.A = sparse.csr_matrix(denseA)
@@ -130,13 +130,13 @@ class ImplicitSolver(BaseSolver):
         cgResult = sparse.linalg.cg(self.A, self.b)
         deltaVArray = cgResult[0]
         # Advect
-        for data in scene.objects:
-            for i in range(data.numParticles):
-                ids = data.globalOffset + i
+        for dynamic in scene.dynamics:
+            for i in range(dynamic.numParticles):
+                ids = dynamic.globalOffset + i
                 deltaV = [float(deltaVArray[ids*2]), float(deltaVArray[ids*2+1])]
-                deltaX = (data.v[i] + deltaV) * dt
-                data.v[i] += deltaV
-                data.x[i] += deltaX
+                deltaX = (dynamic.v[i] + deltaV) * dt
+                dynamic.v[i] += deltaV
+                dynamic.x[i] += deltaX
 
 '''
  Semi Implicit Step
@@ -148,10 +148,10 @@ class SemiImplicitSolver(BaseSolver):
     @profiler.timeit
     def assembleSystem(self, scene, dt):
         # Set gravity
-        for data in scene.objects:
-            data.f.fill(0.0)
-            for i in range(data.numParticles):
-                data.f[i] += np.multiply(scene.gravity, data.m[i])
+        for dynamic in scene.dynamics:
+            dynamic.f.fill(0.0)
+            for i in range(dynamic.numParticles):
+                dynamic.f[i] += np.multiply(scene.gravity, dynamic.m[i])
                 
         # Get iterator on constraint to access from objects and scene at once
         constraintsIterator = scene.getConstraintsIterator()
@@ -164,7 +164,7 @@ class SemiImplicitSolver(BaseSolver):
     @profiler.timeit
     def solveSystem(self, scene, dt):
         # Integrator
-        for data in scene.objects:
-            for i in range(data.numParticles):
-                data.v[i] += data.f[i] * data.im[i] * dt
-                data.x[i] += data.v[i] * dt
+        for dynamic in scene.dynamics:
+            for i in range(dynamic.numParticles):
+                dynamic.v[i] += dynamic.f[i] * dynamic.im[i] * dt
+                dynamic.x[i] += dynamic.v[i] * dt

@@ -7,8 +7,8 @@ import objects as obj
 import kinematics as kin
 import render as rd
 import solvers as sl
-import profiler as profiler
 import scene as sc
+import profiler
 import math
 
 '''
