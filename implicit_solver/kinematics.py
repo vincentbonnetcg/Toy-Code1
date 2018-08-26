@@ -5,9 +5,9 @@
 import numpy as np
 
 '''
- Base Kinematics
+ Base Kinematic
 '''
-class BaseKinematics:
+class BaseKinematic:
     def __init__(self, position):
         self.localSpaceVertices = [] # vertices describing the polygon - requires at least one point
         self.position = position
@@ -77,11 +77,11 @@ class BaseKinematics:
         return self.getPointFromParametricValues(params)
 
 '''
- Base Kinematics
+ Rectangle Kinematic
 '''
-class RectangleKinematics(BaseKinematics):
+class RectangleKinematic(BaseKinematic):
     def __init__(self, minX, minY, maxX, maxY):
-        BaseKinematics.__init__(self, [0,0])
+        BaseKinematic.__init__(self, [0,0])
         width = maxX - minX
         height = maxY - minY
         halfWidth = width * 0.5

@@ -14,7 +14,7 @@ class Scene:
         self.constraints = [] # constraints
         self.gravity = gravity
         
-    def addObject(self, obj):
+    def addDynamic(self, obj):
         objectId = (len(self.dynamics))
         self.dynamics.append(obj)
         obj.setGlobalIds(objectId, self.computeParticlesOffset(objectId))       

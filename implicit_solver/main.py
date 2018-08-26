@@ -3,7 +3,7 @@
 @description : main
 """
 
-import objects as obj
+import dynamics as dyn
 import kinematics as kin
 import render as rd
 import solvers as sl
@@ -41,12 +41,12 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 '''
 def createWireScene():
     # Create dynamic objects / kinematic objects / scene
-    wire = obj.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
+    wire = dyn.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
     
-    cube = kin.RectangleKinematics(WIRE_ROOT_POS[0]-0.1, WIRE_ROOT_POS[1]+0.5, WIRE_ROOT_POS[0]+0.1, WIRE_ROOT_POS[1])
+    cube = kin.RectangleKinematic(WIRE_ROOT_POS[0]-0.1, WIRE_ROOT_POS[1]+0.5, WIRE_ROOT_POS[0]+0.1, WIRE_ROOT_POS[1])
     
     scene = sc.Scene(GRAVITY)
-    scene.addObject(wire)
+    scene.addDynamic(wire)
     scene.addKinematic(cube)
     scene.updateKinematics(0.0) # set kinematic objects at start frame
     scene.addAttachment(wire, cube, 100.0, 0.0, 0.1)
@@ -54,10 +54,10 @@ def createWireScene():
 
 def createBeamScene():
     # Create dynamic objects / kinematic objects / scene
-    beam = obj.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
+    beam = dyn.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
     
-    leftAnchor = kin.RectangleKinematics(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
-    rightAnchor = kin.RectangleKinematics(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
+    leftAnchor = kin.RectangleKinematic(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
+    rightAnchor = kin.RectangleKinematic(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
     
     LPos = leftAnchor.position
     moveLeftAnchor = lambda time : [[LPos[0] + math.sin(2.0 * time) * 0.1, LPos[1] + math.sin(time * 4.0)], 0.0]
@@ -68,7 +68,7 @@ def createBeamScene():
     rightAnchor.animationFunc = moveRightAnchor
 
     scene = sc.Scene(GRAVITY)
-    scene.addObject(beam)
+    scene.addDynamic(beam)
     scene.addKinematic(leftAnchor)
     scene.addKinematic(rightAnchor)
     scene.updateKinematics(0.0) # set kinematic objects at start frame

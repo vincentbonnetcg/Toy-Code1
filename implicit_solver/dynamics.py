@@ -7,9 +7,9 @@ import constraints as cn
 import numpy as np
 
 '''
- Base Object
+ Base Dynamic
 '''
-class BaseObject:
+class BaseDynamic:
     def __init__(self, numParticles, particleMass, stiffness, damping):
         self.numParticles = numParticles
         # Initialize particle state
@@ -33,9 +33,9 @@ class BaseObject:
 '''
  Wire
 '''
-class Wire(BaseObject):
+class Wire(BaseDynamic):
     def __init__(self, root, length, numEdges, particleMass, stiffness, damping):
-        BaseObject.__init__(self, numEdges+1, particleMass, stiffness, damping)
+        BaseDynamic.__init__(self, numEdges+1, particleMass, stiffness, damping)
         self.numEdges = numEdges
         
         # Set position : start the rod in a horizontal position
@@ -50,9 +50,9 @@ class Wire(BaseObject):
 '''
  Beam
 '''
-class Beam(BaseObject):
+class Beam(BaseDynamic):
     def __init__(self, position, width, height, cellX, cellY, particleMass, stiffness, damping):
-        BaseObject.__init__(self, (cellX+1)*(cellY+1), particleMass, stiffness, damping)
+        BaseDynamic.__init__(self, (cellX+1)*(cellY+1), particleMass, stiffness, damping)
         
         # Set position
         # Example of vertex positions
