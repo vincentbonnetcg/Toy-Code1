@@ -122,8 +122,10 @@ class ImplicitSolver(BaseSolver):
         for constraint in constraintsIterator:
             ids = constraint.globalIds
             localIds = constraint.localIds
+            dynamicIndices = constraint.dynamicIndices;
             for fi in range(len(ids)):
                 for xi in range(len(ids)):
+                    dynamic = scene.dynamics[dynamicIndices[xi]]
                     Jx = constraint.getJacobianDx(fi, xi)
                     self.b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(dynamic.v[localIds[xi]], Jx), (2,1)) * dt * dt
 

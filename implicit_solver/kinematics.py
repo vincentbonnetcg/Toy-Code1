@@ -13,6 +13,10 @@ class BaseKinematic:
         self.position = position
         self.rotation = 0.0 # in degrees
         self.animationFunc = None
+        self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
+
+    def setGlobalIds(self, index):
+        self.index = index
 
     def getWorldSpaceVertices(self):
         theta = np.radians(self.rotation)

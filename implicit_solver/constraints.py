@@ -15,7 +15,7 @@ class BaseConstraint:
         self.damping = damping
         self.f = np.zeros((len(ids), 2))
         # Particle identifications
-        self.objectIds = np.zeros(len(ids), dtype=int) # set after the constraint is added to the scene
+        self.dynamicIndices = np.zeros(len(ids), dtype=int) # set after the constraint is added to the scene
         self.globalIds = np.copy(ids) # set after the constraint is added to the scene
         self.localIds = np.copy(ids) # local particleIds
         # Precomputed jacobians.
@@ -23,13 +23,13 @@ class BaseConstraint:
         self.dfdx = np.zeros((len(ids),2,2))
         self.dfdv = np.zeros((len(ids),2,2))
         
-    def setGlobalIds(self, objectId, globalOffset):
-        self.objectIds.fill(objectId)
+    def setGlobalIds(self, index, globalOffset):
+        self.dynamicIndices.fill(index)
         self.globalIds = np.add(self.localIds, globalOffset)
 
     def applyForces(self, scene):      
         for i in range(len(self.localIds)):
-            dynamic = scene.dynamics[self.objectIds[i]] 
+            dynamic = scene.dynamics[self.dynamicIndices[i]] 
             dynamic.f[self.localIds[i]] += self.f[i]
 
     def computeForces(self, scene):
@@ -57,7 +57,7 @@ class AnchorSpringConstraint(BaseConstraint):
        self.kinematic = kinematic
 
     def computeForces(self, scene):
-        dynamic = scene.dynamics[self.objectIds[0]]
+        dynamic = scene.dynamics[self.dynamicIndices[0]]
         x = dynamic.x[self.localIds[0]]
         v = dynamic.v[self.localIds[0]]
         targetPos = self.kinematic.getPointFromParametricValues(self.pointParams)
@@ -66,7 +66,7 @@ class AnchorSpringConstraint(BaseConstraint):
         self.f[0] = force
     
     def computeJacobians(self, scene):
-        dynamic = scene.dynamics[self.objectIds[0]]
+        dynamic = scene.dynamics[self.dynamicIndices[0]]
         x = dynamic.x[self.localIds[0]]
         v = dynamic.v[self.localIds[0]]
         targetPos = self.kinematic.getPointFromParametricValues(self.pointParams)
@@ -93,8 +93,8 @@ class SpringConstraint(BaseConstraint):
         self.restLength = np.linalg.norm(dynamic[0].x[ids[0]] - dynamic[1].x[ids[1]])
 
     def computeForces(self, scene):
-        dynamic0 = scene.dynamics[self.objectIds[0]]
-        dynamic1 = scene.dynamics[self.objectIds[1]]
+        dynamic0 = scene.dynamics[self.dynamicIndices[0]]
+        dynamic1 = scene.dynamics[self.dynamicIndices[1]]
         x0 = dynamic0.x[self.localIds[0]]
         x1 = dynamic1.x[self.localIds[1]]
         v0 = dynamic0.v[self.localIds[0]]
@@ -105,8 +105,8 @@ class SpringConstraint(BaseConstraint):
         self.f[1] = force * -1
 
     def computeJacobians(self, scene):
-        dynamic0 = scene.dynamics[self.objectIds[0]]
-        dynamic1 = scene.dynamics[self.objectIds[1]]
+        dynamic0 = scene.dynamics[self.dynamicIndices[0]]
+        dynamic1 = scene.dynamics[self.dynamicIndices[1]]
         x0 = dynamic0.x[self.localIds[0]]
         x1 = dynamic1.x[self.localIds[1]]
         v0 = dynamic0.v[self.localIds[0]]

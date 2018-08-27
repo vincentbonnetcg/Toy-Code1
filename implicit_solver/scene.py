@@ -15,20 +15,22 @@ class Scene:
         self.gravity = gravity
         
     def addDynamic(self, dynamic):
-        objectId = (len(self.dynamics))
+        index = (len(self.dynamics))
         self.dynamics.append(dynamic)
-        dynamic.setGlobalIds(objectId, self.computeParticlesOffset(objectId))       
+        dynamic.setGlobalIds(index, self.computeParticlesOffset(index))       
 
     def addKinematic(self, kinematic):
+        index = (len(self.kinematics))
         self.kinematics.append(kinematic)
+        kinematic.setGlobalIds(index)
 
     def updateKinematics(self, time):
         for kinematic in self.kinematics:
             kinematic.update(time)
 
-    def computeParticlesOffset(self, objectId):
+    def computeParticlesOffset(self, index):
         offset = 0
-        for i in range(objectId):
+        for i in range(index):
             offset += self.dynamics[i].numParticles
         return offset
 
@@ -48,7 +50,9 @@ class Scene:
             direction = (attachmentPoint - x)
             dist2 = np.inner(direction, direction)
             if (dist2 < distance2):
-                self.constraints.append(cn.AnchorSpringConstraint(stiffness, damping, [dynamic], [xid], kinematic, attachmentPointParams))
+                constraint = cn.AnchorSpringConstraint(stiffness, damping, [dynamic], [xid], kinematic, attachmentPointParams)
+                constraint.setGlobalIds(dynamic.index, self.computeParticlesOffset(dynamic.index))
+                self.constraints.append(constraint)
             xid+=1
         
     def getConstraintsIterator(self):

@@ -19,16 +19,16 @@ class BaseDynamic:
         self.im = 1.0 / self.m # inverse mass
         self.f = np.zeros((self.numParticles, 2)) #  force
         self.globalOffset = 0 # set after the object is added to the scene
-        self.objectId = 0 # set after the object is added to the scene
+        self.index = 0 # set after the object is added to the scene - index in the scene.dynamics[]
         
         # Initialize constraints
         self.constraints = []
     
-    def setGlobalIds(self, objectId, globalOffset):
-        self.objectId = objectId
+    def setGlobalIds(self, index, globalOffset):
+        self.index = index
         self.globalOffset = globalOffset
         for constraint in self.constraints:
-            constraint.setGlobalIds(objectId, globalOffset)
+            constraint.setGlobalIds(index, globalOffset)
 
 '''
  Wire
