@@ -17,7 +17,8 @@ class Scene:
     def addDynamic(self, dynamic):
         index = (len(self.dynamics))
         self.dynamics.append(dynamic)
-        dynamic.setGlobalIds(index, self.computeParticlesOffset(index))       
+        dynamic.createInternalConstraints()
+        dynamic.setGlobalIds(index, self.computeParticlesOffset(index))
 
     def addKinematic(self, kinematic):
         index = (len(self.kinematics))
