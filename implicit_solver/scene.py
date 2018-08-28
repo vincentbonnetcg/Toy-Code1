@@ -18,8 +18,8 @@ class Scene:
         index = (len(self.dynamics))
         self.dynamics.append(dynamic)
         dynamic.index = index
+        dynamic.globalOffset = self.computeParticlesOffset(index)
         dynamic.createInternalConstraints()
-        dynamic.setGlobalIds(self.computeParticlesOffset(index))
 
     def addKinematic(self, kinematic):
         index = (len(self.kinematics))
@@ -52,9 +52,7 @@ class Scene:
             direction = (attachmentPoint - x)
             dist2 = np.inner(direction, direction)
             if (dist2 < distance2):
-                constraint = cn.AnchorSpringConstraint(stiffness, damping, dynamic, particleId, kinematic, attachmentPointParams)
-                constraint.setGlobalIds(self.computeParticlesOffset(dynamic.index))
-                
+                constraint = cn.AnchorSpringConstraint(stiffness, damping, dynamic, particleId, kinematic, attachmentPointParams)               
                 self.constraints.append(constraint)
             particleId += 1
         

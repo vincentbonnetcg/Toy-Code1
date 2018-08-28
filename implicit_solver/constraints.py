@@ -16,18 +16,17 @@ class BaseConstraint:
         self.damping = damping
         self.f = np.zeros((N, 2))
         # Particle identifications
-        self.dynamicIndices = np.zeros(N, dtype=int)
-        for i in range(N):
-            self.dynamicIndices[i] = dynamics[i].index # ob
         self.localIds = np.copy(particlesIds) # local particle indices
-        self.globalIds = np.copy(particlesIds) # set by setGlobalIds(....)
+        self.dynamicIndices = np.zeros(N, dtype=int)
+        self.globalIds = np.zeros(N, dtype=int)
+        for i in range(N):
+            self.dynamicIndices[i] = dynamics[i].index
+            self.globalIds[i] = self.localIds[i] + dynamics[i].globalOffset
+        
         # Precomputed jacobians.
         # TODO - should improve that to have better support of constraint with more than two particles
         self.dfdx = np.zeros((N,2,2))
         self.dfdv = np.zeros((N,2,2))
-
-    def setGlobalIds(self, globalOffset):
-        self.globalIds = np.add(self.localIds, globalOffset)
 
     def applyForces(self, scene):      
         for i in range(len(self.localIds)):

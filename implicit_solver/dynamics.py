@@ -18,8 +18,9 @@ class BaseDynamic:
         self.m = np.ones(self.numParticles) * particleMass# mass
         self.im = 1.0 / self.m # inverse mass
         self.f = np.zeros((self.numParticles, 2)) #  force
-        self.globalOffset = 0 # set after the object is added to the scene
-        self.index = 0 # set after the object is added to the scene - index in the scene.dynamics[]
+        # Useful indices set after adding the object into the scene
+        self.globalOffset = 0
+        self.index = 0 # index in the scene.dynamics[]
         # Material property
         self.stiffness = stiffness
         self.damping = damping
@@ -29,11 +30,6 @@ class BaseDynamic:
     
     def createInternalConstraints(self):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'createInternalConstraints'")
-    
-    def setGlobalIds(self,  globalOffset):
-        self.globalOffset = globalOffset
-        for constraint in self.constraints:
-            constraint.setGlobalIds(globalOffset)
 
 '''
  Wire
@@ -46,8 +42,8 @@ class Wire(BaseDynamic):
         # Set position : start the rod in a horizontal position
         axisx = np.linspace(root[0], root[0]+length, num=self.numParticles, endpoint=True)
         for i in range(self.numParticles):
-            self.x[i] = (axisx[i], root[1])           
-            
+            self.x[i] = (axisx[i], root[1])
+
     def createInternalConstraints(self):
         for i in range(self.numEdges):
             self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [i, i+1]))
