@@ -10,21 +10,23 @@ import numpy as np
  Describes a constraint function and its first (gradient) and second (hessian) derivatives
 '''
 class BaseConstraint:
-    def __init__(self, stiffness, damping, ids):
+    def __init__(self, stiffness, damping, dynamics, particlesIds):
+        N = len(particlesIds) # number of particles involved in the constraint
         self.stiffness = stiffness
         self.damping = damping
-        self.f = np.zeros((len(ids), 2))
+        self.f = np.zeros((N, 2))
         # Particle identifications
-        self.dynamicIndices = np.zeros(len(ids), dtype=int) # set after the constraint is added to the scene
-        self.globalIds = np.copy(ids) # set after the constraint is added to the scene
-        self.localIds = np.copy(ids) # local particleIds
+        self.dynamicIndices = np.zeros(N, dtype=int)
+        for i in range(N):
+            self.dynamicIndices[i] = dynamics[i].index # ob
+        self.localIds = np.copy(particlesIds) # local particle indices
+        self.globalIds = np.copy(particlesIds) # set by setGlobalIds(....)
         # Precomputed jacobians.
         # TODO - should improve that to have better support of constraint with more than two particles
-        self.dfdx = np.zeros((len(ids),2,2))
-        self.dfdv = np.zeros((len(ids),2,2))
-        
-    def setGlobalIds(self, index, globalOffset):
-        self.dynamicIndices.fill(index)
+        self.dfdx = np.zeros((N,2,2))
+        self.dfdv = np.zeros((N,2,2))
+
+    def setGlobalIds(self, globalOffset):
         self.globalIds = np.add(self.localIds, globalOffset)
 
     def applyForces(self, scene):      
@@ -49,14 +51,14 @@ class BaseConstraint:
  Describes a constraint between particle and static point
 '''
 class AnchorSpringConstraint(BaseConstraint):
-    def __init__(self, stiffness, damping, dynamic, ids, kinematic, pointParams):
-       BaseConstraint.__init__(self, stiffness, damping, ids)
+    def __init__(self, stiffness, damping, dynamic, particleId, kinematic, pointParams):
+       BaseConstraint.__init__(self, stiffness, damping, [dynamic], [particleId])
        targetPos = kinematic.getPointFromParametricValues(pointParams)
-       self.restLength = np.linalg.norm(targetPos - dynamic[0].x[self.localIds[0]])
+       self.restLength = np.linalg.norm(targetPos - dynamic.x[self.localIds[0]])
        self.pointParams = pointParams
        self.kinematic = kinematic
 
-    def computeForces(self, scene):
+    def computeForces(self, scene):      
         dynamic = scene.dynamics[self.dynamicIndices[0]]
         x = dynamic.x[self.localIds[0]]
         v = dynamic.v[self.localIds[0]]
@@ -88,9 +90,9 @@ class AnchorSpringConstraint(BaseConstraint):
  Describes a constraint between two particles
 '''
 class SpringConstraint(BaseConstraint):
-    def __init__(self, stiffness, damping, dynamic, ids):
-        BaseConstraint.__init__(self, stiffness, damping, ids)
-        self.restLength = np.linalg.norm(dynamic[0].x[ids[0]] - dynamic[1].x[ids[1]])
+    def __init__(self, stiffness, damping, dynamics, particleIds):
+        BaseConstraint.__init__(self, stiffness, damping, dynamics, particleIds)
+        self.restLength = np.linalg.norm(dynamics[0].x[particleIds[0]] - dynamics[1].x[particleIds[1]])
 
     def computeForces(self, scene):
         dynamic0 = scene.dynamics[self.dynamicIndices[0]]

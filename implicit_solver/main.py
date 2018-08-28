@@ -55,6 +55,7 @@ def createWireScene():
 def createBeamScene():   
     # Create dynamic objects / kinematic objects / scene
     beam = dyn.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
+    wire = dyn.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
     
     leftAnchor = kin.RectangleKinematic(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     rightAnchor = kin.RectangleKinematic(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
@@ -69,11 +70,12 @@ def createBeamScene():
 
     scene = sc.Scene(GRAVITY)
     scene.addDynamic(beam)
+    scene.addDynamic(wire)
     scene.addKinematic(leftAnchor)
     scene.addKinematic(rightAnchor)
     scene.updateKinematics(0.0) # set kinematic objects at start frame
-    scene.addAttachment(beam, leftAnchor, 100.0, 0.0, 0.1)
     scene.addAttachment(beam, rightAnchor, 100.0, 0.0, 0.1)
+    scene.addAttachment(beam, leftAnchor, 100.0, 0.0, 0.1)
     
     return scene
 

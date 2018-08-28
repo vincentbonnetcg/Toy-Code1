@@ -30,11 +30,10 @@ class BaseDynamic:
     def createInternalConstraints(self):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'createInternalConstraints'")
     
-    def setGlobalIds(self, index, globalOffset):
-        self.index = index
+    def setGlobalIds(self,  globalOffset):
         self.globalOffset = globalOffset
         for constraint in self.constraints:
-            constraint.setGlobalIds(index, globalOffset)
+            constraint.setGlobalIds(globalOffset)
 
 '''
  Wire
