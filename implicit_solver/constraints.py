@@ -55,22 +55,24 @@ class AnchorSpringConstraint(BaseConstraint):
        targetPos = kinematic.getPointFromParametricValues(pointParams)
        self.restLength = np.linalg.norm(targetPos - dynamic.x[self.localIds[0]])
        self.pointParams = pointParams
-       self.kinematic = kinematic
+       self.kinematicIndex = kinematic.index
 
-    def computeForces(self, scene):      
+    def computeForces(self, scene):
+        kinematic = scene.kinematics[self.kinematicIndex]
         dynamic = scene.dynamics[self.dynamicIndices[0]]
         x = dynamic.x[self.localIds[0]]
         v = dynamic.v[self.localIds[0]]
-        targetPos = self.kinematic.getPointFromParametricValues(self.pointParams)
+        targetPos = kinematic.getPointFromParametricValues(self.pointParams)
         force = springStretchForce(x, targetPos, self.restLength, self.stiffness)
         force += springDampingForce(x, targetPos, v, (0,0), self.damping)
         self.f[0] = force
     
     def computeJacobians(self, scene):
+        kinematic = scene.kinematics[self.kinematicIndex]
         dynamic = scene.dynamics[self.dynamicIndices[0]]
         x = dynamic.x[self.localIds[0]]
         v = dynamic.v[self.localIds[0]]
-        targetPos = self.kinematic.getPointFromParametricValues(self.pointParams)
+        targetPos = kinematic.getPointFromParametricValues(self.pointParams)
         # Numerical jacobians
         #self.dfdx[0] = numericalJacobian(springStretchForce, 0, x, targetPos, self.restLength, self.stiffness)
         #self.dfdv[0] = numericalJacobian(springDampingForce, 2, x, targetPos, v, (0,0), self.damping)
