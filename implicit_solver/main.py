@@ -42,14 +42,16 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 def createWireScene():
     # Create dynamic objects / kinematic objects / scene
     wire = dyn.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
-    
-    cube = kin.RectangleKinematic(WIRE_ROOT_POS[0]-0.1, WIRE_ROOT_POS[1]+0.5, WIRE_ROOT_POS[0]+0.1, WIRE_ROOT_POS[1])
+    point = kin.PointKinematic(WIRE_ROOT_POS)
+    pointPos = point.position
+    movePoint = lambda time : [[pointPos[0] + math.sin(2.0 * time) * 0.1, pointPos[1] + math.sin(time * 4.0)], 0.0]
+    point.animationFunc = movePoint
     
     scene = sc.Scene(GRAVITY)
     scene.addDynamic(wire)
-    scene.addKinematic(cube)
+    scene.addKinematic(point)
     scene.updateKinematics(0.0) # set kinematic objects at start frame
-    scene.addAttachment(wire, cube, 100.0, 0.0, 0.1)
+    scene.addAttachment(wire, point, 100.0, 0.0, 0.1)
     return scene
 
 def createBeamScene():   

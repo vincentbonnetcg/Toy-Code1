@@ -78,6 +78,14 @@ class BaseKinematic:
         return self.getPointFromParametricValues(params)
 
 '''
+ Point Kinematic
+'''
+class PointKinematic(BaseKinematic):
+    def __init__(self, point):
+        BaseKinematic.__init__(self, [0,0])
+        self.localSpaceVertices.append(point)
+    
+'''
  Rectangle Kinematic
 '''
 class RectangleKinematic(BaseKinematic):

@@ -13,7 +13,7 @@ class Scene:
         self.kinematics = [] # kinematic objects
         self.constraints = [] # constraints
         self.gravity = gravity
-        
+
     def addDynamic(self, dynamic):
         index = (len(self.dynamics))
         self.dynamics.append(dynamic)
