@@ -14,9 +14,9 @@ import math
 '''
  Global Constants
 '''
-WIRE_ROOT_POS = [0., -1.] # in meters
-WIRE_LENGTH = 2.0 # in meters
-WIRE_NUM_SEGMENTS = 4
+WIRE_ROOT_POS = [0., 0.] # in meters
+WIRE_END_POS = [2., 0.] # in meters
+WIRE_NUM_SEGMENTS = 10
 
 BEAM_POS = [-4.0, 0.0] # in meters
 BEAM_WIDTH = 8.0 # in meters
@@ -41,7 +41,7 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 '''
 def createWireScene():
     # Create dynamic objects / kinematic objects / scene
-    wire = dyn.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
+    wire = dyn.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
     point = kin.PointKinematic(WIRE_ROOT_POS)
     pointPos = point.position
     movePoint = lambda time : [[pointPos[0] + math.sin(2.0 * time) * 0.1, pointPos[1] + math.sin(time * 4.0)], 0.0]
@@ -54,10 +54,12 @@ def createWireScene():
     scene.addAttachment(wire, point, 100.0, 0.0, 0.1)
     return scene
 
-def createBeamScene():   
+def createBeamScene():
     # Create dynamic objects / kinematic objects / scene
     beam = dyn.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
-    wire = dyn.Wire(WIRE_ROOT_POS, WIRE_LENGTH, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
+    skinStartPos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
+    skinEndPos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
+    skin = dyn.Wire(skinStartPos, skinEndPos, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
     
     leftAnchor = kin.RectangleKinematic(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     rightAnchor = kin.RectangleKinematic(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
@@ -72,7 +74,7 @@ def createBeamScene():
 
     scene = sc.Scene(GRAVITY)
     scene.addDynamic(beam)
-    scene.addDynamic(wire)
+    scene.addDynamic(skin)
     scene.addKinematic(leftAnchor)
     scene.addKinematic(rightAnchor)
     scene.updateKinematics(0.0) # set kinematic objects at start frame

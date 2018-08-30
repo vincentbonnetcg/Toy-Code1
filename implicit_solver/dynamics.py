@@ -35,14 +35,14 @@ class BaseDynamic:
  Wire
 '''
 class Wire(BaseDynamic):
-    def __init__(self, root, length, numEdges, particleMass, stiffness, damping):
+    def __init__(self, startPoint, endPoint, numEdges, particleMass, stiffness, damping):
         BaseDynamic.__init__(self, numEdges+1, particleMass, stiffness, damping)
         self.numEdges = numEdges
         
-        # Set position : start the rod in a horizontal position
-        axisx = np.linspace(root[0], root[0]+length, num=self.numParticles, endpoint=True)
+        axisx = np.linspace(startPoint[0], endPoint[0], num=self.numParticles, endpoint=True)
+        axisy = np.linspace(startPoint[1], endPoint[1], num=self.numParticles, endpoint=True)
         for i in range(self.numParticles):
-            self.x[i] = (axisx[i], root[1])
+            self.x[i] = (axisx[i], axisy[1])
 
     def createInternalConstraints(self):
         for i in range(self.numEdges):
