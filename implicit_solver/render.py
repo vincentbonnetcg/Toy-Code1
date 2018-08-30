@@ -49,7 +49,7 @@ class Render:
         # Draw particles
         for data in scene.dynamics:
             x, y = zip(*data.x)
-            self.ax.plot(x, y, 'go')
+            self.ax.plot(x, y, 'go', markersize=3)
             
         # Draw kinematics
         for data in scene.kinematics:

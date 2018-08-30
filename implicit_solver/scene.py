@@ -42,19 +42,28 @@ class Scene:
             numParticles += dynamic.numParticles
         return numParticles
 
-    def addAttachment(self, dynamic, kinematic, stiffness, damping, distance):
+    def attachToKinematic(self, dynamic, kinematic, stiffness, damping, distance):
         # Linear search => it will be inefficient for dynamic objects with many particles
         distance2 = distance * distance
-        particleId = 0
-        for x in dynamic.x:
+        for particleId, x in enumerate(dynamic.x):
             attachmentPointParams = kinematic.getClosestParametricValues(x)
             attachmentPoint = kinematic.getPointFromParametricValues(attachmentPointParams)
             direction = (attachmentPoint - x)
             dist2 = np.inner(direction, direction)
             if (dist2 < distance2):
-                constraint = cn.AnchorSpringConstraint(stiffness, damping, dynamic, particleId, kinematic, attachmentPointParams)               
+                constraint = cn.AnchorSpringConstraint(stiffness, damping, dynamic, particleId, kinematic, attachmentPointParams)
                 self.constraints.append(constraint)
-            particleId += 1
+    
+    def attachToDynamic(self, dynamic0, dynamic1, stiffness, damping, distance):
+        # Linear search => it will be inefficient for dynamic objects with many particles
+        distance2 = distance * distance
+        for x0i, x0 in enumerate(dynamic0.x):
+            for x1i, x1 in enumerate(dynamic1.x):
+                direction = (x0 - x1)
+                dist2 = np.inner(direction, direction)
+                if (dist2 < distance2):
+                    constraint = cn.SpringConstraint(stiffness, damping, [dynamic0, dynamic1], [x0i, x1i])
+                    self.constraints.append(constraint)
         
     def getConstraintsIterator(self):
         values = []
