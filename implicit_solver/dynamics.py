@@ -27,6 +27,12 @@ class BaseDynamic:
         
         # Initialize constraints
         self.constraints = []
+        
+        # Render preferences used by render.py
+        # See : https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html for more details
+        # fmt = '[color][marker][line]'
+        # format of the display State ['particle_fmt', particle_size, 'constraint_fmt', constraint_line_size ]
+        self.renderPrefs = ['go', 3, 'k-', 1]
     
     def createInternalConstraints(self):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'createInternalConstraints'")

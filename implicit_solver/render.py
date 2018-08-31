@@ -36,24 +36,24 @@ class Render:
         plt.ylabel('y (in meters)')
         
         # Draw objects constraints
-        for data in scene.dynamics:
-            for constraint in data.constraints:              
+        for dynamic in scene.dynamics:
+            for constraint in dynamic.constraints:              
                 ids = constraint.localIds
                 if (len(ids) >= 2):
                     linedata = []
                     for pid in ids:
-                        linedata.append(data.x[pid])
+                        linedata.append(dynamic.x[pid])
                     x, y = zip(*linedata)
-                    self.ax.plot(x, y, 'k-', lw=1)
+                    self.ax.plot(x, y, dynamic.renderPrefs[2], lw=dynamic.renderPrefs[3])
         
         # Draw particles
-        for data in scene.dynamics:
-            x, y = zip(*data.x)
-            self.ax.plot(x, y, 'go', markersize=3)
+        for dynamic in scene.dynamics:
+            x, y = zip(*dynamic.x)
+            self.ax.plot(x, y, dynamic.renderPrefs[0], markersize=dynamic.renderPrefs[1])
             
         # Draw kinematics
-        for data in scene.kinematics:
-            vertices = data.getWorldSpaceVertices()
+        for kinematic in scene.kinematics:
+            vertices = kinematic.getWorldSpaceVertices()
             polygon  = patches.Polygon(vertices, facecolor='orange', alpha=0.8)
             self.ax.add_patch(polygon)
 

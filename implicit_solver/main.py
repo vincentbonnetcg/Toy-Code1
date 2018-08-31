@@ -57,9 +57,12 @@ def createWireScene():
 def createBeamScene():
     # Create dynamic objects / kinematic objects / scene
     beam = dyn.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
-    skinStartPos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
-    skinEndPos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
-    skin = dyn.Wire(skinStartPos, skinEndPos, BEAM_CELL_X * 8, PARTICLE_MASS * 0.1, STIFFNESS, DAMPING)
+    beam.renderPrefs = ['go', 3, 'k:', 1]
+    
+    wireStartPos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
+    wireEndPos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
+    wire = dyn.Wire(wireStartPos, wireEndPos, BEAM_CELL_X * 8, PARTICLE_MASS * 0.1, STIFFNESS * 0.5, DAMPING)
+    wire.renderPrefs = ['co', 1, 'm-', 1]
     
     leftAnchor = kin.RectangleKinematic(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     rightAnchor = kin.RectangleKinematic(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
@@ -74,13 +77,13 @@ def createBeamScene():
 
     scene = sc.Scene(GRAVITY)
     scene.addDynamic(beam)
-    scene.addDynamic(skin)
+    scene.addDynamic(wire)
     scene.addKinematic(leftAnchor)
     scene.addKinematic(rightAnchor)
     scene.updateKinematics(0.0) # set kinematic objects at start frame
     scene.attachToKinematic(beam, rightAnchor, 100.0, 0.0, 0.1)
     scene.attachToKinematic(beam, leftAnchor, 100.0, 0.0, 0.1)
-    scene.attachToDynamic(beam, skin, 100.0, 0.0, 0.001)
+    scene.attachToDynamic(beam, wire, 100.0, 0.0, 0.001)
    
     return scene 
 
