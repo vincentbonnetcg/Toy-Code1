@@ -60,6 +60,7 @@ class Render:
     # Draw and display single frame
     @profiler.timeit
     def showCurrentFrame(self, scene, frameId):
+        #self.fig = plt.figure(figsize=(7, 4), dpi=200) # to export higher resolution images
         self.fig = plt.figure()
         self._render(scene, frameId)
         plt.show()
