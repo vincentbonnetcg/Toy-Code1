@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import differentiator as diff
+import differentiation as diff
 
 '''
  Base Constraint
