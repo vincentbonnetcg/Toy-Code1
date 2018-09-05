@@ -30,27 +30,20 @@ def numericalGradient(function, argumentId, componentId, *args):
     coefs = FIRST_DERIVATIVE_COEFS[accuracyOrderIndex]
 
     argsList = list(args)
+    array = argsList
+    valueId = argumentId
+    if (not np.isscalar(args[argumentId])):
+        array = argsList[argumentId]
+        valueId = componentId
+
     gradient = None
-    
-    if (np.isscalar(args[argumentId])):
-        pass
-        component = argsList[argumentId]
-        stencils = np.add(offsets, component)
-        for i in range(len(stencils)):
-            argsList[argumentId] = stencils[i]
-            if (gradient is None):
-                gradient = np.multiply(function(*argsList), coefs[i])
-            else:
-                gradient += np.multiply(function(*argsList), coefs[i])
-    else:
-        component = argsList[argumentId][componentId]
-        stencils = np.add(offsets, component)
-        for i in range(len(stencils)):
-            argsList[argumentId][componentId] = stencils[i]
-            if (gradient is None):
-                gradient = np.multiply(function(*argsList), coefs[i])
-            else:
-                gradient += np.multiply(function(*argsList), coefs[i])
+    stencils = np.add(offsets, array[valueId])
+    for i in range(len(stencils)):
+        array[valueId] = stencils[i]
+        if (gradient is None):
+            gradient = np.multiply(function(*argsList), coefs[i])
+        else:
+            gradient += np.multiply(function(*argsList), coefs[i])
 
     gradient /= STENCIL_SIZE
     return gradient
