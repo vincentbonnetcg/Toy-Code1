@@ -18,16 +18,16 @@ class BaseConstraint:
         self.f = np.zeros((N, 2))
         # Particle identifications
         self.localIds = np.copy(particlesIds) # local particle indices
-        self.dynamicIndices = np.zeros(N, dtype=int)
+        self.dynamicIndices = np.zeros(N, dtype=int) # indices of the dynamic objects
         self.globalIds = np.zeros(N, dtype=int)
         for i in range(N):
             self.dynamicIndices[i] = dynamics[i].index
             self.globalIds[i] = self.localIds[i] + dynamics[i].globalOffset
         
         # Precomputed jacobians.
-        # TODO - should improve that to have better support of constraint with more than two particles
-        self.dfdx = np.zeros((N,2,2))
-        self.dfdv = np.zeros((N,2,2))
+        # NxN matrix where each element is a 2x2 submatrix 
+        self.dfdx = np.zeros((N,N,2,2))
+        self.dfdv = np.zeros((N,N,2,2))
 
     def applyForces(self, scene):      
         for i in range(len(self.localIds)):
@@ -41,10 +41,10 @@ class BaseConstraint:
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'computeJacobians'")
 
     def getJacobianDx(self, fi, xj):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'getJacobianDx'")
+        return self.dfdx[fi][xj]
         
     def getJacobianDv(self, fi, xj):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'getJacobianDv'")
+        return self.dfdv[fi][xj]
 
 '''
  Anchor Spring Constraint
@@ -58,35 +58,33 @@ class AnchorSpringConstraint(BaseConstraint):
        self.pointParams = pointParams
        self.kinematicIndex = kinematic.index
 
-    def computeForces(self, scene):
+    def getStates(self, scene):
         kinematic = scene.kinematics[self.kinematicIndex]
         dynamic = scene.dynamics[self.dynamicIndices[0]]
         x = dynamic.x[self.localIds[0]]
         v = dynamic.v[self.localIds[0]]
+        return (kinematic, x, v)
+
+    def computeForces(self, scene):
+        kinematic, x, v = self.getStates(scene)
         targetPos = kinematic.getPointFromParametricValues(self.pointParams)
         force = springStretchForce(x, targetPos, self.restLength, self.stiffness)
         force += springDampingForce(x, targetPos, v, (0,0), self.damping)
         self.f[0] = force
-    
+
     def computeJacobians(self, scene):
-        kinematic = scene.kinematics[self.kinematicIndex]
-        dynamic = scene.dynamics[self.dynamicIndices[0]]
-        x = dynamic.x[self.localIds[0]]
-        v = dynamic.v[self.localIds[0]]
+        kinematic, x, v = self.getStates(scene)
         targetPos = kinematic.getPointFromParametricValues(self.pointParams)
         # Numerical jacobians
-        #self.dfdx[0] = diff.numericalJacobian(springStretchForce, 0, x, targetPos, self.restLength, self.stiffness)
-        #self.dfdv[0] = diff.numericalJacobian(springDampingForce, 2, x, targetPos, v, (0,0), self.damping)
+        dfdx = springStretchJacobian(x, targetPos, self.restLength, self.stiffness)
+        dfdv = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)
         # Analytic jacobians
-        self.dfdx[0] = springStretchJacobian(x, targetPos, self.restLength, self.stiffness)
-        self.dfdv[0] = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)
-        
-    def getJacobianDx(self, fi, xj):
-        return self.dfdx[0]
-
-    def getJacobianDv(self, fi, xj):
-        return self.dfdv[0]
-
+        #dfdx = diff.numericalJacobian(springStretchForce, 0, x, targetPos, self.restLength, self.stiffness)
+        #dfdv = diff.numericalJacobian(springDampingForce, 2, x, targetPos, v, (0,0), self.damping)
+        # Set jacobians
+        self.dfdx[0][0] = dfdx
+        self.dfdv[0][0] = dfdv
+       
 '''
  Spring Constraint
  Describes a constraint between two particles
@@ -95,35 +93,44 @@ class SpringConstraint(BaseConstraint):
     def __init__(self, stiffness, damping, dynamics, particleIds):
         BaseConstraint.__init__(self, stiffness, damping, dynamics, particleIds)
         self.restLength = np.linalg.norm(dynamics[0].x[particleIds[0]] - dynamics[1].x[particleIds[1]])
-
-    def computeForces(self, scene):
+        
+    def getStates(self, scene):
         dynamic0 = scene.dynamics[self.dynamicIndices[0]]
         dynamic1 = scene.dynamics[self.dynamicIndices[1]]
         x0 = dynamic0.x[self.localIds[0]]
         x1 = dynamic1.x[self.localIds[1]]
         v0 = dynamic0.v[self.localIds[0]]
         v1 = dynamic1.v[self.localIds[1]]
+        return (x0, x1, v0, v1)
+
+    def computeForces(self, scene):
+        x0, x1, v0, v1 = self.getStates(scene)
         force = springStretchForce(x0, x1, self.restLength, self.stiffness)
         force += springDampingForce(x0, x1, v0, v1, self.damping)
         self.f[0] = force
         self.f[1] = force * -1
 
     def computeJacobians(self, scene):
-        dynamic0 = scene.dynamics[self.dynamicIndices[0]]
-        dynamic1 = scene.dynamics[self.dynamicIndices[1]]
-        x0 = dynamic0.x[self.localIds[0]]
-        x1 = dynamic1.x[self.localIds[1]]
-        v0 = dynamic0.v[self.localIds[0]]
-        v1 = dynamic1.v[self.localIds[1]]     
+        x0, x1, v0, v1 = self.getStates(scene)
         # Numerical jacobians
-        #self.dfdx[0] = diff.numericalJacobian(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
-        #self.dfdv[0] = diff.numericalJacobian(springDampingForce, 2, x0, x1, v0, v1, self.damping)
+        #dfdx = diff.numericalJacobian(springStretchForce, 0, x0, x1, self.restLength, self.stiffness)
+        #dfdv = diff.numericalJacobian(springDampingForce, 2, x0, x1, v0, v1, self.damping)
         # Analytic jacobians
-        self.dfdx[0] = springStretchJacobian(x0, x1, self.restLength, self.stiffness)
-        self.dfdv[0] = springDampingJacobian(x0, x1, v0, v1, self.damping)
-        self.dfdx[1] = self.dfdx[0] * -1
-        self.dfdv[1] = self.dfdv[1] * -1
+        dfdx = springStretchJacobian(x0, x1, self.restLength, self.stiffness)
+        dfdv = springDampingJacobian(x0, x1, v0, v1, self.damping)
+        # Set jacobians
+        self.dfdx[0][0] = dfdx
+        self.dfdx[1][1] = dfdx
+        self.dfdx[0][1] = dfdx * -1
+        self.dfdx[1][0] = dfdx * -1
+        
+        self.dfdv[0][0] = dfdv
+        self.dfdv[1][1] = dfdv
+        self.dfdv[0][1] = dfdv * -1
+        self.dfdv[1][0] = dfdv * -1
+        
 
+    '''
     def getJacobianDx(self, fi, xj):
         #(df/dx)ji = (df/dx)ij = Jx 
         #(df/dx)ii = (df/dx)jj = -Jx
@@ -137,7 +144,9 @@ class SpringConstraint(BaseConstraint):
         if (fi == xj):
             return self.dfdv[0]
         return self.dfdv[1]
-
+    '''
+    
+    
 '''
  Constraint Utility Functions
 '''
@@ -180,6 +189,7 @@ def springStretchForce(x0, x1, rest, stiffness):
 
 def elasticPotentialEnergy(x0, x1, rest, stiffness):
     direction = x1 - x0
+    
     displacement = np.linalg.norm(direction) - rest
     return 0.5 * stiffness * (displacement * displacement)
 
