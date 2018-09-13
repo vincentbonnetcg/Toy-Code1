@@ -128,24 +128,6 @@ class SpringConstraint(BaseConstraint):
         self.dfdv[1][1] = dfdv
         self.dfdv[0][1] = dfdv * -1
         self.dfdv[1][0] = dfdv * -1
-        
-
-    '''
-    def getJacobianDx(self, fi, xj):
-        #(df/dx)ji = (df/dx)ij = Jx 
-        #(df/dx)ii = (df/dx)jj = -Jx
-        if (fi == xj):
-            return self.dfdx[0]
-        return self.dfdx[1]
-
-    def getJacobianDv(self, fi, xj):
-        #(df/dv)ji = (df/dv)ij = Jx 
-        #(df/dv)ii = (df/dv)jj = -Jx
-        if (fi == xj):
-            return self.dfdv[0]
-        return self.dfdv[1]
-    '''
-    
     
 '''
  Constraint Utility Functions
