@@ -29,7 +29,7 @@ class BaseConstraint:
         self.dfdx = np.zeros((N,N,2,2))
         self.dfdv = np.zeros((N,N,2,2))
 
-    def applyForces(self, scene):      
+    def applyForces(self, scene):
         for i in range(len(self.localIds)):
             dynamic = scene.dynamics[self.dynamicIndices[i]] 
             dynamic.f[self.localIds[i]] += self.f[i]
@@ -45,6 +45,7 @@ class BaseConstraint:
         
     def getJacobianDv(self, fi, xj):
         return self.dfdv[fi][xj]
+
 
 '''
  Anchor Spring Constraint
@@ -68,23 +69,28 @@ class AnchorSpringConstraint(BaseConstraint):
     def computeForces(self, scene):
         kinematic, x, v = self.getStates(scene)
         targetPos = kinematic.getPointFromParametricValues(self.pointParams)
+        # Numerical forces
+        # f = -de/dx : the force is f,  e is the energy and x is the position
+        #force = diff.numericalJacobian(elasticPotentialEnergy, 0, x, targetPos, self.restLength, self.stiffness)[0] * -1.0
+        # Analytic forces
         force = springStretchForce(x, targetPos, self.restLength, self.stiffness)
         force += springDampingForce(x, targetPos, v, (0,0), self.damping)
+        # Set forces
         self.f[0] = force
 
     def computeJacobians(self, scene):
         kinematic, x, v = self.getStates(scene)
         targetPos = kinematic.getPointFromParametricValues(self.pointParams)
         # Numerical jacobians
-        dfdx = springStretchJacobian(x, targetPos, self.restLength, self.stiffness)
-        dfdv = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)
-        # Analytic jacobians
         #dfdx = diff.numericalJacobian(springStretchForce, 0, x, targetPos, self.restLength, self.stiffness)
         #dfdv = diff.numericalJacobian(springDampingForce, 2, x, targetPos, v, (0,0), self.damping)
+        # Analytic jacobians
+        dfdx = springStretchJacobian(x, targetPos, self.restLength, self.stiffness)
+        dfdv = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)
         # Set jacobians
         self.dfdx[0][0] = dfdx
         self.dfdv[0][0] = dfdv
-       
+
 '''
  Spring Constraint
  Describes a constraint between two particles
@@ -105,8 +111,13 @@ class SpringConstraint(BaseConstraint):
 
     def computeForces(self, scene):
         x0, x1, v0, v1 = self.getStates(scene)
+        # Numerical forces
+        # f = -de/dx : the force is f,  e is the energy and x is the position
+        #force = diff.numericalJacobian(elasticPotentialEnergy, 0, x0, x1, self.restLength, self.stiffness)[0] * -1.0
+        # Analytic forces
         force = springStretchForce(x0, x1, self.restLength, self.stiffness)
         force += springDampingForce(x0, x1, v0, v1, self.damping)
+        # Set forces
         self.f[0] = force
         self.f[1] = force * -1
 
@@ -171,9 +182,8 @@ def springStretchForce(x0, x1, rest, stiffness):
 
 def elasticPotentialEnergy(x0, x1, rest, stiffness):
     direction = x1 - x0
-    
-    displacement = np.linalg.norm(direction) - rest
-    return 0.5 * stiffness * (displacement * displacement)
+    stretch = np.linalg.norm(direction)
+    return 0.5 * stiffness * ((stretch - rest) * (stretch - rest))
 
 def springDampingForce(x0, x1, v0, v1, damping):
     direction = x1 - x0

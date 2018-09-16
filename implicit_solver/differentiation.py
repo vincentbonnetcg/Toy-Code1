@@ -71,7 +71,7 @@ def numericalJacobian(function, argumentId, *args):
     if len(gradientList)>0:
         if (not np.isscalar(gradientList[0])):
             functionCodomainDimension = len(gradientList[0])
-           
+
         jacobian = np.zeros(shape=(functionCodomainDimension, functionDomainDimension))
         for gradientId in range(len(gradientList)):
             jacobian[0:functionCodomainDimension, gradientId] = gradientList[gradientId]
