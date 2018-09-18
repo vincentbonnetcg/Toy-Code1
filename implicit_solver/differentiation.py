@@ -24,7 +24,7 @@ ACCURACY_ORDER = 2
 
 # function : function to derivate
 # Accuracy Order can be 2, 4, 6
-def numericalGradient(function, argumentId, componentId, *args):
+def numericalDifferentiation(function, argumentId, componentId, *args):
     accuracyOrderIndex = (int)(ACCURACY_ORDER / 2) - 1
     offsets = FIRST_DERIVATIVE_OFFSET[accuracyOrderIndex]
     coefs = FIRST_DERIVATIVE_COEFS[accuracyOrderIndex]
@@ -53,6 +53,7 @@ def numericalGradient(function, argumentId, componentId, *args):
 # 'Function codomain dimension' : dimension of the function output
 # 'Function domain dimension' : dimension of the input argumentId of the function
 # Warning : Only use scalar as argument (no integer/boolean)
+# Note : This function can be used to compute the gradient of function
 def numericalJacobian(function, argumentId, *args):
     functionCodomainDimension = 1 # default when np.isscalar(args[argumentId])
     functionDomainDimension = 1 # default when np.isscalar(gradientList[0])
@@ -64,7 +65,7 @@ def numericalJacobian(function, argumentId, *args):
         functionDomainDimension = len(args[argumentId])
 
     for componentId in range(functionDomainDimension):
-        gradient = numericalGradient(function, argumentId, componentId, *args)
+        gradient = numericalDifferentiation(function, argumentId, componentId, *args)
         gradientList.append(gradient)
 
     # assemble jacobian from gradients
@@ -72,6 +73,12 @@ def numericalJacobian(function, argumentId, *args):
         if (not np.isscalar(gradientList[0])):
             functionCodomainDimension = len(gradientList[0])
 
+        if (functionCodomainDimension == 1):
+            gradient = np.zeros(functionDomainDimension)
+            for gradientId in range(len(gradientList)):
+                gradient[gradientId] = gradientList[gradientId]
+            return gradient
+        
         jacobian = np.zeros(shape=(functionCodomainDimension, functionDomainDimension))
         for gradientId in range(len(gradientList)):
             jacobian[0:functionCodomainDimension, gradientId] = gradientList[gradientId]
