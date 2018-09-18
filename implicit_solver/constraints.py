@@ -71,7 +71,7 @@ class AnchorSpringConstraint(BaseConstraint):
         targetPos = kinematic.getPointFromParametricValues(self.pointParams)
         # Numerical forces
         # f = -de/dx : the force is f,  e is the energy and x is the position
-        #force = diff.numericalJacobian(elasticPotentialEnergy, 0, x, targetPos, self.restLength, self.stiffness)[0] * -1.0
+        #force = diff.numericalJacobian(elasticSpringEnergy, 0, x, targetPos, self.restLength, self.stiffness)[0] * -1.0
         # Analytic forces
         force = springStretchForce(x, targetPos, self.restLength, self.stiffness)
         force += springDampingForce(x, targetPos, v, (0,0), self.damping)
@@ -113,7 +113,7 @@ class SpringConstraint(BaseConstraint):
         x0, x1, v0, v1 = self.getStates(scene)
         # Numerical forces
         # f = -de/dx : the force is f,  e is the energy and x is the position
-        #force = diff.numericalJacobian(elasticPotentialEnergy, 0, x0, x1, self.restLength, self.stiffness)[0] * -1.0
+        #force = diff.numericalJacobian(elasticSpringEnergy, 0, x0, x1, self.restLength, self.stiffness)[0] * -1.0
         # Analytic forces
         force = springStretchForce(x0, x1, self.restLength, self.stiffness)
         force += springDampingForce(x0, x1, v0, v1, self.damping)
@@ -139,7 +139,56 @@ class SpringConstraint(BaseConstraint):
         self.dfdv[1][1] = dfdv
         self.dfdv[0][1] = dfdv * -1
         self.dfdv[1][0] = dfdv * -1
+
+'''
+ Area Constraint
+ Describes a constraint between three particles
+'''
+class AreaConstraint(BaseConstraint):
+    def __init__(self, stiffness, damping, dynamics, particleIds):
+        BaseConstraint.__init__(self, stiffness, damping, dynamics, particleIds)
+        x0 = dynamics[0].x[particleIds[0]]
+        x1 = dynamics[1].x[particleIds[1]]
+        x2 = dynamics[2].x[particleIds[2]]
+        v01 = np.subtract(x1, x0)
+        v02 = np.subtract(x2, x0)
+        self.restArea = np.abs(np.cross(v01, v02)) * 0.5
+
+    def getStates(self, scene):
+        dynamic0 = scene.dynamics[self.dynamicIndices[0]]
+        dynamic1 = scene.dynamics[self.dynamicIndices[1]]
+        dynamic2 = scene.dynamics[self.dynamicIndices[2]]
+        x0 = dynamic0.x[self.localIds[0]]
+        x1 = dynamic1.x[self.localIds[1]]
+        x2 = dynamic2.x[self.localIds[2]]
+        v0 = dynamic0.v[self.localIds[0]]
+        v1 = dynamic1.v[self.localIds[1]]
+        v2 = dynamic2.v[self.localIds[1]]
+        return (x0, x1, x2, v0, v1, v2)
     
+    def computeForces(self, scene):
+        x0, x1, x2, v0, v1, v2 = self.getStates(scene)
+        # Numerical forces
+        force0 = diff.numericalJacobian(elasticAreaEnergy, 0, x0, x1, x2, self.restArea, self.stiffness)[0] * -1.0
+        force1 = diff.numericalJacobian(elasticAreaEnergy, 1, x0, x1, x2, self.restArea, self.stiffness)[0] * -1.0
+        force2 = diff.numericalJacobian(elasticAreaEnergy, 2, x0, x1, x2, self.restArea, self.stiffness)[0] * -1.0
+        print("----")
+        print(force0 + force1 + force2)
+        # TODO
+        # Analytic forces
+        # TODO
+        # Set forces
+        # TODO
+        
+    def computeJacobians(self, scene): 
+        x0, x1, x2, v0, v1, v2 = self.getStates(scene)
+        # Numerical jacobians
+        # TODO
+        # Analytic jacobians
+        # TODO
+        # Set jacobians
+        # TODO
+
 '''
  Constraint Utility Functions
 '''
@@ -180,11 +229,6 @@ def springStretchForce(x0, x1, rest, stiffness):
          direction /= stretch
     return direction * ((stretch - rest) * stiffness)
 
-def elasticPotentialEnergy(x0, x1, rest, stiffness):
-    direction = x1 - x0
-    stretch = np.linalg.norm(direction)
-    return 0.5 * stiffness * ((stretch - rest) * (stretch - rest))
-
 def springDampingForce(x0, x1, v0, v1, damping):
     direction = x1 - x0
     stretch = np.linalg.norm(direction)
@@ -193,4 +237,14 @@ def springDampingForce(x0, x1, v0, v1, damping):
     relativeVelocity = v1 - v0
     return direction * (np.dot(relativeVelocity, direction) * damping)
 
+def elasticSpringEnergy(x0, x1, rest, stiffness):
+    direction = x1 - x0
+    stretch = np.linalg.norm(direction)
+    return 0.5 * stiffness * ((stretch - rest) * (stretch - rest))
+
+def elasticAreaEnergy(x0, x1, x2, restArea, stiffness):
+    v01 = np.subtract(x1, x0)
+    v02 = np.subtract(x2, x0)
+    area = np.abs(np.cross(v01, v02)) * 0.5
+    return 0.5 * stiffness * ((area - restArea) * (area - restArea))
 

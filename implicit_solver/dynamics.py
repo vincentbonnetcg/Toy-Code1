@@ -78,6 +78,7 @@ class Beam(BaseDynamic):
 
     def createInternalConstraints(self):
         cell_to_pids = lambda i, j : [i + (j*(self.cellX+1)) , i + (j*(self.cellX+1)) + 1 , i + ((j+1)*(self.cellX+1)), i + ((j+1)*(self.cellX+1)) + 1]
+        # Compute Spring Constraint
         for j in range(self.cellY):
             for i in range(self.cellX):
                 pids = cell_to_pids(i, j)
@@ -92,3 +93,13 @@ class Beam(BaseDynamic):
                     
                 self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[3]]))
                 self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[2]]))
+
+        # Compute Area Constraint
+        '''
+        for j in range(self.cellY):
+            for i in range(self.cellX):
+                pids = cell_to_pids(i, j)
+                
+                self.constraints.append(cn.AreaConstraint(self.stiffness, self.damping, [self, self, self], [pids[0], pids[1], pids[2]]))
+                self.constraints.append(cn.AreaConstraint(self.stiffness, self.damping, [self, self, self], [pids[1], pids[2], pids[3]]))
+        '''

@@ -75,5 +75,5 @@ def numericalJacobian(function, argumentId, *args):
         jacobian = np.zeros(shape=(functionCodomainDimension, functionDomainDimension))
         for gradientId in range(len(gradientList)):
             jacobian[0:functionCodomainDimension, gradientId] = gradientList[gradientId]
-    
-        return jacobian            
+
+        return jacobian
