@@ -9,6 +9,7 @@
 
 
 import numpy as np
+import copy
 
 # Central Difference tables and accuracy order
 STENCIL_SIZE = 1e-6
@@ -29,7 +30,7 @@ def numericalDifferentiation(function, argumentId, componentId, *args):
     offsets = FIRST_DERIVATIVE_OFFSET[accuracyOrderIndex]
     coefs = FIRST_DERIVATIVE_COEFS[accuracyOrderIndex]
 
-    argsList = list(args)
+    argsList = copy.deepcopy(args)
     array = argsList
     valueId = argumentId
     if (not np.isscalar(args[argumentId])):
@@ -37,7 +38,7 @@ def numericalDifferentiation(function, argumentId, componentId, *args):
         valueId = componentId
 
     gradient = None
-    stencils = np.add(offsets, array[valueId])
+    stencils = np.add(offsets, array[valueId])   
     for i in range(len(stencils)):
         array[valueId] = stencils[i]
         if (gradient is None):

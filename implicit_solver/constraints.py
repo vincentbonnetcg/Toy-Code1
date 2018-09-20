@@ -71,7 +71,7 @@ class AnchorSpringConstraint(BaseConstraint):
         targetPos = kinematic.getPointFromParametricValues(self.pointParams)
         # Numerical forces
         # f = -de/dx : the force is f,  e is the energy and x is the position
-        #force = diff.numericalJacobian(elasticSpringEnergy, 0, x, targetPos, self.restLength, self.stiffness)[0] * -1.0
+        #force = diff.numericalJacobian(elasticSpringEnergy, 0, x, targetPos, self.restLength, self.stiffness) * -1.0
         # Analytic forces
         force = springStretchForce(x, targetPos, self.restLength, self.stiffness)
         force += springDampingForce(x, targetPos, v, (0,0), self.damping)
@@ -113,7 +113,7 @@ class SpringConstraint(BaseConstraint):
         x0, x1, v0, v1 = self.getStates(scene)
         # Numerical forces
         # f = -de/dx : the force is f,  e is the energy and x is the position
-        #force = diff.numericalJacobian(elasticSpringEnergy, 0, x0, x1, self.restLength, self.stiffness)[0] * -1.0
+        #force = diff.numericalJacobian(elasticSpringEnergy, 0, x0, x1, self.restLength, self.stiffness) * -1.0
         # Analytic forces
         force = springStretchForce(x0, x1, self.restLength, self.stiffness)
         force += springDampingForce(x0, x1, v0, v1, self.damping)
@@ -169,11 +169,9 @@ class AreaConstraint(BaseConstraint):
     def computeForces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical forces
-        force0 = diff.numericalJacobian(elasticAreaEnergy, 0, x0, x1, x2, self.restArea, self.stiffness)[0] * -1.0
-        force1 = diff.numericalJacobian(elasticAreaEnergy, 1, x0, x1, x2, self.restArea, self.stiffness)[0] * -1.0
-        force2 = diff.numericalJacobian(elasticAreaEnergy, 2, x0, x1, x2, self.restArea, self.stiffness)[0] * -1.0
-        print("----")
-        print(force0 + force1 + force2)
+        #force0 = diff.numericalJacobian(elasticAreaEnergy, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        #force1 = diff.numericalJacobian(elasticAreaEnergy, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        #force2 = diff.numericalJacobian(elasticAreaEnergy, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
         # TODO
         # Analytic forces
         # TODO
@@ -182,7 +180,7 @@ class AreaConstraint(BaseConstraint):
         
     def computeJacobians(self, scene): 
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
-        # Numerical jacobians
+        # Numerical jacobians (Aka Hessian of the energy)
         # TODO
         # Analytic jacobians
         # TODO
