@@ -86,7 +86,7 @@ class AnchorSpringConstraint(BaseConstraint):
         #dfdv = diff.numericalJacobian(springDampingForce, 2, x, targetPos, v, (0,0), self.damping)
         # Analytic jacobians
         dfdx = springStretchJacobian(x, targetPos, self.restLength, self.stiffness)
-        dfdv = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)
+        dfdv = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)        
         # Set jacobians
         self.dfdx[0][0] = dfdx
         self.dfdv[0][0] = dfdv
@@ -169,24 +169,38 @@ class AreaConstraint(BaseConstraint):
     def computeForces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical forces
-        #force0 = diff.numericalJacobian(elasticAreaEnergy, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        #force1 = diff.numericalJacobian(elasticAreaEnergy, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        #force2 = diff.numericalJacobian(elasticAreaEnergy, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        # TODO
+        force0 = diff.numericalJacobian(elasticAreaEnergy, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        force1 = diff.numericalJacobian(elasticAreaEnergy, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        force2 = diff.numericalJacobian(elasticAreaEnergy, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
         # Analytic forces
         # TODO
         # Set forces
-        # TODO
+        self.f[0] = force0
+        self.f[1] = force1
+        self.f[2] = force2
         
     def computeJacobians(self, scene): 
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical jacobians (Aka Hessian of the energy)
-        # TODO
+        dfdx00 = diff.numericalHessian(elasticAreaEnergy, 0, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx11 = diff.numericalHessian(elasticAreaEnergy, 1, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx22 = diff.numericalHessian(elasticAreaEnergy, 2, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx01 = diff.numericalHessian(elasticAreaEnergy, 0, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx02 = diff.numericalHessian(elasticAreaEnergy, 0, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx12 = diff.numericalHessian(elasticAreaEnergy, 1, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
         # Analytic jacobians
         # TODO
         # Set jacobians
-        # TODO
-
+        self.dfdx[0][0] = dfdx00
+        self.dfdx[1][1] = dfdx11
+        self.dfdx[2][2] = dfdx22
+        self.dfdx[0][1] = dfdx01
+        self.dfdx[1][0] = dfdx01
+        self.dfdx[0][2] = dfdx02
+        self.dfdx[2][0] = dfdx02
+        self.dfdx[1][2] = dfdx12
+        self.dfdx[2][1] = dfdx12
+        
 '''
  Constraint Utility Functions
 '''

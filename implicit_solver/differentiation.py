@@ -60,7 +60,7 @@ def numericalJacobian(function, argumentId, *args):
     functionDomainDimension = 1 # default when np.isscalar(gradientList[0])
 
     gradientList = []
-
+ 
     # compute gradients for each component of the argument
     if (not np.isscalar(args[argumentId])):
         functionDomainDimension = len(args[argumentId])
@@ -85,3 +85,18 @@ def numericalJacobian(function, argumentId, *args):
             jacobian[0:functionCodomainDimension, gradientId] = gradientList[gradientId]
 
         return jacobian
+    
+# Return the Hessian by using two consecutive derivations (mixed derivatives)
+# The order of differientation doesn't matter : see Clairaut's theorem/Schwarz's theorem
+def numericalHessian(function, argumentId0, argumentId1, *args):
+    class diffHelper:
+        def __init__(self, function, argumentId):
+            self.function = function
+            self.argumentId = argumentId
+
+        def firstDerivative(self, *args):
+            return numericalJacobian(self.function, self.argumentId, *args)
+
+    derivative = diffHelper(function, argumentId0)
+
+    return numericalJacobian(derivative.firstDerivative, argumentId1, *args)
