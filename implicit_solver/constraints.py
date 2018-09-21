@@ -1,6 +1,6 @@
 """
 @author: Vincent Bonnet
-@description : Constraint descriptions for implicit solver 
+@description : Constraint descriptions for implicit solver
 """
 
 import numpy as np
@@ -23,15 +23,15 @@ class BaseConstraint:
         for i in range(N):
             self.dynamicIndices[i] = dynamics[i].index
             self.globalIds[i] = self.localIds[i] + dynamics[i].globalOffset
-        
+
         # Precomputed jacobians.
-        # NxN matrix where each element is a 2x2 submatrix 
-        self.dfdx = np.zeros((N,N,2,2))
-        self.dfdv = np.zeros((N,N,2,2))
+        # NxN matrix where each element is a 2x2 submatrix
+        self.dfdx = np.zeros((N, N, 2, 2))
+        self.dfdv = np.zeros((N, N, 2, 2))
 
     def applyForces(self, scene):
         for i in range(len(self.localIds)):
-            dynamic = scene.dynamics[self.dynamicIndices[i]] 
+            dynamic = scene.dynamics[self.dynamicIndices[i]]
             dynamic.f[self.localIds[i]] += self.f[i]
 
     def computeForces(self, scene):
@@ -42,7 +42,7 @@ class BaseConstraint:
 
     def getJacobianDx(self, fi, xj):
         return self.dfdx[fi][xj]
-        
+
     def getJacobianDv(self, fi, xj):
         return self.dfdv[fi][xj]
 
@@ -53,11 +53,11 @@ class BaseConstraint:
 '''
 class AnchorSpringConstraint(BaseConstraint):
     def __init__(self, stiffness, damping, dynamic, particleId, kinematic, pointParams):
-       BaseConstraint.__init__(self, stiffness, damping, [dynamic], [particleId])
-       targetPos = kinematic.getPointFromParametricValues(pointParams)
-       self.restLength = np.linalg.norm(targetPos - dynamic.x[self.localIds[0]])
-       self.pointParams = pointParams
-       self.kinematicIndex = kinematic.index
+        BaseConstraint.__init__(self, stiffness, damping, [dynamic], [particleId])
+        targetPos = kinematic.getPointFromParametricValues(pointParams)
+        self.restLength = np.linalg.norm(targetPos - dynamic.x[self.localIds[0]])
+        self.pointParams = pointParams
+        self.kinematicIndex = kinematic.index
 
     def getStates(self, scene):
         kinematic = scene.kinematics[self.kinematicIndex]
@@ -86,7 +86,7 @@ class AnchorSpringConstraint(BaseConstraint):
         #dfdv = diff.numericalJacobian(springDampingForce, 2, x, targetPos, v, (0,0), self.damping)
         # Analytic jacobians
         dfdx = springStretchJacobian(x, targetPos, self.restLength, self.stiffness)
-        dfdv = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)        
+        dfdv = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)
         # Set jacobians
         self.dfdx[0][0] = dfdx
         self.dfdv[0][0] = dfdv
@@ -99,7 +99,7 @@ class SpringConstraint(BaseConstraint):
     def __init__(self, stiffness, damping, dynamics, particleIds):
         BaseConstraint.__init__(self, stiffness, damping, dynamics, particleIds)
         self.restLength = np.linalg.norm(dynamics[0].x[particleIds[0]] - dynamics[1].x[particleIds[1]])
-        
+
     def getStates(self, scene):
         dynamic0 = scene.dynamics[self.dynamicIndices[0]]
         dynamic1 = scene.dynamics[self.dynamicIndices[1]]
@@ -134,7 +134,7 @@ class SpringConstraint(BaseConstraint):
         self.dfdx[1][1] = dfdx
         self.dfdx[0][1] = dfdx * -1
         self.dfdx[1][0] = dfdx * -1
-        
+
         self.dfdv[0][0] = dfdv
         self.dfdv[1][1] = dfdv
         self.dfdv[0][1] = dfdv * -1
@@ -165,7 +165,7 @@ class AreaConstraint(BaseConstraint):
         v1 = dynamic1.v[self.localIds[1]]
         v2 = dynamic2.v[self.localIds[1]]
         return (x0, x1, x2, v0, v1, v2)
-    
+
     def computeForces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical forces
@@ -178,8 +178,8 @@ class AreaConstraint(BaseConstraint):
         self.f[0] = force0
         self.f[1] = force1
         self.f[2] = force2
-        
-    def computeJacobians(self, scene): 
+
+    def computeJacobians(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical jacobians (Aka Hessian of the energy)
         dfdx00 = diff.numericalHessian(elasticAreaEnergy, 0, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
@@ -200,7 +200,7 @@ class AreaConstraint(BaseConstraint):
         self.dfdx[2][0] = dfdx02
         self.dfdx[1][2] = dfdx12
         self.dfdx[2][1] = dfdx12
-        
+
 '''
  Constraint Utility Functions
 '''
@@ -214,37 +214,37 @@ def springStretchJacobian(x0, x1, rest, stiffness):
     direction = x0 - x1
     stretch = np.linalg.norm(direction)
     I = np.identity(2)
-    if (not np.isclose(stretch, 0.0)):
+    if not np.isclose(stretch, 0.0):
         direction /= stretch
         A = np.outer(direction, direction)
         jacobian = -1.0 * stiffness * ((1 - (rest / stretch)) * (I - A) + A)
     else:
         jacobian = -1.0 * stiffness * I
-        
+
     return jacobian
 
 def springDampingJacobian(x0, x1, v0, v1, damping):
     jacobian = np.zeros(shape=(2, 2))
     direction = x1 - x0
     stretch = np.linalg.norm(direction)
-    if (not np.isclose(stretch, 0.0)):
+    if not np.isclose(stretch, 0.0):
         direction /= stretch
         A = np.outer(direction, direction)
         jacobian = -1.0 *damping * A
-    
+
     return jacobian
 
 def springStretchForce(x0, x1, rest, stiffness):
     direction = x1 - x0
     stretch = np.linalg.norm(direction)
-    if (not np.isclose(stretch, 0.0)):
-         direction /= stretch
+    if not np.isclose(stretch, 0.0):
+        direction /= stretch
     return direction * ((stretch - rest) * stiffness)
 
 def springDampingForce(x0, x1, v0, v1, damping):
     direction = x1 - x0
     stretch = np.linalg.norm(direction)
-    if (not np.isclose(stretch, 0.0)):
+    if not np.isclose(stretch, 0.0):
         direction /= stretch
     relativeVelocity = v1 - v0
     return direction * (np.dot(relativeVelocity, direction) * damping)
@@ -259,4 +259,3 @@ def elasticAreaEnergy(x0, x1, x2, restArea, stiffness):
     v02 = np.subtract(x2, x0)
     area = np.abs(np.cross(v01, v02)) * 0.5
     return 0.5 * stiffness * ((area - restArea) * (area - restArea))
-

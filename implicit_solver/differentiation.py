@@ -3,7 +3,7 @@
 @description :  Numerical differentiation
 """
 
-# Reference # 
+# Reference #
 # Fornberg, Bengt. "Generation of finite difference formulas on arbitrarily spaced grids."
 # Mathematics of computation 51, no. 184 (1988): 699-706.
 
@@ -13,7 +13,7 @@ import copy
 
 # Central Difference tables and accuracy order
 STENCIL_SIZE = 1e-6
-FIRST_DERIVATIVE_OFFSET = [[-STENCIL_SIZE, STENCIL_SIZE], 
+FIRST_DERIVATIVE_OFFSET = [[-STENCIL_SIZE, STENCIL_SIZE],
                            [-2.0 * STENCIL_SIZE, -STENCIL_SIZE, STENCIL_SIZE, 2.0 * STENCIL_SIZE],
                            [-3.0 * STENCIL_SIZE, -2.0 * STENCIL_SIZE, -STENCIL_SIZE, STENCIL_SIZE, 2.0 * STENCIL_SIZE, 3.0 * STENCIL_SIZE]]
 
@@ -33,15 +33,15 @@ def numericalDifferentiation(function, argumentId, componentId, *args):
     argsList = copy.deepcopy(args)
     array = argsList
     valueId = argumentId
-    if (not np.isscalar(args[argumentId])):
+    if not np.isscalar(args[argumentId]):
         array = argsList[argumentId]
         valueId = componentId
 
     gradient = None
-    stencils = np.add(offsets, array[valueId])   
+    stencils = np.add(offsets, array[valueId])
     for i in range(len(stencils)):
         array[valueId] = stencils[i]
-        if (gradient is None):
+        if gradient is None:
             gradient = np.multiply(function(*argsList), coefs[i])
         else:
             gradient += np.multiply(function(*argsList), coefs[i])
@@ -60,9 +60,9 @@ def numericalJacobian(function, argumentId, *args):
     functionDomainDimension = 1 # default when np.isscalar(gradientList[0])
 
     gradientList = []
- 
+
     # compute gradients for each component of the argument
-    if (not np.isscalar(args[argumentId])):
+    if not np.isscalar(args[argumentId]):
         functionDomainDimension = len(args[argumentId])
 
     for componentId in range(functionDomainDimension):
@@ -70,22 +70,22 @@ def numericalJacobian(function, argumentId, *args):
         gradientList.append(gradient)
 
     # assemble jacobian from gradients
-    if len(gradientList)>0:
-        if (not np.isscalar(gradientList[0])):
+    if len(gradientList) > 0:
+        if not np.isscalar(gradientList[0]):
             functionCodomainDimension = len(gradientList[0])
 
-        if (functionCodomainDimension == 1):
+        if functionCodomainDimension == 1:
             gradient = np.zeros(functionDomainDimension)
             for gradientId in range(len(gradientList)):
                 gradient[gradientId] = gradientList[gradientId]
             return gradient
-        
+
         jacobian = np.zeros(shape=(functionCodomainDimension, functionDomainDimension))
         for gradientId in range(len(gradientList)):
             jacobian[0:functionCodomainDimension, gradientId] = gradientList[gradientId]
 
         return jacobian
-    
+
 # Return the Hessian by using two consecutive derivations (mixed derivatives)
 # The order of differientation doesn't matter : see Clairaut's theorem/Schwarz's theorem
 def numericalHessian(function, argumentId0, argumentId1, *args):

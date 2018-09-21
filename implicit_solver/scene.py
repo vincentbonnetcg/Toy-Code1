@@ -3,9 +3,9 @@
 @description : a scene contains constraints/objects/kinematics/colliders
 """
 
+import itertools
 import constraints as cn
 import numpy as np
-import itertools
 
 class Scene:
     def __init__(self, gravity):
@@ -50,10 +50,10 @@ class Scene:
             attachmentPoint = kinematic.getPointFromParametricValues(attachmentPointParams)
             direction = (attachmentPoint - x)
             dist2 = np.inner(direction, direction)
-            if (dist2 < distance2):
+            if dist2 < distance2:
                 constraint = cn.AnchorSpringConstraint(stiffness, damping, dynamic, particleId, kinematic, attachmentPointParams)
                 self.constraints.append(constraint)
-    
+
     def attachToDynamic(self, dynamic0, dynamic1, stiffness, damping, distance):
         # Linear search => it will be inefficient for dynamic objects with many particles
         distance2 = distance * distance
@@ -61,10 +61,10 @@ class Scene:
             for x1i, x1 in enumerate(dynamic1.x):
                 direction = (x0 - x1)
                 dist2 = np.inner(direction, direction)
-                if (dist2 < distance2):
+                if dist2 < distance2:
                     constraint = cn.SpringConstraint(stiffness, damping, [dynamic0, dynamic1], [x0i, x1i])
                     self.constraints.append(constraint)
-        
+
     def getConstraintsIterator(self):
         values = []
         values.append(self.constraints)
@@ -72,4 +72,3 @@ class Scene:
             values.append(obj.constraints)
 
         return itertools.chain.from_iterable(values)
-        

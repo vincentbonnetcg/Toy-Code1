@@ -29,7 +29,7 @@ DAMPING = 0.0
 PARTICLE_MASS = 0.001 # in Kg
 
 GRAVITY = (0.0, -9.81) # in meters per second^2
-NUM_FRAME = 100;
+NUM_FRAME = 100
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
 
@@ -44,9 +44,9 @@ def createWireScene():
     wire = dyn.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
     point = kin.PointKinematic(WIRE_ROOT_POS)
     pointPos = point.position
-    movePoint = lambda time : [[pointPos[0] + math.sin(2.0 * time) * 0.1, pointPos[1] + math.sin(time * 4.0)], 0.0]
+    movePoint = lambda time: [[pointPos[0] + math.sin(2.0 * time) * 0.1, pointPos[1] + math.sin(time * 4.0)], 0.0]
     point.animationFunc = movePoint
-    
+
     scene = sc.Scene(GRAVITY)
     scene.addDynamic(wire)
     scene.addKinematic(point)
@@ -58,21 +58,21 @@ def createBeamScene():
     # Create dynamic objects / kinematic objects / scene
     beam = dyn.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
     beam.renderPrefs = ['go', 3, 'k:', 1]
-    
+
     wireStartPos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
     wireEndPos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
     wire = dyn.Wire(wireStartPos, wireEndPos, BEAM_CELL_X * 8, PARTICLE_MASS * 0.1, STIFFNESS * 0.5, DAMPING)
     wire.renderPrefs = ['co', 1, 'm-', 1]
-    
+
     leftAnchor = kin.RectangleKinematic(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     rightAnchor = kin.RectangleKinematic(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
-    
+
     LPos = leftAnchor.position
-    moveLeftAnchor = lambda time : [[LPos[0] + math.sin(2.0 * time) * 0.1, LPos[1] + math.sin(time * 4.0)], 0.0]
+    moveLeftAnchor = lambda time: [[LPos[0] + math.sin(2.0 * time) * 0.1, LPos[1] + math.sin(time * 4.0)], 0.0]
     leftAnchor.animationFunc = moveLeftAnchor
 
     RPos = rightAnchor.position
-    moveRightAnchor = lambda time : [[RPos[0] + math.sin(2.0 * time) * -0.1, RPos[1]], 0.0]
+    moveRightAnchor = lambda time: [[RPos[0] + math.sin(2.0 * time) * -0.1, RPos[1]], 0.0]
     rightAnchor.animationFunc = moveRightAnchor
 
     scene = sc.Scene(GRAVITY)
@@ -84,8 +84,8 @@ def createBeamScene():
     scene.attachToKinematic(beam, rightAnchor, 100.0, 0.0, 0.1)
     scene.attachToKinematic(beam, leftAnchor, 100.0, 0.0, 0.1)
     scene.attachToDynamic(beam, wire, 100.0, 0.0, 0.001)
-   
-    return scene 
+
+    return scene
 
 scene = createBeamScene()
 
@@ -101,11 +101,11 @@ render.setRenderFolderPath(RENDER_FOLDER_PATH)
 profiler = profiler.ProfilerSingleton()
 for frameId in range(1, NUM_FRAME+1):
     profiler.clearLogs()
-    
+
     solver.solveFrame(scene)
 
     print("")
     render.showCurrentFrame(scene, frameId)
     render.exportCurrentFrame(str(frameId).zfill(4) + " .png")
-    
+
     profiler.printLogs()

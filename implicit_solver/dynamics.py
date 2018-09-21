@@ -24,16 +24,16 @@ class BaseDynamic:
         # Material property
         self.stiffness = stiffness
         self.damping = damping
-        
+
         # Initialize constraints
         self.constraints = []
-        
+
         # Render preferences used by render.py
         # See : https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html for more details
         # fmt = '[color][marker][line]'
         # format of the display State ['particle_fmt', particle_size, 'constraint_fmt', constraint_line_size ]
         self.renderPrefs = ['go', 3, 'k-', 1]
-    
+
     def createInternalConstraints(self):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'createInternalConstraints'")
 
@@ -44,7 +44,7 @@ class Wire(BaseDynamic):
     def __init__(self, startPoint, endPoint, numEdges, particleMass, stiffness, damping):
         BaseDynamic.__init__(self, numEdges+1, particleMass, stiffness, damping)
         self.numEdges = numEdges
-        
+
         axisx = np.linspace(startPoint[0], endPoint[0], num=self.numParticles, endpoint=True)
         axisy = np.linspace(startPoint[1], endPoint[1], num=self.numParticles, endpoint=True)
         for i in range(self.numParticles):
@@ -60,7 +60,7 @@ class Wire(BaseDynamic):
 class Beam(BaseDynamic):
     def __init__(self, position, width, height, cellX, cellY, particleMass, stiffness, damping):
         BaseDynamic.__init__(self, (cellX+1)*(cellY+1), particleMass, stiffness, damping)
-        
+
         # Set position
         # Example of vertex positions
         # 8 .. 9 .. 10 .. 11
@@ -68,7 +68,7 @@ class Beam(BaseDynamic):
         # 0 .. 1 .. 2  .. 3
         self.cellX = cellX
         self.cellY = cellY
-        particleId = 0;
+        particleId = 0
         cellWidth = width / cellX
         cellHeight = height / cellY
         for j in range(cellY+1):
@@ -77,28 +77,27 @@ class Beam(BaseDynamic):
                 particleId += 1
 
     def createInternalConstraints(self):
-        cell_to_pids = lambda i, j : [i + (j*(self.cellX+1)) , i + (j*(self.cellX+1)) + 1 , i + ((j+1)*(self.cellX+1)), i + ((j+1)*(self.cellX+1)) + 1]
+        cell_to_pids = lambda i, j : [i + (j*(self.cellX+1)), i + (j*(self.cellX+1)) + 1, i + ((j+1)*(self.cellX+1)), i + ((j+1)*(self.cellX+1)) + 1]
         # Compute Spring Constraint
         for j in range(self.cellY):
             for i in range(self.cellX):
                 pids = cell_to_pids(i, j)
-                
+
                 self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[3]]))
-                if (i == 0):
+                if i == 0:
                     self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[2]]))
-                
+
                 self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[2], pids[3]]))
-                if (j == 0): 
+                if j == 0:
                     self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[1]]))
-                    
+
                 #self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[3]]))
                 #self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[2]]))
-        
+
         # Compute Area Constraint
         for j in range(self.cellY):
             for i in range(self.cellX):
                 pids = cell_to_pids(i, j)
-                
+
                 self.constraints.append(cn.AreaConstraint(self.stiffness, self.damping, [self, self, self], [pids[0], pids[1], pids[2]]))
                 self.constraints.append(cn.AreaConstraint(self.stiffness, self.damping, [self, self, self], [pids[1], pids[2], pids[3]]))
-

@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import scipy.sparse as sparse
+import scipy as sc
 import profiler
 
 '''
@@ -18,7 +18,7 @@ class BaseSolver:
 
     @profiler.timeit
     def solveFrame(self, scene):
-        for substepId in range(self.stepsPerFrame):
+        for _ in range(self.stepsPerFrame):
             self.currentTime += self.dt
             self.preStep(scene, self.currentTime)
             self.step(scene, self.dt)
@@ -43,13 +43,13 @@ class BaseSolver:
 
 '''
  Implicit Step
- Solve : 
+ Solve :
      (M - h * df/dv - h^2 * df/dx) * deltaV = h * (fo + h * df/dx * v0)
        A = (M - h^2 * df/dx)
        b = h * (fo + h * df/dx * v0)
-     => A * deltaV = b <=> deltaV = A^-1 * b    
+     => A * deltaV = b <=> deltaV = A^-1 * b
      deltaX = (v0 + deltaV) * h
-     v = v + deltaV 
+     v = v + deltaV
      x = x + deltaX
 '''
 class ImplicitSolver(BaseSolver):
@@ -79,19 +79,19 @@ class ImplicitSolver(BaseSolver):
         # Assemble the system (Ax=b) where x is the change of velocity
         totalParticles = scene.numParticles()
         # attempt to create 'row-based linked list' sparse matrix for simple sparse matrix construction
-        # with A = sparse.lil_matrix((totalParticles * 2, totalParticles * 2)) 
+        # with A = sparse.lil_matrix((totalParticles * 2, totalParticles * 2))
         # ... But building a sparse matrix with 'row-based linked list' is too slow, hence the use of dense matrix for now
         denseA = np.zeros((totalParticles * 2, totalParticles * 2))
         self.b = np.zeros((totalParticles * 2, 1))
-        
+
         ## Assemble A = (M - h * df/dv - h^2 * df/dx)
         # set mass matrix
         for dynamic in scene.dynamics:
             for i in range(dynamic.numParticles):
-                massMatrix = np.matlib.identity(2) * dynamic.m[i]
+                massMatrix = np.identity(2) * dynamic.m[i]
                 ids = dynamic.globalOffset + i
-                denseA[ids*2:ids*2+2,ids*2:ids*2+2] = massMatrix
-        
+                denseA[ids*2:ids*2+2, ids*2:ids*2+2] = massMatrix
+
         # set h^2 * df/dx
         constraintsIterator = scene.getConstraintsIterator()
         for constraint in constraintsIterator:
@@ -99,8 +99,8 @@ class ImplicitSolver(BaseSolver):
             for fi in range(len(ids)):
                 for xj in range(len(ids)):
                     Jx = constraint.getJacobianDx(fi, xj)
-                    denseA[ids[fi]*2:ids[fi]*2+2,ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
-        
+                    denseA[ids[fi]*2:ids[fi]*2+2, ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
+
         # set h * df/dv
         constraintsIterator = scene.getConstraintsIterator()
         for constraint in constraintsIterator:
@@ -108,8 +108,8 @@ class ImplicitSolver(BaseSolver):
             for fi in range(len(ids)):
                 for vj in range(len(ids)):
                     Jv = constraint.getJacobianDv(fi, vj)
-                    denseA[ids[fi]*2:ids[fi]*2+2,ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
-        
+                    denseA[ids[fi]*2:ids[fi]*2+2, ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
+
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
         for dynamic in scene.dynamics:
@@ -122,7 +122,7 @@ class ImplicitSolver(BaseSolver):
         for constraint in constraintsIterator:
             ids = constraint.globalIds
             localIds = constraint.localIds
-            dynamicIndices = constraint.dynamicIndices;
+            dynamicIndices = constraint.dynamicIndices
             for fi in range(len(ids)):
                 for xi in range(len(ids)):
                     dynamic = scene.dynamics[dynamicIndices[xi]]
@@ -130,12 +130,12 @@ class ImplicitSolver(BaseSolver):
                     self.b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(dynamic.v[localIds[xi]], Jx), (2,1)) * dt * dt
 
         # Convert matrix A to csr matrix (Compressed Sparse Row format) for efficiency reasons
-        self.A = sparse.csr_matrix(denseA)
+        self.A = sc.sparse.csr_matrix(denseA)
 
     @profiler.timeit
     def solveSystem(self, scene, dt):
         # Solve the system (Ax=b)
-        cgResult = sparse.linalg.cg(self.A, self.b)
+        cgResult = sc.sparse.linalg.cg(self.A, self.b)
         deltaVArray = cgResult[0]
         # Advect
         for dynamic in scene.dynamics:
@@ -152,18 +152,18 @@ class ImplicitSolver(BaseSolver):
 class SemiImplicitSolver(BaseSolver):
     def __init__(self, dt, stepsPerFrame):
         BaseSolver.__init__(self, dt, stepsPerFrame)
-    
-    @profiler.timeit    
+
+    @profiler.timeit
     def prepareSystem(self, scene, dt):
         # Set gravity
         for dynamic in scene.dynamics:
             dynamic.f.fill(0.0)
             for i in range(dynamic.numParticles):
                 dynamic.f[i] += np.multiply(scene.gravity, dynamic.m[i])
-                
+
         # Get iterator on constraint to access from objects and scene at once
         constraintsIterator = scene.getConstraintsIterator()
-    
+
         # Compute and add internal forces
         for constraint in constraintsIterator:
             constraint.computeForces(scene)
