@@ -7,9 +7,7 @@
 # Fornberg, Bengt. "Generation of finite difference formulas on arbitrarily spaced grids."
 # Mathematics of computation 51, no. 184 (1988): 699-706.
 
-
 import numpy as np
-import copy
 
 # Central Difference tables and accuracy order
 STENCIL_SIZE = 1e-6
@@ -30,7 +28,11 @@ def numericalDifferentiation(function, argumentId, componentId, *args):
     offsets = FIRST_DERIVATIVE_OFFSET[accuracyOrderIndex]
     coefs = FIRST_DERIVATIVE_COEFS[accuracyOrderIndex]
 
-    argsList = copy.deepcopy(args)
+    #argsList = copy.deepcopy(args) # expensive operation => replaced with lines below
+    argsList = []
+    for a in args:
+        argsList.append(np.copy(a))
+
     array = argsList
     valueId = argumentId
     if not np.isscalar(args[argumentId]):

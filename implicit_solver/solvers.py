@@ -5,6 +5,8 @@
 
 import numpy as np
 import scipy as sc
+import scipy.sparse
+import scipy.sparse.linalg
 import profiler
 
 '''
@@ -86,9 +88,10 @@ class ImplicitSolver(BaseSolver):
 
         ## Assemble A = (M - h * df/dv - h^2 * df/dx)
         # set mass matrix
+        massMatrix = np.identity(2)
         for dynamic in scene.dynamics:
             for i in range(dynamic.numParticles):
-                massMatrix = np.identity(2) * dynamic.m[i]
+                np.fill_diagonal(massMatrix, dynamic.m[i])
                 ids = dynamic.globalOffset + i
                 denseA[ids*2:ids*2+2, ids*2:ids*2+2] = massMatrix
 

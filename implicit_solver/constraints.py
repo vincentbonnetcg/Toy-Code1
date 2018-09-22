@@ -255,7 +255,8 @@ def elasticSpringEnergy(x0, x1, rest, stiffness):
     return 0.5 * stiffness * ((stretch - rest) * (stretch - rest))
 
 def elasticAreaEnergy(x0, x1, x2, restArea, stiffness):
-    v01 = np.subtract(x1, x0)
-    v02 = np.subtract(x2, x0)
-    area = np.abs(np.cross(v01, v02)) * 0.5
+    u = np.subtract(x1, x0)
+    v = np.subtract(x2, x0)
+    #area = np.abs(np.cross(u, v)) * 0.5 # expensive operation => replaced with line below
+    area = np.abs(u[0]*v[1]-v[0]*u[1]) * 0.5
     return 0.5 * stiffness * ((area - restArea) * (area - restArea))
