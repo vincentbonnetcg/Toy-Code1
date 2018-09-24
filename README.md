@@ -56,9 +56,13 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ## . Numba and Cuda
 **File** [numba_imageProcessing.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/numba_imageProcessing.py)<br>
-**Description** Evaluate simple image processing on Cuda
+**Description** Evaluate simple image processing and cellular automata on Cuda
 
-![NUMBA](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/numba_imageProcessing.png)
+![NUMBA](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/numba_imageProcessing.png)<br>
+![NUMBA](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/numba_cellularAutomata.gif)
+
+[1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.<br>
+[2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
 
 ## . Graph Colouring
 **File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/graphColouring_greedyAlgorithm.py)<br>
