@@ -129,4 +129,4 @@ def conways_game_of_life_scene(numIterations, renderFolder):
 
 # Run Tests
 #image_processing_scene()
-conways_game_of_life_scene(50, "C://ToyCode - Numerical Methods//github//Numerical-Bric-a-Brac//saved//exportanimated2")
+conways_game_of_life_scene(50, "")
