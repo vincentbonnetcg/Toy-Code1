@@ -22,7 +22,7 @@ class BaseConstraint:
         self.globalIds = np.zeros(N, dtype=int)
         for i in range(N):
             self.dynamicIndices[i] = dynamics[i].index
-            self.globalIds[i] = self.localIds[i] + dynamics[i].globalOffset
+            self.globalIds[i] = self.localIds[i] + dynamics[i].global_offset
 
         # Precomputed jacobians.
         # NxN matrix where each element is a 2x2 submatrix

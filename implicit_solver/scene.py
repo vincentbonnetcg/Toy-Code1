@@ -16,15 +16,14 @@ class Scene:
 
     def addDynamic(self, dynamic):
         index = (len(self.dynamics))
+        dynamic.set_indexing(index, self.computeParticlesOffset(index))
+        dynamic.create_internal_constraints()
         self.dynamics.append(dynamic)
-        dynamic.index = index
-        dynamic.globalOffset = self.computeParticlesOffset(index)
-        dynamic.createInternalConstraints()
 
     def addKinematic(self, kinematic):
         index = (len(self.kinematics))
+        kinematic.set_indexing(index)
         self.kinematics.append(kinematic)
-        kinematic.index = index
 
     def updateKinematics(self, time):
         for kinematic in self.kinematics:
@@ -33,13 +32,13 @@ class Scene:
     def computeParticlesOffset(self, index):
         offset = 0
         for i in range(index):
-            offset += self.dynamics[i].numParticles
+            offset += self.dynamics[i].num_particles
         return offset
 
     def numParticles(self):
         numParticles = 0
         for dynamic in self.dynamics:
-            numParticles += dynamic.numParticles
+            numParticles += dynamic.num_particles
         return numParticles
 
     def attachToKinematic(self, dynamic, kinematic, stiffness, damping, distance):

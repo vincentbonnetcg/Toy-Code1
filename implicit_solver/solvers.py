@@ -66,7 +66,7 @@ class ImplicitSolver(BaseSolver):
         # Set gravity
         for dynamic in scene.dynamics:
             dynamic.f.fill(0.0)
-            for i in range(dynamic.numParticles):
+            for i in range(dynamic.num_particles):
                 dynamic.f[i] += np.multiply(scene.gravity, dynamic.m[i])
 
         # Prepare forces and jacobians
@@ -90,9 +90,9 @@ class ImplicitSolver(BaseSolver):
         # set mass matrix
         massMatrix = np.identity(2)
         for dynamic in scene.dynamics:
-            for i in range(dynamic.numParticles):
+            for i in range(dynamic.num_particles):
                 np.fill_diagonal(massMatrix, dynamic.m[i])
-                ids = dynamic.globalOffset + i
+                ids = dynamic.global_offset + i
                 denseA[ids*2:ids*2+2, ids*2:ids*2+2] = massMatrix
 
         # set h^2 * df/dx
@@ -116,8 +116,8 @@ class ImplicitSolver(BaseSolver):
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
         for dynamic in scene.dynamics:
-            for i in range(dynamic.numParticles):
-                ids = dynamic.globalOffset + i
+            for i in range(dynamic.num_particles):
+                ids = dynamic.global_offset + i
                 self.b[ids*2:ids*2+2] += (np.reshape(dynamic.f[i], (2,1)) * dt)
 
         # set (df/dx * v0 * h * h)
@@ -142,8 +142,8 @@ class ImplicitSolver(BaseSolver):
         deltaVArray = cgResult[0]
         # Advect
         for dynamic in scene.dynamics:
-            for i in range(dynamic.numParticles):
-                ids = dynamic.globalOffset + i
+            for i in range(dynamic.num_particles):
+                ids = dynamic.global_offset + i
                 deltaV = [float(deltaVArray[ids*2]), float(deltaVArray[ids*2+1])]
                 deltaX = (dynamic.v[i] + deltaV) * dt
                 dynamic.v[i] += deltaV

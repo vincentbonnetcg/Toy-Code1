@@ -45,12 +45,12 @@ class Render:
                     for pid in ids:
                         linedata.append(dynamic.x[pid])
                     x, y = zip(*linedata)
-                    self.ax.plot(x, y, dynamic.renderPrefs[2], lw=dynamic.renderPrefs[3])
+                    self.ax.plot(x, y, dynamic.render_prefs[2], lw=dynamic.render_prefs[3])
 
         # Draw particles
         for dynamic in scene.dynamics:
             x, y = zip(*dynamic.x)
-            self.ax.plot(x, y, dynamic.renderPrefs[0], markersize=dynamic.renderPrefs[1])
+            self.ax.plot(x, y, dynamic.render_prefs[0], markersize=dynamic.render_prefs[1])
 
         # Draw kinematics
         for kinematic in scene.kinematics:

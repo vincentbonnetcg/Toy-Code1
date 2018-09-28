@@ -6,21 +6,38 @@
 import constraints as cn
 import numpy as np
 
-'''
- Base Dynamic
-'''
 class BaseDynamic:
-    def __init__(self, numParticles, particleMass, stiffness, damping):
-        self.numParticles = numParticles
+    '''
+    BaseDynamic describes the base class of a dynamic object
+    It contains:
+    Particle data:
+        - num_particles
+        - position: x
+        - velocity: v
+        - mass: m
+        - inverse mass: im
+        - external forces: f
+    Object data / Material:
+        - stiffness
+        - damping
+        - list of internal constraint: constraints[]
+    Indexing:
+        - global particle offset :globalOffset
+        - object index in the scene.dynamics : index
+    Render Preferences
+        - Render Preferences : renderPrefs
+    '''
+    def __init__(self, num_particles, particle_mass, stiffness, damping):
+        self.num_particles = num_particles
         # Initialize particle state
-        self.x = np.zeros((self.numParticles, 2)) # position
-        self.v = np.zeros((self.numParticles, 2)) # velocity
-        self.m = np.ones(self.numParticles) * particleMass# mass
+        self.x = np.zeros((self.num_particles, 2)) # position
+        self.v = np.zeros((self.num_particles, 2)) # velocity
+        self.m = np.ones(self.num_particles) * particle_mass# mass
         self.im = 1.0 / self.m # inverse mass
-        self.f = np.zeros((self.numParticles, 2)) #  force
+        self.f = np.zeros((self.num_particles, 2)) #  force
         # Useful indices set after adding the object into the scene
-        self.globalOffset = 0
-        self.index = 0 # index in the scene.dynamics[]
+        self.global_offset = 0 # global particle offset
+        self.index = 0 # object index in the scene.dynamics[.]
         # Material property
         self.stiffness = stiffness
         self.damping = damping
@@ -32,32 +49,45 @@ class BaseDynamic:
         # See : https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html for more details
         # fmt = '[color][marker][line]'
         # format of the display State ['particle_fmt', particle_size, 'constraint_fmt', constraint_line_size ]
-        self.renderPrefs = ['go', 3, 'k-', 1]
+        self.render_prefs = ['go', 3, 'k-', 1]
 
-    def createInternalConstraints(self):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'createInternalConstraints'")
+    def set_indexing(self, index, global_offset):
+        '''
+        Sets the global indices (object index and particle offset)
+        This index is set after the object has been added to the scene
+        '''
+        self.index = index
+        self.global_offset = global_offset
 
-'''
- Wire
-'''
+    def create_internal_constraints(self):
+        '''
+        Creates the internal constraints of the dynamic object.
+        It could be used to set materials / distance constraint / area constraint etc.
+        '''
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'create_internal_constraints'")
+
+
 class Wire(BaseDynamic):
+    '''
+    Wire Class describes a dynamic wire object
+    '''
     def __init__(self, startPoint, endPoint, numEdges, particleMass, stiffness, damping):
         BaseDynamic.__init__(self, numEdges+1, particleMass, stiffness, damping)
-        self.numEdges = numEdges
+        self.num_edges = numEdges
 
-        axisx = np.linspace(startPoint[0], endPoint[0], num=self.numParticles, endpoint=True)
-        axisy = np.linspace(startPoint[1], endPoint[1], num=self.numParticles, endpoint=True)
-        for i in range(self.numParticles):
+        axisx = np.linspace(startPoint[0], endPoint[0], num=self.num_particles, endpoint=True)
+        axisy = np.linspace(startPoint[1], endPoint[1], num=self.num_particles, endpoint=True)
+        for i in range(self.num_particles):
             self.x[i] = (axisx[i], axisy[1])
 
-    def createInternalConstraints(self):
-        for i in range(self.numEdges):
+    def create_internal_constraints(self):
+        for i in range(self.num_edges):
             self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [i, i+1]))
 
-'''
- Beam
-'''
 class Beam(BaseDynamic):
+    '''
+    Beam Class describes a dynamic beam object
+    '''
     def __init__(self, position, width, height, cellX, cellY, particleMass, stiffness, damping):
         BaseDynamic.__init__(self, (cellX+1)*(cellY+1), particleMass, stiffness, damping)
 
@@ -66,21 +96,21 @@ class Beam(BaseDynamic):
         # 8 .. 9 .. 10 .. 11
         # 4 .. 5 .. 6  .. 7
         # 0 .. 1 .. 2  .. 3
-        self.cellX = cellX
-        self.cellY = cellY
-        particleId = 0
-        cellWidth = width / cellX
-        cellHeight = height / cellY
+        self.cell_x = cellX
+        self.cell_y = cellY
+        particle_id = 0
+        cell_width = width / cellX
+        cell_height = height / cellY
         for j in range(cellY+1):
             for i in range(cellX+1):
-                self.x[particleId] = (i * cellWidth + position[0], j * cellHeight + position[1])
-                particleId += 1
+                self.x[particle_id] = (i * cell_width + position[0], j * cell_height + position[1])
+                particle_id += 1
 
-    def createInternalConstraints(self):
-        cell_to_pids = lambda i, j : [i + (j*(self.cellX+1)), i + (j*(self.cellX+1)) + 1, i + ((j+1)*(self.cellX+1)), i + ((j+1)*(self.cellX+1)) + 1]
+    def create_internal_constraints(self):
+        cell_to_pids = lambda i, j: [i + (j*(self.cell_x+1)), i + (j*(self.cell_x+1)) + 1, i + ((j+1)*(self.cell_x+1)), i + ((j+1)*(self.cell_x+1)) + 1]
         # Compute Spring Constraint
-        for j in range(self.cellY):
-            for i in range(self.cellX):
+        for j in range(self.cell_y):
+            for i in range(self.cell_x):
                 pids = cell_to_pids(i, j)
 
                 self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[3]]))
@@ -95,8 +125,8 @@ class Beam(BaseDynamic):
                 #self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[2]]))
 
         # Compute Area Constraint
-        for j in range(self.cellY):
-            for i in range(self.cellX):
+        for j in range(self.cell_y):
+            for i in range(self.cell_x):
                 pids = cell_to_pids(i, j)
 
                 self.constraints.append(cn.AreaConstraint(self.stiffness, self.damping, [self, self, self], [pids[0], pids[1], pids[2]]))
