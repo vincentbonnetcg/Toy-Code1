@@ -14,8 +14,8 @@ import math
 '''
  Global Constants
 '''
-WIRE_ROOT_POS = [0., 0.] # in meters
-WIRE_END_POS = [2., 0.] # in meters
+WIRE_ROOT_POS = [0.0, 1.0] # in meters
+WIRE_END_POS = [0.0, -1.0] # in meters
 WIRE_NUM_SEGMENTS = 10
 
 BEAM_POS = [-4.0, 0.0] # in meters
@@ -42,16 +42,21 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 def createWireScene():
     # Create dynamic objects / kinematic objects / scene
     wire = dyn.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
-    point = kin.PointKinematic(WIRE_ROOT_POS)
-    pointPos = point.position
-    movePoint = lambda time: [[pointPos[0] + math.sin(2.0 * time) * 0.1, pointPos[1] + math.sin(time * 4.0)], 0.0]
-    point.animationFunc = movePoint
+    
+    point0 = kin.PointKinematic(WIRE_ROOT_POS)
+    pointPos = point0.position
+    movePoint = lambda time: [[pointPos[0] + math.sin(2.0 * time) * 0.1, pointPos[1] - math.sin(time * 2.0)], 0.0]
+    point0.animationFunc = movePoint
+    
+    point1 = kin.PointKinematic(WIRE_END_POS)
 
     scene = sc.Scene(GRAVITY)
     scene.addDynamic(wire)
-    scene.addKinematic(point)
+    scene.addKinematic(point0)
+    scene.addKinematic(point1)
     scene.updateKinematics(0.0) # set kinematic objects at start frame
-    scene.attachToKinematic(wire, point, 100.0, 0.0, 0.1)
+    scene.attachToKinematic(wire, point0, 100.0, 0.0, 0.1)
+    scene.attachToKinematic(wire, point1, 100.0, 0.0, 0.1)
     return scene
 
 def createBeamScene():
@@ -88,7 +93,6 @@ def createBeamScene():
     return scene
 
 scene = createBeamScene()
-
 
 # Create Solver
 #solver = sl.SemiImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam

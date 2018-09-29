@@ -78,11 +78,15 @@ class Wire(BaseDynamic):
         axisx = np.linspace(startPoint[0], endPoint[0], num=self.num_particles, endpoint=True)
         axisy = np.linspace(startPoint[1], endPoint[1], num=self.num_particles, endpoint=True)
         for i in range(self.num_particles):
-            self.x[i] = (axisx[i], axisy[1])
+            self.x[i] = (axisx[i], axisy[i])
 
     def create_internal_constraints(self):
         for i in range(self.num_edges):
-            self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [i, i+1]))
+            self.constraints.append(cn.SpringConstraint(self.stiffness * 10.0, self.damping, [self, self], [i, i+1]))
+
+        #if (self.num_edges > 1):
+        #    for i in range(self.num_edges-1):
+        #        self.constraints.append(cn.BendingConstraint(self.stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
 
 class Beam(BaseDynamic):
     '''
