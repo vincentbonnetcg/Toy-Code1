@@ -14,15 +14,15 @@ import math
 '''
  Global Constants
 '''
-WIRE_ROOT_POS = [0.0, 1.0] # in meters
-WIRE_END_POS = [0.0, -1.0] # in meters
-WIRE_NUM_SEGMENTS = 10
+WIRE_ROOT_POS = [-2.5, 0.0] # in meters
+WIRE_END_POS = [2.5, 0.0] # in meters
+WIRE_NUM_SEGMENTS = 50
 
 BEAM_POS = [-4.0, 0.0] # in meters
 BEAM_WIDTH = 8.0 # in meters
 BEAM_HEIGHT = 1.0 # in meters
 BEAM_CELL_X = 6 # number of cells along x
-BEAM_CELL_Y = 3 # number of cells along y
+BEAM_CELL_Y = 4 # number of cells along y
 
 STIFFNESS = 2.0 # in newtons per meter (N/m)
 DAMPING = 0.0
@@ -41,33 +41,34 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 '''
 def createWireScene():
     # Create dynamic objects / kinematic objects / scene
-    wire = dyn.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS, DAMPING)
+    wire = dyn.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS * 50.0, STIFFNESS, DAMPING)
+    wire.render_prefs = ['co', 0, 'm-', 1]
     
-    point0 = kin.PointKinematic(WIRE_ROOT_POS)
-    pointPos = point0.position
-    movePoint = lambda time: [[pointPos[0] + math.sin(2.0 * time) * 0.1, pointPos[1] - math.sin(time * 2.0)], 0.0]
-    point0.animationFunc = movePoint
+    movingAnchor = kin.RectangleKinematic(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1], WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] + 0.1)
+    movingAnchorPosition = movingAnchor.position
+    movingAnchorAnimation = lambda time : [[movingAnchorPosition[0] + math.sin(10.0 * time), movingAnchorPosition[1]], math.sin(time * 10.0) * 90.0]
+    movingAnchor.animationFunc = movingAnchorAnimation
     
-    point1 = kin.PointKinematic(WIRE_END_POS)
+    point = kin.PointKinematic(WIRE_END_POS)
 
     scene = sc.Scene(GRAVITY)
     scene.addDynamic(wire)
-    scene.addKinematic(point0)
-    scene.addKinematic(point1)
+    scene.addKinematic(movingAnchor)
+    scene.addKinematic(point)
     scene.updateKinematics(0.0) # set kinematic objects at start frame
-    scene.attachToKinematic(wire, point0, 100.0, 0.0, 0.1)
-    scene.attachToKinematic(wire, point1, 100.0, 0.0, 0.1)
+    scene.attachToKinematic(wire, movingAnchor, 1000.0, 0.0, 0.1)
+    scene.attachToKinematic(wire, point, 100.0, 0.0, 0.1)
     return scene
 
 def createBeamScene():
     # Create dynamic objects / kinematic objects / scene
-    beam = dyn.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS, DAMPING)
-    beam.renderPrefs = ['go', 3, 'k:', 1]
+    beam = dyn.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS * 10.0, DAMPING)
+    beam.render_prefs = ['go', 2, 'k:', 1]
 
     wireStartPos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
     wireEndPos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
-    wire = dyn.Wire(wireStartPos, wireEndPos, BEAM_CELL_X * 8, PARTICLE_MASS * 0.1, STIFFNESS * 0.5, DAMPING)
-    wire.renderPrefs = ['co', 1, 'm-', 1]
+    wire = dyn.Wire(wireStartPos, wireEndPos, BEAM_CELL_X * 8, PARTICLE_MASS * 0.1, STIFFNESS * 0.5, 0.0, DAMPING)
+    wire.render_prefs = ['co', 1, 'm-', 1]
 
     leftAnchor = kin.RectangleKinematic(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     rightAnchor = kin.RectangleKinematic(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
@@ -103,12 +104,12 @@ render = rd.Render()
 render.setRenderFolderPath(RENDER_FOLDER_PATH)
 
 profiler = profiler.ProfilerSingleton()
-for frameId in range(1, NUM_FRAME+1):
+for frameId in range(0, NUM_FRAME+1):
     profiler.clearLogs()
 
-    solver.solveFrame(scene)
+    if frameId > 0:
+        solver.solveFrame(scene)
 
-    print("")
     render.showCurrentFrame(scene, frameId)
     render.exportCurrentFrame(str(frameId).zfill(4) + " .png")
 

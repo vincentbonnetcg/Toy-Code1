@@ -32,9 +32,9 @@ class Render:
         self.ax.set_ylim(-3.5, 3.5)
 
         # Set label
-        plt.title('Mass-spring-damper - frame ' + str(frameId), fontdict=self.font)
-        plt.xlabel('x (in meters)')
-        plt.ylabel('y (in meters)')
+        plt.title('Implicit Solver - frame ' + str(frameId), fontdict=self.font)
+        plt.xlabel('x (m)')
+        plt.ylabel('y (m)')
 
         # Draw objects constraints
         for dynamic in scene.dynamics:

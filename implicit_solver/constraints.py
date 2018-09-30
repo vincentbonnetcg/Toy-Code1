@@ -334,11 +334,11 @@ def computeCurvature(x0, x1, x2):
     t01 = x1 - x0
     t01 /= np.linalg.norm(t01)
     t12 = x2 - x1
-    t12 /= np.linalg.norm(t01)
+    t12 /= np.linalg.norm(t12)
     #mid01 = (x0 + x1) * 0.5
     #mid12 = (x1 + x2) * 0.5
     # Discrete curvature - poor (1)
-    # curvature = np.linalg.norm([0,1]) / np.linalg.norm(mid12 - mid01)
+    #curvature = np.linalg.norm(t12 - t01) #/ np.linalg.norm(mid12 - mid01)
     # Discrete curvature - accurate (2)
     det = t01[0]*t12[1] - t01[1]*t12[0]      # determinant
     dot = t01[0]*t12[0] + t01[1]*t12[1]      # dot product
@@ -348,7 +348,6 @@ def computeCurvature(x0, x1, x2):
     return curvature
 
 def elasticBendingEnergy(x0, x1, x2, restCurvature, stiffness):
-    curvature = computeCurvature(x0, x1, x2)
-    #print(curvature - restCurvature)
-    #curvature = restCurvature
-    return 0.5 * stiffness * ((curvature - restCurvature) * (curvature - restCurvature))
+    curvature = computeCurvature(x0, x1, x2)   
+    length = np.linalg.norm(x1 - x0) + np.linalg.norm(x2 - x1)
+    return 0.5 * stiffness * ((curvature - restCurvature) * (curvature - restCurvature)) * length

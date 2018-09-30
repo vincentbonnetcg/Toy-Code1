@@ -54,7 +54,7 @@ class BaseDynamic:
     def set_indexing(self, index, global_offset):
         '''
         Sets the global indices (object index and particle offset)
-        This index is set after the object has been added to the scene
+        Those indices are set after the object has been added to the scene
         '''
         self.index = index
         self.global_offset = global_offset
@@ -71,9 +71,10 @@ class Wire(BaseDynamic):
     '''
     Wire Class describes a dynamic wire object
     '''
-    def __init__(self, startPoint, endPoint, numEdges, particleMass, stiffness, damping):
+    def __init__(self, startPoint, endPoint, numEdges, particleMass, stiffness, bendingStiffness, damping):
         BaseDynamic.__init__(self, numEdges+1, particleMass, stiffness, damping)
         self.num_edges = numEdges
+        self.bending_stiffness = bendingStiffness
 
         axisx = np.linspace(startPoint[0], endPoint[0], num=self.num_particles, endpoint=True)
         axisy = np.linspace(startPoint[1], endPoint[1], num=self.num_particles, endpoint=True)
@@ -82,11 +83,11 @@ class Wire(BaseDynamic):
 
     def create_internal_constraints(self):
         for i in range(self.num_edges):
-            self.constraints.append(cn.SpringConstraint(self.stiffness * 10.0, self.damping, [self, self], [i, i+1]))
+            self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [i, i+1]))
 
-        #if (self.num_edges > 1):
-        #    for i in range(self.num_edges-1):
-        #        self.constraints.append(cn.BendingConstraint(self.stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
+        if (self.num_edges > 1 and self.bending_stiffness > 0.0):
+            for i in range(self.num_edges-1):
+                self.constraints.append(cn.BendingConstraint(self.bending_stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
 
 class Beam(BaseDynamic):
     '''
