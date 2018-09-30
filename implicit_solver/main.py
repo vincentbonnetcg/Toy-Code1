@@ -14,9 +14,9 @@ import math
 '''
  Global Constants
 '''
-WIRE_ROOT_POS = [-2.5, 0.0] # in meters
-WIRE_END_POS = [2.5, 0.0] # in meters
-WIRE_NUM_SEGMENTS = 50
+WIRE_ROOT_POS = [0.0, 2.0] # in meters
+WIRE_END_POS = [0.0, -2.0] # in meters
+WIRE_NUM_SEGMENTS = 30
 
 BEAM_POS = [-4.0, 0.0] # in meters
 BEAM_WIDTH = 8.0 # in meters
@@ -31,7 +31,7 @@ PARTICLE_MASS = 0.001 # in Kg
 GRAVITY = (0.0, -9.81) # in meters per second^2
 NUM_FRAME = 100
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
-NUM_SUBSTEP = 4 # number of substep per frame
+NUM_SUBSTEP = 10 # number of substep per frame
 
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
@@ -41,23 +41,24 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 '''
 def createWireScene():
     # Create dynamic objects / kinematic objects / scene
-    wire = dyn.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS * 50.0, STIFFNESS, DAMPING)
+    wire = dyn.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS * 50.0, STIFFNESS * 0.1, DAMPING)
     wire.render_prefs = ['co', 0, 'm-', 1]
-    
-    movingAnchor = kin.RectangleKinematic(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1], WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] + 0.1)
+    movingAnchor = kin.RectangleKinematic(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1], WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1] - 0.5)
     movingAnchorPosition = movingAnchor.position
-    movingAnchorAnimation = lambda time : [[movingAnchorPosition[0] + math.sin(10.0 * time), movingAnchorPosition[1]], math.sin(time * 10.0) * 90.0]
+    decayRate = 0.6
+    movingAnchorAnimation = lambda time : [[movingAnchorPosition[0] + math.sin(10.0 * time) * math.pow(1.0-decayRate, time), 
+                                            movingAnchorPosition[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decayRate, time)]
     movingAnchor.animationFunc = movingAnchorAnimation
     
-    point = kin.PointKinematic(WIRE_END_POS)
+    #point = kin.PointKinematic(WIRE_END_POS)
 
     scene = sc.Scene(GRAVITY)
     scene.addDynamic(wire)
     scene.addKinematic(movingAnchor)
-    scene.addKinematic(point)
+    #scene.addKinematic(point)
     scene.updateKinematics(0.0) # set kinematic objects at start frame
-    scene.attachToKinematic(wire, movingAnchor, 1000.0, 0.0, 0.1)
-    scene.attachToKinematic(wire, point, 100.0, 0.0, 0.1)
+    scene.attachToKinematic(wire, movingAnchor, 100.0, 0.0, 0.1)
+    #scene.attachToKinematic(wire, point, 100.0, 0.0, 0.1)
     return scene
 
 def createBeamScene():
@@ -93,7 +94,7 @@ def createBeamScene():
 
     return scene
 
-scene = createBeamScene()
+scene = createWireScene()
 
 # Create Solver
 #solver = sl.SemiImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam

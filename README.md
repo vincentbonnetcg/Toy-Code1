@@ -5,10 +5,12 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
 **Description** Implicit Solver.
 - Implicit / Semi-Implicit integrators
-- Spring Constraint
+- Spring / Area / Bending Constraint
+- Numerical Differentiations (Numerical Jacobian and Hessian) with high accuracy order
 - Kinematic Objects 
 
-![Implicit Solver](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver.gif)
+![Implicit Solver Beam](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_beam.gif)
+![Implicit Solver Wire](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_wire.gif)
 
 [1] Baraff, David, and Andrew Witkin. "Large steps in cloth simulation." Proceedings of the 25th annual conference on Computer graphics and interactive techniques. ACM, 1998.
 
