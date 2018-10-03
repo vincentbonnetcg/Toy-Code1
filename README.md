@@ -7,7 +7,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 - Implicit / Semi-Implicit integrators
 - Spring / Area / Bending Constraint
 - Numerical Differentiations (Numerical Jacobian and Hessian) with high accuracy order
-- Kinematic Objects 
+- Kinematic Objects
+- Dynamic/Dynamic and Dynamic/Static attachment
 
 ![Implicit Solver Beam](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_beam.gif)
 ![Implicit Solver Wire](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_wire.gif)
