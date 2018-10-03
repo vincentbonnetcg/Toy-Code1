@@ -5,6 +5,7 @@
 
 import numpy as np
 import differentiation as diff
+import math
 
 class BaseConstraint:
     '''
@@ -259,6 +260,16 @@ class BendingConstraint(BaseConstraint):
 '''
  Constraint Utility Functions
 '''
+def fastNorm(vector):
+    '''
+    np.linalg.norm is generic and fast for array but pretty slow single scalar
+    It is therefore replaced by a less generic norm
+    '''
+    dot = (vector[0] * vector[0]) + (vector[1] * vector[1])
+    return math.sqrt(dot)
+    
+# Spring Constraint
+
 # direction = normalized(x0-x1)
 # stretch = norm(direction)
 # A = outerProduct(direction, direction)
@@ -267,7 +278,7 @@ class BendingConstraint(BaseConstraint):
 def springStretchJacobian(x0, x1, rest, stiffness):
     jacobian = np.zeros(shape=(2, 2))
     direction = x0 - x1
-    stretch = np.linalg.norm(direction)
+    stretch = fastNorm(direction)
     I = np.identity(2)
     if not np.isclose(stretch, 0.0):
         direction /= stretch
@@ -281,7 +292,7 @@ def springStretchJacobian(x0, x1, rest, stiffness):
 def springDampingJacobian(x0, x1, v0, v1, damping):
     jacobian = np.zeros(shape=(2, 2))
     direction = x1 - x0
-    stretch = np.linalg.norm(direction)
+    stretch = fastNorm(direction)
     if not np.isclose(stretch, 0.0):
         direction /= stretch
         A = np.outer(direction, direction)
@@ -291,14 +302,14 @@ def springDampingJacobian(x0, x1, v0, v1, damping):
 
 def springStretchForce(x0, x1, rest, stiffness):
     direction = x1 - x0
-    stretch = np.linalg.norm(direction)
+    stretch = fastNorm(direction)
     if not np.isclose(stretch, 0.0):
         direction /= stretch
     return direction * ((stretch - rest) * stiffness)
 
 def springDampingForce(x0, x1, v0, v1, damping):
     direction = x1 - x0
-    stretch = np.linalg.norm(direction)
+    stretch = fastNorm(direction)
     if not np.isclose(stretch, 0.0):
         direction /= stretch
     relativeVelocity = v1 - v0
@@ -306,16 +317,24 @@ def springDampingForce(x0, x1, v0, v1, damping):
 
 def elasticSpringEnergy(x0, x1, rest, stiffness):
     direction = x1 - x0
-    stretch = np.linalg.norm(direction)
+    stretch = fastNorm(direction)
     return 0.5 * stiffness * ((stretch - rest) * (stretch - rest))
 
+
+# Area Constraint
 def elasticAreaEnergy(x0, x1, x2, restArea, stiffness):
-    u = np.subtract(x1, x0)
-    v = np.subtract(x2, x0)
+    u = x1 - x0 # np.subtract(x1, x0)
+    v = x2 - x0 # np.subtract(x2, x0)
     #area = np.abs(np.cross(u, v)) * 0.5 # expensive operation => replaced with line below
     area = np.abs(u[0]*v[1]-v[0]*u[1]) * 0.5
     return 0.5 * stiffness * ((area - restArea) * (area - restArea))
 
+def areaDampingForce(x0, x1, x2, restArea, stiffness, index):
+    # TODO
+    pass
+
+
+# Bending Constraint
 def computeCurvature(x0, x1, x2):
     '''
     Connect three points :
@@ -332,22 +351,22 @@ def computeCurvature(x0, x1, x2):
     discrete curvate formula 2: angle(t12,t01) / |mid12 - mid01|
     '''
     t01 = x1 - x0
-    t01 /= np.linalg.norm(t01)
+    t01 /= fastNorm(t01)
     t12 = x2 - x1
-    t12 /= np.linalg.norm(t12)
+    t12 /= fastNorm(t12)
     #mid01 = (x0 + x1) * 0.5
     #mid12 = (x1 + x2) * 0.5
     # Discrete curvature - poor (1)
-    #curvature = np.linalg.norm(t12 - t01) #/ np.linalg.norm(mid12 - mid01)
+    #curvature = fastNorm(t12 - t01) #/ fastNorm(mid12 - mid01)
     # Discrete curvature - accurate (2)
     det = t01[0]*t12[1] - t01[1]*t12[0]      # determinant
     dot = t01[0]*t12[0] + t01[1]*t12[1]      # dot product
     angle = np.math.atan2(det,dot)  # atan2 return range [-pi, pi]
     # TOFIX : instability to fix
-    curvature = angle # / np.linalg.norm(mid12 - mid01)
+    curvature = angle # / fastNorm(mid12 - mid01)
     return curvature
 
 def elasticBendingEnergy(x0, x1, x2, restCurvature, stiffness):
     curvature = computeCurvature(x0, x1, x2)   
-    length = np.linalg.norm(x1 - x0) + np.linalg.norm(x2 - x1)
+    length = fastNorm(x1 - x0) + fastNorm(x2 - x1)
     return 0.5 * stiffness * ((curvature - restCurvature) * (curvature - restCurvature)) * length
