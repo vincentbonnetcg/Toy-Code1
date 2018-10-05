@@ -7,7 +7,7 @@ import numpy as np
 import scipy as sc
 import scipy.sparse
 import scipy.sparse.linalg
-import profiler
+from tools import profiler
 
 '''
  Base Solver

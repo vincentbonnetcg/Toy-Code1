@@ -4,10 +4,10 @@
 """
 
 import objects as obj
-import render as rd
+import tools
+
 import solvers as sl
 import scene as sc
-import profiler
 import math
 
 '''
@@ -100,10 +100,10 @@ scene = createWireScene()
 solver = sl.ImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
 
 # Run simulation and render
-render = rd.Render()
+render = tools.Render()
 render.setRenderFolderPath(RENDER_FOLDER_PATH)
 
-profiler = profiler.ProfilerSingleton()
+profiler = tools.profiler.ProfilerSingleton()
 for frameId in range(0, NUM_FRAME+1):
     profiler.clearLogs()
 
