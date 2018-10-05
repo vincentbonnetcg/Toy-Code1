@@ -4,10 +4,10 @@
 """
 import numpy as np
 
-'''
- Base Kinematic
-'''
 class BaseKinematic:
+    '''
+    Base class to represent kinematic objects
+    '''
     def __init__(self, position):
         self.localSpaceVertices = [] # vertices describing the polygon - requires at least one point
         self.position = position
@@ -80,18 +80,18 @@ class BaseKinematic:
 
         return self.getPointFromParametricValues(params)
 
-'''
- Point Kinematic
-'''
 class PointKinematic(BaseKinematic):
+    '''
+    Single kinematic point
+    '''
     def __init__(self, point):
         BaseKinematic.__init__(self, [0, 0])
         self.localSpaceVertices.append(point)
 
-'''
- Rectangle Kinematic
-'''
 class RectangleKinematic(BaseKinematic):
+    '''
+    Kinematic rectangle
+    '''
     def __init__(self, minX, minY, maxX, maxY):
         BaseKinematic.__init__(self, [0, 0])
         width = maxX - minX
