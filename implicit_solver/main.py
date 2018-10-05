@@ -5,9 +5,7 @@
 
 import objects as obj
 import tools
-
-import solvers as sl
-import scene as sc
+import system
 import math
 
 '''
@@ -51,7 +49,7 @@ def createWireScene():
     
     #point = kin.PointKinematic(WIRE_END_POS)
 
-    scene = sc.Scene(GRAVITY)
+    scene = system.Scene(GRAVITY)
     scene.addDynamic(wire)
     scene.addKinematic(movingAnchor)
     #scene.addKinematic(point)
@@ -81,7 +79,7 @@ def createBeamScene():
     moveRightAnchor = lambda time: [[RPos[0] + math.sin(2.0 * time) * -0.1, RPos[1]], 0.0]
     rightAnchor.animationFunc = moveRightAnchor
 
-    scene = sc.Scene(GRAVITY)
+    scene = system.Scene(GRAVITY)
     scene.addDynamic(beam)
     scene.addDynamic(wire)
     scene.addKinematic(leftAnchor)
@@ -97,7 +95,7 @@ scene = createWireScene()
 
 # Create Solver
 #solver = sl.SemiImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam
-solver = sl.ImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
+solver = system.ImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
 
 # Run simulation and render
 render = tools.Render()
