@@ -83,11 +83,11 @@ class Wire(BaseDynamic):
 
     def create_internal_constraints(self):
         for i in range(self.num_edges):
-            self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [i, i+1]))
+            self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [i, i+1]))
 
         if (self.num_edges > 1 and self.bending_stiffness > 0.0):
             for i in range(self.num_edges-1):
-                self.constraints.append(cn.BendingConstraint(self.bending_stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
+                self.constraints.append(cn.Bending(self.bending_stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
 
 class Beam(BaseDynamic):
     '''
@@ -118,13 +118,13 @@ class Beam(BaseDynamic):
             for i in range(self.cell_x):
                 pids = cell_to_pids(i, j)
 
-                self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[3]]))
+                self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[1], pids[3]]))
                 if i == 0:
-                    self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[2]]))
+                    self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[2]]))
 
-                self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[2], pids[3]]))
+                self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[2], pids[3]]))
                 if j == 0:
-                    self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[1]]))
+                    self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[1]]))
 
                 #self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[3]]))
                 #self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[2]]))
@@ -134,5 +134,5 @@ class Beam(BaseDynamic):
             for i in range(self.cell_x):
                 pids = cell_to_pids(i, j)
 
-                self.constraints.append(cn.AreaConstraint(self.stiffness, self.damping, [self, self, self], [pids[0], pids[1], pids[2]]))
-                self.constraints.append(cn.AreaConstraint(self.stiffness, self.damping, [self, self, self], [pids[1], pids[2], pids[3]]))
+                self.constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [pids[0], pids[1], pids[2]]))
+                self.constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [pids[1], pids[2], pids[3]]))

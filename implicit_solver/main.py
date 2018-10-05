@@ -94,7 +94,7 @@ def createBeamScene():
 
     return scene
 
-scene = createWireScene()
+scene = createBeamScene()
 
 # Create Solver
 #solver = sl.SemiImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP) #- only debugging - unstable with beam

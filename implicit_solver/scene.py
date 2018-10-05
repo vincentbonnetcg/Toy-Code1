@@ -50,7 +50,7 @@ class Scene:
             direction = (attachmentPoint - x)
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
-                constraint = cn.AnchorSpringConstraint(stiffness, damping, dynamic, particleId, kinematic, attachmentPointParams)
+                constraint = cn.AnchorSpring(stiffness, damping, dynamic, particleId, kinematic, attachmentPointParams)
                 self.constraints.append(constraint)
 
     def attachToDynamic(self, dynamic0, dynamic1, stiffness, damping, distance):
@@ -61,7 +61,7 @@ class Scene:
                 direction = (x0 - x1)
                 dist2 = np.inner(direction, direction)
                 if dist2 < distance2:
-                    constraint = cn.SpringConstraint(stiffness, damping, [dynamic0, dynamic1], [x0i, x1i])
+                    constraint = cn.Spring(stiffness, damping, [dynamic0, dynamic1], [x0i, x1i])
                     self.constraints.append(constraint)
 
     def getConstraintsIterator(self):
