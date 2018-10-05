@@ -80,7 +80,7 @@ class BaseKinematic:
 
         return self.getPointFromParametricValues(params)
 
-class PointKinematic(BaseKinematic):
+class Point(BaseKinematic):
     '''
     Single kinematic point
     '''
@@ -88,7 +88,7 @@ class PointKinematic(BaseKinematic):
         BaseKinematic.__init__(self, [0, 0])
         self.localSpaceVertices.append(point)
 
-class RectangleKinematic(BaseKinematic):
+class Rectangle(BaseKinematic):
     '''
     Kinematic rectangle
     '''

@@ -32,7 +32,7 @@ def createWireScene():
     '''
     wire = objects.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS * 50.0, STIFFNESS * 0.1, DAMPING)
     wire.render_prefs = ['co', 0, 'm-', 1]
-    movingAnchor = objects.RectangleKinematic(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1], WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1] - 0.5)
+    movingAnchor = objects.Rectangle(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1], WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1] - 0.5)
     movingAnchorPosition = movingAnchor.position
     decayRate = 0.6
     movingAnchorAnimation = lambda time : [[movingAnchorPosition[0] + math.sin(10.0 * time) * math.pow(1.0-decayRate, time), 
@@ -58,8 +58,8 @@ def createBeamScene():
     wire = objects.Wire(wireStartPos, wireEndPos, BEAM_CELL_X * 8, PARTICLE_MASS * 0.1, STIFFNESS * 0.5, 0.0, DAMPING)
     wire.render_prefs = ['co', 1, 'm-', 1]
 
-    leftAnchor = objects.RectangleKinematic(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
-    rightAnchor = objects.RectangleKinematic(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
+    leftAnchor = objects.Rectangle(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
+    rightAnchor = objects.Rectangle(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
 
     LPos = leftAnchor.position
     moveLeftAnchor = lambda time: [[LPos[0] + math.sin(2.0 * time) * 0.1, LPos[1] + math.sin(time * 4.0)], 0.0]
