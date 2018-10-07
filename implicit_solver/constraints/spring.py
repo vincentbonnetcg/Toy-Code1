@@ -88,15 +88,10 @@ class Spring(Base):
         dfdx = springStretchJacobian(x0, x1, self.restLength, self.stiffness)
         dfdv = springDampingJacobian(x0, x1, v0, v1, self.damping)
         # Set jacobians
-        self.dfdx[0][0] = dfdx
-        self.dfdx[1][1] = dfdx
-        self.dfdx[0][1] = dfdx * -1
-        self.dfdx[1][0] = dfdx * -1
-
-        self.dfdv[0][0] = dfdv
-        self.dfdv[1][1] = dfdv
-        self.dfdv[0][1] = dfdv * -1
-        self.dfdv[1][0] = dfdv * -1
+        self.dfdx[0][0] = self.dfdx[1][1] = dfdx
+        self.dfdx[0][1] = self.dfdx[1][0] = dfdx * -1
+        self.dfdv[0][0] = self.dfdv[1][1] = dfdv
+        self.dfdv[0][1] = self.dfdv[1][0] = dfdv * -1
 
 '''
  Utility Functions

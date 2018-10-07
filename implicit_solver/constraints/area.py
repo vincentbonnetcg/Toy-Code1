@@ -60,12 +60,9 @@ class Area(Base):
         self.dfdx[0][0] = dfdx00
         self.dfdx[1][1] = dfdx11
         self.dfdx[2][2] = dfdx22
-        self.dfdx[0][1] = dfdx01
-        self.dfdx[1][0] = dfdx01
-        self.dfdx[0][2] = dfdx02
-        self.dfdx[2][0] = dfdx02
-        self.dfdx[1][2] = dfdx12
-        self.dfdx[2][1] = dfdx12
+        self.dfdx[0][1] = self.dfdx[1][0] = dfdx01
+        self.dfdx[0][2] = self.dfdx[2][0] = dfdx02
+        self.dfdx[1][2] = self.dfdx[2][1] = dfdx12
 
 '''
  Utility Functions

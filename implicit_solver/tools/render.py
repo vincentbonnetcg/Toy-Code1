@@ -38,7 +38,7 @@ class Render:
 
         # Draw objects constraints
         for dynamic in scene.dynamics:
-            for constraint in dynamic.constraints:
+            for constraint in dynamic.internal_constraints:
                 ids = constraint.localIds
                 if len(ids) >= 2:
                     linedata = []

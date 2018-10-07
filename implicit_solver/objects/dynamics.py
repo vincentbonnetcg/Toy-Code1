@@ -20,7 +20,7 @@ class BaseDynamic:
     Object data / Material:
         - stiffness
         - damping
-        - list of internal constraint: constraints[]
+        - list of internal constraint: internal_constraints[]
     Indexing:
         - global particle offset :globalOffset
         - object index in the scene.dynamics : index
@@ -38,12 +38,10 @@ class BaseDynamic:
         # Useful indices set after adding the object into the scene
         self.global_offset = 0 # global particle offset
         self.index = 0 # object index in the scene.dynamics[.]
-        # Material property
+        # Material and internal constraints
         self.stiffness = stiffness
         self.damping = damping
-
-        # Initialize constraints
-        self.constraints = []
+        self.internal_constraints = []
 
         # Render preferences used by render.py
         # See : https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html for more details
@@ -83,11 +81,11 @@ class Wire(BaseDynamic):
 
     def create_internal_constraints(self):
         for i in range(self.num_edges):
-            self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [i, i+1]))
+            self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [i, i+1]))
 
         if (self.num_edges > 1 and self.bending_stiffness > 0.0):
             for i in range(self.num_edges-1):
-                self.constraints.append(cn.Bending(self.bending_stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
+                self.internal_constraints.append(cn.Bending(self.bending_stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
 
 class Beam(BaseDynamic):
     '''
@@ -118,21 +116,21 @@ class Beam(BaseDynamic):
             for i in range(self.cell_x):
                 pids = cell_to_pids(i, j)
 
-                self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[1], pids[3]]))
+                self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[1], pids[3]]))
                 if i == 0:
-                    self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[2]]))
+                    self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[2]]))
 
-                self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[2], pids[3]]))
+                self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[2], pids[3]]))
                 if j == 0:
-                    self.constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[1]]))
+                    self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[1]]))
 
-                #self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[3]]))
-                #self.constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[2]]))
+                #self.internal_constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[3]]))
+                #self.internal_constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[2]]))
 
         # Compute Area Constraint
         for j in range(self.cell_y):
             for i in range(self.cell_x):
                 pids = cell_to_pids(i, j)
 
-                self.constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [pids[0], pids[1], pids[2]]))
-                self.constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [pids[1], pids[2], pids[3]]))
+                self.internal_constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [pids[0], pids[1], pids[2]]))
+                self.internal_constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [pids[1], pids[2], pids[3]]))

@@ -27,6 +27,7 @@ class BaseSolver:
 
     def preStep(self, scene, time):
         scene.updateKinematics(time)
+        scene.updateDynamicConstraints()
 
     def step(self, scene, dt):
         self.prepareSystem(scene, dt)

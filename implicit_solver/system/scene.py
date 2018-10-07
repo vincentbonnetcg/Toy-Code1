@@ -1,6 +1,7 @@
 """
 @author: Vincent Bonnet
-@description : a scene contains constraints/objects/kinematics/colliders
+@description : a scene contains objects/constraints/kinematics
+The scene is a storage for all the data used by the solver
 """
 
 import itertools
@@ -11,7 +12,9 @@ class Scene:
     def __init__(self, gravity):
         self.dynamics = [] # dynamic objects
         self.kinematics = [] # kinematic objects
-        self.constraints = [] # constraints
+        self.static_constraints = [] # static constraints (like area/bending/spring)
+        self.dynamic_constraints = [] # dynamic constraints (like sliding/collision)
+        self.dynamic_constraint_builders = [] # creates dynamic constraints
         self.gravity = gravity
 
     def addDynamic(self, dynamic):
@@ -28,6 +31,11 @@ class Scene:
     def updateKinematics(self, time):
         for kinematic in self.kinematics:
             kinematic.update(time)
+
+    def updateDynamicConstraints(self):
+        self.dynamic_constraints.clear()
+        for dynamic_constraint_builder in self.dynamic_constraint_builders:
+            pass
 
     def computeParticlesOffset(self, index):
         offset = 0
@@ -51,7 +59,7 @@ class Scene:
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
                 constraint = cn.AnchorSpring(stiffness, damping, dynamic, particleId, kinematic, attachmentPointParams)
-                self.constraints.append(constraint)
+                self.static_constraints.append(constraint)
 
     def attachToDynamic(self, dynamic0, dynamic1, stiffness, damping, distance):
         # Linear search => it will be inefficient for dynamic objects with many particles
@@ -62,12 +70,12 @@ class Scene:
                 dist2 = np.inner(direction, direction)
                 if dist2 < distance2:
                     constraint = cn.Spring(stiffness, damping, [dynamic0, dynamic1], [x0i, x1i])
-                    self.constraints.append(constraint)
+                    self.static_constraints.append(constraint)
 
     def getConstraintsIterator(self):
         values = []
-        values.append(self.constraints)
+        values.append(self.static_constraints)
         for obj in self.dynamics:
-            values.append(obj.constraints)
+            values.append(obj.internal_constraints)
 
         return itertools.chain.from_iterable(values)
