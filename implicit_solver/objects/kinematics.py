@@ -33,7 +33,10 @@ class BaseKinematic:
             self.rotation = state[1]
 
     def getClosestParametricValues(self, point):
-        # return edgeId and line parameter (t) to define point on this edge
+        '''
+        Returns a pair [edgeId, line parameter (t)] which define
+        the closest point on the polygon
+        '''
         worldSpaceVertices = self.getWorldSpaceVertices()
         if len(worldSpaceVertices) == 0:
             return None
@@ -73,33 +76,73 @@ class BaseKinematic:
 
         return None
 
-    def getClosestPoint(self, point):
-        params = self.getClosestParametricValues(point)
-        if params is None:
-            return None
+    def getNormalFromParametricValues(self, parametricValues):
+        worldSpaceVertices = self.getWorldSpaceVertices()
+        numEdges = len(worldSpaceVertices)
+        edgeId = parametricValues[0]
+        if edgeId >= 0:
+            A = self.localSpaceVertices[edgeId]
+            B = self.localSpaceVertices[(edgeId+1)%numEdges]
+            t = parametricValues[1]
+            p = A * (1.0 - t) + B * t
+            n = [A[1] - B[1], A[0] - B[0]]
 
-        return self.getPointFromParametricValues(params)
+            if (n[0] * p[0] + n[1] * p[1] > 0.0):
+                n[0] *= -1.0
+                n[1] *= -1.0
+            # TODO - should multiply by rotation
+
+            return n
+
+        return [0.0, 0.0]
+
+    def is_inside(self, point):
+        '''
+        Returns whether or not the point is inside the kinematic
+        The base is not implemented yet
+        '''
+        return False
 
 class Point(BaseKinematic):
     '''
     Single kinematic point
     '''
     def __init__(self, point):
-        BaseKinematic.__init__(self, [0, 0])
-        self.localSpaceVertices.append(point)
+        BaseKinematic.__init__(self, [0.0, 0.0])
+        self.localSpaceVertices = np.zeros((1, 2))
+        self.localSpaceVertices[0] = point
 
 class Rectangle(BaseKinematic):
     '''
     Kinematic rectangle
     '''
     def __init__(self, minX, minY, maxX, maxY):
-        BaseKinematic.__init__(self, [0, 0])
-        width = maxX - minX
-        height = maxY - minY
-        halfWidth = width * 0.5
-        halfHeight = height * 0.5
-        self.localSpaceVertices.append([-halfWidth, -halfHeight])
-        self.localSpaceVertices.append([-halfWidth, halfHeight])
-        self.localSpaceVertices.append([halfWidth, halfHeight])
-        self.localSpaceVertices.append([halfWidth, -halfHeight])
+        BaseKinematic.__init__(self, [0.0, 0.0])
+        # TODO - make sure the max/min are correct
+        self.width = maxX - minX
+        self.height = maxY - minY
+        halfWidth = self.width * 0.5
+        halfHeight = self.height * 0.5
+        self.localSpaceVertices = np.zeros((4, 2))
+        self.localSpaceVertices[0] = [-halfWidth, -halfHeight]
+        self.localSpaceVertices[1] = [-halfWidth, halfHeight]
+        self.localSpaceVertices[2] = [halfWidth, halfHeight]
+        self.localSpaceVertices[3] = [halfWidth, -halfHeight]
         self.position = [minX + halfWidth, minY + halfHeight]
+
+    def is_inside(self, point) :
+        '''
+        Returns whether or not the point is inside the rectangle
+        '''
+        theta = np.radians(-self.rotation)
+        c, s = np.cos(theta), np.sin(theta)
+        R = np.array(((c, -s), (s, c)))
+        result = np.matmul(point - self.position, R)
+        halfWidth = self.width * 0.5
+        halfHeight = self.height * 0.5
+        if (result[0] > -halfWidth and result[0] < halfWidth and
+            result[1] > -halfHeight and result[1] < halfHeight):
+            return True
+
+        return False
+

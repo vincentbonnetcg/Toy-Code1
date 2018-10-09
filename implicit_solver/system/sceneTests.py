@@ -32,18 +32,23 @@ def createWireScene():
     '''
     wire = objects.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS * 50.0, STIFFNESS * 0.1, DAMPING)
     wire.render_prefs = ['co', 0, 'm-', 1]
-    movingAnchor = objects.Rectangle(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1], WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1] - 0.5)
+    movingAnchor = objects.Rectangle(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5, WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
     movingAnchorPosition = movingAnchor.position
     decayRate = 0.6
-    movingAnchorAnimation = lambda time : [[movingAnchorPosition[0] + math.sin(10.0 * time) * math.pow(1.0-decayRate, time), 
+    movingAnchorAnimation = lambda time : [[movingAnchorPosition[0] + math.sin(time * 10.0) * math.pow(1.0-decayRate, time), 
                                             movingAnchorPosition[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decayRate, time)]
     movingAnchor.animationFunc = movingAnchorAnimation
+    
+    collider = objects.Rectangle(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3, WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
     
     scene = system.Scene(GRAVITY)
     scene.addDynamic(wire)
     scene.addKinematic(movingAnchor)
+    scene.addKinematic(collider)
     scene.updateKinematics(0.0) # set kinematic objects at start frame
     scene.attachToKinematic(wire, movingAnchor, 100.0, 0.0, 0.1)
+    scene.add_collision(wire, collider, 1000.0, 0.0)
+    
     return scene
 
 def createBeamScene():

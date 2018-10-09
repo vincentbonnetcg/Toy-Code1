@@ -11,7 +11,7 @@ import system
 '''
 NUM_FRAME = 100
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
-NUM_SUBSTEP = 10 # number of substep per frame
+NUM_SUBSTEP = 4 # number of substep per frame
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 

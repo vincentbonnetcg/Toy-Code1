@@ -35,7 +35,7 @@ class Scene:
     def updateDynamicConstraints(self):
         self.dynamic_constraints.clear()
         for dynamic_constraint_builder in self.dynamic_constraint_builders:
-            pass
+            dynamic_constraint_builder.addDynamicConstraints(self)
 
     def computeParticlesOffset(self, index):
         offset = 0
@@ -72,8 +72,13 @@ class Scene:
                     constraint = cn.Spring(stiffness, damping, [dynamic0, dynamic1], [x0i, x1i])
                     self.static_constraints.append(constraint)
 
+    def add_collision(self, dynamic, kinematic, stiffness, damping):
+        collison_builder = cn.KinematicCollisionBuilder(stiffness, damping, dynamic, kinematic)
+        self.dynamic_constraint_builders.append(collison_builder)
+
     def getConstraintsIterator(self):
         values = []
+        values.append(self.dynamic_constraints)
         values.append(self.static_constraints)
         for obj in self.dynamics:
             values.append(obj.internal_constraints)
