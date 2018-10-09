@@ -9,6 +9,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 - Numerical Differentiations (Numerical Jacobian and Hessian) with high accuracy order
 - Kinematic Objects
 - Dynamic/Dynamic and Dynamic/Static attachment
+- Collision Dynamic/Static
 
 ![Implicit Solver Beam](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_beam.gif)
 ![Implicit Solver Wire](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_wire.gif)
