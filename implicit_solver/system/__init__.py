@@ -2,4 +2,4 @@
 
 from system.scene import Scene
 from system.solvers import ImplicitSolver, SemiImplicitSolver
-from system.sceneTests import createWireScene, createBeamScene
+from system.scene_tests import create_wire_scene, create_beam_scene

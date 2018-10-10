@@ -20,7 +20,7 @@ def main():
     Creates a scene and a solver + solve
     '''
     # Create scene and solver
-    scene = system.createWireScene()
+    scene = system.create_wire_scene()
     solver = system.ImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
     # below only debugging - unstable with high stiffness
     #solver = sl.SemiImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
