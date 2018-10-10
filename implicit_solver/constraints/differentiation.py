@@ -21,9 +21,12 @@ FIRST_DERIVATIVE_COEFS = [[-0.5, 0.5],
 
 ACCURACY_ORDER = 2
 
-# function : function to derivate
-# Accuracy Order can be 2, 4, 6
+
 def numericalDifferentiation(function, argumentId, componentId, *args):
+    '''
+    function to derivate !!!
+    Accuracy Order can be 2, 4, 6
+    '''
     accuracyOrderIndex = (int)(ACCURACY_ORDER / 2) - 1
     offsets = FIRST_DERIVATIVE_OFFSET[accuracyOrderIndex]
     coefs = FIRST_DERIVATIVE_COEFS[accuracyOrderIndex]
@@ -39,28 +42,30 @@ def numericalDifferentiation(function, argumentId, componentId, *args):
         array = argsList[argumentId]
         valueId = componentId
 
-    gradient = None
-    stencils = np.add(offsets, array[valueId])
-    for i in range(len(stencils)):
+    stencils = offsets + array[valueId]
+
+    # compute gradients
+    array[valueId] = stencils[0]
+    gradient = function(*argsList) * coefs[0]
+
+    for i in range(1, len(stencils)):
         array[valueId] = stencils[i]
-        if gradient is None:
-            gradient = np.multiply(function(*argsList), coefs[i])
-        else:
-            gradient += np.multiply(function(*argsList), coefs[i])
+        gradient += function(*argsList) * coefs[i]
 
     gradient /= STENCIL_SIZE
     return gradient
 
-# This function returns a jacobian matrix with the following dimension :
-# [function codomain dimension, function domain dimension]
-# 'Function codomain dimension' : dimension of the function output
-# 'Function domain dimension' : dimension of the input argumentId of the function
-# Warning : Only use scalar as argument (no integer/boolean)
-# Note : This function can be used to compute the gradient of function
 def numericalJacobian(function, argumentId, *args):
+    '''
+    This function returns a jacobian matrix with the following dimension :
+    [function codomain dimension, function domain dimension]
+    'Function codomain dimension' : dimension of the function output
+    'Function domain dimension' : dimension of the input argumentId of the function
+    Warning : Only use scalar as argument (no integer/boolean)
+    Note : This function can be used to compute the gradient of function\
+    '''
     functionCodomainDimension = 1 # default when np.isscalar(args[argumentId])
     functionDomainDimension = 1 # default when np.isscalar(gradientList[0])
-
     gradientList = []
 
     # compute gradients for each component of the argument
@@ -71,26 +76,24 @@ def numericalJacobian(function, argumentId, *args):
         gradient = numericalDifferentiation(function, argumentId, componentId, *args)
         gradientList.append(gradient)
 
+    # each gradient is a single value -> return a gradient
+    if np.isscalar(gradientList[0]):
+        gradient = np.asarray(gradientList)
+        return gradient
+
     # assemble jacobian from gradients
-    if len(gradientList) > 0:
-        if not np.isscalar(gradientList[0]):
-            functionCodomainDimension = len(gradientList[0])
+    functionCodomainDimension = len(gradientList[0])
+    jacobian = np.zeros(shape=(functionCodomainDimension, functionDomainDimension))
+    for gradientId, gradient in enumerate(gradientList):
+        jacobian[0:functionCodomainDimension, gradientId] = gradient
 
-        if functionCodomainDimension == 1:
-            gradient = np.zeros(functionDomainDimension)
-            for gradientId in range(len(gradientList)):
-                gradient[gradientId] = gradientList[gradientId]
-            return gradient
+    return jacobian
 
-        jacobian = np.zeros(shape=(functionCodomainDimension, functionDomainDimension))
-        for gradientId in range(len(gradientList)):
-            jacobian[0:functionCodomainDimension, gradientId] = gradientList[gradientId]
-
-        return jacobian
-
-# Return the Hessian by using two consecutive derivations (mixed derivatives)
-# The order of differientation doesn't matter : see Clairaut's theorem/Schwarz's theorem
 def numericalHessian(function, argumentId0, argumentId1, *args):
+    '''
+    Return the Hessian by using two consecutive derivations (mixed derivatives)
+    The order of differientation doesn't matter : see Clairaut's theorem/Schwarz's theorem
+    '''
     class diffHelper:
         def __init__(self, function, argumentId):
             self.function = function

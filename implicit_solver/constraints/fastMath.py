@@ -10,4 +10,5 @@ def norm(vector):
     It is therefore replaced by a less generic norm
     '''
     dot = (vector[0] * vector[0]) + (vector[1] * vector[1])
-    return math.sqrt(dot)# -*- coding: utf-8 -*-
+    return math.sqrt(dot)
+
