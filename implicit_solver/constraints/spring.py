@@ -33,7 +33,7 @@ class AnchorSpring(Base):
         #force = diff.numericalJacobian(elasticSpringEnergy, 0, x, targetPos, self.restLength, self.stiffness) * -1.0
         # Analytic forces
         force = springStretchForce(x, targetPos, self.restLength, self.stiffness)
-        force += springDampingForce(x, targetPos, v, (0, 0), self.damping)
+        force += springDampingForce(x, targetPos, v, (0.0, 0.0), self.damping)
         # Set forces
         self.f[0] = force
 
@@ -45,7 +45,7 @@ class AnchorSpring(Base):
         #dfdv = diff.numericalJacobian(springDampingForce, 2, x, targetPos, v, (0,0), self.damping)
         # Analytic jacobians
         dfdx = springStretchJacobian(x, targetPos, self.restLength, self.stiffness)
-        dfdv = springDampingJacobian(x, targetPos, v, (0, 0), self.damping)
+        dfdv = springDampingJacobian(x, targetPos, v, (0.0, 0.0), self.damping)
         # Set jacobians
         self.dfdx[0][0] = dfdx
         self.dfdv[0][0] = dfdv
@@ -102,24 +102,21 @@ class Spring(Base):
 # I = identity matrix
 # J =  -stiffness * [(1 - rest / stretch)(I - A) + A]
 def springStretchJacobian(x0, x1, rest, stiffness):
-    jacobian = np.zeros(shape=(2, 2))
     direction = x0 - x1
     stretch = fastMath.norm(direction)
     I = np.identity(2)
-    if not np.isclose(stretch, 0.0):
+    if not fastMath.is_close(stretch, 0.0):
         direction /= stretch
         A = np.outer(direction, direction)
-        jacobian = -1.0 * stiffness * ((1 - (rest / stretch)) * (I - A) + A)
-    else:
-        jacobian = -1.0 * stiffness * I
+        return -1.0 * stiffness * ((1 - (rest / stretch)) * (I - A) + A)
 
-    return jacobian
+    return -1.0 * stiffness * I
 
 def springDampingJacobian(x0, x1, v0, v1, damping):
     jacobian = np.zeros(shape=(2, 2))
     direction = x1 - x0
     stretch = fastMath.norm(direction)
-    if not np.isclose(stretch, 0.0):
+    if not fastMath.is_close(stretch, 0.0):
         direction /= stretch
         A = np.outer(direction, direction)
         jacobian = -1.0 *damping * A
@@ -129,14 +126,15 @@ def springDampingJacobian(x0, x1, v0, v1, damping):
 def springStretchForce(x0, x1, rest, stiffness):
     direction = x1 - x0
     stretch = fastMath.norm(direction)
-    if not np.isclose(stretch, 0.0):
+    if not fastMath.is_close(stretch, 0.0):
         direction /= stretch
     return direction * ((stretch - rest) * stiffness)
+
 
 def springDampingForce(x0, x1, v0, v1, damping):
     direction = x1 - x0
     stretch = fastMath.norm(direction)
-    if not np.isclose(stretch, 0.0):
+    if not fastMath.is_close(stretch, 0.0):
         direction /= stretch
     relativeVelocity = v1 - v0
     return direction * (np.dot(relativeVelocity, direction) * damping)

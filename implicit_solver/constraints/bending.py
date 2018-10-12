@@ -7,6 +7,7 @@ import numpy as np
 import constraints.differentiation as diff
 from constraints.base import Base
 import constraints.fastMath as fastMath
+from numba import njit
 
 class Bending(Base):
     '''
@@ -68,6 +69,7 @@ class Bending(Base):
 '''
  Utility Functions
 '''
+@njit
 def computeCurvature(x0, x1, x2):
     '''
     Connect three points :
@@ -103,9 +105,10 @@ def computeCurvature(x0, x1, x2):
     angle = np.math.atan2(det,dot)  # atan2 return range [-pi, pi]
     #curvature = angle / ((t01norm + t12norm) * 0.5)
     curvature = angle # very unstable when taking into consideration ((t01norm + t12norm) * 0.5)
-    
+
     return curvature
 
+@njit
 def elasticBendingEnergy(x0, x1, x2, restCurvature, stiffness):
     curvature = computeCurvature(x0, x1, x2)
     arc_length = fastMath.norm(x1 - x0) + fastMath.norm(x2 - x1) * 0.5
