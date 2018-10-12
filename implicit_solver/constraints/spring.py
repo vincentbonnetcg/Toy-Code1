@@ -5,7 +5,8 @@
 
 import numpy as np
 from constraints.base import Base
-import constraints.fastMath as fastMath
+import constraints.math_2d as math2D
+import constraints.differentiation as diff
 
 class AnchorSpring(Base):
     '''
@@ -103,9 +104,9 @@ class Spring(Base):
 # J =  -stiffness * [(1 - rest / stretch)(I - A) + A]
 def springStretchJacobian(x0, x1, rest, stiffness):
     direction = x0 - x1
-    stretch = fastMath.norm(direction)
+    stretch = math2D.norm(direction)
     I = np.identity(2)
-    if not fastMath.is_close(stretch, 0.0):
+    if not math2D.is_close(stretch, 0.0):
         direction /= stretch
         A = np.outer(direction, direction)
         return -1.0 * stiffness * ((1 - (rest / stretch)) * (I - A) + A)
@@ -115,31 +116,30 @@ def springStretchJacobian(x0, x1, rest, stiffness):
 def springDampingJacobian(x0, x1, v0, v1, damping):
     jacobian = np.zeros(shape=(2, 2))
     direction = x1 - x0
-    stretch = fastMath.norm(direction)
-    if not fastMath.is_close(stretch, 0.0):
+    stretch = math2D.norm(direction)
+    if not math2D.is_close(stretch, 0.0):
         direction /= stretch
         A = np.outer(direction, direction)
-        jacobian = -1.0 *damping * A
+        jacobian = -1.0 * damping * A
 
     return jacobian
 
 def springStretchForce(x0, x1, rest, stiffness):
     direction = x1 - x0
-    stretch = fastMath.norm(direction)
-    if not fastMath.is_close(stretch, 0.0):
+    stretch = math2D.norm(direction)
+    if not math2D.is_close(stretch, 0.0):
         direction /= stretch
     return direction * ((stretch - rest) * stiffness)
 
-
 def springDampingForce(x0, x1, v0, v1, damping):
     direction = x1 - x0
-    stretch = fastMath.norm(direction)
-    if not fastMath.is_close(stretch, 0.0):
+    stretch = math2D.norm(direction)
+    if not math2D.is_close(stretch, 0.0):
         direction /= stretch
     relativeVelocity = v1 - v0
     return direction * (np.dot(relativeVelocity, direction) * damping)
 
 def elasticSpringEnergy(x0, x1, rest, stiffness):
     direction = x1 - x0
-    stretch = fastMath.norm(direction)
+    stretch = math2D.norm(direction)
     return 0.5 * stiffness * ((stretch - rest) * (stretch - rest))

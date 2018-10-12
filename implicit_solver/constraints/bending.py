@@ -6,7 +6,7 @@
 import numpy as np
 import constraints.differentiation as diff
 from constraints.base import Base
-import constraints.fastMath as fastMath
+import constraints.math_2d as math2D
 from numba import njit
 
 class Bending(Base):
@@ -86,17 +86,17 @@ def computeCurvature(x0, x1, x2):
     discrete curvate formula 2: angle(t12,t01) / |mid12 - mid01|
     '''
     t01 = x1 - x0
-    t01norm = fastMath.norm(t01)
+    t01norm = math2D.norm(t01)
     t01 /= t01norm
     t12 = x2 - x1
-    t12norm =  fastMath.norm(t12)
+    t12norm =  math2D.norm(t12)
     t12 /= t12norm
 
     # Discrete curvature - Equation 1
     # curvature in terms of change in tangents divided by the distance between edge centers
     #mid01 = (x0 + x1) * 0.5
     #mid12 = (x1 + x2) * 0.5
-    #curvature = fastMath.norm(t12 - t01) / fastMath.norm(mid12 - mid01)
+    #curvature = math2D.norm(t12 - t01) / math2D.norm(mid12 - mid01)
 
     # Discrete curvature - Equation 2
     # curvature in terms of change in tangents angle divided by the arc-length
@@ -111,5 +111,5 @@ def computeCurvature(x0, x1, x2):
 @njit
 def elasticBendingEnergy(x0, x1, x2, restCurvature, stiffness):
     curvature = computeCurvature(x0, x1, x2)
-    arc_length = fastMath.norm(x1 - x0) + fastMath.norm(x2 - x1) * 0.5
+    arc_length = math2D.norm(x1 - x0) + math2D.norm(x2 - x1) * 0.5
     return 0.5 * stiffness * ((curvature - restCurvature) * (curvature - restCurvature)) * arc_length
