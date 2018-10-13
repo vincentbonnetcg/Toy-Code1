@@ -35,9 +35,9 @@ class Area(Base):
     def computeForces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical forces
-        force0 = diff.numericalJacobian(elasticAreaEnergy, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        force1 = diff.numericalJacobian(elasticAreaEnergy, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        force2 = diff.numericalJacobian(elasticAreaEnergy, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        force0 = diff.numerical_jacobian(elasticAreaEnergy, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        force1 = diff.numerical_jacobian(elasticAreaEnergy, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        force2 = diff.numerical_jacobian(elasticAreaEnergy, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
         # Analytic forces
         # TODO
         # Set forces
@@ -48,12 +48,12 @@ class Area(Base):
     def computeJacobians(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical jacobians (Aka Hessian of the energy)
-        dfdx00 = diff.numericalHessian(elasticAreaEnergy, 0, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx11 = diff.numericalHessian(elasticAreaEnergy, 1, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx22 = diff.numericalHessian(elasticAreaEnergy, 2, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx01 = diff.numericalHessian(elasticAreaEnergy, 0, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx02 = diff.numericalHessian(elasticAreaEnergy, 0, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx12 = diff.numericalHessian(elasticAreaEnergy, 1, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx00 = diff.numerical_hessian(elasticAreaEnergy, 0, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx11 = diff.numerical_hessian(elasticAreaEnergy, 1, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx22 = diff.numerical_hessian(elasticAreaEnergy, 2, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx01 = diff.numerical_hessian(elasticAreaEnergy, 0, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx02 = diff.numerical_hessian(elasticAreaEnergy, 0, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx12 = diff.numerical_hessian(elasticAreaEnergy, 1, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
         # Analytic jacobians
         # TODO
         # Set jacobians

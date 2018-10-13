@@ -19,88 +19,90 @@ FIRST_DERIVATIVE_COEFS = [[-0.5, 0.5],
                           [1/12, -2/3, 2/3, -1/12],
                           [-1/60, 3/20, -3/4, 3/4, -3/20, 1/60]]
 
-ACCURACY_ORDER = 2 # Accuracy Order can be 2, 4, 6
+# 0 means accuracy order of 2
+# 1 means accuracy order of 4
+# 2 means accuracy order of 6
+ACCURACY_ORDER_INDEX = 0
 
-def numericalJacobian(function, argumentId, *args):
+def numerical_jacobian(function, argument_id, *args):
     '''
     Returns a jacobian matrix of dimension :
     [function codomain dimension, function domain dimension]
     'Function codomain dimension' : dimension of the function output
-    'Function domain dimension' : dimension of the input argumentId of the function
+    'Function domain dimension' : dimension of the input argument_id of the function
     Warning : Only use scalar as argument (no integer/boolean)
     Note : This function can be used to compute the gradient of function
     '''
-    functionCodomainDimension = 1 # default when np.isscalar(args[argumentId])
-    functionDomainDimension = 1 # default when np.isscalar(gradientList[0])
-    gradientList = []
+    function_codomain_dimension = 1 # default when np.isscalar(args[argument_id])
+    function_domain_dimension = 1 # default when np.isscalar(gradient_list[0])
+    gradient_list = []
 
     # Differentiation settings
-    accuracyOrderIndex = (int)(ACCURACY_ORDER / 2) - 1
-    offsets = FIRST_DERIVATIVE_OFFSET[accuracyOrderIndex]
-    coefs = FIRST_DERIVATIVE_COEFS[accuracyOrderIndex]
+    offsets = FIRST_DERIVATIVE_OFFSET[ACCURACY_ORDER_INDEX]
+    coefs = FIRST_DERIVATIVE_COEFS[ACCURACY_ORDER_INDEX]
 
     # Copy the arguments of the function
     # This is a shallow copy by consequence the numerical differientiation
     # will have to do a deep copy for every modified argument
-    argsList = np.array(args)
+    args_array = np.array(args)
 
-    if np.isscalar(args[argumentId]):
-        functionDomainDimension = 1
+    if np.isscalar(args[argument_id]):
+        function_domain_dimension = 1
         # deepcopy of the argument to be modified
-        argsList[argumentId] = np.copy(args[argumentId])
+        args_array[argument_id] = np.copy(args[argument_id])
 
-        stencils = offsets + argsList[argumentId]
+        stencils = offsets + args_array[argument_id]
 
-        argsList[argumentId] = stencils[0]
-        gradient = function(*argsList) * coefs[0]
+        args_array[argument_id] = stencils[0]
+        gradient = function(*args_array) * coefs[0]
         for i in range(1, len(stencils)):
-            argsList[argumentId] = stencils[i]
-            gradient += function(*argsList) * coefs[i]
+            args_array[argument_id] = stencils[i]
+            gradient += function(*args_array) * coefs[i]
 
         gradient /= STENCIL_SIZE
-        gradientList.append(gradient)
+        gradient_list.append(gradient)
     else:
-        functionDomainDimension = len(args[argumentId])
-        for componentId in range(functionDomainDimension):
+        function_domain_dimension = len(args[argument_id])
+        for component_id in range(function_domain_dimension):
             # deepcopy of the argument to be modified
-            argsList[argumentId] = np.copy(args[argumentId])
+            args_array[argument_id] = np.copy(args[argument_id])
 
-            stencils = offsets + argsList[argumentId][componentId]
+            stencils = offsets + args_array[argument_id][component_id]
 
-            argsList[argumentId][componentId] = stencils[0]
-            gradient = function(*argsList) * coefs[0]
+            args_array[argument_id][component_id] = stencils[0]
+            gradient = function(*args_array) * coefs[0]
             for i in range(1, len(stencils)):
-                argsList[argumentId][componentId] = stencils[i]
-                gradient += function(*argsList) * coefs[i]
+                args_array[argument_id][component_id] = stencils[i]
+                gradient += function(*args_array) * coefs[i]
 
             gradient /= STENCIL_SIZE
-            gradientList.append(gradient)
+            gradient_list.append(gradient)
 
     # assemble jacobian/gradient from gradients
-    if np.isscalar(gradientList[0]):
-        gradient = np.asarray(gradientList)
+    if np.isscalar(gradient_list[0]):
+        gradient = np.asarray(gradient_list)
         return gradient
 
-    functionCodomainDimension = len(gradientList[0])
-    jacobian = np.zeros(shape=(functionCodomainDimension, functionDomainDimension))
-    for gradientId, gradient in enumerate(gradientList):
-        jacobian[0:functionCodomainDimension, gradientId] = gradient
+    function_codomain_dimension = len(gradient_list[0])
+    jacobian = np.zeros(shape=(function_codomain_dimension, function_domain_dimension))
+    for gradient_id, gradient in enumerate(gradient_list):
+        jacobian[0:function_codomain_dimension, gradient_id] = gradient
 
     return jacobian
 
-def numericalHessian(function, argumentId0, argumentId1, *args):
+def numerical_hessian(function, first_argument_id, second_argument_id, *args):
     '''
     Returns the Hessian by using two consecutive derivations (mixed derivatives)
     The order of differientation doesn't matter : see Clairaut's theorem/Schwarz's theorem
     '''
-    class diffHelper:
-        def __init__(self, function, argumentId):
+    class DifferentiationWrapper:
+        def __init__(self, function, argument_id):
             self.function = function
-            self.argumentId = argumentId
+            self.argument_id = argument_id
 
-        def firstDerivative(self, *args):
-            return numericalJacobian(self.function, self.argumentId, *args)
+        def numerical_jacobian(self, *args):
+            return numerical_jacobian(self.function, self.argument_id, *args)
 
-    derivative = diffHelper(function, argumentId0)
+    jacobian_wrapper = DifferentiationWrapper(function, first_argument_id)
 
-    return numericalJacobian(derivative.firstDerivative, argumentId1, *args)
+    return numerical_jacobian(jacobian_wrapper.numerical_jacobian, second_argument_id, *args)

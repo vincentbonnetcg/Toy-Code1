@@ -83,7 +83,7 @@ class BaseKinematic:
         edgeId = parametricValues[0]
         if edgeId >= 0:
 
-            # Compute the normalof convex hull in local space
+            # Compute the normal of the convex hull in local space
             A = self.localSpaceVertices[edgeId]
             B = self.localSpaceVertices[(edgeId+1)%numEdges]
             t = parametricValues[1]
@@ -96,7 +96,7 @@ class BaseKinematic:
                 n[0] *= -1.0
                 n[1] *= -1.0
 
-            # Transform the local normal to world space normal
+            # Transform the local space normal to world space normal
             theta = np.radians(self.rotation)
             c, s = np.cos(theta), np.sin(theta)
             R = np.array(((c, -s), (s, c)))
