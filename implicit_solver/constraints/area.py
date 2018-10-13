@@ -16,9 +16,7 @@ class Area(Base):
         x0 = dynamics[0].x[particleIds[0]]
         x1 = dynamics[1].x[particleIds[1]]
         x2 = dynamics[2].x[particleIds[2]]
-        v01 = np.subtract(x1, x0)
-        v02 = np.subtract(x2, x0)
-        self.restArea = np.abs(np.cross(v01, v02)) * 0.5
+        self.restArea = computeArea(x0, x1, x2)
 
     def getStates(self, scene):
         dynamic0 = scene.dynamics[self.dynamicIndices[0]]
@@ -67,11 +65,15 @@ class Area(Base):
 '''
  Utility Functions
 '''
-def elasticAreaEnergy(x0, x1, x2, restArea, stiffness):
+def computeArea(x0, x1, x2):
     u = x1 - x0 # np.subtract(x1, x0)
     v = x2 - x0 # np.subtract(x2, x0)
     #area = np.abs(np.cross(u, v)) * 0.5 # expensive operation => replaced with line below
     area = np.abs(u[0]*v[1]-v[0]*u[1]) * 0.5
+    return area
+
+def elasticAreaEnergy(x0, x1, x2, restArea, stiffness):
+    area = computeArea(x0, x1, x2)
     return 0.5 * stiffness * ((area - restArea) * (area - restArea))
 
 

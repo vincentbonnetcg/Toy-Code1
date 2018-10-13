@@ -15,7 +15,7 @@ class AnchorSpring(Base):
     def __init__(self, stiffness, damping, dynamic, particleId, kinematic, pointParams):
         Base.__init__(self, stiffness, damping, [dynamic], [particleId])
         targetPos = kinematic.getPointFromParametricValues(pointParams)
-        self.restLength = np.linalg.norm(targetPos - dynamic.x[self.localIds[0]])
+        self.restLength = computeLength(targetPos, dynamic.x[self.localIds[0]])
         self.pointParams = pointParams
         self.kinematicIndex = kinematic.index
 
@@ -57,7 +57,8 @@ class Spring(Base):
     '''
     def __init__(self, stiffness, damping, dynamics, particleIds):
         Base.__init__(self, stiffness, damping, dynamics, particleIds)
-        self.restLength = np.linalg.norm(dynamics[0].x[particleIds[0]] - dynamics[1].x[particleIds[1]])
+        self.restLength = computeLength(dynamics[0].x[particleIds[0]],
+                                        dynamics[1].x[particleIds[1]])
 
     def getStates(self, scene):
         dynamic0 = scene.dynamics[self.dynamicIndices[0]]
@@ -97,6 +98,10 @@ class Spring(Base):
 '''
  Utility Functions
 '''
+def computeLength(x0, x1):
+    direction = x0 - x1
+    return math2D.norm(direction)
+
 # direction = normalized(x0-x1)
 # stretch = norm(direction)
 # A = outerProduct(direction, direction)
@@ -140,6 +145,5 @@ def springDampingForce(x0, x1, v0, v1, damping):
     return direction * (np.dot(relativeVelocity, direction) * damping)
 
 def elasticSpringEnergy(x0, x1, rest, stiffness):
-    direction = x1 - x0
-    stretch = math2D.norm(direction)
+    stretch = computeLength(x0, x1)
     return 0.5 * stiffness * ((stretch - rest) * (stretch - rest))
