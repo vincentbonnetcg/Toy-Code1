@@ -35,7 +35,7 @@ class KinematicCollisionBuilder(Builder):
             if (kinematic.is_inside(pos)):
                 attachmentPointParams = kinematic.getClosestParametricValues(pos)               
                 kinematicNormal = kinematic.getNormalFromParametricValues(attachmentPointParams)
-                if (np.dot(kinematicNormal, dynamic.v[particleId]) > 0.0):
+                if (np.dot(kinematicNormal, dynamic.v[particleId]) < 0.0):
                     constraint = AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
                     scene.dynamic_constraints.append(constraint)
 

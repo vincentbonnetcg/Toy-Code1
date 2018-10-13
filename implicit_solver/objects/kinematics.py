@@ -4,6 +4,7 @@
 """
 import numpy as np
 
+
 class BaseKinematic:
     '''
     Base class to represent kinematic objects
@@ -81,16 +82,25 @@ class BaseKinematic:
         numEdges = len(worldSpaceVertices)
         edgeId = parametricValues[0]
         if edgeId >= 0:
+
+            # Compute the normalof convex hull in local space
             A = self.localSpaceVertices[edgeId]
             B = self.localSpaceVertices[(edgeId+1)%numEdges]
             t = parametricValues[1]
             p = A * (1.0 - t) + B * t
             n = [A[1] - B[1], A[0] - B[0]]
+            n /= np.linalg.norm(n)
 
-            if (n[0] * p[0] + n[1] * p[1] > 0.0):
+            dot = n[0] * p[0] + n[1] * p[1]
+            if (dot < 0.0):
                 n[0] *= -1.0
                 n[1] *= -1.0
-            # TODO - should multiply by rotation
+
+            # Transform the local normal to world space normal
+            theta = np.radians(self.rotation)
+            c, s = np.cos(theta), np.sin(theta)
+            R = np.array(((c, -s), (s, c)))
+            n = np.matmul(n, R)
 
             return n
 
