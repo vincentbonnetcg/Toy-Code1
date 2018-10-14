@@ -34,7 +34,7 @@ class MNIST_Loader:
             full_path = self.download_folder + filename[1]
 
             print("=> Process file [{0}/{1}]".format(index + 1, num_filenames))
-            if os.path.exists(full_path) and force is True:
+            if os.path.exists(full_path) and force is False:
                 print(full_url + " already downloaded")
             else:
                 print("downloading " + full_url + "...")
@@ -42,4 +42,4 @@ class MNIST_Loader:
                 print("download complete.")
 
 loader = MNIST_Loader()
-loader.download(True)
+loader.download()
