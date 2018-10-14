@@ -68,6 +68,10 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 [1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.<br>
 [2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
 
+## . Neural Network
+**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
+**Description** Folder to study Neural Network
+
 ## . Graph Colouring
 **File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/graphColouring_greedyAlgorithm.py)<br>
 **Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
