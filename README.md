@@ -34,7 +34,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 - Numerical Jacobian matrix (using central difference) or
 - Analytic Jacobian matrix
 
-![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/inverseKinematics_pseudoInverse.png)
+![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/inverseKinematics_pseudoInverse.gif)
 
 [1] Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
 

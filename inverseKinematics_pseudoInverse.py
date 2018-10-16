@@ -4,9 +4,7 @@
 """
 
 import numpy as np
-import matplotlib.path as mpath
-import matplotlib.patches as mpatches
-import matplotlib.pyplot as plt
+from render_helper import RenderHelper
 
 '''
  Global Constants
@@ -14,11 +12,11 @@ import matplotlib.pyplot as plt
 NUM_SEGMENTS = 10
 INITIAL_ANGLE_RANGE = 0.0 #  [-angle, angle] in degrees for initial segment angle
 INITIAL_SEGMENT_LENGTH = 1000.0 # length each segment
-TARGET_POS = (0.0, 0.0)
+TARGET_POS = (-500.0, 2000.0)
 
 JACOBIAN_METHOD = "analytic" #  analytic / numerical
-NUM_ITERATIONS = 200
-MAX_STEP_SIZE = 100
+NUM_ITERATIONS = 50
+MAX_STEP_SIZE = 150
 THRESHOLD = 1.0 # acceptable distance between the last vertex and target position
 
 '''
@@ -30,56 +28,42 @@ class Chain:
         self.angles = (np.random.rand(NUM_SEGMENTS) * 2.0 - 1) * INITIAL_ANGLE_RANGE
         self.lengths = np.ones(NUM_SEGMENTS) * INITIAL_SEGMENT_LENGTH
         self.numSegments = NUM_SEGMENTS
+'''
+ RenderChain Class
+'''
+class RenderChain(RenderHelper):
+    def __init__(self, min_x, max_x, min_y, max_y):
+        RenderHelper.__init__(self, min_x, max_x, min_y, max_y)
         
+    def draw(self, data):
+        pos = computePositions(chain)
+        x, y = zip(*pos)
+        
+        # draw line, vertices and target
+        self.ax.plot(x, y, "-.", markersize=2)
+        self.ax.plot(x, y, 'go')
+        self.ax.plot(TARGET_POS[0], TARGET_POS[1], 'ro')
+
 '''
  Get positions from chain
 '''
 def computePositions(chain):
-    rootPos = (0., 0.)
+    rootPos = [0., 0.]
     totalPos = rootPos
     totalAngle = 0.
     
-    positions = [rootPos]
+    positions = []
+    positions.append(np.copy(rootPos))
     
     for i in range(chain.numSegments):
         totalAngle += chain.angles[i]
         x = np.cos(np.deg2rad(totalAngle + 90)) * chain.lengths[i]
-        y = np.sin(np.deg2rad(totalAngle + 90)) * chain.lengths[i]      
-        totalPos = np.add(totalPos, (x, y))
-        positions.append(totalPos)
+        y = np.sin(np.deg2rad(totalAngle + 90)) * chain.lengths[i]
+        totalPos[0] += x
+        totalPos[1] += y
+        positions.append(np.copy(totalPos))
 
     return positions
-
-'''
- Draw Chain and final target position
-'''
-def draw(chain, targetPosition):
-    Path = mpath.Path
-    
-    # draw segments   
-    pathVerts = computePositions(chain)
-    pathCodes = [Path.MOVETO]
-    
-    for i in range(chain.numSegments): 
-        pathCodes.append(Path.LINETO)
-      
-    path = Path(pathVerts, pathCodes)
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    patch = mpatches.PathPatch(path, facecolor='orange', lw=2)
-    ax.add_patch(patch)
-    ax.set_xlim(-5000,5000)
-    ax.set_ylim(0,10000)
-       
-    # draw vertices
-    x, y = zip(*path.vertices)
-    line, = ax.plot(x, y, 'go')
-    
-    # draw target
-    line, = ax.plot(targetPosition[0], targetPosition[1], 'ro')
-    
-    plt.show()
 
 '''
 # Jacobian Helper functions
@@ -113,7 +97,7 @@ def computeAnalyticJacobian(chain):
     positions = computePositions(chain)
     jacobian = np.zeros(shape=(2,chain.numSegments))
     for i in range(chain.numSegments):
-        vec = positions[chain.numSegments] - positions[i]
+        vec = np.subtract(positions[chain.numSegments],  positions[i])
         x = vec[0]
         y = vec[1]
         # compute the derivative
@@ -153,7 +137,7 @@ def forwardKinematic(chain, angle):
 '''
 def inverseKinematic(chain):
     positions = computePositions(chain)
-    vec = TARGET_POS - positions[chain.numSegments]
+    vec = np.subtract(TARGET_POS, positions[chain.numSegments])
     vecNorm = np.linalg.norm(vec)
     if (vecNorm > MAX_STEP_SIZE):
         vec /= vecNorm
@@ -170,7 +154,7 @@ def inverseKinematic(chain):
 ''' 
 def hasReachTarget(chain):
     positions = computePositions(chain)
-    diff = TARGET_POS - positions[chain.numSegments]
+    diff = np.subtract(TARGET_POS, positions[chain.numSegments])
     diffNorm = np.linalg.norm(diff)
     if (diffNorm <= THRESHOLD):
         return True
@@ -180,12 +164,14 @@ def hasReachTarget(chain):
  Execute
 '''
 # prepare a chain
+render = RenderChain(-5000., 5000., 0., 10000.)
 chain = Chain()
 forwardKinematic(chain, 1.0) 
-# run inverse kinematic algorithm
+# run inverse kinematic algorithm until convergence
 iterations = 1
 while iterations <= NUM_ITERATIONS and not hasReachTarget(chain):
     inverseKinematic(chain)
     print("IK : Iteration", iterations, "/", NUM_ITERATIONS )  
-    draw(chain, TARGET_POS) 
+    render.prepare_figure()
+    render.show_figure(chain)
     iterations += 1
