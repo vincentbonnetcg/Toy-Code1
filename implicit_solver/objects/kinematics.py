@@ -3,7 +3,7 @@
 @description : Kinematic objects used to support animated objects
 """
 import numpy as np
-
+import math
 
 class BaseKinematic:
     '''
@@ -11,15 +11,20 @@ class BaseKinematic:
     '''
     def __init__(self, position):
         self.localSpaceVertices = [] # vertices describing the polygon - requires at least one point
-        self.position = position
+        self.position = np.copy(position)
         self.rotation = 0.0 # in degrees
+        self.linear_velocity = np.zeros(2) # computed in the update function
+        self.angular_velocity = 0.0 # computed in the update function
+        self.last_time = 0.0 # used in the update function
         self.animationFunc = None
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
 
     def set_indexing(self, index):
         self.index = index
 
-    def getWorldSpaceVertices(self):
+    def get_vertices(self, localSpace):
+        if localSpace:
+            return self.localSpaceVertices
         theta = np.radians(self.rotation)
         c, s = np.cos(theta), np.sin(theta)
         R = np.array(((c, -s), (s, c)))
@@ -30,15 +35,28 @@ class BaseKinematic:
     def update(self, time):
         if self.animationFunc:
             state = self.animationFunc(time)
+            # update the linear and angular velocity
+            # and position, rotation afterward.
+            # it is important to keep it in this order !
+            if self.last_time != time:
+                inv_dt = 1.0 / (time - self.last_time)
+                self.linear_velocity = np.subtract(state[0], self.position) * inv_dt
+                shortest_angle = (state[1] - self.rotation) % 360.0
+                if (math.fabs(shortest_angle) > 180.0):
+                    shortest_angle -= 360.0
+
+                self.angular_velocity = shortest_angle * inv_dt
+
             self.position = state[0]
             self.rotation = state[1]
+            self.last_time = time
 
     def getClosestParametricValues(self, point):
         '''
         Returns a pair [edgeId, line parameter (t)] which define
         the closest point on the polygon
         '''
-        worldSpaceVertices = self.getWorldSpaceVertices()
+        worldSpaceVertices = self.get_vertices(False)
         if len(worldSpaceVertices) == 0:
             return None
         elif len(worldSpaceVertices) == 1:
@@ -64,7 +82,7 @@ class BaseKinematic:
         return result
 
     def getPointFromParametricValues(self, parametricValues):
-        worldSpaceVertices = self.getWorldSpaceVertices()
+        worldSpaceVertices = self.get_vertices(False)
         numEdges = len(worldSpaceVertices)
         edgeId = parametricValues[0]
         if edgeId == -1: # a single point
@@ -78,7 +96,7 @@ class BaseKinematic:
         return None
 
     def getNormalFromParametricValues(self, parametricValues):
-        worldSpaceVertices = self.getWorldSpaceVertices()
+        worldSpaceVertices = self.get_vertices(False)
         numEdges = len(worldSpaceVertices)
         edgeId = parametricValues[0]
         if edgeId >= 0:

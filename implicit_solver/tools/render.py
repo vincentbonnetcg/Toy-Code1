@@ -54,7 +54,7 @@ class Render:
 
         # Draw kinematics
         for kinematic in scene.kinematics:
-            vertices = kinematic.getWorldSpaceVertices()
+            vertices = kinematic.get_vertices(False)
             polygon  = patches.Polygon(vertices, facecolor='orange', alpha=0.8)
             self.ax.add_patch(polygon)
 
