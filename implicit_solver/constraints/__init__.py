@@ -3,4 +3,5 @@
 from constraints.spring import Spring, AnchorSpring
 from constraints.bending import Bending
 from constraints.area import Area
-from constraints.builder import KinematicCollisionBuilder
+from constraints.builders import KinematicCollisionBuilder
+from constraints.builders import KinematicAttachmentBuilder, DynamicAttachmentBuilder

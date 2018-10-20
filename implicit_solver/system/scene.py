@@ -6,7 +6,6 @@ The scene is a storage for all the data used by the solver
 
 import itertools
 import constraints as cn
-import numpy as np
 
 class Scene:
     def __init__(self, gravity):
@@ -19,7 +18,11 @@ class Scene:
 
     def addDynamic(self, dynamic):
         index = (len(self.dynamics))
-        dynamic.set_indexing(index, self.computeParticlesOffset(index))
+        offset = 0
+        for i in range(index):
+            offset += self.dynamics[i].num_particles
+        
+        dynamic.set_indexing(index, offset)
         dynamic.create_internal_constraints()
         self.dynamics.append(dynamic)
 
@@ -35,13 +38,7 @@ class Scene:
     def updateDynamicConstraints(self):
         self.dynamic_constraints.clear()
         for dynamic_constraint_builder in self.dynamic_constraint_builders:
-            dynamic_constraint_builder.addDynamicConstraints(self)
-
-    def computeParticlesOffset(self, index):
-        offset = 0
-        for i in range(index):
-            offset += self.dynamics[i].num_particles
-        return offset
+            dynamic_constraint_builder.add_constraints(self)
 
     def numParticles(self):
         numParticles = 0
@@ -50,30 +47,15 @@ class Scene:
         return numParticles
 
     def attachToKinematic(self, dynamic, kinematic, stiffness, damping, distance):
-        # Linear search => it will be inefficient for dynamic objects with many particles
-        distance2 = distance * distance
-        for particleId, x in enumerate(dynamic.x):
-            attachmentPointParams = kinematic.getClosestParametricValues(x)
-            attachmentPoint = kinematic.getPointFromParametricValues(attachmentPointParams)
-            direction = (attachmentPoint - x)
-            dist2 = np.inner(direction, direction)
-            if dist2 < distance2:
-                constraint = cn.AnchorSpring(stiffness, damping, dynamic, particleId, kinematic, attachmentPointParams)
-                self.static_constraints.append(constraint)
+        attachment_builder = cn.KinematicAttachmentBuilder(dynamic, kinematic, stiffness, damping, distance)
+        attachment_builder.add_constraints(self)
 
     def attachToDynamic(self, dynamic0, dynamic1, stiffness, damping, distance):
-        # Linear search => it will be inefficient for dynamic objects with many particles
-        distance2 = distance * distance
-        for x0i, x0 in enumerate(dynamic0.x):
-            for x1i, x1 in enumerate(dynamic1.x):
-                direction = (x0 - x1)
-                dist2 = np.inner(direction, direction)
-                if dist2 < distance2:
-                    constraint = cn.Spring(stiffness, damping, [dynamic0, dynamic1], [x0i, x1i])
-                    self.static_constraints.append(constraint)
+        attachment_builder = cn.DynamicAttachmentBuilder(dynamic0, dynamic1, stiffness, damping, distance)
+        attachment_builder.add_constraints(self)
 
     def add_collision(self, dynamic, kinematic, stiffness, damping):
-        collison_builder = cn.KinematicCollisionBuilder(stiffness, damping, dynamic, kinematic)
+        collison_builder = cn.KinematicCollisionBuilder(dynamic, kinematic, stiffness, damping)
         self.dynamic_constraint_builders.append(collison_builder)
 
     def getConstraintsIterator(self):
