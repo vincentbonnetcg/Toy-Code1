@@ -4,9 +4,9 @@
 """
 
 import numpy as np
-import constraints.differentiation as diff
 from constraints.base import Base
-import constraints.math_2d as math2D
+import common.differentiation as diff
+import common.math_2d as math2D
 from numba import njit
 
 class Bending(Base):
