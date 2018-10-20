@@ -10,10 +10,9 @@ class Scene:
     def __init__(self, gravity):
         self.dynamics = [] # dynamic objects
         self.kinematics = [] # kinematic objects
+        self.constraint_builders = [] # create static or dynamic constraints
         self.static_constraints = [] # static constraints (like area/bending/spring)
-        self.static_constraint_builders = [] # creates static constraints
         self.dynamic_constraints = [] # dynamic constraints (like sliding/collision)
-        self.dynamic_constraint_builders = [] # creates dynamic constraints
         self.gravity = gravity
 
     # Data Functions #
@@ -43,21 +42,20 @@ class Scene:
         return numParticles
 
     # Constraint Functions #
-    def addStaticConstraintBuilder(self, constraint_builder):
-        self.static_constraint_builders.append(constraint_builder)
+    def addConstraintBuilder(self, constraint_builder):
+        self.constraint_builders.append(constraint_builder)
 
     def updateStaticConstraints(self):
         self.static_constraints.clear()
-        for static_constraint_builder in self.static_constraint_builders:
-            static_constraint_builder.add_constraints(self)
-
-    def addDynamicConstraintBuilder(self, constraint_builder):
-        self.dynamic_constraint_builders.append(constraint_builder)
+        for constraint_builder in self.constraint_builders:
+            if constraint_builder.is_static() is True:
+                constraint_builder.add_constraints(self)
 
     def updateDynamicConstraints(self):
         self.dynamic_constraints.clear()
-        for dynamic_constraint_builder in self.dynamic_constraint_builders:
-            dynamic_constraint_builder.add_constraints(self)
+        for constraint_builder in self.constraint_builders:
+            if constraint_builder.is_static() is False:
+                constraint_builder.add_constraints(self)
 
     def getConstraintsIterator(self):
         values = []

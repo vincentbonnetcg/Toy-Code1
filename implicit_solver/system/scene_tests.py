@@ -29,15 +29,15 @@ GRAVITY = (0.0, -9.81) # in meters per second^2
 
 def kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance):
     attachment_builder = cn.KinematicAttachmentBuilder(dynamic, kinematic, stiffness, damping, distance)
-    scene.addStaticConstraintBuilder(attachment_builder)
+    scene.addConstraintBuilder(attachment_builder)
 
 def dynamic_attachment(scene, dynamic0, dynamic1, stiffness, damping, distance):
     attachment_builder = cn.DynamicAttachmentBuilder(dynamic0, dynamic1, stiffness, damping, distance)
-    scene.addStaticConstraintBuilder(attachment_builder)
+    scene.addConstraintBuilder(attachment_builder)
 
 def kinematic_collision(scene, dynamic, kinematic, stiffness, damping):
     collison_builder = cn.KinematicCollisionBuilder(dynamic, kinematic, stiffness, damping)
-    scene.addDynamicConstraintBuilder(collison_builder)
+    scene.addConstraintBuilder(collison_builder)
 
 def create_wire_scene():
     '''

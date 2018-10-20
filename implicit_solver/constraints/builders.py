@@ -16,6 +16,14 @@ class Builder:
         self.dynamicIndices = [dynamic.index for dynamic in dynamics]
         self.kinematicIndices = [kinematic.index for kinematic in kinematics]
 
+    def is_static(self):
+        '''
+        Returns whether or not the created constraints are dynamic or static
+        Dynamic constraints are recreated every substep
+        Static constraints are created at the first frame and valid for the whole simulation
+        '''
+        return True
+
     def add_constraints(self, scene):
         # Neighbour search structures or other initialization could happen here
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'addConstraints'")
@@ -26,6 +34,12 @@ class KinematicCollisionBuilder(Builder):
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping):
         Builder.__init__(self, [dynamic], [kinematic], stiffness, damping)
+
+    def is_static(self):
+        '''
+        Returns False because collision constraints are dynamics
+        '''
+        return False
 
     def add_constraints(self, scene):
         '''
