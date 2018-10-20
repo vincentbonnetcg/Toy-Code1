@@ -6,6 +6,7 @@
 import math
 import objects
 import system
+import constraints as cn
 
 '''
  Global Constants
@@ -26,6 +27,18 @@ PARTICLE_MASS = 0.001 # in Kg
 
 GRAVITY = (0.0, -9.81) # in meters per second^2
 
+def kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance):
+    attachment_builder = cn.KinematicAttachmentBuilder(dynamic, kinematic, stiffness, damping, distance)
+    scene.addStaticConstraintBuilder(attachment_builder)
+
+def dynamic_attachment(scene, dynamic0, dynamic1, stiffness, damping, distance):
+    attachment_builder = cn.DynamicAttachmentBuilder(dynamic0, dynamic1, stiffness, damping, distance)
+    scene.addStaticConstraintBuilder(attachment_builder)
+
+def kinematic_collision(scene, dynamic, kinematic, stiffness, damping):
+    collison_builder = cn.KinematicCollisionBuilder(dynamic, kinematic, stiffness, damping)
+    scene.addDynamicConstraintBuilder(collison_builder)
+
 def create_wire_scene():
     '''
     Creates a scene with a wire attached to a kinematic object
@@ -45,9 +58,8 @@ def create_wire_scene():
     scene.addDynamic(wire)
     scene.addKinematic(moving_anchor)
     scene.addKinematic(collider)
-    scene.updateKinematics(0.0) # set kinematic objects at start frame
-    scene.attachToKinematic(wire, moving_anchor, 100.0, 0.0, 0.1)
-    scene.add_collision(wire, collider, 1000.0, 0.0)
+    kinematic_attachment(scene, wire, moving_anchor, 100.0, 0.0, 0.1)
+    kinematic_collision(scene, wire, collider, 1000.0, 0.0)
 
     return scene
 
@@ -77,9 +89,8 @@ def create_beam_scene():
     scene.addDynamic(wire)
     scene.addKinematic(left_anchor)
     scene.addKinematic(right_anchor)
-    scene.updateKinematics(0.0) # set kinematic objects at start frame
-    scene.attachToKinematic(beam, right_anchor, 100.0, 0.0, 0.1)
-    scene.attachToKinematic(beam, left_anchor, 100.0, 0.0, 0.1)
-    scene.attachToDynamic(beam, wire, 100.0, 0.0, 0.001)
+    kinematic_attachment(scene, beam, right_anchor, 100.0, 0.0, 0.1)
+    kinematic_attachment(scene, beam, left_anchor, 100.0, 0.0, 0.1)
+    dynamic_attachment(scene, beam, wire, 100.0, 0.0, 0.001)
 
     return scene

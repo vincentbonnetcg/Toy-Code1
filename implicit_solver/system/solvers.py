@@ -18,6 +18,14 @@ class BaseSolver:
         self.stepsPerFrame = stepsPerFrame # number of step per frame
         self.currentTime = 0.0
 
+    def initialize(self, scene):
+        '''
+        Initialize the solver and the data used by the solver
+        '''
+        self.currentTime = 0.0
+        scene.updateKinematics(self.currentTime)
+        scene.updateStaticConstraints()
+
     @profiler.timeit
     def solveFrame(self, scene):
         for _ in range(self.stepsPerFrame):

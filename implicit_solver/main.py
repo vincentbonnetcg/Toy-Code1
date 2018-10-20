@@ -28,8 +28,10 @@ def main():
     # Run simulation and render
     render = tools.Render()
     render.setRenderFolderPath(RENDER_FOLDER_PATH)
-
+    
     profiler = tools.profiler.ProfilerSingleton()
+
+    solver.initialize(scene)
     for frame_id in range(0, NUM_FRAME+1):
         profiler.clearLogs()
 

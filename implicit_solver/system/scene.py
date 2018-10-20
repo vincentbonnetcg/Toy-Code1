@@ -5,23 +5,24 @@ The scene is a storage for all the data used by the solver
 """
 
 import itertools
-import constraints as cn
 
 class Scene:
     def __init__(self, gravity):
         self.dynamics = [] # dynamic objects
         self.kinematics = [] # kinematic objects
         self.static_constraints = [] # static constraints (like area/bending/spring)
+        self.static_constraint_builders = [] # creates static constraints
         self.dynamic_constraints = [] # dynamic constraints (like sliding/collision)
         self.dynamic_constraint_builders = [] # creates dynamic constraints
         self.gravity = gravity
 
+    # Data Functions #
     def addDynamic(self, dynamic):
         index = (len(self.dynamics))
         offset = 0
         for i in range(index):
             offset += self.dynamics[i].num_particles
-        
+
         dynamic.set_indexing(index, offset)
         dynamic.create_internal_constraints()
         self.dynamics.append(dynamic)
@@ -35,28 +36,28 @@ class Scene:
         for kinematic in self.kinematics:
             kinematic.update(time)
 
-    def updateDynamicConstraints(self):
-        self.dynamic_constraints.clear()
-        for dynamic_constraint_builder in self.dynamic_constraint_builders:
-            dynamic_constraint_builder.add_constraints(self)
-
     def numParticles(self):
         numParticles = 0
         for dynamic in self.dynamics:
             numParticles += dynamic.num_particles
         return numParticles
 
-    def attachToKinematic(self, dynamic, kinematic, stiffness, damping, distance):
-        attachment_builder = cn.KinematicAttachmentBuilder(dynamic, kinematic, stiffness, damping, distance)
-        attachment_builder.add_constraints(self)
+    # Constraint Functions #
+    def addStaticConstraintBuilder(self, constraint_builder):
+        self.static_constraint_builders.append(constraint_builder)
 
-    def attachToDynamic(self, dynamic0, dynamic1, stiffness, damping, distance):
-        attachment_builder = cn.DynamicAttachmentBuilder(dynamic0, dynamic1, stiffness, damping, distance)
-        attachment_builder.add_constraints(self)
+    def updateStaticConstraints(self):
+        self.static_constraints.clear()
+        for static_constraint_builder in self.static_constraint_builders:
+            static_constraint_builder.add_constraints(self)
 
-    def add_collision(self, dynamic, kinematic, stiffness, damping):
-        collison_builder = cn.KinematicCollisionBuilder(dynamic, kinematic, stiffness, damping)
-        self.dynamic_constraint_builders.append(collison_builder)
+    def addDynamicConstraintBuilder(self, constraint_builder):
+        self.dynamic_constraint_builders.append(constraint_builder)
+
+    def updateDynamicConstraints(self):
+        self.dynamic_constraints.clear()
+        for dynamic_constraint_builder in self.dynamic_constraint_builders:
+            dynamic_constraint_builder.add_constraints(self)
 
     def getConstraintsIterator(self):
         values = []
