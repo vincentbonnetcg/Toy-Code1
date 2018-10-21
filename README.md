@@ -1,7 +1,7 @@
 # Numerical Bric-a-Brac
 Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Matplotlib ...)
 
-## . Partial Differential Equations - Numerical Integration
+## . Implicit Soft-body Solver
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
 **Description** Implicit Solver.
 - Implicit / Semi-Implicit integrators
@@ -17,6 +17,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 [1] Baraff, David, and Andrew Witkin. "Large steps in cloth simulation." Proceedings of the 25th annual conference on Computer graphics and interactive techniques. ACM, 1998.
 
 [2] Teschner, Matthias, Bruno Heidelberger, Matthias Muller, and Markus Gross. "A versatile and robust model for geometrically complex deformable solids." In Computer Graphics International, 2004. Proceedings, pp. 312-319. IEEE, 2004.
+
+## . PDE - Numerical Integration
 
 **File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/spring1D_integrator.py)<br>
 **Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
@@ -73,6 +75,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 **Description** Folder to study Neural Network
 
 ![MNIST](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/nn_mnist.png)<br>
+
+[1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
 ## . Graph Colouring
 **File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/graphColouring_greedyAlgorithm.py)<br>
