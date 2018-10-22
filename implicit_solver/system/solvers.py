@@ -95,7 +95,11 @@ class ImplicitSolver(BaseSolver):
         denseA = np.zeros((totalParticles * 2, totalParticles * 2))
         self.b = np.zeros((totalParticles * 2, 1))
 
+        # TODO - use dictionnary below and remove denseA matrix
+        #collect_indices = {} # Initialize empty index dictionnary
+
         ## Assemble A = (M - h * df/dv - h^2 * df/dx)
+        ## => Assemble A = (M - (h * df/dv + h^2 * df/dx))
         # set mass matrix
         massMatrix = np.identity(2)
         for dynamic in scene.dynamics:
@@ -104,23 +108,15 @@ class ImplicitSolver(BaseSolver):
                 ids = dynamic.global_offset + i
                 denseA[ids*2:ids*2+2, ids*2:ids*2+2] = massMatrix
 
-        # set h^2 * df/dx
+        # Substract (h * df/dv + h^2 * df/dx)
         constraintsIterator = scene.getConstraintsIterator()
         for constraint in constraintsIterator:
             ids = constraint.globalIds
             for fi in range(len(ids)):
-                for xj in range(len(ids)):
-                    Jx = constraint.getJacobianDx(fi, xj)
-                    denseA[ids[fi]*2:ids[fi]*2+2, ids[xj]*2:ids[xj]*2+2] -= (Jx * dt * dt)
-
-        # set h * df/dv
-        constraintsIterator = scene.getConstraintsIterator()
-        for constraint in constraintsIterator:
-            ids = constraint.globalIds
-            for fi in range(len(ids)):
-                for vj in range(len(ids)):
-                    Jv = constraint.getJacobianDv(fi, vj)
-                    denseA[ids[fi]*2:ids[fi]*2+2, ids[vj]*2:ids[vj]*2+2] -= (Jv * dt)
+                for j in range(len(ids)):
+                    Jv = constraint.getJacobianDv(fi, j)
+                    Jx = constraint.getJacobianDx(fi, j)
+                    denseA[ids[fi]*2:ids[fi]*2+2, ids[j]*2:ids[j]*2+2] -= ((Jv * dt) + (Jx * dt * dt))
 
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
@@ -141,8 +137,8 @@ class ImplicitSolver(BaseSolver):
                     Jx = constraint.getJacobianDx(fi, xi)
                     self.b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(dynamic.v[localIds[xi]], Jx), (2,1)) * dt * dt
 
-        # Convert matrix A to csr matrix (Compressed Sparse Row format) for efficiency reasons
-        self.A = sc.sparse.csr_matrix(denseA)
+        # Convert matrix A to a Block Sparse Row matrix for efficiency
+        self.A = sc.sparse.bsr_matrix(denseA, blocksize=(2,2))
 
     @profiler.timeit
     def solveSystem(self, scene, dt):
