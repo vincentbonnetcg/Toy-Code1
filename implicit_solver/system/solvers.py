@@ -93,7 +93,7 @@ class ImplicitSolver(BaseSolver):
         # with A = sparse.lil_matrix((totalParticles * 2, totalParticles * 2))
         # ... But building a sparse matrix with 'row-based linked list' is too slow, hence the use of dense matrix for now
         denseA = np.zeros((totalParticles * 2, totalParticles * 2))
-        self.b = np.zeros((totalParticles * 2, 1))
+        self.b = np.zeros(totalParticles * 2)
 
         # TODO - use dictionnary below and remove denseA matrix
         #collect_indices = {} # Initialize empty index dictionnary
@@ -123,7 +123,7 @@ class ImplicitSolver(BaseSolver):
         for dynamic in scene.dynamics:
             for i in range(dynamic.num_particles):
                 ids = dynamic.global_offset + i
-                self.b[ids*2:ids*2+2] += (np.reshape(dynamic.f[i], (2,1)) * dt)
+                self.b[ids*2:ids*2+2] += dynamic.f[i] * dt
 
         # set (df/dx * v0 * h * h)
         constraintsIterator = scene.getConstraintsIterator()
@@ -135,7 +135,7 @@ class ImplicitSolver(BaseSolver):
                 for xi in range(len(ids)):
                     dynamic = scene.dynamics[dynamicIndices[xi]]
                     Jx = constraint.getJacobianDx(fi, xi)
-                    self.b[ids[fi]*2:ids[fi]*2+2] += np.reshape(np.matmul(dynamic.v[localIds[xi]], Jx), (2,1)) * dt * dt
+                    self.b[ids[fi]*2:ids[fi]*2+2] += np.matmul(dynamic.v[localIds[xi]], Jx) * dt * dt
 
         # Convert matrix A to a Block Sparse Row matrix for efficiency
         self.A = sc.sparse.bsr_matrix(denseA, blocksize=(2,2))
