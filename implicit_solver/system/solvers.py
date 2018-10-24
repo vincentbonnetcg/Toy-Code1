@@ -51,7 +51,6 @@ class BaseSolver:
     def solveSystem(self, scene, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solveSystem'")
 
-
 '''
  Implicit Step
  Solve :
@@ -89,24 +88,32 @@ class ImplicitSolver(BaseSolver):
     def assembleSystem(self, scene, dt):
         # Assemble the system (Ax=b) where x is the change of velocity
         totalParticles = scene.numParticles()
-        # attempt to create 'row-based linked list' sparse matrix for simple sparse matrix construction
-        # with A = sparse.lil_matrix((totalParticles * 2, totalParticles * 2))
-        # ... But building a sparse matrix with 'row-based linked list' is too slow, hence the use of dense matrix for now
-        denseA = np.zeros((totalParticles * 2, totalParticles * 2))
-        self.b = np.zeros(totalParticles * 2)
 
-        # TODO - use dictionnary below and remove denseA matrix
-        #collect_indices = {} # Initialize empty index dictionnary
+        # Dense matrix (for debugging)
+        denseA = np.zeros((totalParticles * 2, totalParticles * 2))
+
+        # Sparse matrix (TODO - should be move in a class)
+        num_rows = totalParticles
+        num_columns = totalParticles
+        num_entries_per_row = np.zeros(num_columns, dtype=int)
+        coordinates_indices = [None] * num_rows
+        for row_id in range(num_rows):
+            coordinates_indices[row_id] = {}
+        total_entries = 0
 
         ## Assemble A = (M - h * df/dv - h^2 * df/dx)
         ## => Assemble A = (M - (h * df/dv + h^2 * df/dx))
         # set mass matrix
-        massMatrix = np.identity(2)
         for dynamic in scene.dynamics:
             for i in range(dynamic.num_particles):
-                np.fill_diagonal(massMatrix, dynamic.m[i])
-                ids = dynamic.global_offset + i
-                denseA[ids*2:ids*2+2, ids*2:ids*2+2] = massMatrix
+                massMatrix = np.identity(2)
+                np.fill_diagonal(massMatrix, dynamic.m[i]) # FIXME - assemble matrix in one go
+                idx = dynamic.global_offset + i
+                coordinates_indices[idx][idx] = massMatrix
+                num_entries_per_row[idx] += 1
+                total_entries += 1
+
+                denseA[idx*2:idx*2+2, idx*2:idx*2+2] = massMatrix
 
         # Substract (h * df/dv + h^2 * df/dx)
         constraintsIterator = scene.getConstraintsIterator()
@@ -116,14 +123,24 @@ class ImplicitSolver(BaseSolver):
                 for j in range(len(ids)):
                     Jv = constraint.getJacobianDv(fi, j)
                     Jx = constraint.getJacobianDx(fi, j)
+
+                    value = coordinates_indices[ids[fi]].get(ids[j], None)
+                    if (value is None):
+                        coordinates_indices[ids[fi]][ids[j]] = ((Jv * dt) + (Jx * dt * dt)) * -1.0
+                        num_entries_per_row[ids[fi]] += 1
+                        total_entries += 1
+                    else:
+                        value -= ((Jv * dt) + (Jx * dt * dt))
+
                     denseA[ids[fi]*2:ids[fi]*2+2, ids[j]*2:ids[j]*2+2] -= ((Jv * dt) + (Jx * dt * dt))
 
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
+        self.b = np.zeros(num_columns * 2)
         for dynamic in scene.dynamics:
             for i in range(dynamic.num_particles):
-                ids = dynamic.global_offset + i
-                self.b[ids*2:ids*2+2] += dynamic.f[i] * dt
+                idx = dynamic.global_offset + i
+                self.b[idx*2:idx*2+2] += dynamic.f[i] * dt
 
         # set (df/dx * v0 * h * h)
         constraintsIterator = scene.getConstraintsIterator()
@@ -137,8 +154,26 @@ class ImplicitSolver(BaseSolver):
                     Jx = constraint.getJacobianDx(fi, xi)
                     self.b[ids[fi]*2:ids[fi]*2+2] += np.matmul(dynamic.v[localIds[xi]], Jx) * dt * dt
 
-        # Convert matrix A to a Block Sparse Row matrix for efficiency
-        self.A = sc.sparse.bsr_matrix(denseA, blocksize=(2,2))
+        # Create a Block Sparse Row matrix
+        # The first entry of row_indptr is zero because of the mass matrix in [0,0]
+        # Maybe we should do something more generic
+        row_indptr = np.zeros(num_rows+1, dtype=int)
+        np.add.accumulate(num_entries_per_row, out=row_indptr[1:num_rows+1])
+
+        column_indices = np.zeros(total_entries, dtype=int)
+        data = np.zeros((total_entries, 2, 2))
+
+        idx = 0
+        for row_id in range(num_rows):
+            for column_id, matrix in sorted(coordinates_indices[row_id].items()):
+                column_indices[idx] = column_id
+                data[idx] = matrix
+                idx += 1
+
+        self.A = sc.sparse.bsr_matrix((data, column_indices, row_indptr))
+
+        # Convert dense matrix A to a Block Sparse Row matrix for efficiency
+        #self.A = sc.sparse.bsr_matrix(denseA, blocksize=(2,2))
 
     @profiler.timeit
     def solveSystem(self, scene, dt):
