@@ -8,6 +8,7 @@ import scipy as sc
 import scipy.sparse
 import scipy.sparse.linalg
 from common import profiler
+from system.sparse_matrix import BSRSparseMatrix, DebugSparseMatrix
 
 '''
  Base Solver
@@ -88,18 +89,9 @@ class ImplicitSolver(BaseSolver):
     def assembleSystem(self, scene, dt):
         # Assemble the system (Ax=b) where x is the change of velocity
         totalParticles = scene.numParticles()
-
-        # Dense matrix (for debugging)
-        denseA = np.zeros((totalParticles * 2, totalParticles * 2))
-
-        # Sparse matrix (TODO - should be move in a class)
         num_rows = totalParticles
         num_columns = totalParticles
-        num_entries_per_row = np.zeros(num_columns, dtype=int)
-        coordinates_indices = [None] * num_rows
-        for row_id in range(num_rows):
-            coordinates_indices[row_id] = {}
-        total_entries = 0
+        A = BSRSparseMatrix(num_rows, num_columns, 2)
 
         ## Assemble A = (M - h * df/dv - h^2 * df/dx)
         ## => Assemble A = (M - (h * df/dv + h^2 * df/dx))
@@ -109,11 +101,8 @@ class ImplicitSolver(BaseSolver):
                 massMatrix = np.identity(2)
                 np.fill_diagonal(massMatrix, dynamic.m[i]) # FIXME - assemble matrix in one go
                 idx = dynamic.global_offset + i
-                coordinates_indices[idx][idx] = massMatrix
-                num_entries_per_row[idx] += 1
-                total_entries += 1
 
-                denseA[idx*2:idx*2+2, idx*2:idx*2+2] = massMatrix
+                A.add(idx, idx, massMatrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
         constraintsIterator = scene.getConstraintsIterator()
@@ -124,15 +113,7 @@ class ImplicitSolver(BaseSolver):
                     Jv = constraint.getJacobianDv(fi, j)
                     Jx = constraint.getJacobianDx(fi, j)
 
-                    value = coordinates_indices[ids[fi]].get(ids[j], None)
-                    if (value is None):
-                        coordinates_indices[ids[fi]][ids[j]] = ((Jv * dt) + (Jx * dt * dt)) * -1.0
-                        num_entries_per_row[ids[fi]] += 1
-                        total_entries += 1
-                    else:
-                        value -= ((Jv * dt) + (Jx * dt * dt))
-
-                    denseA[ids[fi]*2:ids[fi]*2+2, ids[j]*2:ids[j]*2+2] -= ((Jv * dt) + (Jx * dt * dt))
+                    A.add(ids[fi], ids[j], ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
@@ -154,26 +135,8 @@ class ImplicitSolver(BaseSolver):
                     Jx = constraint.getJacobianDx(fi, xi)
                     self.b[ids[fi]*2:ids[fi]*2+2] += np.matmul(dynamic.v[localIds[xi]], Jx) * dt * dt
 
-        # Create a Block Sparse Row matrix
-        # The first entry of row_indptr is zero because of the mass matrix in [0,0]
-        # Maybe we should do something more generic
-        row_indptr = np.zeros(num_rows+1, dtype=int)
-        np.add.accumulate(num_entries_per_row, out=row_indptr[1:num_rows+1])
-
-        column_indices = np.zeros(total_entries, dtype=int)
-        data = np.zeros((total_entries, 2, 2))
-
-        idx = 0
-        for row_id in range(num_rows):
-            for column_id, matrix in sorted(coordinates_indices[row_id].items()):
-                column_indices[idx] = column_id
-                data[idx] = matrix
-                idx += 1
-
-        self.A = sc.sparse.bsr_matrix((data, column_indices, row_indptr))
-
-        # Convert dense matrix A to a Block Sparse Row matrix for efficiency
-        #self.A = sc.sparse.bsr_matrix(denseA, blocksize=(2,2))
+        # convert sparse matrix
+        self.A = A.sparse_matrix()
 
     @profiler.timeit
     def solveSystem(self, scene, dt):
