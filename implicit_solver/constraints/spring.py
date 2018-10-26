@@ -30,7 +30,6 @@ class AnchorSpring(Base):
         kinematic, x, v = self.getStates(scene)
         targetPos = kinematic.getPointFromParametricValues(self.pointParams)
         # Numerical forces
-        # f = -de/dx : the force is f,  e is the energy and x is the position
         #force = diff.numerical_jacobian(elasticSpringEnergy, 0, x, targetPos, self.restLength, self.stiffness) * -1.0
         # Analytic forces
         force = springStretchForce(x, targetPos, self.restLength, self.stiffness)
@@ -72,7 +71,6 @@ class Spring(Base):
     def computeForces(self, scene):
         x0, x1, v0, v1 = self.getStates(scene)
         # Numerical forces
-        # f = -de/dx : the force is f,  e is the energy and x is the position
         #force = diff.numerical_jacobian(elasticSpringEnergy, 0, x0, x1, self.restLength, self.stiffness) * -1.0
         # Analytic forces
         force = springStretchForce(x0, x1, self.restLength, self.stiffness)

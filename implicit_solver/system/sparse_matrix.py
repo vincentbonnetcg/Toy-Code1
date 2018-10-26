@@ -36,6 +36,7 @@ class BSRSparseMatrix(BaseSparseMatrix):
         for row_id in range(num_rows):
             self.coordinates_indices[row_id] = {}
         self.total_entries = 0
+        self.min_entry_index = num_rows * num_columns
 
     def add(self, i, j, data):
         value = self.coordinates_indices[i].get(j, None)
@@ -45,6 +46,10 @@ class BSRSparseMatrix(BaseSparseMatrix):
             self.total_entries += 1
         else:
             value += data
+
+        index = i * self.num_columns + j
+        if index < self.min_entry_index:
+            self.min_entry_index = index
 
     def sparse_matrix(self):
         column_indices = np.zeros(self.total_entries, dtype=int)
@@ -56,8 +61,8 @@ class BSRSparseMatrix(BaseSparseMatrix):
                 data[idx] = matrix
                 idx += 1
 
-        # TODO : The first entry of row_indptr is zero because of the mass matrix in [0,0]
         row_indptr = np.zeros(self.num_rows+1, dtype=int)
+        row_indptr[0] = self.min_entry_index
         np.add.accumulate(self.num_entries_per_row, out=row_indptr[1:self.num_rows+1])
 
         return sc.sparse.bsr_matrix((data, column_indices, row_indptr))

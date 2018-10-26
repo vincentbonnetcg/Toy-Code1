@@ -38,7 +38,7 @@ def main():
         if frame_id > 0:
             solver.solveFrame(scene)
 
-        render.showCurrentFrame(scene, frame_id)
+        render.showCurrentFrame(solver, scene, frame_id)
         render.exportCurrentFrame(str(frame_id).zfill(4) + " .png")
 
         profiler.printLogs()

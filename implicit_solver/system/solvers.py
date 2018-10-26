@@ -98,11 +98,11 @@ class ImplicitSolver(BaseSolver):
         # set mass matrix
         for dynamic in scene.dynamics:
             for i in range(dynamic.num_particles):
-                massMatrix = np.identity(2)
-                np.fill_diagonal(massMatrix, dynamic.m[i]) # FIXME - assemble matrix in one go
+                mass_matrix = np.zeros((2,2))
+                np.fill_diagonal(mass_matrix, dynamic.m[i])
                 idx = dynamic.global_offset + i
 
-                A.add(idx, idx, massMatrix)
+                A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
         constraintsIterator = scene.getConstraintsIterator()
