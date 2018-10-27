@@ -43,7 +43,8 @@ def create_wire_scene():
     '''
     Creates a scene with a wire attached to a kinematic object
     '''
-    wire = objects.Wire(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS, PARTICLE_MASS, STIFFNESS * 50.0, STIFFNESS * 0.1, DAMPING)
+    wire_shape = objects.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
+    wire = objects.Wire(wire_shape, PARTICLE_MASS, STIFFNESS * 50.0, STIFFNESS * 0.1, DAMPING)
     wire.render_prefs = ['co', 0, 'm-', 1]
     moving_anchor = objects.Rectangle(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5, WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
     moving_anchor_position = moving_anchor.position
@@ -68,11 +69,12 @@ def create_beam_scene():
     Creates a scene with a beam and a wire
     '''
     beam = objects.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS * 10.0, DAMPING)
-    beam.render_prefs = ['go', 2, 'k:', 1]
+    beam.render_prefs = ['go', 1, 'k-', 1]
 
     wire_start_pos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
     wire_end_pos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
-    wire = objects.Wire(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8, PARTICLE_MASS * 0.1, STIFFNESS * 0.5, 0.0, DAMPING)
+    wire_shape = objects.WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
+    wire = objects.Wire(wire_shape, PARTICLE_MASS * 0.1, STIFFNESS * 0.5, 0.0, DAMPING)
     wire.render_prefs = ['co', 1, 'm-', 1]
 
     left_anchor = objects.Rectangle(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)

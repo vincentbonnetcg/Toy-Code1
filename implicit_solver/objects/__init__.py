@@ -2,3 +2,4 @@
 
 from objects.dynamics import Wire, Beam
 from objects.kinematics import Point, Rectangle
+from objects.shapes import WireShape

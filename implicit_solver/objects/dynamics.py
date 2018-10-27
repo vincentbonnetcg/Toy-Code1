@@ -5,6 +5,7 @@
 
 import constraints as cn
 import numpy as np
+from objects.shapes import WireShape
 
 class BaseDynamic:
     '''
@@ -69,15 +70,13 @@ class Wire(BaseDynamic):
     '''
     Wire Class describes a dynamic wire object
     '''
-    def __init__(self, startPoint, endPoint, numEdges, particleMass, stiffness, bendingStiffness, damping):
-        BaseDynamic.__init__(self, numEdges+1, particleMass, stiffness, damping)
-        self.num_edges = numEdges
+    def __init__(self, wireShape, particleMass, stiffness, bendingStiffness, damping):
+        BaseDynamic.__init__(self, wireShape.num_vertices(), particleMass, stiffness, damping)
+        self.num_edges = wireShape.num_edges()
         self.bending_stiffness = bendingStiffness
 
-        axisx = np.linspace(startPoint[0], endPoint[0], num=self.num_particles, endpoint=True)
-        axisy = np.linspace(startPoint[1], endPoint[1], num=self.num_particles, endpoint=True)
         for i in range(self.num_particles):
-            self.x[i] = (axisx[i], axisy[i])
+            self.x[i] = wireShape.vertex.position[i]
 
     def create_internal_constraints(self):
         for i in range(self.num_edges):
