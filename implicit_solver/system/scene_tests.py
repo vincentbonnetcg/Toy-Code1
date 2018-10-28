@@ -68,7 +68,8 @@ def create_beam_scene():
     '''
     Creates a scene with a beam and a wire
     '''
-    beam = objects.Beam(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y, PARTICLE_MASS, STIFFNESS * 10.0, DAMPING)
+    beam_shape = objects.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
+    beam = objects.Beam(beam_shape, PARTICLE_MASS, STIFFNESS * 10.0, DAMPING)
     beam.render_prefs = ['go', 1, 'k-', 1]
 
     wire_start_pos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]

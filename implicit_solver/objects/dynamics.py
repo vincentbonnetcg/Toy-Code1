@@ -70,19 +70,19 @@ class Wire(BaseDynamic):
     '''
     Wire Class describes a dynamic wire object
     '''
-    def __init__(self, wireShape, particleMass, stiffness, bendingStiffness, damping):
-        BaseDynamic.__init__(self, wireShape.num_vertices(), particleMass, stiffness, damping)
-        self.num_edges = wireShape.num_edges()
-        self.bending_stiffness = bendingStiffness
+    def __init__(self, wire_shape, particle_mass, stiffness, bending_stiffness, damping):
+        BaseDynamic.__init__(self, wire_shape.num_vertices(), particle_mass, stiffness, damping)
+        self.num_edges = wire_shape.num_edges()
+        self.bending_stiffness = bending_stiffness
 
         for i in range(self.num_particles):
-            self.x[i] = wireShape.vertex.position[i]
+            self.x[i] = wire_shape.vertex.position[i]
 
     def create_internal_constraints(self):
         for i in range(self.num_edges):
             self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [i, i+1]))
 
-        if (self.num_edges > 1 and self.bending_stiffness > 0.0):
+        if self.num_edges > 1 and self.bending_stiffness > 0.0:
             for i in range(self.num_edges-1):
                 self.internal_constraints.append(cn.Bending(self.bending_stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
 
@@ -90,23 +90,14 @@ class Beam(BaseDynamic):
     '''
     Beam Class describes a dynamic beam object
     '''
-    def __init__(self, position, width, height, cellX, cellY, particleMass, stiffness, damping):
-        BaseDynamic.__init__(self, (cellX+1)*(cellY+1), particleMass, stiffness, damping)
+    def __init__(self,beam_shape , particle_mass, stiffness, damping):
+        BaseDynamic.__init__(self, beam_shape.num_vertices(), particle_mass, stiffness, damping)
 
-        # Set position
-        # Example of vertex positions
-        # 8 .. 9 .. 10 .. 11
-        # 4 .. 5 .. 6  .. 7
-        # 0 .. 1 .. 2  .. 3
-        self.cell_x = cellX
-        self.cell_y = cellY
-        particle_id = 0
-        cell_width = width / cellX
-        cell_height = height / cellY
-        for j in range(cellY+1):
-            for i in range(cellX+1):
-                self.x[particle_id] = (i * cell_width + position[0], j * cell_height + position[1])
-                particle_id += 1
+        self.cell_x = beam_shape.cell_x
+        self.cell_y = beam_shape.cell_y
+
+        for i in range(self.num_particles):
+            self.x[i] = beam_shape.vertex.position[i]
 
     def create_internal_constraints(self):
         cell_to_pids = lambda i, j: [i + (j*(self.cell_x+1)), i + (j*(self.cell_x+1)) + 1, i + ((j+1)*(self.cell_x+1)), i + ((j+1)*(self.cell_x+1)) + 1]
@@ -123,8 +114,8 @@ class Beam(BaseDynamic):
                 if j == 0:
                     self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[1]]))
 
-                #self.internal_constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[0], pids[3]]))
-                #self.internal_constraints.append(cn.SpringConstraint(self.stiffness, self.damping, [self, self], [pids[1], pids[2]]))
+                #self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[3]]))
+                #self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[1], pids[2]]))
 
         # Compute Area Constraint
         for j in range(self.cell_y):

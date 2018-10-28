@@ -59,3 +59,29 @@ class WireShape(Shape):
             self.vertex.position[i] = (axisx[i], axisy[i])
 
         # TODO - need to add the connectivities
+
+class BeamShape(Shape):
+    '''
+    Creates a wire shape
+    '''
+    def __init__(self, position, width, height, cell_x, cell_y):
+        Shape.__init__(self, (cell_x+1)*(cell_y+1), 0)
+
+        self.cell_x = cell_x
+        self.cell_y = cell_y
+
+        # Vertex position
+        # 8 .. 9 .. 10 .. 11
+        # 4 .. 5 .. 6  .. 7
+        # 0 .. 1 .. 2  .. 3
+        self.cell_x = cell_x
+        self.cell_y = cell_y
+        vertex_id = 0
+        cell_width = width / cell_x
+        cell_height = height / cell_y
+        for j in range(cell_y+1):
+            for i in range(cell_x+1):
+                self.vertex.position[vertex_id] = (i * cell_width + position[0], j * cell_height + position[1])
+                vertex_id += 1
+
+        # TODO - need to add the connectivities
