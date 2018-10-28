@@ -28,8 +28,8 @@ class BaseDynamic:
     Render Preferences
         - Render Preferences : renderPrefs
     '''
-    def __init__(self, num_particles, particle_mass, stiffness, damping):
-        self.num_particles = num_particles
+    def __init__(self, shape, particle_mass, stiffness, damping):
+        self.num_particles = shape.num_vertices()
         # Initialize particle state
         self.x = np.zeros((self.num_particles, 2)) # position
         self.v = np.zeros((self.num_particles, 2)) # velocity
@@ -43,7 +43,9 @@ class BaseDynamic:
         self.stiffness = stiffness
         self.damping = damping
         self.internal_constraints = []
-
+        # Copy particle position
+        for i in range(self.num_particles):
+            self.x[i] = shape.vertex.position[i]
         # Render preferences used by render.py
         # See : https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html for more details
         # fmt = '[color][marker][line]'
@@ -71,12 +73,9 @@ class Wire(BaseDynamic):
     Wire Class describes a dynamic wire object
     '''
     def __init__(self, wire_shape, particle_mass, stiffness, bending_stiffness, damping):
-        BaseDynamic.__init__(self, wire_shape.num_vertices(), particle_mass, stiffness, damping)
+        BaseDynamic.__init__(self, wire_shape, particle_mass, stiffness, damping)
         self.num_edges = wire_shape.num_edges()
         self.bending_stiffness = bending_stiffness
-
-        for i in range(self.num_particles):
-            self.x[i] = wire_shape.vertex.position[i]
 
     def create_internal_constraints(self):
         for i in range(self.num_edges):
@@ -91,13 +90,10 @@ class Beam(BaseDynamic):
     Beam Class describes a dynamic beam object
     '''
     def __init__(self,beam_shape , particle_mass, stiffness, damping):
-        BaseDynamic.__init__(self, beam_shape.num_vertices(), particle_mass, stiffness, damping)
+        BaseDynamic.__init__(self, beam_shape, particle_mass, stiffness, damping)
 
         self.cell_x = beam_shape.cell_x
         self.cell_y = beam_shape.cell_y
-
-        for i in range(self.num_particles):
-            self.x[i] = beam_shape.vertex.position[i]
 
     def create_internal_constraints(self):
         cell_to_pids = lambda i, j: [i + (j*(self.cell_x+1)), i + (j*(self.cell_x+1)) + 1, i + ((j+1)*(self.cell_x+1)), i + ((j+1)*(self.cell_x+1)) + 1]
