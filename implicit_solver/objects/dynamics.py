@@ -7,9 +7,9 @@ import constraints as cn
 import numpy as np
 from objects.shapes import WireShape
 
-class BaseDynamic:
+class Dynamic:
     '''
-    BaseDynamic describes the base class of a dynamic object
+    Dynamic describes the base class of a dynamic object
     It contains:
     Particle data:
         - num_particles
@@ -36,6 +36,9 @@ class BaseDynamic:
         self.m = np.ones(self.num_particles) * particle_mass# mass
         self.im = 1.0 / self.m # inverse mass
         self.f = np.zeros((self.num_particles, 2)) #  force
+        # Initialize particle connectivities
+        self.edge_ids = np.copy(shape.edge.vertex_ids)
+        self.face_ids = np.copy(shape.face.vertex_ids)
         # Useful indices set after adding the object into the scene
         self.global_offset = 0 # global particle offset
         self.index = 0 # object index in the scene.dynamics[.]
@@ -65,15 +68,18 @@ class BaseDynamic:
         Creates the internal constraints of the dynamic object.
         It could be used to set materials / distance constraint / area constraint etc.
         '''
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'create_internal_constraints'")
+        for ids in self.edge_ids:
+            self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [ids[0], ids[1]]))
 
+        for ids in self.face_ids:
+            self.internal_constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [ids[0], ids[1], ids[2]]))
 
-class Wire(BaseDynamic):
+class Wire(Dynamic):
     '''
     Wire Class describes a dynamic wire object
     '''
     def __init__(self, wire_shape, particle_mass, stiffness, bending_stiffness, damping):
-        BaseDynamic.__init__(self, wire_shape, particle_mass, stiffness, damping)
+        Dynamic.__init__(self, wire_shape, particle_mass, stiffness, damping)
         self.num_edges = wire_shape.num_edges()
         self.bending_stiffness = bending_stiffness
 
@@ -84,39 +90,3 @@ class Wire(BaseDynamic):
         if self.num_edges > 1 and self.bending_stiffness > 0.0:
             for i in range(self.num_edges-1):
                 self.internal_constraints.append(cn.Bending(self.bending_stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
-
-class Beam(BaseDynamic):
-    '''
-    Beam Class describes a dynamic beam object
-    '''
-    def __init__(self,beam_shape , particle_mass, stiffness, damping):
-        BaseDynamic.__init__(self, beam_shape, particle_mass, stiffness, damping)
-
-        self.cell_x = beam_shape.cell_x
-        self.cell_y = beam_shape.cell_y
-
-    def create_internal_constraints(self):
-        cell_to_pids = lambda i, j: [i + (j*(self.cell_x+1)), i + (j*(self.cell_x+1)) + 1, i + ((j+1)*(self.cell_x+1)), i + ((j+1)*(self.cell_x+1)) + 1]
-        # Compute Spring Constraint
-        for j in range(self.cell_y):
-            for i in range(self.cell_x):
-                pids = cell_to_pids(i, j)
-
-                self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[1], pids[3]]))
-                if i == 0:
-                    self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[2]]))
-
-                self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[2], pids[3]]))
-                if j == 0:
-                    self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[1]]))
-
-                #self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[0], pids[3]]))
-                #self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [pids[1], pids[2]]))
-
-        # Compute Area Constraint
-        for j in range(self.cell_y):
-            for i in range(self.cell_x):
-                pids = cell_to_pids(i, j)
-
-                self.internal_constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [pids[0], pids[1], pids[2]]))
-                self.internal_constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [pids[1], pids[2], pids[3]]))
