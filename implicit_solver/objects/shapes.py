@@ -28,6 +28,9 @@ class ShapeEdgeComponent:
     def size(self):
         return len(self.vertex_ids)
 
+    def vertex_edges_dict(self):
+        return component_to_vertex_ids(self.vertex_ids)
+
     def __str__(self):
         return str(self.__class__)
 
@@ -44,6 +47,22 @@ class ShapeFaceComponent:
     def __str__(self):
         return str(self.__class__)
 
+def component_to_vertex_ids(vertex_ids):
+    result = {}
+    for component_id, vertex_ids in enumerate(vertex_ids):
+        for vertex_id in vertex_ids:
+            result.setdefault(vertex_id, []).append(component_id)
+
+    return result
+
+def vertex_ids_neighbours(vertex_ids):
+    result = {}
+    for component_id, vertex_ids in enumerate(vertex_ids):
+        for vertex_id0 in vertex_ids:
+            for vertex_id1 in vertex_ids:
+                if vertex_id0 != vertex_id1:
+                    result.setdefault(vertex_id0, []).append(vertex_id1)
+    return result
 
 class Shape:
     '''
@@ -73,7 +92,12 @@ class WireShape(Shape):
         for i in range(num_edges+1):
             self.vertex.position[i] = (axisx[i], axisy[i])
 
-        # TODO - need to add the connectivities
+        # Set Edge Indices
+        vertex_indices = []
+        for i in range(num_edges):
+            vertex_indices.append((i, i+1))
+
+        self.edge.vertex_ids = np.array(vertex_indices, dtype=int)
 
 class BeamShape(Shape):
     '''

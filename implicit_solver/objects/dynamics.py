@@ -5,7 +5,7 @@
 
 import constraints as cn
 import numpy as np
-from objects.shapes import WireShape
+import objects.shapes as shapes
 
 class Dynamic:
     '''
@@ -68,25 +68,32 @@ class Dynamic:
         Creates the internal constraints of the dynamic object.
         It could be used to set materials / distance constraint / area constraint etc.
         '''
-        for ids in self.edge_ids:
-            self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [ids[0], ids[1]]))
+        if self.stiffness > 0.0:
+            for ids in self.edge_ids:
+                self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [ids[0], ids[1]]))
 
-        for ids in self.face_ids:
-            self.internal_constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [ids[0], ids[1], ids[2]]))
+            for ids in self.face_ids:
+                self.internal_constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [ids[0], ids[1], ids[2]]))
 
+
+# TODO - remove Wire and use connectivity to create Wire
 class Wire(Dynamic):
     '''
     Wire Class describes a dynamic wire object
     '''
-    def __init__(self, wire_shape, particle_mass, stiffness, bending_stiffness, damping):
-        Dynamic.__init__(self, wire_shape, particle_mass, stiffness, damping)
-        self.num_edges = wire_shape.num_edges()
+    def __init__(self, shape, particle_mass, stiffness, bending_stiffness, damping):
+        Dynamic.__init__(self, shape, particle_mass, stiffness, damping)
+
         self.bending_stiffness = bending_stiffness
 
     def create_internal_constraints(self):
-        for i in range(self.num_edges):
-            self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [i, i+1]))
+        for ids in self.edge_ids:
+            self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [ids[0], ids[1]]))
 
-        if self.num_edges > 1 and self.bending_stiffness > 0.0:
-            for i in range(self.num_edges-1):
-                self.internal_constraints.append(cn.Bending(self.bending_stiffness, self.damping, [self, self, self], [i, i+1, i+2]))
+        vertex_edges_dict = shapes.vertex_ids_neighbours(self.edge_ids)
+        if self.bending_stiffness > 0.0:
+            for vertex_id, vertex_id_neighbour in vertex_edges_dict.items():
+                if (len(vertex_id_neighbour) == 2):
+                    self.internal_constraints.append(cn.Bending(self.bending_stiffness, self.damping, 
+                                                                [self, self, self], 
+                                                                [vertex_id_neighbour[0], vertex_id, vertex_id_neighbour[1]]))
