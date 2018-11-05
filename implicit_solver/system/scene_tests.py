@@ -27,6 +27,16 @@ PARTICLE_MASS = 0.001 # in Kg
 
 GRAVITY = (0.0, -9.81) # in meters per second^2
 
+#from constraints.builders import SpringBuilder, AreaBuilder, WireBendingBuilder
+
+def edge_constraint(scene, dynamic, stiffness, damping):
+    constraint_builder = cn.SpringBuilder([dynamic], stiffness, damping)
+    scene.addConstraintBuilder(constraint_builder)
+
+def face_constraint(scene, dynamic, stiffness, damping):
+    constraint_builder = cn.AreaBuilder([dynamic], stiffness, damping)
+    scene.addConstraintBuilder(constraint_builder)
+
 def kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance):
     attachment_builder = cn.KinematicAttachmentBuilder(dynamic, kinematic, stiffness, damping, distance)
     scene.addConstraintBuilder(attachment_builder)
@@ -88,10 +98,15 @@ def create_beam_scene():
     right_anchor.animationFunc = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], 0.0]
 
     scene = system.Scene(GRAVITY)
+    
+    # Populate Scene with data and conditions
     scene.addDynamic(beam)
     scene.addDynamic(wire)
     scene.addKinematic(left_anchor)
     scene.addKinematic(right_anchor)
+
+    edge_constraint(scene, beam, STIFFNESS * 10.0, DAMPING)
+    face_constraint(scene, beam, STIFFNESS * 10.0, DAMPING)
     kinematic_attachment(scene, beam, right_anchor, 100.0, 0.0, 0.1)
     kinematic_attachment(scene, beam, left_anchor, 100.0, 0.0, 0.1)
     dynamic_attachment(scene, beam, wire, 100.0, 0.0, 0.001)

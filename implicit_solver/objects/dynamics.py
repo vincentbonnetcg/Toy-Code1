@@ -64,17 +64,8 @@ class Dynamic:
         self.global_offset = global_offset
 
     def create_internal_constraints(self):
-        '''
-        Creates the internal constraints of the dynamic object.
-        It could be used to set materials / distance constraint / area constraint etc.
-        '''
-        if self.stiffness > 0.0:
-            for ids in self.edge_ids:
-                self.internal_constraints.append(cn.Spring(self.stiffness, self.damping, [self, self], [ids[0], ids[1]]))
-
-            for ids in self.face_ids:
-                self.internal_constraints.append(cn.Area(self.stiffness, self.damping, [self, self, self], [ids[0], ids[1], ids[2]]))
-
+        # TODO - REMOVE THAT 
+        pass
 
 # TODO - remove Wire and use connectivity to create Wire
 class Wire(Dynamic):

@@ -102,3 +102,44 @@ class DynamicAttachmentBuilder(Builder):
                 if dist2 < distance2:
                     constraint = cn.Spring(self.stiffness, self.damping, [dynamic0, dynamic1], [x0i, x1i])
                     scene.static_constraints.append(constraint)
+
+class SpringBuilder(Builder):
+    '''
+    Creates Spring constraints
+    Replaces edges with Spring constraints
+    '''
+    def __init__(self, dynamics, stiffness, damping):
+       Builder.__init__(self, dynamics, [], stiffness, damping)
+
+    def add_constraints(self, scene):
+        for object_index in self.dynamicIndices:
+            dynamic = scene.dynamics[object_index]
+            for vertex_index in dynamic.edge_ids:
+                constraint = cn.Spring(self.stiffness, self.damping,
+                                       [dynamic, dynamic],
+                                       [vertex_index[0], vertex_index[1]])
+                scene.static_constraints.append(constraint)
+
+class AreaBuilder(Builder):
+    '''
+    Creates Area constraints
+    Replaces triangle with Area constraints
+    '''
+    def __init__(self, dynamics, stiffness, damping):
+       Builder.__init__(self, dynamics, [], stiffness, damping)
+
+    def add_constraints(self, scene):
+        for object_index in self.dynamicIndices:
+            dynamic = scene.dynamics[object_index]
+            for vertex_index in dynamic.face_ids:
+                constraint = cn.Area(self.stiffness, self.damping,
+                                     [dynamic, dynamic, dynamic],
+                                     [vertex_index[0], vertex_index[1], vertex_index[2]])
+                scene.static_constraints.append(constraint)
+
+class WireBendingBuilder(Builder):
+    '''
+    Creates Wire Bending constraints
+    '''
+    def __init__(self, dynamics, stiffness, damping):
+       Builder.__init__(self, dynamics, [], stiffness, damping)
