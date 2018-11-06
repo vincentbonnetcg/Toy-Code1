@@ -41,6 +41,10 @@ class Render:
 
         # Draw constraints
         for constraint in scene.getConstraintsIterator():
+            render_prefs = constraint.meta_data.get("render_prefs" , None)
+            if render_prefs is None:
+                continue
+
             local_ids = constraint.localIds
             dynamics = []
             for object_index in constraint.dynamicIndices:
@@ -51,12 +55,16 @@ class Render:
                 for i in range (len(local_ids)):
                     linedata.append(dynamics[i].x[local_ids[i]])
                 x, y = zip(*linedata)
-                self.ax.plot(x, y, dynamics[0].render_prefs[2], lw=dynamics[0].render_prefs[3])
+                self.ax.plot(x, y, render_prefs[0], lw=render_prefs[1])
 
         # Draw particles
         for dynamic in scene.dynamics:
+            render_prefs = dynamic.meta_data.get("render_prefs" , None)
+            if render_prefs is None:
+                continue
+
             x, y = zip(*dynamic.x)
-            self.ax.plot(x, y, dynamic.render_prefs[0], markersize=dynamic.render_prefs[1])
+            self.ax.plot(x, y, render_prefs[0], markersize=render_prefs[1])
 
         # Draw kinematics
         for kinematic in scene.kinematics:

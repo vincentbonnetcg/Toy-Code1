@@ -21,11 +21,12 @@ class Base:
         for i in range(N):
             self.dynamicIndices[i] = dynamics[i].index
             self.globalIds[i] = self.localIds[i] + dynamics[i].global_offset
-
         # Precomputed jacobians.
         # NxN matrix where each element is a 2x2 submatrix
         self.dfdx = np.zeros((N, N, 2, 2))
         self.dfdv = np.zeros((N, N, 2, 2))
+        # Metadata
+        self.meta_data = {} # meta data
 
     def applyForces(self, scene):
         for i in range(len(self.localIds)):

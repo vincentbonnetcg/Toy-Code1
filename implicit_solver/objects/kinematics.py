@@ -18,6 +18,7 @@ class BaseKinematic:
         self.last_time = 0.0 # used in the update function
         self.animationFunc = None
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
+        self.meta_data = {} # Metadata
 
     def set_indexing(self, index):
         self.index = index

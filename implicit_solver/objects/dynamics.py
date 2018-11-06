@@ -34,6 +34,8 @@ class Dynamic:
         # Useful indices set after adding the object into the scene
         self.global_offset = 0 # global particle offset
         self.index = 0 # object index in the scene.dynamics[.]
+        # Metadata
+        self.meta_data = {}
 
     def set_indexing(self, index, global_offset):
         '''

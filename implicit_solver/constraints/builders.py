@@ -16,6 +16,8 @@ class Builder:
         self.damping = damping
         self.dynamicIndices = [dynamic.index for dynamic in dynamics]
         self.kinematicIndices = [kinematic.index for kinematic in kinematics]
+        # Metadata
+        self.meta_data = {}
 
     def is_static(self):
         '''
@@ -28,6 +30,14 @@ class Builder:
     def add_constraints(self, scene):
         # Neighbour search structures or other initialization could happen here
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'addConstraints'")
+
+    def append_constraint(self, scene, constraint):
+        constraint.meta_data = self.meta_data
+        if self.is_static():
+            scene.static_constraints.append(constraint)
+        else:
+            scene.dynamic_constraints.append(constraint)
+
 
 class KinematicCollisionBuilder(Builder):
     '''
@@ -54,7 +64,7 @@ class KinematicCollisionBuilder(Builder):
                 kinematicNormal = kinematic.getNormalFromParametricValues(attachmentPointParams)
                 if (np.dot(kinematicNormal, dynamic.v[particleId]) < 0.0):
                     constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
-                    scene.dynamic_constraints.append(constraint)
+                    self.append_constraint(scene, constraint)
 
 class KinematicAttachmentBuilder(Builder):
     '''
@@ -79,7 +89,7 @@ class KinematicAttachmentBuilder(Builder):
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
                 constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
-                scene.static_constraints.append(constraint)
+                self.append_constraint(scene, constraint)
 
 class DynamicAttachmentBuilder(Builder):
     '''
@@ -102,7 +112,7 @@ class DynamicAttachmentBuilder(Builder):
                 dist2 = np.inner(direction, direction)
                 if dist2 < distance2:
                     constraint = cn.Spring(self.stiffness, self.damping, [dynamic0, dynamic1], [x0i, x1i])
-                    scene.static_constraints.append(constraint)
+                    self.append_constraint(scene, constraint)
 
 class SpringBuilder(Builder):
     '''
@@ -119,7 +129,7 @@ class SpringBuilder(Builder):
                 constraint = cn.Spring(self.stiffness, self.damping,
                                        [dynamic, dynamic],
                                        [vertex_index[0], vertex_index[1]])
-                scene.static_constraints.append(constraint)
+                self.append_constraint(scene, constraint)
 
 class AreaBuilder(Builder):
     '''
@@ -136,7 +146,7 @@ class AreaBuilder(Builder):
                 constraint = cn.Area(self.stiffness, self.damping,
                                      [dynamic, dynamic, dynamic],
                                      [vertex_index[0], vertex_index[1], vertex_index[2]])
-                scene.static_constraints.append(constraint)
+                self.append_constraint(scene, constraint)
 
 class WireBendingBuilder(Builder):
     '''
@@ -152,6 +162,8 @@ class WireBendingBuilder(Builder):
             if self.stiffness > 0.0:
                 for vertex_id, vertex_id_neighbour in vertex_edges_dict.items():
                     if (len(vertex_id_neighbour) == 2):
-                        scene.static_constraints.append(cn.Bending(self.stiffness, self.damping,
-                                                                   [dynamic, dynamic, dynamic],
-                                                                   [vertex_id_neighbour[0], vertex_id, vertex_id_neighbour[1]]))
+                        constraint =(cn.Bending(self.stiffness, self.damping,
+                                                [dynamic, dynamic, dynamic],
+                                                [vertex_id_neighbour[0], vertex_id, vertex_id_neighbour[1]]))
+                        self.append_constraint(scene, constraint)
+
