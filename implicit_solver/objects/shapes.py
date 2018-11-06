@@ -5,7 +5,7 @@
 
 import numpy as np
 
-class ShapeVertexComponent:
+class VertexComponent:
     '''
     Vertex Component
     '''
@@ -18,7 +18,7 @@ class ShapeVertexComponent:
     def __str__(self):
         return str(self.__class__)  + ": " + str(self.__dict__)
 
-class ShapeEdgeComponent:
+class EdgeComponent:
     '''
     Edge Component
     '''
@@ -34,7 +34,7 @@ class ShapeEdgeComponent:
     def __str__(self):
         return str(self.__class__)
 
-class ShapeFaceComponent:
+class FaceComponent:
     '''
     Face Component
     '''
@@ -69,9 +69,9 @@ class Shape:
     Shape Description
     '''
     def __init__(self, num_vertices, num_edges = 0, num_faces = 0):
-        self.vertex = ShapeVertexComponent(num_vertices)
-        self.edge = ShapeEdgeComponent(num_edges)
-        self.face = ShapeFaceComponent(num_faces)
+        self.vertex = VertexComponent(num_vertices)
+        self.edge = EdgeComponent(num_edges)
+        self.face = FaceComponent(num_faces)
 
     def num_vertices(self):
         return self.vertex.size()
