@@ -23,7 +23,6 @@ class Scene:
             offset += self.dynamics[i].num_particles
 
         dynamic.set_indexing(index, offset)
-        dynamic.create_internal_constraints()
         self.dynamics.append(dynamic)
 
     def addKinematic(self, kinematic):
@@ -61,7 +60,5 @@ class Scene:
         values = []
         values.append(self.dynamic_constraints)
         values.append(self.static_constraints)
-        for obj in self.dynamics:
-            values.append(obj.internal_constraints)
 
         return itertools.chain.from_iterable(values)
