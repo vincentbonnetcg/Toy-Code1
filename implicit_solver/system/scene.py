@@ -10,7 +10,7 @@ class Scene:
     def __init__(self, gravity):
         self.dynamics = [] # dynamic objects
         self.kinematics = [] # kinematic objects
-        self.constraint_builders = [] # create static or dynamic constraints
+        self.conditions = [] # create static or dynamic constraints
         self.static_constraints = [] # static constraints (like area/bending/spring)
         self.dynamic_constraints = [] # dynamic constraints (like sliding/collision)
         self.gravity = gravity
@@ -41,20 +41,20 @@ class Scene:
         return numParticles
 
     # Constraint Functions #
-    def addConstraintBuilder(self, constraint_builder):
-        self.constraint_builders.append(constraint_builder)
+    def addCondition(self, condition):
+        self.conditions.append(condition)
 
     def updateStaticConstraints(self):
         self.static_constraints.clear()
-        for constraint_builder in self.constraint_builders:
-            if constraint_builder.is_static() is True:
-                constraint_builder.add_constraints(self)
+        for condition in self.conditions:
+            if condition.is_static() is True:
+                condition.add_constraints(self)
 
     def updateDynamicConstraints(self):
         self.dynamic_constraints.clear()
-        for constraint_builder in self.constraint_builders:
-            if constraint_builder.is_static() is False:
-                constraint_builder.add_constraints(self)
+        for condition in self.conditions:
+            if condition.is_static() is False:
+                condition.add_constraints(self)
 
     def getConstraintsIterator(self):
         values = []

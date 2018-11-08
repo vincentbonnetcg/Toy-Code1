@@ -1,15 +1,15 @@
 """
 @author: Vincent Bonnet
-@description : constraint builders create a list of constraints from a list of objects
+@description : conditions create a list of constraints from a list of objects
 """
 
 import constraints as cn
 import numpy as np
 import objects.shapes as shapes
 
-class Builder:
+class Condition:
     '''
-    Base of the constraint builder
+    Base of a condition
     '''
     def __init__(self, dynamics, kinematics, stiffness, damping):
         self.stiffness = stiffness
@@ -39,12 +39,12 @@ class Builder:
             scene.dynamic_constraints.append(constraint)
 
 
-class KinematicCollisionBuilder(Builder):
+class KinematicCollisionCondition(Condition):
     '''
     Creates collision constraint between one kinematic and one dynamic object
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping):
-        Builder.__init__(self, [dynamic], [kinematic], stiffness, damping)
+        Condition.__init__(self, [dynamic], [kinematic], stiffness, damping)
 
     def is_static(self):
         '''
@@ -66,12 +66,12 @@ class KinematicCollisionBuilder(Builder):
                     constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
                     self.append_constraint(scene, constraint)
 
-class KinematicAttachmentBuilder(Builder):
+class KinematicAttachmentCondition(Condition):
     '''
     Creates attachment constraint between one kinematic and one dynamic object
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping, distance):
-       Builder.__init__(self, [dynamic], [kinematic], stiffness, damping)
+       Condition.__init__(self, [dynamic], [kinematic], stiffness, damping)
        self.distance = distance
 
     def add_constraints(self, scene):
@@ -91,12 +91,12 @@ class KinematicAttachmentBuilder(Builder):
                 constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
                 self.append_constraint(scene, constraint)
 
-class DynamicAttachmentBuilder(Builder):
+class DynamicAttachmentCondition(Condition):
     '''
     Creates attachment constraint between two dynamic objects
     '''
     def __init__(self, dynamic0, dynamic1, stiffness, damping, distance):
-       Builder.__init__(self, [dynamic0, dynamic1], [], stiffness, damping)
+       Condition.__init__(self, [dynamic0, dynamic1], [], stiffness, damping)
        self.distance = distance
 
     def add_constraints(self, scene):
@@ -114,13 +114,13 @@ class DynamicAttachmentBuilder(Builder):
                     constraint = cn.Spring(self.stiffness, self.damping, [dynamic0, dynamic1], [x0i, x1i])
                     self.append_constraint(scene, constraint)
 
-class SpringBuilder(Builder):
+class SpringCondition(Condition):
     '''
     Creates Spring constraints
     Replaces edges with Spring constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Builder.__init__(self, dynamics, [], stiffness, damping)
+       Condition.__init__(self, dynamics, [], stiffness, damping)
 
     def add_constraints(self, scene):
         for object_index in self.dynamicIndices:
@@ -131,13 +131,13 @@ class SpringBuilder(Builder):
                                        [vertex_index[0], vertex_index[1]])
                 self.append_constraint(scene, constraint)
 
-class AreaBuilder(Builder):
+class AreaCondition(Condition):
     '''
     Creates Area constraints
     Replaces triangle with Area constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Builder.__init__(self, dynamics, [], stiffness, damping)
+       Condition.__init__(self, dynamics, [], stiffness, damping)
 
     def add_constraints(self, scene):
         for object_index in self.dynamicIndices:
@@ -148,12 +148,12 @@ class AreaBuilder(Builder):
                                      [vertex_index[0], vertex_index[1], vertex_index[2]])
                 self.append_constraint(scene, constraint)
 
-class WireBendingBuilder(Builder):
+class WireBendingCondition(Condition):
     '''
     Creates Wire Bending constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Builder.__init__(self, dynamics, [], stiffness, damping)
+       Condition.__init__(self, dynamics, [], stiffness, damping)
 
     def add_constraints(self, scene):
         for object_index in self.dynamicIndices:

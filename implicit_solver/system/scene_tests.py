@@ -33,34 +33,34 @@ def add_render_prefs(dynamic, render_prefs):
     dynamic.meta_data['render_prefs'] = render_prefs
 
 def wire_bending_constraint(scene, dynamic, stiffness, damping):
-    constraint_builder = cn.WireBendingBuilder([dynamic], stiffness, damping)
-    scene.addConstraintBuilder(constraint_builder)
-    return constraint_builder
+    condition = cn.WireBendingCondition([dynamic], stiffness, damping)
+    scene.addCondition(condition)
+    return condition
 
 def edge_constraint(scene, dynamic, stiffness, damping):
-    constraint_builder = cn.SpringBuilder([dynamic], stiffness, damping)
-    scene.addConstraintBuilder(constraint_builder)
-    return constraint_builder
+    condition = cn.SpringCondition([dynamic], stiffness, damping)
+    scene.addCondition(condition)
+    return condition
 
 def face_constraint(scene, dynamic, stiffness, damping):
-    constraint_builder = cn.AreaBuilder([dynamic], stiffness, damping)
-    scene.addConstraintBuilder(constraint_builder)
-    return constraint_builder
+    condition = cn.AreaCondition([dynamic], stiffness, damping)
+    scene.addCondition(condition)
+    return condition
 
 def kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance):
-    attachment_builder = cn.KinematicAttachmentBuilder(dynamic, kinematic, stiffness, damping, distance)
-    scene.addConstraintBuilder(attachment_builder)
-    return attachment_builder
+    condition = cn.KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
+    scene.addCondition(condition)
+    return condition
 
 def dynamic_attachment(scene, dynamic0, dynamic1, stiffness, damping, distance):
-    attachment_builder = cn.DynamicAttachmentBuilder(dynamic0, dynamic1, stiffness, damping, distance)
-    scene.addConstraintBuilder(attachment_builder)
-    return attachment_builder
+    condition = cn.DynamicAttachmentCondition(dynamic0, dynamic1, stiffness, damping, distance)
+    scene.addCondition(condition)
+    return condition
 
 def kinematic_collision(scene, dynamic, kinematic, stiffness, damping):
-    collison_builder = cn.KinematicCollisionBuilder(dynamic, kinematic, stiffness, damping)
-    scene.addConstraintBuilder(collison_builder)
-    return collison_builder
+    condition = cn.KinematicCollisionCondition(dynamic, kinematic, stiffness, damping)
+    scene.addCondition(condition)
+    return condition
 
 def create_wire_scene():
     '''

@@ -3,7 +3,7 @@
 from constraints.spring import Spring, AnchorSpring
 from constraints.bending import Bending
 from constraints.area import Area
-from constraints.builders import KinematicCollisionBuilder
-from constraints.builders import KinematicAttachmentBuilder, DynamicAttachmentBuilder
-from constraints.builders import SpringBuilder, AreaBuilder, WireBendingBuilder
+from constraints.conditions import KinematicCollisionCondition
+from constraints.conditions import KinematicAttachmentCondition, DynamicAttachmentCondition
+from constraints.conditions import SpringCondition, AreaCondition, WireBendingCondition
 
