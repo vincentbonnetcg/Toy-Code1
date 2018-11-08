@@ -33,32 +33,32 @@ def add_render_prefs(dynamic, render_prefs):
     dynamic.meta_data['render_prefs'] = render_prefs
 
 def wire_bending_constraint(scene, dynamic, stiffness, damping):
-    condition = cn.WireBendingCondition([dynamic], stiffness, damping)
+    condition = objects.WireBendingCondition([dynamic], stiffness, damping)
     scene.addCondition(condition)
     return condition
 
 def edge_constraint(scene, dynamic, stiffness, damping):
-    condition = cn.SpringCondition([dynamic], stiffness, damping)
+    condition = objects.SpringCondition([dynamic], stiffness, damping)
     scene.addCondition(condition)
     return condition
 
 def face_constraint(scene, dynamic, stiffness, damping):
-    condition = cn.AreaCondition([dynamic], stiffness, damping)
+    condition = objects.AreaCondition([dynamic], stiffness, damping)
     scene.addCondition(condition)
     return condition
 
 def kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance):
-    condition = cn.KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
+    condition = objects.KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
     scene.addCondition(condition)
     return condition
 
 def dynamic_attachment(scene, dynamic0, dynamic1, stiffness, damping, distance):
-    condition = cn.DynamicAttachmentCondition(dynamic0, dynamic1, stiffness, damping, distance)
+    condition = objects.DynamicAttachmentCondition(dynamic0, dynamic1, stiffness, damping, distance)
     scene.addCondition(condition)
     return condition
 
 def kinematic_collision(scene, dynamic, kinematic, stiffness, damping):
-    condition = cn.KinematicCollisionCondition(dynamic, kinematic, stiffness, damping)
+    condition = objects.KinematicCollisionCondition(dynamic, kinematic, stiffness, damping)
     scene.addCondition(condition)
     return condition
 

@@ -9,7 +9,7 @@ import system
 '''
  Global Constants
 '''
-NUM_FRAME = 100
+NUM_FRAME = 10
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
@@ -38,6 +38,7 @@ def main():
         if frame_id > 0:
             solver.solveFrame(scene)
 
+        # TODO - solver should not know about frame
         render.showCurrentFrame(solver, scene, frame_id)
         render.exportCurrentFrame(str(frame_id).zfill(4) + " .png")
 
