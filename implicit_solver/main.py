@@ -9,7 +9,7 @@ import system
 '''
  Global Constants
 '''
-NUM_FRAME = 10
+NUM_FRAME = 100
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
@@ -21,24 +21,25 @@ def main():
     '''
     # Create scene and solver
     scene = system.create_wire_scene()
-    solver = system.ImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
+    solver = system.ImplicitSolver()
     # below only debugging - unstable with high stiffness
-    #solver = sl.SemiImplicitSolver(FRAME_TIMESTEP / NUM_SUBSTEP, NUM_SUBSTEP)
+    #solver = sl.SemiImplicitSolver()
 
     # Run simulation and render
     render = common.Render()
     render.setRenderFolderPath(RENDER_FOLDER_PATH)
-    
+
     profiler = common.profiler.ProfilerSingleton()
+    dt = FRAME_TIMESTEP / NUM_SUBSTEP
 
     solver.initialize(scene)
     for frame_id in range(0, NUM_FRAME+1):
         profiler.clearLogs()
 
         if frame_id > 0:
-            solver.solveFrame(scene)
+            for _ in range(NUM_SUBSTEP):
+                solver.solveStep(scene, dt)
 
-        # TODO - solver should not know about frame
         render.showCurrentFrame(solver, scene, frame_id)
         render.exportCurrentFrame(str(frame_id).zfill(4) + " .png")
 

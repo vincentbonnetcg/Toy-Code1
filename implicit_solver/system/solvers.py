@@ -14,9 +14,7 @@ from system.sparse_matrix import BSRSparseMatrix, DebugSparseMatrix
  Base Solver
 '''
 class BaseSolver:
-    def __init__(self, dt, stepsPerFrame):
-        self.dt = dt # delta time per step
-        self.stepsPerFrame = stepsPerFrame # number of step per frame
+    def __init__(self):
         self.currentTime = 0.0
 
     def initialize(self, scene):
@@ -28,11 +26,10 @@ class BaseSolver:
         scene.updateStaticConstraints()
 
     @profiler.timeit
-    def solveFrame(self, scene):
-        for _ in range(self.stepsPerFrame):
-            self.currentTime += self.dt
-            self.preStep(scene, self.currentTime)
-            self.step(scene, self.dt)
+    def solveStep(self, scene, dt):
+        self.currentTime += dt
+        self.preStep(scene, self.currentTime)
+        self.step(scene, dt)
 
     def preStep(self, scene, time):
         scene.updateKinematics(time)
@@ -64,8 +61,8 @@ class BaseSolver:
      x = x + deltaX
 '''
 class ImplicitSolver(BaseSolver):
-    def __init__(self, dt, stepsPerFrame):
-        BaseSolver.__init__(self, dt, stepsPerFrame)
+    def __init__(self):
+        BaseSolver.__init__(self)
         # used to store system Ax=b
         self.A = None
         self.b = None
@@ -156,8 +153,8 @@ class ImplicitSolver(BaseSolver):
  Semi Implicit Step
 '''
 class SemiImplicitSolver(BaseSolver):
-    def __init__(self, dt, stepsPerFrame):
-        BaseSolver.__init__(self, dt, stepsPerFrame)
+    def __init__(self):
+        BaseSolver.__init__(self)
 
     @profiler.timeit
     def prepareSystem(self, scene, dt):
