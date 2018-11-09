@@ -23,7 +23,7 @@ class BaseSolver:
         '''
         self.currentTime = 0.0
         scene.updateKinematics(self.currentTime)
-        scene.updateStaticConstraints()
+        scene.updateConditions(True) # Update static conditions
 
     @profiler.timeit
     def solveStep(self, scene, dt):
@@ -33,7 +33,7 @@ class BaseSolver:
 
     def preStep(self, scene, time):
         scene.updateKinematics(time)
-        scene.updateDynamicConstraints()
+        scene.updateConditions(False) # Update dynamic conditions
 
     def step(self, scene, dt):
         self.prepareSystem(scene, dt)

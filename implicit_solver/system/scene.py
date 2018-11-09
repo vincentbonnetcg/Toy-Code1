@@ -44,17 +44,17 @@ class Scene:
     def addCondition(self, condition):
         self.conditions.append(condition)
 
-    def updateStaticConstraints(self):
-        self.static_constraints.clear()
-        for condition in self.conditions:
-            if condition.is_static() is True:
-                condition.add_constraints(self)
-
-    def updateDynamicConstraints(self):
-        self.dynamic_constraints.clear()
-        for condition in self.conditions:
-            if condition.is_static() is False:
-                condition.add_constraints(self)
+    def updateConditions(self, static = True):
+        if (static):
+            self.static_constraints.clear()
+            for condition in self.conditions:
+                if condition.is_static() is True:
+                    condition.add_constraints(self)
+        else:
+            self.dynamic_constraints.clear()
+            for condition in self.conditions:
+                if condition.is_static() is False:
+                    condition.add_constraints(self)
 
     def getConstraintsIterator(self):
         values = []
