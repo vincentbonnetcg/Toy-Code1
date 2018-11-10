@@ -3,7 +3,7 @@
 @description : main
 """
 
-import common
+import tools
 import system
 
 '''
@@ -26,10 +26,10 @@ def main():
     #solver = sl.SemiImplicitSolver()
 
     # Run simulation and render
-    render = common.Render()
+    render = tools.Render()
     render.setRenderFolderPath(RENDER_FOLDER_PATH)
 
-    profiler = common.profiler.ProfilerSingleton()
+    profiler = tools.Profiler()
     dt = FRAME_TIMESTEP / NUM_SUBSTEP
 
     solver.initialize(scene)

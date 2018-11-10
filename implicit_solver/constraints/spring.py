@@ -5,8 +5,8 @@
 
 import numpy as np
 from constraints.base import Base
-import common.math_2d as math2D
-import common.differentiation as diff
+import core.math_2d as math2D
+import core.differentiation as diff
 
 class AnchorSpring(Base):
     '''

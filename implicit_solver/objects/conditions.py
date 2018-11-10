@@ -5,7 +5,7 @@
 
 import constraints as cn
 import numpy as np
-import objects.shapes as shapes
+import core.shapes as shapes
 
 class Condition:
     '''

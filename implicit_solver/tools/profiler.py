@@ -6,7 +6,7 @@
 import time
 
 # Profiler singleton
-class ProfilerSingleton(object):
+class Profiler(object):
 
     class __Profiler:
         def __init__(self):
@@ -26,14 +26,14 @@ class ProfilerSingleton(object):
     instance = None
 
     def __new__(cls):
-        if not ProfilerSingleton.instance:
-            ProfilerSingleton.instance = ProfilerSingleton.__Profiler()
-        return ProfilerSingleton.instance
+        if not Profiler.instance:
+            Profiler.instance = Profiler.__Profiler()
+        return Profiler.instance
 
 # timeit decorator
 def timeit(method):
     def execute(*args, **kwargs):
-        profiler = ProfilerSingleton()
+        profiler = Profiler()
         startTime = time.time()
         result = method(*args, **kwargs)
         endTime = time.time()

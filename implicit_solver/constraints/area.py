@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import common.differentiation as diff
+import core.differentiation as diff
 from constraints.base import Base
 
 class Area(Base):

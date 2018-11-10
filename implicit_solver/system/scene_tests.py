@@ -3,10 +3,11 @@
 @description : example scenes for unit testing
 """
 
-import math
 import objects
 import system
+import core
 import constraints as cn
+import math
 
 '''
  Global Constants
@@ -66,7 +67,7 @@ def create_wire_scene():
     '''
     Creates a scene with a wire attached to a kinematic object
     '''
-    wire_shape = objects.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
+    wire_shape = core.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
     wire = objects.Dynamic(wire_shape, PARTICLE_MASS)
 
     moving_anchor = objects.Rectangle(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5, WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
@@ -101,12 +102,12 @@ def create_beam_scene():
     '''
     Creates a scene with a beam and a wire
     '''
-    beam_shape = objects.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
+    beam_shape = core.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
     beam = objects.Dynamic(beam_shape, PARTICLE_MASS)
 
     wire_start_pos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
     wire_end_pos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
-    wire_shape = objects.WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
+    wire_shape = core.WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
     wire = objects.Dynamic(wire_shape, PARTICLE_MASS)
 
     left_anchor = objects.Rectangle(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)

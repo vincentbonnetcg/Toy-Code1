@@ -5,7 +5,7 @@
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from common import profiler
+from tools import profiler
 import numpy as np
 
 class Render:
