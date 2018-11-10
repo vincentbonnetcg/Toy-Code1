@@ -60,8 +60,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
 
-## . Numba and Cuda
-**File** [numba_imageProcessing.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/numba_imageProcessing.py)<br>
+## . Performance (Numba, Cuda ...)
+**Folder** [numba_imageProcessing.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/performance)<br>
 **Description** Evaluate simple image processing and cellular automata on Cuda
 
 ![NUMBA](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/numba_imageProcessing.png)<br>
