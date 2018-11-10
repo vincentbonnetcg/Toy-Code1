@@ -25,8 +25,6 @@ class Base:
         # NxN matrix where each element is a 2x2 submatrix
         self.dfdx = np.zeros((N, N, 2, 2))
         self.dfdv = np.zeros((N, N, 2, 2))
-        # Metadata
-        self.meta_data = {} # meta data
 
     def applyForces(self, scene):
         for i in range(len(self.localIds)):

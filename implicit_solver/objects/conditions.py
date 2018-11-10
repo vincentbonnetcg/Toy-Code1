@@ -32,13 +32,8 @@ class Condition:
         self.constraints.clear()
         self.add_constraints(scene)
 
-    def add_constraints(self, scene):
+    def __add_constraints(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'add_constraints'")
-
-    def append_constraint(self, constraint):
-        constraint.meta_data = self.meta_data
-        self.constraints.append(constraint)
-
 
 class KinematicCollisionCondition(Condition):
     '''
@@ -65,7 +60,7 @@ class KinematicCollisionCondition(Condition):
                 kinematicNormal = kinematic.getNormalFromParametricValues(attachmentPointParams)
                 if (np.dot(kinematicNormal, dynamic.v[particleId]) < 0.0):
                     constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
-                    self.append_constraint(constraint)
+                    self.constraints.append(constraint)
 
 class KinematicAttachmentCondition(Condition):
     '''
@@ -90,7 +85,7 @@ class KinematicAttachmentCondition(Condition):
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
                 constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
-                self.append_constraint(constraint)
+                self.constraints.append(constraint)
 
 class DynamicAttachmentCondition(Condition):
     '''
@@ -113,7 +108,7 @@ class DynamicAttachmentCondition(Condition):
                 dist2 = np.inner(direction, direction)
                 if dist2 < distance2:
                     constraint = cn.Spring(self.stiffness, self.damping, [dynamic0, dynamic1], [x0i, x1i])
-                    self.append_constraint(constraint)
+                    self.constraints.append(constraint)
 
 class SpringCondition(Condition):
     '''
@@ -130,7 +125,7 @@ class SpringCondition(Condition):
                 constraint = cn.Spring(self.stiffness, self.damping,
                                        [dynamic, dynamic],
                                        [vertex_index[0], vertex_index[1]])
-                self.append_constraint(constraint)
+                self.constraints.append(constraint)
 
 class AreaCondition(Condition):
     '''
@@ -147,7 +142,7 @@ class AreaCondition(Condition):
                 constraint = cn.Area(self.stiffness, self.damping,
                                      [dynamic, dynamic, dynamic],
                                      [vertex_index[0], vertex_index[1], vertex_index[2]])
-                self.append_constraint(constraint)
+                self.constraints.append(constraint)
 
 class WireBendingCondition(Condition):
     '''
@@ -166,5 +161,5 @@ class WireBendingCondition(Condition):
                         constraint =(cn.Bending(self.stiffness, self.damping,
                                                 [dynamic, dynamic, dynamic],
                                                 [vertex_id_neighbour[0], vertex_id, vertex_id_neighbour[1]]))
-                        self.append_constraint(constraint)
+                        self.constraints.append(constraint)
 

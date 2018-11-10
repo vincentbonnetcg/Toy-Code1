@@ -40,22 +40,23 @@ class Render:
         plt.ylabel('y (m)')
 
         # Draw constraints
-        for constraint in scene.getConstraintsIterator():
-            render_prefs = constraint.meta_data.get("render_prefs" , None)
+        for condition in scene.conditions:
+            render_prefs = condition.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
 
-            local_ids = constraint.localIds
-            dynamics = []
-            for object_index in constraint.dynamicIndices:
-                dynamics.append(scene.dynamics[object_index])
+            for constraint in condition.constraints:
+                local_ids = constraint.localIds
+                dynamics = []
+                for object_index in constraint.dynamicIndices:
+                    dynamics.append(scene.dynamics[object_index])
 
-            if len(local_ids) >= 2:
-                linedata = []
-                for i in range (len(local_ids)):
-                    linedata.append(dynamics[i].x[local_ids[i]])
-                x, y = zip(*linedata)
-                self.ax.plot(x, y, render_prefs[0], lw=render_prefs[1])
+                if len(local_ids) >= 2:
+                    linedata = []
+                    for i in range (len(local_ids)):
+                        linedata.append(dynamics[i].x[local_ids[i]])
+                    x, y = zip(*linedata)
+                    self.ax.plot(x, y, render_prefs[0], lw=render_prefs[1])
 
         # Draw particles
         for dynamic in scene.dynamics:

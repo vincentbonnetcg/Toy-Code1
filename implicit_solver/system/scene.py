@@ -47,6 +47,7 @@ class Scene:
             if condition.is_static() is static:
                 condition.update_constraints(self)
 
+    # Iterators
     def getConstraintsIterator(self):
         values = []
         for condition in self.conditions:
