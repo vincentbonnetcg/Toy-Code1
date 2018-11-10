@@ -11,8 +11,6 @@ class Scene:
         self.dynamics = [] # dynamic objects
         self.kinematics = [] # kinematic objects
         self.conditions = [] # create static or dynamic constraints
-        self.static_constraints = [] # static constraints (like area/bending/spring)
-        self.dynamic_constraints = [] # dynamic constraints (like sliding/collision)
         self.gravity = gravity
 
     # Data Functions #
@@ -45,20 +43,13 @@ class Scene:
         self.conditions.append(condition)
 
     def updateConditions(self, static = True):
-        if (static):
-            self.static_constraints.clear()
-            for condition in self.conditions:
-                if condition.is_static() is True:
-                    condition.add_constraints(self)
-        else:
-            self.dynamic_constraints.clear()
-            for condition in self.conditions:
-                if condition.is_static() is False:
-                    condition.add_constraints(self)
+        for condition in self.conditions:
+            if condition.is_static() is static:
+                condition.update_constraints(self)
 
     def getConstraintsIterator(self):
         values = []
-        values.append(self.dynamic_constraints)
-        values.append(self.static_constraints)
+        for condition in self.conditions:
+            values.append(condition.constraints)
 
         return itertools.chain.from_iterable(values)

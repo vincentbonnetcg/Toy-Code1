@@ -16,6 +16,7 @@ class Condition:
         self.damping = damping
         self.dynamicIndices = [dynamic.index for dynamic in dynamics]
         self.kinematicIndices = [kinematic.index for kinematic in kinematics]
+        self.constraints = []
         # Metadata
         self.meta_data = {}
 
@@ -27,16 +28,16 @@ class Condition:
         '''
         return True
 
-    def add_constraints(self, scene):
-        # Neighbour search structures or other initialization could happen here
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'addConstraints'")
+    def update_constraints(self, scene):
+        self.constraints.clear()
+        self.add_constraints(scene)
 
-    def append_constraint(self, scene, constraint):
+    def add_constraints(self, scene):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'add_constraints'")
+
+    def append_constraint(self, constraint):
         constraint.meta_data = self.meta_data
-        if self.is_static():
-            scene.static_constraints.append(constraint)
-        else:
-            scene.dynamic_constraints.append(constraint)
+        self.constraints.append(constraint)
 
 
 class KinematicCollisionCondition(Condition):
@@ -64,7 +65,7 @@ class KinematicCollisionCondition(Condition):
                 kinematicNormal = kinematic.getNormalFromParametricValues(attachmentPointParams)
                 if (np.dot(kinematicNormal, dynamic.v[particleId]) < 0.0):
                     constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
-                    self.append_constraint(scene, constraint)
+                    self.append_constraint(constraint)
 
 class KinematicAttachmentCondition(Condition):
     '''
@@ -89,7 +90,7 @@ class KinematicAttachmentCondition(Condition):
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
                 constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
-                self.append_constraint(scene, constraint)
+                self.append_constraint(constraint)
 
 class DynamicAttachmentCondition(Condition):
     '''
@@ -112,7 +113,7 @@ class DynamicAttachmentCondition(Condition):
                 dist2 = np.inner(direction, direction)
                 if dist2 < distance2:
                     constraint = cn.Spring(self.stiffness, self.damping, [dynamic0, dynamic1], [x0i, x1i])
-                    self.append_constraint(scene, constraint)
+                    self.append_constraint(constraint)
 
 class SpringCondition(Condition):
     '''
@@ -129,7 +130,7 @@ class SpringCondition(Condition):
                 constraint = cn.Spring(self.stiffness, self.damping,
                                        [dynamic, dynamic],
                                        [vertex_index[0], vertex_index[1]])
-                self.append_constraint(scene, constraint)
+                self.append_constraint(constraint)
 
 class AreaCondition(Condition):
     '''
@@ -146,7 +147,7 @@ class AreaCondition(Condition):
                 constraint = cn.Area(self.stiffness, self.damping,
                                      [dynamic, dynamic, dynamic],
                                      [vertex_index[0], vertex_index[1], vertex_index[2]])
-                self.append_constraint(scene, constraint)
+                self.append_constraint(constraint)
 
 class WireBendingCondition(Condition):
     '''
@@ -165,5 +166,5 @@ class WireBendingCondition(Condition):
                         constraint =(cn.Bending(self.stiffness, self.damping,
                                                 [dynamic, dynamic, dynamic],
                                                 [vertex_id_neighbour[0], vertex_id, vertex_id_neighbour[1]]))
-                        self.append_constraint(scene, constraint)
+                        self.append_constraint(constraint)
 
