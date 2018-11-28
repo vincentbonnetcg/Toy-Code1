@@ -2,16 +2,21 @@
 @author: Vincent Bonnet
 @description : Kinematic objects used to support animated objects
 """
-import numpy as np
-import math
 
-class BaseKinematic:
+import math
+import numpy as np
+import core.shapes as shapes
+from core.convex_hull import ConvexHull
+
+class Kinematic:
     '''
-    Base class to represent kinematic objects
+    Kinematic describes the base class of a kinematic object
     '''
-    def __init__(self, position):
-        self.localSpaceVertices = [] # vertices describing the polygon - requires at least one point
-        self.position = np.copy(position)
+    def __init__(self, shape):
+        centroid = np.average(shape.vertex.position, axis=0)
+        local_vertex_position = np.subtract(shape.vertex.position, centroid)
+        self.convex_hull = ConvexHull(local_vertex_position)
+        self.position = centroid
         self.rotation = 0.0 # in degrees
         self.linear_velocity = np.zeros(2) # computed in the update function
         self.angular_velocity = 0.0 # computed in the update function
@@ -25,11 +30,11 @@ class BaseKinematic:
 
     def get_vertices(self, localSpace):
         if localSpace:
-            return self.localSpaceVertices
+            return self.convex_hull.counter_clockwise_points
         theta = np.radians(self.rotation)
         c, s = np.cos(theta), np.sin(theta)
         R = np.array(((c, -s), (s, c)))
-        result = np.matmul(self.localSpaceVertices.copy(), R)
+        result = np.matmul(self.convex_hull.counter_clockwise_points.copy(), R)
         result = np.add(result, self.position)
         return result
 
@@ -53,6 +58,7 @@ class BaseKinematic:
             self.last_time = time
 
     def getClosestParametricValues(self, point):
+         # TODO : CALL CONVEX_HULL
         '''
         Returns a pair [edgeId, line parameter (t)] which define
         the closest point on the polygon
@@ -83,6 +89,7 @@ class BaseKinematic:
         return result
 
     def getPointFromParametricValues(self, parametricValues):
+         # TODO : CALL CONVEX_HULL
         worldSpaceVertices = self.get_vertices(False)
         numEdges = len(worldSpaceVertices)
         edgeId = parametricValues[0]
@@ -97,14 +104,15 @@ class BaseKinematic:
         return None
 
     def getNormalFromParametricValues(self, parametricValues):
+         # TODO : CALL CONVEX_HULL
         worldSpaceVertices = self.get_vertices(False)
         numEdges = len(worldSpaceVertices)
         edgeId = parametricValues[0]
         if edgeId >= 0:
 
             # Compute the normal of the convex hull in local space
-            A = self.localSpaceVertices[edgeId]
-            B = self.localSpaceVertices[(edgeId+1)%numEdges]
+            A = self.convex_hull.counter_clockwise_points[edgeId]
+            B = self.convex_hull.counter_clockwise_points[(edgeId+1)%numEdges]
             t = parametricValues[1]
             p = A * (1.0 - t) + B * t
             n = [A[1] - B[1], A[0] - B[0]]
@@ -128,50 +136,9 @@ class BaseKinematic:
     def is_inside(self, point):
         '''
         Returns whether or not the point is inside the kinematic
-        The base is not implemented yet
-        '''
-        return False
-
-class Point(BaseKinematic):
-    '''
-    Single kinematic point
-    '''
-    def __init__(self, point):
-        BaseKinematic.__init__(self, [0.0, 0.0])
-        self.localSpaceVertices = np.zeros((1, 2))
-        self.localSpaceVertices[0] = point
-
-class Rectangle(BaseKinematic):
-    '''
-    Kinematic rectangle
-    '''
-    def __init__(self, minX, minY, maxX, maxY):
-        BaseKinematic.__init__(self, [0.0, 0.0])
-        # TODO - make sure the max/min are correct
-        self.width = maxX - minX
-        self.height = maxY - minY
-        halfWidth = self.width * 0.5
-        halfHeight = self.height * 0.5
-        self.localSpaceVertices = np.zeros((4, 2))
-        self.localSpaceVertices[0] = [-halfWidth, -halfHeight]
-        self.localSpaceVertices[1] = [-halfWidth, halfHeight]
-        self.localSpaceVertices[2] = [halfWidth, halfHeight]
-        self.localSpaceVertices[3] = [halfWidth, -halfHeight]
-        self.position = [minX + halfWidth, minY + halfHeight]
-
-    def is_inside(self, point) :
-        '''
-        Returns whether or not the point is inside the rectangle
         '''
         theta = np.radians(-self.rotation)
         c, s = np.cos(theta), np.sin(theta)
         R = np.array(((c, -s), (s, c)))
-        result = np.matmul(point - self.position, R)
-        halfWidth = self.width * 0.5
-        halfHeight = self.height * 0.5
-        if (result[0] > -halfWidth and result[0] < halfWidth and
-            result[1] > -halfHeight and result[1] < halfHeight):
-            return True
-
-        return False
-
+        local_point = np.matmul(point - self.position, R)
+        return self.convex_hull.is_inside(local_point)

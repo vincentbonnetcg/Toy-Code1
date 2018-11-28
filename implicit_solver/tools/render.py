@@ -11,7 +11,6 @@ import numpy as np
 class Render:
 
     def __init__(self):
-        plt.xkcd()
         self.fig = plt.figure()
         self.font = {'color':  'darkblue',
                      'weight': 'normal',

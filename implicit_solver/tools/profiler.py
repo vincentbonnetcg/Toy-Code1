@@ -38,7 +38,7 @@ def timeit(method):
         result = method(*args, **kwargs)
         endTime = time.time()
         computationTime = endTime - startTime
-        profiler.addLog('%r %2.2f sec' % \
+        profiler.addLog('%r %2.3f sec' % \
               (method.__name__, computationTime))
         return result
 

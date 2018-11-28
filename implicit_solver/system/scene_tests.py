@@ -67,17 +67,27 @@ def create_wire_scene():
     '''
     Creates a scene with a wire attached to a kinematic object
     '''
+    # wire
     wire_shape = core.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
     wire = objects.Dynamic(wire_shape, PARTICLE_MASS)
 
-    moving_anchor = objects.Rectangle(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5, WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
+    # moving anchor and animation
+    moving_anchor_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
+                                              WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
+
+    moving_anchor = objects.Kinematic(moving_anchor_shape)
+
     moving_anchor_position = moving_anchor.position
     decay_rate = 0.6
     moving_anchor_animation = lambda time: [[moving_anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
                                              moving_anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
     moving_anchor.animationFunc = moving_anchor_animation
 
-    collider = objects.Rectangle(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3, WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
+    # collider
+    collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
+                                       WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
+    collider = objects.Kinematic(collider_shape)
+
 
     scene = system.Scene(GRAVITY)
 
@@ -102,19 +112,27 @@ def create_beam_scene():
     '''
     Creates a scene with a beam and a wire
     '''
+    # beam
     beam_shape = core.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
     beam = objects.Dynamic(beam_shape, PARTICLE_MASS)
 
+    # wire
     wire_start_pos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
     wire_end_pos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
     wire_shape = core.WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
     wire = objects.Dynamic(wire_shape, PARTICLE_MASS)
 
-    left_anchor = objects.Rectangle(BEAM_POS[0] - 0.5, BEAM_POS[1], BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
+    # left anchor and animation
+    left_anchor_shape = core.RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
+                                            BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
+    left_anchor = objects.Kinematic(left_anchor_shape)
     l_pos = left_anchor.position
     left_anchor.animationFunc = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], 0.0]
 
-    right_anchor = objects.Rectangle(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1], BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
+    # right anchor and animation
+    right_anchor_shape = core.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
+                                             BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
+    right_anchor = objects.Kinematic(right_anchor_shape)
     r_pos = right_anchor.position
     right_anchor.animationFunc = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], 0.0]
 
