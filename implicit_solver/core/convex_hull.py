@@ -18,7 +18,7 @@ class ConvexHull:
     def get_projection_parameter(self, equation, point):
         '''
         2D-plane equation is defined by : ax + by + c = 0
-        where a, b, c = equation
+        where a, b, c is the plane equation
         We are looking for
         x = x0 + a*t and y = y0 + b*t
         by substitution

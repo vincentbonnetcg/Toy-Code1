@@ -23,20 +23,28 @@ class Kinematic:
         self.last_time = 0.0 # used in the update function
         self.animationFunc = None
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
-        self.meta_data = {} # Metadata
+        # Metadata
+        self.meta_data = {}
 
     def set_indexing(self, index):
         self.index = index
 
+    def get_matrix(self):
+        theta = np.radians(self.rotation)
+        c, s = np.cos(theta), np.sin(theta)
+        return np.array(((c, -s), (s, c)))
+
+    def get_inverse_matrix(self):
+        theta = np.radians(-self.rotation)
+        c, s = np.cos(theta), np.sin(theta)
+        return np.array(((c, -s), (s, c)))
+
     def get_vertices(self, localSpace):
         if localSpace:
             return self.convex_hull.counter_clockwise_points
-        theta = np.radians(self.rotation)
-        c, s = np.cos(theta), np.sin(theta)
-        R = np.array(((c, -s), (s, c)))
-        result = np.matmul(self.convex_hull.counter_clockwise_points.copy(), R)
-        result = np.add(result, self.position)
-        return result
+        R = self.get_matrix()
+        point_ws = np.matmul(self.convex_hull.counter_clockwise_points, R)
+        return np.add(point_ws, self.position)
 
     def update(self, time):
         if self.animationFunc:
@@ -124,9 +132,7 @@ class Kinematic:
                 n[1] *= -1.0
 
             # Transform the local space normal to world space normal
-            theta = np.radians(self.rotation)
-            c, s = np.cos(theta), np.sin(theta)
-            R = np.array(((c, -s), (s, c)))
+            R = self.get_matrix()
             n = np.matmul(n, R)
 
             return n
@@ -137,8 +143,6 @@ class Kinematic:
         '''
         Returns whether or not the point is inside the kinematic
         '''
-        theta = np.radians(-self.rotation)
-        c, s = np.cos(theta), np.sin(theta)
-        R = np.array(((c, -s), (s, c)))
+        R = self.get_inverse_matrix()
         local_point = np.matmul(point - self.position, R)
         return self.convex_hull.is_inside(local_point)
