@@ -56,8 +56,8 @@ class KinematicCollisionCondition(Condition):
         kinematic = scene.kinematics[self.kinematicIndices[0]]
         for particleId, pos in enumerate(dynamic.x):
             if (kinematic.is_inside(pos)):
-                attachmentPointParams = kinematic.getClosestParametricValues(pos)
-                kinematicNormal = kinematic.getNormalFromParametricValues(attachmentPointParams)
+                attachmentPointParams = kinematic.get_closest_parametric_value(pos)
+                kinematicNormal = kinematic.get_normal_from_parametric_value(attachmentPointParams)
                 if (np.dot(kinematicNormal, dynamic.v[particleId]) < 0.0):
                     constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
                     self.constraints.append(constraint)
@@ -79,8 +79,8 @@ class KinematicAttachmentCondition(Condition):
         # Linear search => it will be inefficient for dynamic objects with many particles
         distance2 = self.distance * self.distance
         for particleId, x in enumerate(dynamic.x):
-            attachmentPointParams = kinematic.getClosestParametricValues(x)
-            attachmentPoint = kinematic.getPointFromParametricValues(attachmentPointParams)
+            attachmentPointParams = kinematic.get_closest_parametric_value(x)
+            attachmentPoint = kinematic.get_point_from_parametric_value(attachmentPointParams)
             direction = (attachmentPoint - x)
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:

@@ -14,7 +14,7 @@ class AnchorSpring(Base):
     '''
     def __init__(self, stiffness, damping, dynamic, particleId, kinematic, pointParams):
         Base.__init__(self, stiffness, damping, [dynamic], [particleId])
-        targetPos = kinematic.getPointFromParametricValues(pointParams)
+        targetPos = kinematic.get_point_from_parametric_value(pointParams)
         self.restLength = computeLength(targetPos, dynamic.x[self.localIds[0]])
         self.pointParams = pointParams
         self.kinematicIndex = kinematic.index
@@ -28,7 +28,7 @@ class AnchorSpring(Base):
 
     def computeForces(self, scene):
         kinematic, x, v = self.getStates(scene)
-        targetPos = kinematic.getPointFromParametricValues(self.pointParams)
+        targetPos = kinematic.get_point_from_parametric_value(self.pointParams)
         # Numerical forces
         #force = diff.numerical_jacobian(elasticSpringEnergy, 0, x, targetPos, self.restLength, self.stiffness) * -1.0
         # Analytic forces
@@ -39,7 +39,7 @@ class AnchorSpring(Base):
 
     def computeJacobians(self, scene):
         kinematic, x, v = self.getStates(scene)
-        targetPos = kinematic.getPointFromParametricValues(self.pointParams)
+        targetPos = kinematic.get_point_from_parametric_value(self.pointParams)
         # Numerical jacobians
         #dfdx = diff.numerical_jacobian(springStretchForce, 0, x, targetPos, self.restLength, self.stiffness)
         #dfdv = diff.numerical_jacobian(springDampingForce, 2, x, targetPos, v, (0,0), self.damping)

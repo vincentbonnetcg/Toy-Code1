@@ -29,12 +29,12 @@ class Kinematic:
     def set_indexing(self, index):
         self.index = index
 
-    def get_matrix(self):
+    def get_rotation_matrix(self):
         theta = np.radians(self.rotation)
         c, s = np.cos(theta), np.sin(theta)
         return np.array(((c, -s), (s, c)))
 
-    def get_inverse_matrix(self):
+    def get_inverse_rotation_matrix(self):
         theta = np.radians(-self.rotation)
         c, s = np.cos(theta), np.sin(theta)
         return np.array(((c, -s), (s, c)))
@@ -42,7 +42,7 @@ class Kinematic:
     def get_vertices(self, localSpace):
         if localSpace:
             return self.convex_hull.counter_clockwise_points
-        R = self.get_matrix()
+        R = self.get_rotation_matrix()
         point_ws = np.matmul(self.convex_hull.counter_clockwise_points, R)
         return np.add(point_ws, self.position)
 
@@ -65,84 +65,30 @@ class Kinematic:
             self.rotation = state[1]
             self.last_time = time
 
-    def getClosestParametricValues(self, point):
-         # TODO : CALL CONVEX_HULL
+    def get_closest_parametric_value(self, point):
         '''
         Returns a pair [edgeId, line parameter (t)] which define
         the closest point on the polygon
         '''
-        worldSpaceVertices = self.get_vertices(False)
-        if len(worldSpaceVertices) == 0:
-            return None
-        elif len(worldSpaceVertices) == 1:
-            return [-1, 0.0] # No edge
+        inv_R = self.get_inverse_rotation_matrix()
+        local_point = np.matmul(point - self.position, inv_R)
+        param = self.convex_hull.get_closest_parametric_value(local_point)
+        return param
 
-        result = [-1, 0.0]
-        minDistance = np.finfo(np.float64).max
-        numEdges = len(worldSpaceVertices)
-        for edgeId in range(numEdges):
-            # project point on line
-            edge = worldSpaceVertices[(edgeId+1)%numEdges] - worldSpaceVertices[edgeId]
-            d = point - worldSpaceVertices[edgeId]
-            u2 = np.inner(edge, edge)
-            t = np.dot(d, edge) / u2
-            t = max(min(t, 1.0), 0.0)
-            projectedPoint = worldSpaceVertices[edgeId] + (t * edge)
-            normal = (point - projectedPoint)
-            dist2 = np.inner(normal, normal)
-            if dist2 < minDistance:
-                minDistance = dist2
-                result = [edgeId, t]
+    def get_point_from_parametric_value(self, param):
+        local_point = self.convex_hull.get_point_from_parametric_value(param)
+        R = self.get_rotation_matrix()
+        return np.matmul(local_point, R) + self.position
 
-        return result
-
-    def getPointFromParametricValues(self, parametricValues):
-         # TODO : CALL CONVEX_HULL
-        worldSpaceVertices = self.get_vertices(False)
-        numEdges = len(worldSpaceVertices)
-        edgeId = parametricValues[0]
-        if edgeId == -1: # a single point
-            return worldSpaceVertices[0]
-        else:
-            A = worldSpaceVertices[edgeId]
-            B = worldSpaceVertices[(edgeId+1)%numEdges]
-            t = parametricValues[1]
-            return A * (1.0 - t) + B * t
-
-        return None
-
-    def getNormalFromParametricValues(self, parametricValues):
-         # TODO : CALL CONVEX_HULL
-        worldSpaceVertices = self.get_vertices(False)
-        numEdges = len(worldSpaceVertices)
-        edgeId = parametricValues[0]
-        if edgeId >= 0:
-
-            # Compute the normal of the convex hull in local space
-            A = self.convex_hull.counter_clockwise_points[edgeId]
-            B = self.convex_hull.counter_clockwise_points[(edgeId+1)%numEdges]
-            t = parametricValues[1]
-            p = A * (1.0 - t) + B * t
-            n = [A[1] - B[1], A[0] - B[0]]
-            n /= np.linalg.norm(n)
-
-            dot = n[0] * p[0] + n[1] * p[1]
-            if (dot < 0.0):
-                n[0] *= -1.0
-                n[1] *= -1.0
-
-            # Transform the local space normal to world space normal
-            R = self.get_matrix()
-            n = np.matmul(n, R)
-
-            return n
-
-        return [0.0, 0.0]
+    def get_normal_from_parametric_value(self, param):
+        local_normal = self.convex_hull.get_normal_from_parametric_value(param)
+        R = self.get_rotation_matrix()
+        return np.matmul(local_normal, R)
 
     def is_inside(self, point):
         '''
         Returns whether or not the point is inside the kinematic
         '''
-        R = self.get_inverse_matrix()
-        local_point = np.matmul(point - self.position, R)
+        inv_R = self.get_inverse_rotation_matrix()
+        local_point = np.matmul(point - self.position, inv_R)
         return self.convex_hull.is_inside(local_point)

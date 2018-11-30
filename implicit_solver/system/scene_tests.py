@@ -102,7 +102,7 @@ def create_wire_scene():
     kinematic_collision(scene, wire, collider, stiffness=1000.0, damping=0.0)
 
     # Add Metadata
-    add_render_prefs(wire, ['co', 0])
+    add_render_prefs(wire, ['co', 1])
     add_render_prefs(edge_condiction, ['m-', 1])
     add_render_prefs(wire_bending_condition, ['m-', 1])
 
