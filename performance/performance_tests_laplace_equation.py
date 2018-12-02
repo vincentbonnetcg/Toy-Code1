@@ -1,6 +1,19 @@
 """
 @author: Vincent Bonnet
-@description : Evaluate CPU and stuff
+@description : Solve Laplace's Equation on CPU and GPU using Jacobi Method
+    Jacobi method solves Ax=b where
+    A contains the coefficient of the discrete laplace operator
+    0 -1  0
+    -1 4 -1
+    0 -1  0
+    x is the unknown discretized function (array)
+    b is equal to zero
+    By definition, The jacobi iteration is :
+    xi(k+1) = 1/aii * (bi - sum(aij * xj(k)) 'where j!=i')
+    because b is a zero array and aii reference the coefficient 4
+    xi(k+1) = 1/4 * (- sum(aij * xj(k)) 'for j!=i')
+    and aij are -1 for j!=i
+    => xi(k+1) = 1/4 * (sum(xj(k)) 'for j!=i')
 """
 
 import time
@@ -8,7 +21,6 @@ import math
 import numpy as np
 from numba import njit, cuda, vectorize, prange, float32
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 
 '''
  Global Parameters
@@ -37,21 +49,6 @@ def create_domain(num_nodes=64):
  CPU Methods (Python and Numba)
 '''
 def jacobi_solver(x, next_x):
-    '''
-    Jacobi method solves Ax=b where
-    A contains the coefficient of the discrete laplace operator
-    0 -1  0
-    -1 4 -1
-    0 -1  0
-    x is the unknown discretized function (array)
-    b is equal to zero
-    By definition, The jacobi iteration is :
-    xi(k+1) = 1/aii * (bi - sum(aij * xj(k)) 'where j!=i')
-    because b is a zero array and aii reference the coefficient 4
-    xi(k+1) = 1/4 * (- sum(aij * xj(k)) 'for j!=i')
-    and aij are -1 for j!=i
-    => xi(k+1) = 1/4 * (sum(xj(k)) 'for j!=i')
-    '''
     num_dof_x = x.shape[0]
     num_dof_y = x.shape[1]
 
