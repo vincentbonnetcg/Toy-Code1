@@ -68,13 +68,13 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![Array_Numba](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/performance_test_array.png)<br>
 
-### Stencil Operation
+### Stencil Operations
 
-#### Solve Laplace Equation
+#### Laplace's Equation
 Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
 ![Laplace_Numba](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/performance_test_laplace_equation.png)<br>
 
-#### Solve Cellular Automata and Image Processing
+#### Cellular Automata and Image Processing
 ![Automata_Numba](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/numba_cellularAutomata.gif)<br>
 
 [1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.<br>
