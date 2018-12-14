@@ -63,6 +63,54 @@ def kinematic_collision(scene, dynamic, kinematic, stiffness, damping):
     scene.addCondition(condition)
     return condition
 
+def create_multi_wire_scene():
+    '''
+    Creates a scene with a wire attached to a kinematic object
+    '''
+    # wire
+    wires = []
+    for i in range(6):
+        x = -2.0 + (i * 0.25)
+        wire_shape = core.WireShape([x, 1.5], [x, -1.5] , WIRE_NUM_SEGMENTS)
+        wire = objects.Dynamic(wire_shape, PARTICLE_MASS)
+        wires.append(wire)
+
+    # moving anchor and animation
+    moving_anchor_shape = core.RectangleShape(min_x = -2.0, min_y = 1.5,
+                                              max_x = 0.0, max_y =2.0)
+
+    moving_anchor = objects.Kinematic(moving_anchor_shape)
+    moving_anchor_position = moving_anchor.position
+    moving_anchor_animation = lambda time: [[moving_anchor_position[0] + time,
+                                             moving_anchor_position[1]], 0.0]
+    moving_anchor.animationFunc = moving_anchor_animation
+
+    # collider
+    collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
+                                       WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
+    collider = objects.Kinematic(collider_shape)
+    collider.rotation = 45
+
+    scene = system.Scene(GRAVITY)
+
+    # Populate Scene with data and conditions
+    for wire in wires:
+        scene.addDynamic(wire)
+        scene.addKinematic(moving_anchor)
+        scene.addKinematic(collider)
+
+        edge_condiction = edge_constraint(scene, wire, stiffness=100.0, damping=0.0)
+        wire_bending_condition = wire_bending_constraint(scene, wire, stiffness=0.2, damping=0.0)
+        kinematic_attachment(scene, wire, moving_anchor, stiffness=100.0, damping=0.0, distance=0.1)
+        kinematic_collision(scene, wire, collider, stiffness=1000.0, damping=0.0)
+
+        # Add Metadata to visualize the data and constraints
+        add_render_prefs(wire, ['co', 1])
+        add_render_prefs(edge_condiction, ['m-', 1])
+        add_render_prefs(wire_bending_condition, ['m-', 1])
+
+    return scene
+
 def create_wire_scene():
     '''
     Creates a scene with a wire attached to a kinematic object
