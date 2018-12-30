@@ -28,11 +28,11 @@ class BaseSolver:
     @profiler.timeit
     def solveStep(self, scene, dt):
         self.currentTime += dt
-        self.preStep(scene, self.currentTime)
+        self.preStep(scene, self.currentTime, dt)
         self.step(scene, dt)
 
-    def preStep(self, scene, time):
-        scene.updateKinematics(time)
+    def preStep(self, scene, time, dt):
+        scene.updateKinematics(time, dt)
         scene.updateConditions(False) # Update dynamic conditions
 
     def step(self, scene, dt):
