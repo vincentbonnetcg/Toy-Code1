@@ -30,9 +30,6 @@ class Scene:
         self.kinematic_animations.append(kinematic_anim)
 
     def updateKinematics(self, time, dt = 0.0):
-        if dt == 0.0:
-            return
-
         for index, kinematic in enumerate(self.kinematics):
             animation = self.kinematic_animations[index]
             if animation:
