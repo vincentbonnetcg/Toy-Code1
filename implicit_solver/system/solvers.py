@@ -10,35 +10,41 @@ import scipy.sparse.linalg
 from tools import profiler
 from system.sparse_matrix import BSRSparseMatrix, DebugSparseMatrix
 
-'''
- Base Solver
-'''
-class BaseSolver:
-    def __init__(self):
-        self.currentTime = 0.0
+class Context:
+    '''
+    Context to store time, time stepping, etc.
+    '''
+    def __init__(self, time = 0.0, dt = 1.0):
+        self.time = time # current time in seconds
+        self.dt = dt # time step in seconds
 
-    def initialize(self, scene):
+class BaseSolver:
+    '''
+    Base Solver
+    '''
+    def __init__(self):
+        pass
+
+    def initialize(self, scene, context):
         '''
         Initialize the solver and the data used by the solver
         '''
-        self.currentTime = 0.0
-        scene.updateKinematics(self.currentTime)
+        scene.updateKinematics(context.time)
         scene.updateConditions(True) # Update static conditions
 
     @profiler.timeit
-    def solveStep(self, scene, dt):
-        self.currentTime += dt
-        self.preStep(scene, self.currentTime, dt)
-        self.step(scene, dt)
+    def solveStep(self, scene, context):
+        self.preStep(scene, context)
+        self.step(scene, context)
 
-    def preStep(self, scene, time, dt):
-        scene.updateKinematics(time, dt)
+    def preStep(self, scene, context):
+        scene.updateKinematics(context.time, context.dt)
         scene.updateConditions(False) # Update dynamic conditions
 
-    def step(self, scene, dt):
-        self.prepareSystem(scene, dt)
-        self.assembleSystem(scene, dt)
-        self.solveSystem(scene, dt)
+    def step(self, scene, context):
+        self.prepareSystem(scene, context.dt)
+        self.assembleSystem(scene, context.dt)
+        self.solveSystem(scene, context.dt)
 
     def prepareSystem(self, scene, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'prepareSystem'")
@@ -49,18 +55,19 @@ class BaseSolver:
     def solveSystem(self, scene, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solveSystem'")
 
-'''
- Implicit Step
- Solve :
-     (M - h * df/dv - h^2 * df/dx) * deltaV = h * (fo + h * df/dx * v0)
-       A = (M - h^2 * df/dx)
-       b = h * (fo + h * df/dx * v0)
-     => A * deltaV = b <=> deltaV = A^-1 * b
-     deltaX = (v0 + deltaV) * h
-     v = v + deltaV
-     x = x + deltaX
-'''
+
 class ImplicitSolver(BaseSolver):
+    '''
+     Implicit Step
+     Solve :
+         (M - h * df/dv - h^2 * df/dx) * deltaV = h * (fo + h * df/dx * v0)
+           A = (M - h^2 * df/dx)
+           b = h * (fo + h * df/dx * v0)
+         => A * deltaV = b <=> deltaV = A^-1 * b
+         deltaX = (v0 + deltaV) * h
+         v = v + deltaV
+         x = x + deltaX
+    '''
     def __init__(self):
         BaseSolver.__init__(self)
         # used to store system Ax=b
@@ -149,10 +156,10 @@ class ImplicitSolver(BaseSolver):
                 dynamic.v[i] += deltaV
                 dynamic.x[i] += deltaX
 
-'''
- Semi Implicit Step
-'''
 class SemiImplicitSolver(BaseSolver):
+    '''
+     Semi Implicit Step
+    '''
     def __init__(self):
         BaseSolver.__init__(self)
 
