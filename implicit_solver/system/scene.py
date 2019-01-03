@@ -1,18 +1,18 @@
 """
 @author: Vincent Bonnet
 @description : a scene contains objects/constraints/kinematics
-The scene is a storage for all the data used by the solver
+The scene stores data in SI unit which are used by the solver
 """
 
 import itertools
 
 class Scene:
-    def __init__(self, gravity):
+    def __init__(self):
         self.dynamics = [] # dynamic objects
         self.kinematics = [] # kinematic objects
-        self.conditions = [] # create static or dynamic constraints
         self.kinematic_animations = [] # animation of kinematic objects
-        self.gravity = gravity
+        self.conditions = [] # create static or dynamic constraints
+        self.forces = []
 
     # Data Functions #
     def addDynamic(self, dynamic):
@@ -51,10 +51,14 @@ class Scene:
             if condition.is_static() is static:
                 condition.update_constraints(self)
 
-    # Iterators
     def getConstraintsIterator(self):
         values = []
         for condition in self.conditions:
             values.append(condition.constraints)
 
         return itertools.chain.from_iterable(values)
+
+    # Force Functions #
+    def addForce(self, force):
+        self.forces.append(force)
+

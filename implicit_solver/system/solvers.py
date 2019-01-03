@@ -31,6 +31,7 @@ class BaseSolver:
         '''
         scene.updateKinematics(context.time)
         scene.updateConditions(True) # Update static conditions
+        scene.updateConditions(False) # Update dynamic conditions
 
     @profiler.timeit
     def solveStep(self, scene, context):
@@ -76,13 +77,15 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def prepareSystem(self, scene, dt):
-        # Set gravity
+        # Reset forces
         for dynamic in scene.dynamics:
             dynamic.f.fill(0.0)
-            for i in range(dynamic.num_particles):
-                dynamic.f[i] += np.multiply(scene.gravity, dynamic.m[i])
 
-        # Prepare forces and jacobians
+        # Prepare external forces
+        for force in scene.forces:
+            force.apply_forces(scene)
+
+        # Prepare constraints (forces and jacobians)
         constraintsIterator = scene.getConstraintsIterator()
         for constraint in constraintsIterator:
             constraint.computeForces(scene)
@@ -165,16 +168,16 @@ class SemiImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def prepareSystem(self, scene, dt):
-        # Set gravity
+        # Reset forces
         for dynamic in scene.dynamics:
             dynamic.f.fill(0.0)
-            for i in range(dynamic.numParticles):
-                dynamic.f[i] += np.multiply(scene.gravity, dynamic.m[i])
 
-        # Get iterator on constraint to access from objects and scene at once
+        # Apply external forces
+        for force in scene.forces:
+            force.apply_forces(scene)
+
+        # Apply internal forces
         constraintsIterator = scene.getConstraintsIterator()
-
-        # Compute and add internal forces
         for constraint in constraintsIterator:
             constraint.computeForces(scene)
             constraint.applyForces(scene)

@@ -6,7 +6,6 @@
 import objects
 import system
 import core
-import constraints as cn
 import math
 
 '''
@@ -63,6 +62,11 @@ def kinematic_collision(scene, dynamic, kinematic, stiffness, damping):
     scene.addCondition(condition)
     return condition
 
+def gravity_acceleration(scene, gravity):
+    force = objects.Gravity(gravity)
+    scene.addForce(force)
+    return force
+
 def create_multi_wire_scene():
     '''
     Creates a scene with a wire attached to a kinematic object
@@ -90,7 +94,7 @@ def create_multi_wire_scene():
     collider = objects.Kinematic(collider_shape)
     collider.rotation = 45
 
-    scene = system.Scene(GRAVITY)
+    scene = system.Scene()
 
     # Populate Scene with data and conditions
     for wire in wires:
@@ -102,6 +106,7 @@ def create_multi_wire_scene():
         wire_bending_condition = wire_bending_constraint(scene, wire, stiffness=0.2, damping=0.0)
         kinematic_attachment(scene, wire, moving_anchor, stiffness=100.0, damping=0.0, distance=0.1)
         kinematic_collision(scene, wire, collider, stiffness=1000.0, damping=0.0)
+        gravity_acceleration(scene, GRAVITY)
 
         # Add Metadata to visualize the data and constraints
         add_render_prefs(wire, ['co', 1])
@@ -135,7 +140,7 @@ def create_wire_scene():
     collider = objects.Kinematic(collider_shape)
 
 
-    scene = system.Scene(GRAVITY)
+    scene = system.Scene()
 
     # Populate Scene with data and conditions
     scene.addDynamic(wire)
@@ -146,6 +151,7 @@ def create_wire_scene():
     wire_bending_condition = wire_bending_constraint(scene, wire, stiffness=0.2, damping=0.0)
     kinematic_attachment(scene, wire, moving_anchor, stiffness=100.0, damping=0.0, distance=0.1)
     kinematic_collision(scene, wire, collider, stiffness=1000.0, damping=0.0)
+    gravity_acceleration(scene, GRAVITY)
 
     # Add Metadata
     add_render_prefs(wire, ['co', 1])
@@ -183,7 +189,7 @@ def create_beam_scene():
     right_anchor_animation = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], 0.0]
 
     # Populate Scene with data and conditions
-    scene = system.Scene(GRAVITY)
+    scene = system.Scene()
     scene.addDynamic(beam)
     scene.addDynamic(wire)
     scene.addKinematic(left_anchor, left_anchor_animation)
@@ -195,6 +201,7 @@ def create_beam_scene():
     kinematic_attachment(scene, beam, right_anchor, stiffness=100.0, damping=0.0, distance=0.1)
     kinematic_attachment(scene, beam, left_anchor, stiffness=100.0, damping=0.0, distance=0.1)
     dynamic_attachment(scene, beam, wire, stiffness=100.0, damping=0.0, distance=0.001)
+    gravity_acceleration(scene, GRAVITY)
 
     # Add Metadata
     add_render_prefs(beam, ['go', 1])

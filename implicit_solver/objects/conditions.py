@@ -32,7 +32,7 @@ class Condition:
         self.constraints.clear()
         self.add_constraints(scene)
 
-    def __add_constraints(self, scene):
+    def add_constraints(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'add_constraints'")
 
 class KinematicCollisionCondition(Condition):
