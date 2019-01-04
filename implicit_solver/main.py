@@ -22,10 +22,9 @@ def main():
     # Create scene, solver and context
     scene = system.create_wire_scene()
     solver = system.ImplicitSolver()
+    #solver = system.SemiImplicitSolver() # only for debugging - unstable
     context = system.Context(time = 0.0, dt = FRAME_TIMESTEP / NUM_SUBSTEP)
     solver.initialize(scene, context)
-    # below only debugging - unstable with high stiffness
-    #solver = sl.SemiImplicitSolver()
 
     # Creates render and profiler
     render = tools.Render()

@@ -24,7 +24,7 @@ class Condition:
         '''
         Returns whether or not the created constraints are dynamic or static
         Dynamic constraints are recreated every substep
-        Static constraints are created at the first frame and valid for the whole simulation
+        Static constraints are created at initialisation and valid for the whole simulation
         '''
         return True
 

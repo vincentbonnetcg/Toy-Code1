@@ -37,6 +37,7 @@ class BaseSolver:
     def solveStep(self, scene, context):
         self.preStep(scene, context)
         self.step(scene, context)
+        self.postStep(scene, context)
 
     def preStep(self, scene, context):
         scene.updateKinematics(context.time, context.dt)
@@ -46,6 +47,9 @@ class BaseSolver:
         self.prepareSystem(scene, context.dt)
         self.assembleSystem(scene, context.dt)
         self.solveSystem(scene, context.dt)
+
+    def postStep(self, scene, context):
+        pass
 
     def prepareSystem(self, scene, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'prepareSystem'")
@@ -190,6 +194,6 @@ class SemiImplicitSolver(BaseSolver):
     def solveSystem(self, scene, dt):
         # Integrator
         for dynamic in scene.dynamics:
-            for i in range(dynamic.numParticles):
+            for i in range(dynamic.num_particles):
                 dynamic.v[i] += dynamic.f[i] * dynamic.im[i] * dt
                 dynamic.x[i] += dynamic.v[i] * dt
