@@ -11,7 +11,8 @@ from numba import njit
 
 class Bending(Base):
     '''
-    Describes a 2D bending constraint between three particles
+    Describes a 2D bending constraint of a thin inextensible wire
+    between three particles
     '''
     def __init__(self, stiffness, damping, dynamics, particleIds):
         Base.__init__(self, stiffness, damping, dynamics, particleIds)
@@ -78,12 +79,11 @@ def computeCurvature(x0, x1, x2):
      /  \
     x0  x2
     Compute the curvature : |dT/ds| where T is the tangent and s the surface
-    with
+    The curvature at any point along a two-dimensional curve is defined as
+    the rate of change in tangent direction θ as a function of arc length s.
+    With :
     t01 = x1 - x0 and t12 = x2 - x1
-    mid01 = (x0 + x1) * 0.5
-    mid12 = (x1 + x2) * 0.5
-    discrete curvate formula 1: |t12 - t01| / |mid12 - mid01|
-    discrete curvate formula 2: angle(t12,t01) / |mid12 - mid01|
+    Discrete curvature formula : angle(t12,t01) / ((norm(t01) + norm(t12)) * 0.5)
     '''
     t01 = x1 - x0
     t01norm = math2D.norm(t01)
@@ -92,14 +92,7 @@ def computeCurvature(x0, x1, x2):
     t12norm =  math2D.norm(t12)
     t12 /= t12norm
 
-    # Discrete curvature - Equation 1
-    # curvature in terms of change in tangents divided by the distance between edge centers
-    #mid01 = (x0 + x1) * 0.5
-    #mid12 = (x1 + x2) * 0.5
-    #curvature = math2D.norm(t12 - t01) / math2D.norm(mid12 - mid01)
-
-    # Discrete curvature - Equation 2
-    # curvature in terms of change in tangents angle divided by the arc-length
+    # Discrete curvature
     det = t01[0]*t12[1] - t01[1]*t12[0]      # determinant
     dot = t01[0]*t12[0] + t01[1]*t12[1]      # dot product
     angle = np.math.atan2(det,dot)  # atan2 return range [-pi, pi]
