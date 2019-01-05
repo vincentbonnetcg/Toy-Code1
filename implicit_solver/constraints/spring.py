@@ -96,11 +96,6 @@ class Spring(Base):
 '''
  Utility Functions
 '''
-# direction = normalized(x0-x1)
-# stretch = norm(direction)
-# A = outerProduct(direction, direction)
-# I = identity matrix
-# J =  -stiffness * [(1 - rest / stretch)(I - A) + A]
 def springStretchJacobian(x0, x1, rest, stiffness):
     direction = x0 - x1
     stretch = math2D.norm(direction)
