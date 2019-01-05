@@ -1,7 +1,7 @@
 # in __init__.py
 
-from objects.dynamics import Dynamic
-from objects.kinematics import Kinematic
+from objects.dynamic import Dynamic
+from objects.kinematic import Kinematic
 from objects.forces import Gravity
 from objects.conditions import KinematicCollisionCondition
 from objects.conditions import KinematicAttachmentCondition, DynamicAttachmentCondition

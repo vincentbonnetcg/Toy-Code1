@@ -1,6 +1,6 @@
 """
 @author: Vincent Bonnet
-@description : Kinematic objects used to support animated objects
+@description : Kinematic object describes animated objects
 """
 
 import math
@@ -10,7 +10,7 @@ from core.convex_hull import ConvexHull
 
 class Kinematic:
     '''
-    Kinematic describes the base class of a kinematic object
+    Kinematic describes an animated object
     '''
     class State:
         '''

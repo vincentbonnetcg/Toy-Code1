@@ -1,13 +1,13 @@
 """
 @author: Vincent Bonnet
-@description : Dynamic object representation
+@description : Dynamic object describes simulated objects
 """
 
 import numpy as np
 
 class Dynamic:
     '''
-    Dynamic describes the base class of a dynamic object
+    Dynamic describes a simulated object
     It contains:
     Object data:
         - num_particles
