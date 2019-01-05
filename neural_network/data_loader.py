@@ -7,8 +7,7 @@ import os
 import gzip
 from urllib import request
 import numpy as np
-from skimage import io
-import matplotlib.pyplot as plt
+
 
 class MNIST_Loader:
     '''
@@ -23,6 +22,7 @@ class MNIST_Loader:
             ]
         self.url = "http://yann.lecun.com/exdb/mnist/"
         self.download_folder = "mnist_data/"
+        self.size = (28, 28) # resolution of a single training image
 
     def download(self, force=False):
         '''
@@ -51,7 +51,7 @@ class MNIST_Loader:
         for name in self.filenames[:2]:
             full_path = self.download_folder + name[1]
             with gzip.open(full_path, 'rb') as f:
-                mnist[name[0]] = np.frombuffer(f.read(), np.uint8, offset=16).reshape(-1,28*28)
+                mnist[name[0]] = np.frombuffer(f.read(), np.uint8, offset=16).reshape(-1,self.size[0]*self.size[1])
 
         # load the labels (training and test)
         for name in self.filenames[2:]:
@@ -61,24 +61,4 @@ class MNIST_Loader:
 
         return mnist
 
-# Download and collect the numpy arraysc
-loader = MNIST_Loader()
-loader.download()
-mnist_data = loader.load_into_array()
-
-# Create an image with the first few training_images
-# Only for fun
-num_images_x = 20
-num_images_y = 5
-xpixels, ypixels = num_images_x  * 28, num_images_y * 28
-test_image = np.zeros((ypixels, xpixels), dtype=np.uint8)
-image_id = 0
-for i in range(0, num_images_x):
-    for j in range(0, num_images_y):
-        image_data = mnist_data["test_images"][image_id].reshape(28,28)
-        test_image[j*28:j*28+28,i*28:i*28+28] = image_data
-        image_id += 1
-
-fig = plt.figure(figsize=(20, 5), dpi=40)
-io.imshow(test_image, cmap='gray')
 
