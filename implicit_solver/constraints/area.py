@@ -3,9 +3,9 @@
 @description : Constraint base for the implicit solver
 """
 
-import numpy as np
 import core.differentiation as diff
 from constraints.base import Base
+import core.math_2d as math2D
 
 class Area(Base):
     '''
@@ -16,7 +16,7 @@ class Area(Base):
         x0 = dynamics[0].x[particleIds[0]]
         x1 = dynamics[1].x[particleIds[1]]
         x2 = dynamics[2].x[particleIds[2]]
-        self.restArea = computeArea(x0, x1, x2)
+        self.rest_area = math2D.area(x0, x1, x2)
 
     def getStates(self, scene):
         dynamic0 = scene.dynamics[self.dynamicIndices[0]]
@@ -33,9 +33,9 @@ class Area(Base):
     def computeForces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical forces
-        force0 = diff.numerical_jacobian(elasticAreaEnergy, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        force1 = diff.numerical_jacobian(elasticAreaEnergy, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        force2 = diff.numerical_jacobian(elasticAreaEnergy, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        force0 = diff.numerical_jacobian(elasticAreaEnergy, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        force1 = diff.numerical_jacobian(elasticAreaEnergy, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        force2 = diff.numerical_jacobian(elasticAreaEnergy, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
         # Analytic forces
         # TODO
         # Set forces
@@ -46,12 +46,12 @@ class Area(Base):
     def computeJacobians(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical jacobians (Aka Hessian of the energy)
-        dfdx00 = diff.numerical_hessian(elasticAreaEnergy, 0, 0, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx11 = diff.numerical_hessian(elasticAreaEnergy, 1, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx22 = diff.numerical_hessian(elasticAreaEnergy, 2, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx01 = diff.numerical_hessian(elasticAreaEnergy, 0, 1, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx02 = diff.numerical_hessian(elasticAreaEnergy, 0, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
-        dfdx12 = diff.numerical_hessian(elasticAreaEnergy, 1, 2, x0, x1, x2, self.restArea, self.stiffness) * -1.0
+        dfdx00 = diff.numerical_hessian(elasticAreaEnergy, 0, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        dfdx11 = diff.numerical_hessian(elasticAreaEnergy, 1, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        dfdx22 = diff.numerical_hessian(elasticAreaEnergy, 2, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        dfdx01 = diff.numerical_hessian(elasticAreaEnergy, 0, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        dfdx02 = diff.numerical_hessian(elasticAreaEnergy, 0, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        dfdx12 = diff.numerical_hessian(elasticAreaEnergy, 1, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
         # Analytic jacobians
         # TODO
         # Set jacobians
@@ -65,16 +65,9 @@ class Area(Base):
 '''
  Utility Functions
 '''
-def computeArea(x0, x1, x2):
-    u = x1 - x0 # np.subtract(x1, x0)
-    v = x2 - x0 # np.subtract(x2, x0)
-    #area = np.abs(np.cross(u, v)) * 0.5 # expensive operation => replaced with line below
-    area = np.abs(u[0]*v[1]-v[0]*u[1]) * 0.5
-    return area
-
-def elasticAreaEnergy(x0, x1, x2, restArea, stiffness):
-    area = computeArea(x0, x1, x2)
-    return 0.5 * stiffness * ((area - restArea) * (area - restArea))
+def elasticAreaEnergy(x0, x1, x2, rest_area, stiffness):
+    area = math2D.area(x0, x1, x2)
+    return 0.5 * stiffness * ((area - rest_area) * (area - rest_area))
 
 
 

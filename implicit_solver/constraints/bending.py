@@ -3,7 +3,6 @@
 @description : Bending Constraint for the implicit solver
 """
 
-import numpy as np
 from constraints.base import Base
 import core.differentiation as diff
 import core.math_2d as math2D
@@ -12,7 +11,9 @@ from numba import njit
 class Bending(Base):
     '''
     Describes a 2D bending constraint of a thin inextensible wire
-    between three particles
+    between three particles.
+    This bending is NOT the proper bending formulation and uses angle instead of curvature
+    Some instabilities when using the curvature => Need to investigate
     '''
     def __init__(self, stiffness, damping, dynamics, particleIds):
         Base.__init__(self, stiffness, damping, dynamics, particleIds)
@@ -21,7 +22,7 @@ class Bending(Base):
         x0 = dynamics[0].x[particleIds[0]]
         x1 = dynamics[1].x[particleIds[1]]
         x2 = dynamics[2].x[particleIds[2]]
-        self.restCurvature = computeCurvature(x0, x1, x2)
+        self.rest_angle = math2D.angle(x0, x1, x2)
 
     def getStates(self, scene):
         dynamic0 = scene.dynamics[self.dynamicIndices[0]]
@@ -38,9 +39,9 @@ class Bending(Base):
     def computeForces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical forces
-        force0 = diff.numerical_jacobian(elasticBendingEnergy, 0, x0, x1, x2, self.restCurvature, self.stiffness) * -1.0
-        force1 = diff.numerical_jacobian(elasticBendingEnergy, 1, x0, x1, x2, self.restCurvature, self.stiffness) * -1.0
-        force2 = diff.numerical_jacobian(elasticBendingEnergy, 2, x0, x1, x2, self.restCurvature, self.stiffness) * -1.0
+        force0 = diff.numerical_jacobian(elasticBendingEnergy, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        force1 = diff.numerical_jacobian(elasticBendingEnergy, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        force2 = diff.numerical_jacobian(elasticBendingEnergy, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         # Analytic forces
         # TODO
         # Set forces
@@ -51,12 +52,12 @@ class Bending(Base):
     def computeJacobians(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical jacobians (Aka Hessian of the energy)
-        dfdx00 = diff.numerical_hessian(elasticBendingEnergy, 0, 0, x0, x1, x2, self.restCurvature, self.stiffness) * -1.0
-        dfdx11 = diff.numerical_hessian(elasticBendingEnergy, 1, 1, x0, x1, x2, self.restCurvature, self.stiffness) * -1.0
-        dfdx22 = diff.numerical_hessian(elasticBendingEnergy, 2, 2, x0, x1, x2, self.restCurvature, self.stiffness) * -1.0
-        dfdx01 = diff.numerical_hessian(elasticBendingEnergy, 0, 1, x0, x1, x2, self.restCurvature, self.stiffness) * -1.0
-        dfdx02 = diff.numerical_hessian(elasticBendingEnergy, 0, 2, x0, x1, x2, self.restCurvature, self.stiffness) * -1.0
-        dfdx12 = diff.numerical_hessian(elasticBendingEnergy, 1, 2, x0, x1, x2, self.restCurvature, self.stiffness) * -1.0
+        dfdx00 = diff.numerical_hessian(elasticBendingEnergy, 0, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        dfdx11 = diff.numerical_hessian(elasticBendingEnergy, 1, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        dfdx22 = diff.numerical_hessian(elasticBendingEnergy, 2, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        dfdx01 = diff.numerical_hessian(elasticBendingEnergy, 0, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        dfdx02 = diff.numerical_hessian(elasticBendingEnergy, 0, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        dfdx12 = diff.numerical_hessian(elasticBendingEnergy, 1, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         # Analytic jacobians
         # TODO
         # Set jacobians
@@ -71,38 +72,7 @@ class Bending(Base):
  Utility Functions
 '''
 @njit
-def computeCurvature(x0, x1, x2):
-    '''
-    Connect three points :
-      x1
-      /\
-     /  \
-    x0  x2
-    Compute the curvature : |dT/ds| where T is the tangent and s the surface
-    The curvature at any point along a two-dimensional curve is defined as
-    the rate of change in tangent direction θ as a function of arc length s.
-    With :
-    t01 = x1 - x0 and t12 = x2 - x1
-    Discrete curvature formula : angle(t12,t01) / ((norm(t01) + norm(t12)) * 0.5)
-    '''
-    t01 = x1 - x0
-    t01norm = math2D.norm(t01)
-    t01 /= t01norm
-    t12 = x2 - x1
-    t12norm =  math2D.norm(t12)
-    t12 /= t12norm
-
-    # Discrete curvature
-    det = t01[0]*t12[1] - t01[1]*t12[0]      # determinant
-    dot = t01[0]*t12[0] + t01[1]*t12[1]      # dot product
-    angle = np.math.atan2(det,dot)  # atan2 return range [-pi, pi]
-    #curvature = angle / ((t01norm + t12norm) * 0.5)
-    curvature = angle # very unstable when taking into consideration ((t01norm + t12norm) * 0.5)
-
-    return curvature
-
-@njit
-def elasticBendingEnergy(x0, x1, x2, restCurvature, stiffness):
-    curvature = computeCurvature(x0, x1, x2)
+def elasticBendingEnergy(x0, x1, x2, rest_angle, stiffness):
+    angle = math2D.angle(x0, x1, x2)
     arc_length = math2D.norm(x1 - x0) + math2D.norm(x2 - x1) * 0.5
-    return 0.5 * stiffness * ((curvature - restCurvature) * (curvature - restCurvature)) * arc_length
+    return 0.5 * stiffness * ((angle - rest_angle) * (angle - rest_angle)) * arc_length

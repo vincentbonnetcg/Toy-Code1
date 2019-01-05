@@ -9,13 +9,13 @@ class Base:
     '''
     Describes the constraint base
     '''
-    def __init__(self, stiffness, damping, dynamics, particlesIds):
-        N = len(particlesIds) # number of particles involved in the constraint
+    def __init__(self, stiffness, damping, dynamics, particles_ids):
+        N = len(particles_ids) # number of particles involved in the constraint
         self.stiffness = stiffness
         self.damping = damping
         self.f = np.zeros((N, 2))
         # Particle identifications
-        self.localIds = np.copy(particlesIds) # local particle indices
+        self.localIds = np.copy(particles_ids) # local particle indices
         self.dynamicIndices = np.zeros(N, dtype=int) # indices of the dynamic objects
         self.globalIds = np.zeros(N, dtype=int)
         for i in range(N):
