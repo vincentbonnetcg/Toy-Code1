@@ -156,12 +156,14 @@ class ImplicitSolver(BaseSolver):
         deltaVArray = cgResult[0]
         # Advect
         for dynamic in scene.dynamics:
+            v = dynamic.v
+            x = dynamic.x
             for i in range(dynamic.num_particles):
                 ids = dynamic.global_offset + i
                 deltaV = [float(deltaVArray[ids*2]), float(deltaVArray[ids*2+1])]
-                deltaX = (dynamic.v[i] + deltaV) * dt
-                dynamic.v[i] += deltaV
-                dynamic.x[i] += deltaX
+                deltaX = (v[i] + deltaV) * dt
+                v[i] += deltaV
+                x[i] += deltaX
 
 class SemiImplicitSolver(BaseSolver):
     '''
