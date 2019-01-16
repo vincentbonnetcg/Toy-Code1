@@ -41,7 +41,7 @@ class Dynamic:
         self.v = self.data.v # velocity
         self.m = self.data.m # mass
         self.im = self.data.im # inverse mass
-        self.f = self.data.f # forces
+        self.f = self.data.f # force
 
         # Initialize particle connectivities
         self.edge_ids = np.copy(shape.edge.vertex_ids)
