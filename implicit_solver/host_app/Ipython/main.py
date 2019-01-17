@@ -5,6 +5,7 @@
 
 import tools
 import system
+import render as rn
 
 '''
  Global Constants
@@ -27,7 +28,7 @@ def main():
     solver.initialize(scene, context)
 
     # Creates render and profiler
-    render = tools.Render()
+    render = rn.Render()
     render.setRenderFolderPath(RENDER_FOLDER_PATH)
     profiler = tools.Profiler()
 
