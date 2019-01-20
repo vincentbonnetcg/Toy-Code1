@@ -6,6 +6,7 @@
 import tools
 import system
 import render as rn
+import host_app.ipc as ipc
 
 '''
  Global Constants
@@ -17,15 +18,14 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 
 def main():
-    '''
-    Creates a scene and a solver + solve
-    '''
-    # Create scene, solver and context
+    # Creates scene, solver and context
     scene = system.create_wire_scene()
     solver = system.ImplicitSolver()
-    #solver = system.SemiImplicitSolver() # only for debugging - unstable
     context = system.Context(time = 0.0, dt = FRAME_TIMESTEP / NUM_SUBSTEP)
-    solver.initialize(scene, context)
+
+    # Creates client
+    client = ipc.Client(scene, solver, context)
+    client.initialize()
 
     # Creates render and profiler
     render = rn.Render()
@@ -38,10 +38,9 @@ def main():
 
         if frame_id > 0:
             for _ in range(NUM_SUBSTEP):
-                context.time += context.dt
-                solver.solveStep(scene, context)
+                client.step()
 
-        render.showCurrentFrame(solver, scene, frame_id)
+        render.showCurrentFrame(client.get_solver(), client.get_scene(), frame_id)
         render.exportCurrentFrame(str(frame_id).zfill(4) + " .png")
 
         profiler.printLogs()
