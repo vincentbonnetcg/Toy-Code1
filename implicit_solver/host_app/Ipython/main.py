@@ -23,8 +23,9 @@ def main():
     solver = system.ImplicitSolver()
     context = system.Context(time = 0.0, dt = FRAME_TIMESTEP / NUM_SUBSTEP)
 
-    # Creates client
+    # Creates client and connect to server
     client = ipc.Client(scene, solver, context)
+    client.connect_to_external_server(host = "localhost", port = 5050)
     client.initialize()
 
     # Creates render and profiler
@@ -44,6 +45,9 @@ def main():
         render.exportCurrentFrame(str(frame_id).zfill(4) + " .png")
 
         profiler.printLogs()
+
+    # Disconnect client from server
+    client.disconnect_from_external_server()
 
 if __name__ == '__main__':
     main()

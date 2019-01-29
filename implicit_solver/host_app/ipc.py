@@ -2,6 +2,8 @@
 @author: Vincent Bonnet
 @description : Inter-process communication between client and server via a socket
 """
+import socket
+import sys
 
 class BundleIPC:
     '''
@@ -37,26 +39,52 @@ class BundleIPC:
     def get_solver(self):
         return self.solver
 
+    def get_context(self):
+        return self.context
+
 class Client(BundleIPC):
     '''
     Client can store a bundle and/or get bundle from server
     '''
     def __init__(self, scene = None, solver = None, context = None):
         BundleIPC.__init__(self, scene, solver, context)
+        self.socket = None
 
-    def connect_to_external_server(self, host = "127.0.0.1", port = 5050):
-        # TODO : connect to a solver from another process
-        pass
+    def is_connected(self):
+        return self.socket is not None
+
+    def connect_to_external_server(self, host = "localhost", port = 5050):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.socket.connect((host, port))
+        except:
+            self.socket = None
+            print("Client IPC : Connection error:", sys.exc_info()[0])
+            return False
+
+        print("Client ICP connected to Server ICP on",self.socket.getpeername())
+
+        return True
+
+    def disconnect_from_external_server(self):
+        if self.is_connected():
+            message = 'exit'
+            self.socket.send(message.encode())
+            self.socket.close()
 
     def initialize(self):
-        if not super().initialize():
-            # TODO : send request to server
-            pass
+        if super().is_defined():
+            return super().initialize()
+
+        # TODO : send request to server
+        return False
 
     def step(self):
-        if not super().step():
-            # TODO : send request to server
-            pass
+        if super().is_defined():
+            return super().step()
+
+        # TODO : send request to server
+        return False
 
     def get_scene(self):
         if super().is_defined():
@@ -72,13 +100,10 @@ class Client(BundleIPC):
         # TODO : send request to server
         return None
 
-class Server(BundleIPC):
-    '''
-    Server stores the data and solver informations
-    '''
-    def __init__(self, scene = None, solver = None, context = None):
-        BundleIPC.__init__(self, scene, solver, context)
+    def get_context(self):
+        if super().is_defined():
+            return self.solver
 
-    def create_server(self, host = "127.0.0.1", port = 5050):
-        pass
+        # TODO : send request to server
+        return None
 
