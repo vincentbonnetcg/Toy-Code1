@@ -11,21 +11,23 @@ import host_app.ipc as ipc
 '''
  Global Constants
 '''
-NUM_FRAME = 100
+START_TIME = 0
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
+NUM_FRAMES = 100
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 
 def main():
     # Creates scene, solver and context
+    context = system.Context(time = START_TIME, frame_dt = FRAME_TIMESTEP,
+                             num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
     scene = system.create_wire_scene()
     solver = system.ImplicitSolver()
-    context = system.Context(time = 0.0, dt = FRAME_TIMESTEP / NUM_SUBSTEP)
 
     # Creates client and connect to server
     client = ipc.Client(scene, solver, context)
-    client.connect_to_external_server(host = "localhost", port = 5050)
+    #client.connect_to_external_server(host = "localhost", port = 5050)
     client.initialize()
 
     # Creates render and profiler
@@ -34,7 +36,7 @@ def main():
     profiler = tools.Profiler()
 
     # Simulate frames
-    for frame_id in range(0, NUM_FRAME+1):
+    for frame_id in range(NUM_FRAMES):
         profiler.clearLogs()
 
         if frame_id > 0:

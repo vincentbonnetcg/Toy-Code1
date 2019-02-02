@@ -14,9 +14,14 @@ class Context:
     '''
     Context to store time, time stepping, etc.
     '''
-    def __init__(self, time = 0.0, dt = 1.0):
-        self.time = time # current time in seconds
-        self.dt = dt # time step in seconds
+    def __init__(self, time = 0.0, frame_dt = 1.0/24.0, num_substep = 4, num_frames = 100):
+        self.time = time # current time (in seconds)
+        self.start_time = time # start time is the current time (in seconds)
+        self.end_time = time + (num_frames * frame_dt)
+        self.frame_dt = frame_dt
+        self.num_substep = num_substep
+        self.dt = frame_dt / num_substep # time step for a frame (in seconds)
+        self.num_frames = num_frames
 
 class BaseSolver:
     '''
