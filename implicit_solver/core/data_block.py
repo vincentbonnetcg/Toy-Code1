@@ -77,10 +77,10 @@ class DataBlock:
 
     def __getattr__(self, item):
         '''
-        Access a specific field
+        Access a specific field from data
         '''
-        if self.data is None:
-            raise AttributeError
+        if item == "data" or self.data is None:
+           raise AttributeError
 
         if item in self.dtype_dict['names']:
             field_index = self.dtype_dict['names'].index(item)
