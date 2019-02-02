@@ -14,16 +14,17 @@ import host_app.ipc as ipc
 START_TIME = 0
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
-NUM_FRAMES = 100
+NUM_FRAMES = 10
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 
 def main():
     # Creates scene, solver and context
+    solver = system.ImplicitSolver()
     context = system.Context(time = START_TIME, frame_dt = FRAME_TIMESTEP,
                              num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
-    scene = system.create_wire_scene()
-    solver = system.ImplicitSolver()
+    scene = system.create_wire_scene(context)
+
 
     # Creates client and connect to server
     client = ipc.Client(scene, solver, context)

@@ -10,7 +10,7 @@ class Scene:
     def __init__(self):
         self.dynamics = [] # dynamic objects
         self.kinematics = [] # kinematic objects
-        self.kinematic_animations = [] # animation of kinematic objects
+        self.animators = [] # animators for kinematic objects
         self.conditions = [] # create static or dynamic constraints
         self.forces = []
 
@@ -24,16 +24,16 @@ class Scene:
         dynamic.set_indexing(index, offset)
         self.dynamics.append(dynamic)
 
-    def addKinematic(self, kinematic, kinematic_anim = None):
+    def addKinematic(self, kinematic, animator = None):
         kinematic.set_indexing(index = (len(self.kinematics)))
         self.kinematics.append(kinematic)
-        self.kinematic_animations.append(kinematic_anim)
+        self.animators.append(animator)
 
     def updateKinematics(self, time, dt = 0.0):
         for index, kinematic in enumerate(self.kinematics):
-            animation = self.kinematic_animations[index]
+            animation = self.animators[index]
             if animation:
-                position, rotation = animation(time)
+                position, rotation = animation.get_value(time)
                 kinematic.state.update(position, rotation, dt)
 
     def numParticles(self):

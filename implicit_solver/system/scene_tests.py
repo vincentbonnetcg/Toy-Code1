@@ -67,7 +67,7 @@ def gravity_acceleration(scene, gravity):
     scene.addForce(force)
     return force
 
-def create_multi_wire_scene():
+def create_multi_wire_scene(context):
     '''
     Creates a scene with a wire attached to a kinematic object
     '''
@@ -85,8 +85,10 @@ def create_multi_wire_scene():
 
     moving_anchor = objects.Kinematic(moving_anchor_shape)
     moving_anchor_position = moving_anchor.state.position
-    moving_anchor_animation = lambda time: [[moving_anchor_position[0] + time,
-                                             moving_anchor_position[1]], 0.0]
+    func = lambda time: [[moving_anchor_position[0] + time, 
+                          moving_anchor_position[1]], 0.0]
+
+    moving_anchor_animator = objects.Animator(func, context)
 
     # collider
     collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
@@ -99,7 +101,7 @@ def create_multi_wire_scene():
     # Populate Scene with data and conditions
     for wire in wires:
         scene.addDynamic(wire)
-        scene.addKinematic(moving_anchor, moving_anchor_animation)
+        scene.addKinematic(moving_anchor, moving_anchor_animator)
         scene.addKinematic(collider)
 
         edge_condiction = edge_constraint(scene, wire, stiffness=100.0, damping=0.0)
@@ -115,7 +117,7 @@ def create_multi_wire_scene():
 
     return scene
 
-def create_wire_scene():
+def create_wire_scene(context):
     '''
     Creates a scene with a wire attached to a kinematic object
     '''
@@ -128,23 +130,23 @@ def create_wire_scene():
                                               WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
 
     moving_anchor = objects.Kinematic(moving_anchor_shape)
-
     moving_anchor_position = moving_anchor.state.position
     decay_rate = 0.6
-    moving_anchor_animation = lambda time: [[moving_anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
-                                             moving_anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
+    func = lambda time: [[moving_anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
+                          moving_anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
+
+    moving_anchor_animator = objects.Animator(func, context)
 
     # collider
     collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
                                        WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
     collider = objects.Kinematic(collider_shape)
 
-
     scene = system.Scene()
 
     # Populate Scene with data and conditions
     scene.addDynamic(wire)
-    scene.addKinematic(moving_anchor,moving_anchor_animation)
+    scene.addKinematic(moving_anchor, moving_anchor_animator)
     scene.addKinematic(collider)
 
     edge_condiction = edge_constraint(scene, wire, stiffness=100.0, damping=0.0)
@@ -160,7 +162,7 @@ def create_wire_scene():
 
     return scene
 
-def create_beam_scene():
+def create_beam_scene(context):
     '''
     Creates a scene with a beam and a wire
     '''
@@ -179,21 +181,23 @@ def create_beam_scene():
                                             BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     left_anchor = objects.Kinematic(left_anchor_shape)
     l_pos = left_anchor.state.position
-    left_anchor_animation = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], 0.0]
+    func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], 0.0]
+    left_anchor_animator = objects.Animator(func, context)
 
     # right anchor and animation
     right_anchor_shape = core.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
                                              BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
     right_anchor = objects.Kinematic(right_anchor_shape)
     r_pos = right_anchor.state.position
-    right_anchor_animation = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], 0.0]
+    func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], 0.0]
+    right_anchor_animator = objects.Animator(func, context)
 
     # Populate Scene with data and conditions
     scene = system.Scene()
     scene.addDynamic(beam)
     scene.addDynamic(wire)
-    scene.addKinematic(left_anchor, left_anchor_animation)
-    scene.addKinematic(right_anchor, right_anchor_animation)
+    scene.addKinematic(left_anchor, left_anchor_animator)
+    scene.addKinematic(right_anchor, right_anchor_animator)
 
     wire_edge_condition = edge_constraint(scene, wire, stiffness=10.0, damping=0.0)
     beam_edge_condition = edge_constraint(scene, beam, stiffness=20.0, damping=0.0)
