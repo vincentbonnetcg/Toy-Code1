@@ -14,7 +14,7 @@ import host_app.ipc as ipc
 START_TIME = 0
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
-NUM_FRAMES = 10
+NUM_FRAMES = 100 # number of simulated frame (doesn't include initial frame)
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 
@@ -37,7 +37,7 @@ def main():
     profiler = tools.Profiler()
 
     # Simulate frames
-    for frame_id in range(NUM_FRAMES):
+    for frame_id in range(NUM_FRAMES+1):
         profiler.clearLogs()
 
         if frame_id > 0:

@@ -85,7 +85,7 @@ def create_multi_wire_scene(context):
 
     moving_anchor = objects.Kinematic(moving_anchor_shape)
     moving_anchor_position = moving_anchor.state.position
-    func = lambda time: [[moving_anchor_position[0] + time, 
+    func = lambda time: [[moving_anchor_position[0] + time,
                           moving_anchor_position[1]], 0.0]
 
     moving_anchor_animator = objects.Animator(func, context)

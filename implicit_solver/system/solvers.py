@@ -16,12 +16,12 @@ class Context:
     '''
     def __init__(self, time = 0.0, frame_dt = 1.0/24.0, num_substep = 4, num_frames = 100):
         self.time = time # current time (in seconds)
-        self.start_time = time # start time is the current time (in seconds)
-        self.end_time = time + (num_frames * frame_dt)
-        self.frame_dt = frame_dt
-        self.num_substep = num_substep
-        self.dt = frame_dt / num_substep # time step for a frame (in seconds)
-        self.num_frames = num_frames
+        self.start_time = time # start time (in seconds)
+        self.end_time = time + (num_frames * frame_dt) # end time (in seconds)
+        self.frame_dt = frame_dt # time step on a single frame (in seconds)
+        self.num_substep = num_substep # number of substep per frame
+        self.dt = frame_dt / num_substep # simulation substep (in seconds)
+        self.num_frames = num_frames # number of simulated frame (doesn't include initial frame)
 
 class BaseSolver:
     '''
