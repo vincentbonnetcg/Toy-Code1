@@ -11,14 +11,14 @@ class Animator:
     '''
     def __init__(self, lambda_func, context):
         self.num_frames = context.num_frames # simulated frame
-        self.baked_num_frames = self.num_frames + 1 # include initial frame
+        self.num_baked_frames = self.num_frames + 1 # include initial frame
         self.start_time = context.start_time
         self.end_time = context.end_time
         self.frame_dt = context.frame_dt
-        self.positions = np.zeros((self.baked_num_frames, 2), dtype=float)
-        self.rotations = np.zeros(self.baked_num_frames, dtype=float)
-        self.times = np.zeros(self.baked_num_frames, dtype=float)
-        for frame_id in range(self.baked_num_frames):
+        self.positions = np.zeros((self.num_baked_frames, 2), dtype=float)
+        self.rotations = np.zeros(self.num_baked_frames, dtype=float)
+        self.times = np.zeros(self.num_baked_frames, dtype=float)
+        for frame_id in range(self.num_baked_frames):
             time = self.start_time + (frame_id * self.frame_dt)
             position, rotation = lambda_func(time)
             self.positions[frame_id] = position
