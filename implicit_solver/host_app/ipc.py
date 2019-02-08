@@ -53,7 +53,7 @@ class Client(BundleIPC):
     def is_connected(self):
         return self.socket is not None
 
-    def connect_to_external_server(self, host = "localhost", port = 5050):
+    def connect_to_external_server(self, host = "localhost", port = 8080):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.socket.connect((host, port))
