@@ -24,10 +24,9 @@ def execute_client():
     queue = manager.get_job_queue()
     queue.put("hello")
     print(queue)
+    queue.put("exit_solver")
     # TODO
-    return manager
 
 
 if __name__ == '__main__':
     client_manager = execute_client()  
-    input("Press Enter to exit client...")
