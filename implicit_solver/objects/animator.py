@@ -17,13 +17,13 @@ class Animator:
         self.frame_dt = context.frame_dt
         self.positions = np.zeros((self.num_baked_frames, 2), dtype=float)
         self.rotations = np.zeros(self.num_baked_frames, dtype=float)
-        self.times = np.zeros(self.num_baked_frames, dtype=float)
+        self.times = np.linspace(self.start_time, self.end_time, num=self.num_baked_frames, dtype=float)
+
         for frame_id in range(self.num_baked_frames):
-            time = self.start_time + (frame_id * self.frame_dt)
+            time = self.times[frame_id]
             position, rotation = lambda_func(time)
             self.positions[frame_id] = position
             self.rotations[frame_id] = rotation
-            self.times[frame_id] = time
 
     def get_value(self, time):
         # Compute the frame ids contributing to the current time
@@ -40,11 +40,9 @@ class Animator:
             return (self.positions[i], self.rotations[i])
 
         # Linear interpolation of the values (position / rotation)
-        frame_times = (self.start_time + (frame_ids[0] * self.frame_dt),
-                       self.start_time + (frame_ids[1] * self.frame_dt))
-
-        assert(time >= frame_times[0] and time <= frame_times[1])
-        weight = (time - frame_times[0]) / (frame_times[1] - frame_times[0])
+        times = (self.times[frame_ids[0]], self.times[frame_ids[1]])
+        assert(time >= times[0] and time <= times[1])
+        weight = (time - times[0]) / (times[1] - times[0])
 
         position = self.positions[frame_ids[1]] * weight
         position += self.positions[frame_ids[0]] * (1.0 - weight)
