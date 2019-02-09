@@ -28,9 +28,9 @@ PARTICLE_MASS = 0.001 # in Kg
 GRAVITY = (0.0, -9.81) # in meters per second^2
 
 
-def create_multi_wire_scene(context):
+def init_multi_wire_scene(scene, context):
     '''
-    Creates a scene with a wire attached to a kinematic object
+    Initalizes a scene with a wire attached to a kinematic object
     '''
     # wire
     wires = []
@@ -57,8 +57,6 @@ def create_multi_wire_scene(context):
     collider = objects.Kinematic(collider_shape)
     collider.rotation = 45
 
-    scene = system.Scene()
-
     # Populate Scene with data and conditions
     for wire in wires:
         scene.addDynamic(wire)
@@ -78,9 +76,9 @@ def create_multi_wire_scene(context):
 
     return scene
 
-def create_wire_scene(context):
+def init_wire_scene(scene, context):
     '''
-    Creates a scene with a wire attached to a kinematic object
+    Initalizes a scene with a wire attached to a kinematic object
     '''
     # wire
     wire_shape = core.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
@@ -103,8 +101,6 @@ def create_wire_scene(context):
                                        WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
     collider = objects.Kinematic(collider_shape)
 
-    scene = system.Scene()
-
     # Populate Scene with data and conditions
     scene.addDynamic(wire)
     scene.addKinematic(moving_anchor, moving_anchor_animator)
@@ -123,9 +119,9 @@ def create_wire_scene(context):
 
     return scene
 
-def create_beam_scene(context):
+def init_beam_scene(scene, context):
     '''
-    Creates a scene with a beam and a wire
+    Initalizes a scene with a beam and a wire
     '''
     # beam
     beam_shape = core.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
@@ -154,7 +150,6 @@ def create_beam_scene(context):
     right_anchor_animator = objects.Animator(func, context)
 
     # Populate Scene with data and conditions
-    scene = system.Scene()
     scene.addDynamic(beam)
     scene.addDynamic(wire)
     scene.addKinematic(left_anchor, left_anchor_animator)
