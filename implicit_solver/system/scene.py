@@ -15,7 +15,7 @@ class Scene:
         self.forces = []
 
     # Data Functions #
-    def addDynamic(self, dynamic):
+    def add_dynamic(self, dynamic):
         index = (len(self.dynamics))
         offset = 0
         for i in range(index):
@@ -24,34 +24,34 @@ class Scene:
         dynamic.set_indexing(index, offset)
         self.dynamics.append(dynamic)
 
-    def addKinematic(self, kinematic, animator = None):
+    def add_kinematic(self, kinematic, animator = None):
         kinematic.set_indexing(index = (len(self.kinematics)))
         self.kinematics.append(kinematic)
         self.animators.append(animator)
 
-    def updateKinematics(self, time, dt = 0.0):
+    def update_kinematics(self, time, dt = 0.0):
         for index, kinematic in enumerate(self.kinematics):
             animation = self.animators[index]
             if animation:
                 position, rotation = animation.get_value(time)
                 kinematic.state.update(position, rotation, dt)
 
-    def numParticles(self):
-        numParticles = 0
+    def num_particles(self):
+        num_particles = 0
         for dynamic in self.dynamics:
-            numParticles += dynamic.num_particles
-        return numParticles
+            num_particles += dynamic.num_particles
+        return num_particles
 
     # Constraint Functions #
-    def addCondition(self, condition):
+    def add_condition(self, condition):
         self.conditions.append(condition)
 
-    def updateConditions(self, static = True):
+    def update_conditions(self, static = True):
         for condition in self.conditions:
             if condition.is_static() is static:
                 condition.update_constraints(self)
 
-    def getConstraintsIterator(self):
+    def get_constraints_iterator(self):
         values = []
         for condition in self.conditions:
             values.append(condition.constraints)
@@ -59,6 +59,6 @@ class Scene:
         return itertools.chain.from_iterable(values)
 
     # Force Functions #
-    def addForce(self, force):
+    def add_force(self, force):
         self.forces.append(force)
 

@@ -4,6 +4,7 @@
 """
 
 import objects
+import numpy as np
 
 def add_render_prefs(dynamic, render_prefs):
     # Render preferences used by render.py
@@ -12,37 +13,55 @@ def add_render_prefs(dynamic, render_prefs):
     # format of the display State ['fmt', size]
     dynamic.meta_data['render_prefs'] = render_prefs
 
-def wire_bending_constraint(scene, dynamic, stiffness, damping):
+def extract_position_from_shape(shape):
+    '''
+    Returns the position and modify the shape vertices from world space to local space
+    '''
+    centroid = np.average(shape.vertex.position, axis=0)
+    np.subtract(shape.vertex.position, centroid, out=shape.vertex.position)
+    return centroid
+
+def add_kinematic(scene, shape, position = (0., 0.), rotation = 0., animator = None):
+    kinematic = objects.Kinematic(shape, position, rotation)
+    scene.add_kinematic(kinematic, animator)
+    return kinematic
+
+def add_dynamic(scene, shape, particle_mass):
+    dynamic = objects.Dynamic(shape, particle_mass)
+    scene.add_dynamic(dynamic)
+    return dynamic
+
+def add_wire_bending_constraint(scene, dynamic, stiffness, damping):
     condition = objects.WireBendingCondition([dynamic], stiffness, damping)
-    scene.addCondition(condition)
+    scene.add_condition(condition)
     return condition
 
-def edge_constraint(scene, dynamic, stiffness, damping):
+def add_edge_constraint(scene, dynamic, stiffness, damping):
     condition = objects.SpringCondition([dynamic], stiffness, damping)
-    scene.addCondition(condition)
+    scene.add_condition(condition)
     return condition
 
-def face_constraint(scene, dynamic, stiffness, damping):
+def add_face_constraint(scene, dynamic, stiffness, damping):
     condition = objects.AreaCondition([dynamic], stiffness, damping)
-    scene.addCondition(condition)
+    scene.add_condition(condition)
     return condition
 
-def kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance):
+def add_kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance):
     condition = objects.KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
-    scene.addCondition(condition)
+    scene.add_condition(condition)
     return condition
 
-def dynamic_attachment(scene, dynamic0, dynamic1, stiffness, damping, distance):
+def add_dynamic_attachment(scene, dynamic0, dynamic1, stiffness, damping, distance):
     condition = objects.DynamicAttachmentCondition(dynamic0, dynamic1, stiffness, damping, distance)
-    scene.addCondition(condition)
+    scene.add_condition(condition)
     return condition
 
-def kinematic_collision(scene, dynamic, kinematic, stiffness, damping):
+def add_kinematic_collision(scene, dynamic, kinematic, stiffness, damping):
     condition = objects.KinematicCollisionCondition(dynamic, kinematic, stiffness, damping)
-    scene.addCondition(condition)
+    scene.add_condition(condition)
     return condition
 
-def gravity_acceleration(scene, gravity):
+def add_gravity_acceleration(scene, gravity):
     force = objects.Gravity(gravity)
-    scene.addForce(force)
+    scene.add_force(force)
     return force

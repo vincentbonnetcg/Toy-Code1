@@ -34,9 +34,9 @@ class BaseSolver:
         '''
         Initialize the solver and the data used by the solver
         '''
-        scene.updateKinematics(context.time)
-        scene.updateConditions(True) # Update static conditions
-        scene.updateConditions(False) # Update dynamic conditions
+        scene.update_kinematics(context.time)
+        scene.update_conditions(True) # Update static conditions
+        scene.update_conditions(False) # Update dynamic conditions
 
     @profiler.timeit
     def solveStep(self, scene, context):
@@ -45,8 +45,8 @@ class BaseSolver:
         self.postStep(scene, context)
 
     def preStep(self, scene, context):
-        scene.updateKinematics(context.time, context.dt)
-        scene.updateConditions(False) # Update dynamic conditions
+        scene.update_kinematics(context.time, context.dt)
+        scene.update_conditions(False) # Update dynamic conditions
 
     def step(self, scene, context):
         self.prepareSystem(scene, context.dt)
@@ -95,7 +95,7 @@ class ImplicitSolver(BaseSolver):
             force.apply_forces(scene)
 
         # Prepare constraints (forces and jacobians)
-        constraintsIterator = scene.getConstraintsIterator()
+        constraintsIterator = scene.get_constraints_iterator()
         for constraint in constraintsIterator:
             constraint.computeForces(scene)
             constraint.computeJacobians(scene)
@@ -104,9 +104,9 @@ class ImplicitSolver(BaseSolver):
     @profiler.timeit
     def assembleSystem(self, scene, dt):
         # Assemble the system (Ax=b) where x is the change of velocity
-        totalParticles = scene.numParticles()
-        num_rows = totalParticles
-        num_columns = totalParticles
+        total_particles = scene.num_particles()
+        num_rows = total_particles
+        num_columns = total_particles
         A = BSRSparseMatrix(num_rows, num_columns, 2)
 
         ## Assemble A = (M - h * df/dv - h^2 * df/dx)
@@ -121,7 +121,7 @@ class ImplicitSolver(BaseSolver):
                 A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
-        constraintsIterator = scene.getConstraintsIterator()
+        constraintsIterator = scene.get_constraints_iterator()
         for constraint in constraintsIterator:
             ids = constraint.globalIds
             for fi in range(len(ids)):
@@ -140,7 +140,7 @@ class ImplicitSolver(BaseSolver):
                 self.b[idx*2:idx*2+2] += dynamic.f[i] * dt
 
         # set (df/dx * v0 * h * h)
-        constraintsIterator = scene.getConstraintsIterator()
+        constraintsIterator = scene.get_constraints_iterator()
         for constraint in constraintsIterator:
             ids = constraint.globalIds
             localIds = constraint.localIds
@@ -188,7 +188,7 @@ class SemiImplicitSolver(BaseSolver):
             force.apply_forces(scene)
 
         # Apply internal forces
-        constraintsIterator = scene.getConstraintsIterator()
+        constraintsIterator = scene.get_constraints_iterator()
         for constraint in constraintsIterator:
             constraint.computeForces(scene)
             constraint.applyForces(scene)

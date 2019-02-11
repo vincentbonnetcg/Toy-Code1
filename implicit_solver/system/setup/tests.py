@@ -32,42 +32,46 @@ def init_multi_wire_scene(scene, context):
     '''
     Initalizes a scene with a wire attached to a kinematic object
     '''
-    # wire
-    wires = []
+    # wire shape
+    wire_shapes = []
     for i in range(6):
         x = -2.0 + (i * 0.25)
         wire_shape = core.WireShape([x, 1.5], [x, -1.5] , WIRE_NUM_SEGMENTS)
-        wire = objects.Dynamic(wire_shape, PARTICLE_MASS)
-        wires.append(wire)
+        wire_shapes.append(wire_shape)
 
-    # moving anchor and animation
+    # anchor shape and animation
     moving_anchor_shape = core.RectangleShape(min_x = -2.0, min_y = 1.5,
                                               max_x = 0.0, max_y =2.0)
-
-    moving_anchor = objects.Kinematic(moving_anchor_shape)
-    moving_anchor_position = moving_anchor.state.position
+    moving_anchor_position = utils.extract_position_from_shape(moving_anchor_shape)
+    moving_anchor_rotation = 0.
     func = lambda time: [[moving_anchor_position[0] + time,
                           moving_anchor_position[1]], 0.0]
 
     moving_anchor_animator = objects.Animator(func, context)
 
-    # collider
+    # collider shape
     collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
                                        WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
-    collider = objects.Kinematic(collider_shape)
-    collider.rotation = 45
+    collider_position = utils.extract_position_from_shape(moving_anchor_shape)
+    collider_rotation = 45.
 
     # Populate Scene with data and conditions
-    for wire in wires:
-        scene.addDynamic(wire)
-        scene.addKinematic(moving_anchor, moving_anchor_animator)
-        scene.addKinematic(collider)
+    moving_anchor = utils.add_kinematic(scene, moving_anchor_shape,
+                                                moving_anchor_position,
+                                                moving_anchor_rotation,
+                                                moving_anchor_animator)
 
-        edge_condiction = utils.edge_constraint(scene, wire, stiffness=100.0, damping=0.0)
-        wire_bending_condition = utils.wire_bending_constraint(scene, wire, stiffness=0.2, damping=0.0)
-        utils.kinematic_attachment(scene, wire, moving_anchor, stiffness=100.0, damping=0.0, distance=0.1)
-        utils.kinematic_collision(scene, wire, collider, stiffness=1000.0, damping=0.0)
-        utils.gravity_acceleration(scene, GRAVITY)
+    collider = utils.add_kinematic(scene, collider_shape,
+                                           collider_position,
+                                           collider_rotation)
+
+    for wire_shape in wire_shapes:
+        wire = utils.add_dynamic(scene, wire_shape, PARTICLE_MASS)
+        edge_condiction = utils.add_edge_constraint(scene, wire, stiffness=100.0, damping=0.0)
+        wire_bending_condition = utils.add_wire_bending_constraint(scene, wire, stiffness=0.2, damping=0.0)
+        utils.add_kinematic_attachment(scene, wire, moving_anchor, stiffness=100.0, damping=0.0, distance=0.1)
+        utils.add_kinematic_collision(scene, wire, collider, stiffness=1000.0, damping=0.0)
+        utils.add_gravity_acceleration(scene, GRAVITY)
 
         # Add Metadata to visualize the data and constraints
         utils.add_render_prefs(wire, ['co', 1])
@@ -80,37 +84,37 @@ def init_wire_scene(scene, context):
     '''
     Initalizes a scene with a wire attached to a kinematic object
     '''
-    # wire
+    # wire shape
     wire_shape = core.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
-    wire = objects.Dynamic(wire_shape, PARTICLE_MASS)
 
-    # moving anchor and animation
+    # collider shape
+    collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
+                                       WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
+
+    # anchor shape and animation
     moving_anchor_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
                                               WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
 
-    moving_anchor = objects.Kinematic(moving_anchor_shape)
-    moving_anchor_position = moving_anchor.state.position
+    moving_anchor_position = utils.extract_position_from_shape(moving_anchor_shape)
+    moving_anchor_rotation = 0.0
     decay_rate = 0.5
     func = lambda time: [[moving_anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
                           moving_anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
-
     moving_anchor_animator = objects.Animator(func, context)
 
-    # collider
-    collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
-                                       WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
-    collider = objects.Kinematic(collider_shape)
-
     # Populate Scene with data and conditions
-    scene.addDynamic(wire)
-    scene.addKinematic(moving_anchor, moving_anchor_animator)
-    scene.addKinematic(collider)
+    wire = utils.add_dynamic(scene, wire_shape, PARTICLE_MASS)
+    collider = utils.add_kinematic(scene, collider_shape)
+    moving_anchor = utils.add_kinematic(scene, moving_anchor_shape,
+                                                moving_anchor_position,
+                                                moving_anchor_rotation,
+                                                moving_anchor_animator)
 
-    edge_condiction = utils.edge_constraint(scene, wire, stiffness=100.0, damping=0.0)
-    wire_bending_condition = utils.wire_bending_constraint(scene, wire, stiffness=0.2, damping=0.0)
-    utils.kinematic_attachment(scene, wire, moving_anchor, stiffness=100.0, damping=0.0, distance=0.1)
-    utils.kinematic_collision(scene, wire, collider, stiffness=1000.0, damping=0.0)
-    utils.gravity_acceleration(scene, GRAVITY)
+    edge_condiction = utils.add_edge_constraint(scene, wire, stiffness=100.0, damping=0.0)
+    wire_bending_condition = utils.add_wire_bending_constraint(scene, wire, stiffness=0.2, damping=0.0)
+    utils.add_kinematic_attachment(scene, wire, moving_anchor, stiffness=100.0, damping=0.0, distance=0.1)
+    utils.add_kinematic_collision(scene, wire, collider, stiffness=1000.0, damping=0.0)
+    utils.add_gravity_acceleration(scene, GRAVITY)
 
     # Add Metadata
     utils.add_render_prefs(wire, ['co', 1])
@@ -123,45 +127,43 @@ def init_beam_scene(scene, context):
     '''
     Initalizes a scene with a beam and a wire
     '''
-    # beam
+    # beam shape
     beam_shape = core.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
-    beam = objects.Dynamic(beam_shape, PARTICLE_MASS)
 
-    # wire
+    # wire shape
     wire_start_pos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
     wire_end_pos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
     wire_shape = core.WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
-    wire = objects.Dynamic(wire_shape, PARTICLE_MASS)
 
-    # left anchor and animation
+    # left anchor shape and animation
     left_anchor_shape = core.RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
                                             BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
-    left_anchor = objects.Kinematic(left_anchor_shape)
-    l_pos = left_anchor.state.position
-    func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], 0.0]
-    left_anchor_animator = objects.Animator(func, context)
+    l_pos = utils.extract_position_from_shape(left_anchor_shape)
+    l_rot = 0.0
+    func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], l_rot]
+    l_animator = objects.Animator(func, context)
 
-    # right anchor and animation
+    # right anchor shape and animation
     right_anchor_shape = core.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
                                              BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
-    right_anchor = objects.Kinematic(right_anchor_shape)
-    r_pos = right_anchor.state.position
-    func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], 0.0]
-    right_anchor_animator = objects.Animator(func, context)
+    r_pos = utils.extract_position_from_shape(right_anchor_shape)
+    r_rot = 0.0
+    func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], r_rot]
+    r_animator = objects.Animator(func, context)
 
     # Populate Scene with data and conditions
-    scene.addDynamic(beam)
-    scene.addDynamic(wire)
-    scene.addKinematic(left_anchor, left_anchor_animator)
-    scene.addKinematic(right_anchor, right_anchor_animator)
+    beam = utils.add_dynamic(scene, beam_shape, PARTICLE_MASS)
+    wire = utils.add_dynamic(scene, wire_shape, PARTICLE_MASS)
+    left_anchor = utils.add_kinematic(scene, left_anchor_shape, l_pos, l_rot, l_animator)
+    right_anchor = utils.add_kinematic(scene, right_anchor_shape, r_pos, r_rot, r_animator)
 
-    wire_edge_condition = utils.edge_constraint(scene, wire, stiffness=10.0, damping=0.0)
-    beam_edge_condition = utils.edge_constraint(scene, beam, stiffness=20.0, damping=0.0)
-    utils.face_constraint(scene, beam, stiffness=20.0, damping=0.0)
-    utils.kinematic_attachment(scene, beam, right_anchor, stiffness=100.0, damping=0.0, distance=0.1)
-    utils.kinematic_attachment(scene, beam, left_anchor, stiffness=100.0, damping=0.0, distance=0.1)
-    utils.dynamic_attachment(scene, beam, wire, stiffness=100.0, damping=0.0, distance=0.001)
-    utils.gravity_acceleration(scene, GRAVITY)
+    wire_edge_condition = utils.add_edge_constraint(scene, wire, stiffness=10.0, damping=0.0)
+    beam_edge_condition = utils.add_edge_constraint(scene, beam, stiffness=20.0, damping=0.0)
+    utils.add_face_constraint(scene, beam, stiffness=20.0, damping=0.0)
+    utils.add_kinematic_attachment(scene, beam, right_anchor, stiffness=100.0, damping=0.0, distance=0.1)
+    utils.add_kinematic_attachment(scene, beam, left_anchor, stiffness=100.0, damping=0.0, distance=0.1)
+    utils.add_dynamic_attachment(scene, beam, wire, stiffness=100.0, damping=0.0, distance=0.001)
+    utils.add_gravity_acceleration(scene, GRAVITY)
 
     # Add Metadata
     utils.add_render_prefs(beam, ['go', 1])

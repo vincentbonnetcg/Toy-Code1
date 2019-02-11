@@ -35,9 +35,11 @@ JobQueueManager.register('get_result_queue', callable=function_result_queue)
 '''
 Global setup and test serialization/deserialization
 '''
-global_context = system.Context(time = 0.0, frame_dt = 0.1)
-global_scene = system.create_wire_scene(global_context)
 global_solver = system.ImplicitSolver()
+global_context = system.Context(time = 0.0, frame_dt = 0.1)
+global_scene = system.Scene()
+system.init_wire_scene(global_scene, global_context)
+
 
 scene_as_bytes = pickle.dumps(global_solver) # serialize scene
 global_solver = pickle.loads(scene_as_bytes) # deserialize scene
