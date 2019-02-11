@@ -42,8 +42,7 @@ def init_multi_wire_scene(scene, context):
     # anchor shape and animation
     moving_anchor_shape = core.RectangleShape(min_x = -2.0, min_y = 1.5,
                                               max_x = 0.0, max_y =2.0)
-    moving_anchor_position = utils.extract_position_from_shape(moving_anchor_shape)
-    moving_anchor_rotation = 0.
+    moving_anchor_position, moving_anchor_rotation = utils.extract_transform_from_shape(moving_anchor_shape)
     func = lambda time: [[moving_anchor_position[0] + time,
                           moving_anchor_position[1]], 0.0]
 
@@ -52,7 +51,7 @@ def init_multi_wire_scene(scene, context):
     # collider shape
     collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
                                        WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
-    collider_position = utils.extract_position_from_shape(moving_anchor_shape)
+    collider_position, collider_rotation = utils.extract_transform_from_shape(moving_anchor_shape)
     collider_rotation = 45.
 
     # Populate Scene with data and conditions
@@ -95,8 +94,7 @@ def init_wire_scene(scene, context):
     moving_anchor_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
                                               WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
 
-    moving_anchor_position = utils.extract_position_from_shape(moving_anchor_shape)
-    moving_anchor_rotation = 0.0
+    moving_anchor_position, moving_anchor_rotation = utils.extract_transform_from_shape(moving_anchor_shape)
     decay_rate = 0.5
     func = lambda time: [[moving_anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
                           moving_anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
@@ -138,16 +136,14 @@ def init_beam_scene(scene, context):
     # left anchor shape and animation
     left_anchor_shape = core.RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
                                             BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
-    l_pos = utils.extract_position_from_shape(left_anchor_shape)
-    l_rot = 0.0
+    l_pos, l_rot = utils.extract_transform_from_shape(left_anchor_shape)
     func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], l_rot]
     l_animator = objects.Animator(func, context)
 
     # right anchor shape and animation
     right_anchor_shape = core.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
                                              BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
-    r_pos = utils.extract_position_from_shape(right_anchor_shape)
-    r_rot = 0.0
+    r_pos, r_rot = utils.extract_transform_from_shape(right_anchor_shape)
     func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], r_rot]
     r_animator = objects.Animator(func, context)
 

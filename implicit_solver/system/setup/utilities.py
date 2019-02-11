@@ -13,13 +13,15 @@ def add_render_prefs(dynamic, render_prefs):
     # format of the display State ['fmt', size]
     dynamic.meta_data['render_prefs'] = render_prefs
 
-def extract_position_from_shape(shape):
+def extract_transform_from_shape(shape):
     '''
-    Returns the position and modify the shape vertices from world space to local space
+    Returns the 'optimal' position and modify the shape vertices from world space to local space
+    Optimal rotation is not computed
     '''
-    centroid = np.average(shape.vertex.position, axis=0)
-    np.subtract(shape.vertex.position, centroid, out=shape.vertex.position)
-    return centroid
+    optimal_pos = np.average(shape.vertex.position, axis=0)
+    np.subtract(shape.vertex.position, optimal_pos, out=shape.vertex.position)
+    optimal_rot = 0
+    return optimal_pos, optimal_rot
 
 def add_kinematic(scene, shape, position = (0., 0.), rotation = 0., animator = None):
     kinematic = objects.Kinematic(shape, position, rotation)
