@@ -1,6 +1,6 @@
 """
 @author: Vincent Bonnet
-@description : utilities to setup simulation (scene, solver, context)
+@description : commands to setup simulation (scene, solver, context)
 """
 
 import objects
