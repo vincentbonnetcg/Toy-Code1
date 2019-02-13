@@ -4,10 +4,16 @@
 """
 
 
-def solve_to_time(scene, solver, context, time, rewind = False):
+def solve_to_next_frame(scene, solver, context):
     '''
-    Solve the scene with solver to time
-    Start from context.current_time if rewind=False
-    Start from context.start_time if rewind=True
+    Solve the scene and move to the next time
     '''
-    pass
+    for _ in range(context.num_substep):
+        context.time += context.dt
+        solver.solveStep(scene, context)
+
+def initialize(scene, solver, context):
+    '''
+    Initialize the solver
+    '''
+    solver.initialize(scene, context)

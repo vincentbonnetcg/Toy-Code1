@@ -4,11 +4,9 @@
 """
 
 import objects
-import system
 import core
 import math
 import system.setup.commands as cmds
-
 
 '''
  Global Constants

@@ -2,8 +2,6 @@
 @author: Vincent Bonnet
 @description : Inter-process communication between client and server via a socket
 """
-import socket
-import sys
 
 class BundleIPC:
     '''
@@ -11,36 +9,30 @@ class BundleIPC:
     BundleIPC provides common behaviour between client and server
     '''
     def __init__(self, scene = None, solver = None, context = None):
-        self.scene = scene
-        self.solver = solver
-        self.context = context
+        self._scene = scene
+        self._solver = solver
+        self._context = context
 
     def is_defined(self):
-        if self.scene and self.solver and self.context:
+        if self._scene and self._solver and self._context:
             return True
         return False
 
-    def initialize(self):
-        if self.is_defined():
-            self.solver.initialize(self.scene, self.context)
-            return True
-        return False
+    def run_command(self):
+        '''
+        Execute functions from system.setup.commands and system.commands
+        '''
+        # TODO
+        pass
 
-    def step(self):
-        if self.is_defined():
-            self.context.time += self.context.dt
-            self.solver.solveStep(self.scene, self.context)
-            return True
-        return False
+    def scene(self):
+        return self._scene
 
-    def get_scene(self):
-        return self.scene
+    def solver(self):
+        return self._solver
 
-    def get_solver(self):
-        return self.solver
-
-    def get_context(self):
-        return self.context
+    def context(self):
+        return self._context
 
 class Client(BundleIPC):
     '''
@@ -48,62 +40,16 @@ class Client(BundleIPC):
     '''
     def __init__(self, scene = None, solver = None, context = None):
         BundleIPC.__init__(self, scene, solver, context)
-        self.socket = None
 
     def is_connected(self):
-        return self.socket is not None
+        # TODO - NOT IMPLEMENTED
+        return False
 
     def connect_to_external_server(self, host = "localhost", port = 8080):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.socket.connect((host, port))
-        except:
-            self.socket = None
-            print("Client IPC : Connection error:", sys.exc_info()[0])
-            return False
-
-        print("Client ICP connected to Server ICP on",self.socket.getpeername())
-
-        return True
+        # TODO - NOT IMPLEMENTED
+        return False
 
     def disconnect_from_external_server(self):
         if self.is_connected():
-            message = 'exit'
-            self.socket.send(message.encode())
-            self.socket.close()
-
-    def initialize(self):
-        if super().is_defined():
-            return super().initialize()
-
-        # TODO : send request to server
-        return False
-
-    def step(self):
-        if super().is_defined():
-            return super().step()
-
-        # TODO : send request to server
-        return False
-
-    def get_scene(self):
-        if super().is_defined():
-            return self.scene
-
-        # TODO : send request to server
-        return None
-
-    def get_solver(self):
-        if super().is_defined():
-            return self.solver
-
-        # TODO : send request to server
-        return None
-
-    def get_context(self):
-        if super().is_defined():
-            return self.solver
-
-        # TODO : send request to server
-        return None
-
+            # TODO - NOT IMPLEMENTED
+            pass
