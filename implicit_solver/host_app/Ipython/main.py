@@ -7,8 +7,6 @@ import tools
 import system
 import render as rn
 import host_app.ipc as ipc
-import system.commands as sim_cmds
-import system.setup.commands as setup_cmds
 
 '''
  Global Constants
@@ -30,9 +28,6 @@ def main():
 
     # Creates client and connect to server
     client = ipc.Client(scene, solver, context)
-    # client.create_scene(..)
-    # client.create_solver(..)
-    # client.create_context(..)
     #client.connect_to_external_server(host = "localhost", port = 8080)
 
     # Creates render and profiler
@@ -41,19 +36,15 @@ def main():
     profiler = tools.Profiler()
 
     # Simulate frames
-    scene = client.scene()
-    solver = client.solver()
-    context = client.context()
-
     for frame_id in range(context.num_frames+1):
         profiler.clearLogs()
 
         if frame_id == 0:
-            sim_cmds.initialize(scene, solver, context)
+            client.run("initialize")
         else:
-            sim_cmds.solve_to_next_frame(scene, solver, context)
+            client.run("solve_to_next_frame")
 
-        render.showCurrentFrame(solver, scene, frame_id)
+        render.showCurrentFrame(client.solver(), client.scene(), frame_id)
         render.exportCurrentFrame(str(frame_id).zfill(4) + " .png")
 
         profiler.printLogs()

@@ -3,6 +3,9 @@
 @description : Inter-process communication between client and server via a socket
 """
 
+import system.commands as sim_cmds
+import system.setup.commands as setup_cmds
+
 class BundleIPC:
     '''
     Bundle is simply a container with a scene, a solver and a context
@@ -18,12 +21,18 @@ class BundleIPC:
             return True
         return False
 
-    def run_command(self):
+    def run(self, command_name, *args):
         '''
         Execute functions from system.setup.commands and system.commands
         '''
-        # TODO
-        pass
+        dispatch = {'initialize' : sim_cmds.initialize,
+                    'solve_to_next_frame' : sim_cmds.solve_to_next_frame}
+
+        if (command_name == 'initialize' or
+            command_name == 'solve_to_next_frame'):
+            dispatch[command_name](self._scene, self._solver, self._context)
+        else:
+            dispatch[command_name](*args)
 
     def scene(self):
         return self._scene
