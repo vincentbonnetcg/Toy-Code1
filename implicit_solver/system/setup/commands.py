@@ -6,12 +6,12 @@
 import objects
 import numpy as np
 
-def add_render_prefs(dynamic, render_prefs):
+def add_render_prefs(obj, prefs):
     # Render preferences used by render.py
     # See : https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html for more details
     # fmt = '[color][marker][line]'
     # format of the display State ['fmt', size]
-    dynamic.meta_data['render_prefs'] = render_prefs
+    obj.meta_data['render_prefs'] = prefs
 
 def extract_transform_from_shape(shape):
     '''
@@ -63,7 +63,7 @@ def add_kinematic_collision(scene, dynamic, kinematic, stiffness, damping):
     scene.add_condition(condition)
     return condition
 
-def add_gravity_acceleration(scene, gravity):
+def add_gravity(scene, gravity):
     force = objects.Gravity(gravity)
     scene.add_force(force)
     return force

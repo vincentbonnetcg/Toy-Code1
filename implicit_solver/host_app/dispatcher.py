@@ -28,7 +28,7 @@ class CommandDispatcher:
         self._object_dict[unique_id] = obj
         return unique_id
 
-    def run(self, command_name, *args):
+    def run(self, command_name, **kwargs):
         '''
         Execute functions from system.setup.commands and system.commands
         '''
@@ -42,7 +42,7 @@ class CommandDispatcher:
                     'add_wire_bending_constraint' : setup_cmds.add_wire_bending_constraint,
                     'add_kinematic_attachment' : setup_cmds.add_kinematic_attachment,
                     'add_kinematic_collision' : setup_cmds.add_kinematic_collision,
-                    'add_gravity_acceleration' : setup_cmds.add_gravity_acceleration,
+                    'add_gravity' : setup_cmds.add_gravity,
                     'add_render_prefs' : setup_cmds.add_render_prefs}
 
         if (command_name == 'initialize' or
@@ -50,29 +50,34 @@ class CommandDispatcher:
             dispatch[command_name](self._scene, self._solver, self._context)
         elif (command_name == 'add_dynamic' or
               command_name == 'add_kinematic'):
-            new_obj = dispatch[command_name](self._scene, *args)
+            new_obj = dispatch[command_name](self._scene, **kwargs)
             result = self.__add_object(new_obj)
         elif (command_name == 'add_edge_constraint' or
               command_name == 'add_wire_bending_constraint'):
-            obj = self._object_dict[args[0]]
-            new_obj = dispatch[command_name](self._scene, obj, args[1], args[2])
+            obj = self._object_dict[kwargs['dynamic']]
+            new_obj = dispatch[command_name](self._scene, obj, kwargs['stiffness'], kwargs['damping'])
             result = self.__add_object(new_obj)
         elif (command_name == 'add_kinematic_attachment'):
-            dyn_obj = self._object_dict[args[0]]
-            kin_obj = self._object_dict[args[1]]
-            new_obj = dispatch[command_name](self._scene, dyn_obj, kin_obj, args[2], args[3], args[4])
+            dyn0_obj = self._object_dict[kwargs['dynamic0']]
+            dyn1_obj = self._object_dict[kwargs['dynamic1']]
+            new_obj = dispatch[command_name](self._scene, dyn0_obj, dyn1_obj,
+                                                          kwargs['stiffness'],
+                                                          kwargs['damping'],
+                                                          kwargs['distance'])
             result = self.__add_object(new_obj)
         elif (command_name == 'add_kinematic_collision'):
-            dyn_obj = self._object_dict[args[0]]
-            kin_obj = self._object_dict[args[1]]
-            new_obj = dispatch[command_name](self._scene, dyn_obj, kin_obj, args[2], args[3])
+            dyn_obj = self._object_dict[kwargs['dynamic']]
+            kin_obj = self._object_dict[kwargs['kinematic']]
+            new_obj = dispatch[command_name](self._scene, dyn_obj, kin_obj,
+                                                          kwargs['stiffness'],
+                                                          kwargs['damping'])
             result = self.__add_object(new_obj)
-        elif (command_name == 'add_gravity_acceleration'):
-            new_obj = dispatch[command_name](self._scene, args[0])
+        elif (command_name == 'add_gravity'):
+            new_obj = dispatch[command_name](self._scene, kwargs['gravity'])
             result = self.__add_object(new_obj)
         elif (command_name == 'add_render_prefs'):
-            obj = self._object_dict[args[0]]
-            dispatch[command_name](obj, args[1])
+            obj = self._object_dict[kwargs['obj']]
+            dispatch[command_name](obj, kwargs['prefs'])
         else:
             assert("The command  " + command_name + " is not recognized !")
 
