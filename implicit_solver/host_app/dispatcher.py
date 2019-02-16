@@ -51,8 +51,7 @@ class CommandDispatcher:
         elif (command_name == 'add_dynamic' or
               command_name == 'add_kinematic'):
             new_obj = dispatch[command_name](self._scene, *args)
-            result = uuid.uuid4() # object hash
-            self._object_dict[result] = new_obj
+            result = self.__add_object(new_obj)
         elif (command_name == 'add_edge_constraint' or
               command_name == 'add_wire_bending_constraint'):
             obj = self._object_dict[args[0]]
@@ -75,7 +74,7 @@ class CommandDispatcher:
             obj = self._object_dict[args[0]]
             dispatch[command_name](obj, args[1])
         else:
-            print("The command  " + command_name + " is not recognized !")
+            assert("The command  " + command_name + " is not recognized !")
 
         return result
 
