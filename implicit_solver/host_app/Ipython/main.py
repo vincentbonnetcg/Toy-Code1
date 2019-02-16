@@ -5,8 +5,9 @@
 
 import tools
 import system
-import render as rn
-import host_app.ipc as ipc
+from render import Render
+from host_app.dispatcher import CommandDispatcher
+import system.setup.tests as tests
 
 '''
  Global Constants
@@ -16,22 +17,28 @@ FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
 NUM_FRAMES = 100 # number of simulated frame (doesn't include initial frame)
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
+USE_REMOTE_SERVER = False # run the program locally or connect to a server
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 
 def main():
-    # Creates scene, solver and context
-    scene = system.Scene()
-    solver = system.ImplicitSolver()
-    context = system.Context(time = START_TIME, frame_dt = FRAME_TIMESTEP,
-                             num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
-    system.init_wire_scene(scene, context)
 
-    # Creates client and connect to server
-    client = ipc.Client(scene, solver, context)
-    #client.connect_to_external_server(host = "localhost", port = 8080)
+    # Creates dispatcher
+    cmd_dispatcher= None
+    if USE_REMOTE_SERVER:
+        # NOT IMPLEMENTED
+        #cmd_dispatcher = ipc.Client()
+        #cmd_dispatcher.connect_to_external_server(host = "localhost", port = 8080)
+        pass
+    else:
+        context = system.Context(time = START_TIME, frame_dt = FRAME_TIMESTEP,
+                             num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
+        cmd_dispatcher = CommandDispatcher(context)
+
+    # Init bundle with example
+    tests.init_wire_example(cmd_dispatcher)
 
     # Creates render and profiler
-    render = rn.Render()
+    render = Render()
     render.setRenderFolderPath(RENDER_FOLDER_PATH)
     profiler = tools.Profiler()
 
@@ -40,17 +47,18 @@ def main():
         profiler.clearLogs()
 
         if frame_id == 0:
-            client.run("initialize")
+            cmd_dispatcher.run("initialize")
         else:
-            client.run("solve_to_next_frame")
+            cmd_dispatcher.run("solve_to_next_frame")
 
-        render.showCurrentFrame(client.solver(), client.scene(), frame_id)
+        render.showCurrentFrame(cmd_dispatcher.solver(), cmd_dispatcher.scene(), frame_id)
         render.exportCurrentFrame(str(frame_id).zfill(4) + " .png")
 
         profiler.printLogs()
 
     # Disconnect client from server
-    client.disconnect_from_external_server()
+    if USE_REMOTE_SERVER:
+        cmd_dispatcher.disconnect_from_external_server()
 
 if __name__ == '__main__':
     main()

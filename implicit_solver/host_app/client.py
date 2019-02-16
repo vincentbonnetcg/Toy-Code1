@@ -29,4 +29,30 @@ def execute_client():
 
 
 if __name__ == '__main__':
-    client_manager = execute_client()  
+    client_manager = execute_client()
+
+
+class Client:
+    '''
+    Client can store a bundle and/or get bundle from server
+    '''
+    def __init__(self):
+        pass
+
+    def is_connected(self):
+        # TODO - NOT IMPLEMENTED
+        return False
+
+    def connect_to_external_server(self, host = "localhost", port = 8080):
+        # TODO - NOT IMPLEMENTED
+        return False
+
+    def run(self, command_name, *args):
+        if self.is_connected():
+            # TODO - NOT IMPLEMENTED
+            pass
+
+    def disconnect_from_external_server(self):
+        if self.is_connected():
+            # TODO - NOT IMPLEMENTED
+            pass
