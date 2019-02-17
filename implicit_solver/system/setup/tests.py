@@ -71,7 +71,7 @@ def init_multi_wire_example(dispatcher):
         dispatcher.run('add_wire_bending_constraint', dynamic= wire_handle,
                                                        stiffness = 0.2, damping = 0.0)
 
-        dispatcher.run('add_kinematic_attachment', dynamic0 = wire_handle, dynamic1 = moving_anchor_handle,
+        dispatcher.run('add_kinematic_attachment', dynamic = wire_handle, kinematic = moving_anchor_handle,
                                                    stiffness = 100.0, damping = 0.0, distance = 0.1)
 
         dispatcher.run('add_kinematic_collision', dynamic = wire_handle, kinematic = collider_handle,
@@ -117,7 +117,7 @@ def init_wire_example(dispatcher):
                                                                    stiffness = 100.0, damping = 0.0)
     dispatcher.run('add_wire_bending_constraint', dynamic= wire_handle,
                                                    stiffness = 0.2, damping = 0.0)
-    dispatcher.run('add_kinematic_attachment', dynamic0 = wire_handle, dynamic1 = moving_anchor_handle,
+    dispatcher.run('add_kinematic_attachment', dynamic = wire_handle, kinematic = moving_anchor_handle,
                                                stiffness = 100.0, damping = 0.0, distance = 0.1)
     dispatcher.run('add_kinematic_collision', dynamic = wire_handle, kinematic = collider_handle,
                                                stiffness = 100.0, damping = 0.0)
@@ -127,7 +127,7 @@ def init_wire_example(dispatcher):
     dispatcher.run('add_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
 
 
-def init_beam_scene(scene, context):
+def init_beam_example(dispatcher):
     '''
     Initalizes a scene with a beam and a wire
     '''
@@ -144,33 +144,52 @@ def init_beam_scene(scene, context):
                                             BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     l_pos, l_rot = cmds.extract_transform_from_shape(left_anchor_shape)
     func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], l_rot]
-    l_animator = objects.Animator(func, context)
+    l_animator = objects.Animator(func, dispatcher.context())
 
     # right anchor shape and animation
     right_anchor_shape = core.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
                                              BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
     r_pos, r_rot = cmds.extract_transform_from_shape(right_anchor_shape)
     func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], r_rot]
-    r_animator = objects.Animator(func, context)
+    r_animator = objects.Animator(func, dispatcher.context())
 
     # Populate Scene with data and conditions
-    beam = cmds.add_dynamic(scene, beam_shape, PARTICLE_MASS)
-    wire = cmds.add_dynamic(scene, wire_shape, PARTICLE_MASS)
-    left_anchor = cmds.add_kinematic(scene, left_anchor_shape, l_pos, l_rot, l_animator)
-    right_anchor = cmds.add_kinematic(scene, right_anchor_shape, r_pos, r_rot, r_animator)
+    beam_handle = dispatcher.run('add_dynamic', shape = beam_shape, particle_mass = PARTICLE_MASS)
+    wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, particle_mass = PARTICLE_MASS)
 
-    wire_edge_condition = cmds.add_edge_constraint(scene, wire, stiffness=10.0, damping=0.0)
-    beam_edge_condition = cmds.add_edge_constraint(scene, beam, stiffness=20.0, damping=0.0)
-    cmds.add_face_constraint(scene, beam, stiffness=20.0, damping=0.0)
-    cmds.add_kinematic_attachment(scene, beam, right_anchor, stiffness=100.0, damping=0.0, distance=0.1)
-    cmds.add_kinematic_attachment(scene, beam, left_anchor, stiffness=100.0, damping=0.0, distance=0.1)
-    cmds.add_dynamic_attachment(scene, beam, wire, stiffness=100.0, damping=0.0, distance=0.001)
-    cmds.add_gravity(scene, GRAVITY)
+    left_anchor_handle = dispatcher.run('add_kinematic', shape = left_anchor_shape,
+                                                         position = l_pos,
+                                                         rotation = l_rot,
+                                                         animator = l_animator)
 
-    # Add Metadata
-    cmds.add_render_prefs(beam, ['go', 1])
-    cmds.add_render_prefs(beam_edge_condition, ['k-', 1])
+    right_anchor_handle = dispatcher.run('add_kinematic', shape = right_anchor_shape,
+                                                          position = r_pos,
+                                                          rotation = r_rot,
+                                                          animator = r_animator)
 
-    cmds.add_render_prefs(wire, ['co', 1])
-    cmds.add_render_prefs(wire_edge_condition, ['m-', 1])
+    beam_edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = beam_handle,
+                                                                       stiffness = 20.0, damping = 0.0)
+
+    wire_edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = wire_handle,
+                                                                       stiffness = 10.0, damping = 0.0)
+
+    dispatcher.run('add_face_constraint', dynamic = beam_handle,
+                                           stiffness = 20.0, damping = 0.0)
+
+    dispatcher.run('add_kinematic_attachment', dynamic = beam_handle, kinematic = left_anchor_handle,
+                                               stiffness = 100.0, damping = 0.0, distance = 0.1)
+
+    dispatcher.run('add_kinematic_attachment', dynamic = beam_handle, kinematic = right_anchor_handle,
+                                               stiffness = 100.0, damping = 0.0, distance = 0.1)
+
+    dispatcher.run('add_dynamic_attachment', dynamic0 = beam_handle, dynamic1 = wire_handle,
+                                              stiffness = 100.0, damping = 0.0, distance = 0.001)
+
+    dispatcher.run('add_gravity', gravity = GRAVITY)
+
+    dispatcher.run('add_render_prefs', obj = beam_handle, prefs = ['go', 1])
+    dispatcher.run('add_render_prefs', obj = beam_edge_condition_handle, prefs = ['k-', 1])
+
+    dispatcher.run('add_render_prefs', obj = wire_handle, prefs = ['co', 1])
+    dispatcher.run('add_render_prefs', obj = wire_edge_condition_handle, prefs = ['m-', 1])
 
