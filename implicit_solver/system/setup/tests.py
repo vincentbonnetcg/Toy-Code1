@@ -26,9 +26,9 @@ PARTICLE_MASS = 0.001 # in Kg
 GRAVITY = (0.0, -9.81) # in meters per second^2
 
 
-def init_multi_wire_scene(scene, context):
+def init_multi_wire_example(dispatcher):
     '''
-    Initalizes a scene with a wire attached to a kinematic object
+    Initalizes a scene with multiple wire attached to a kinematic object
     '''
     # wire shape
     wire_shapes = []
@@ -44,7 +44,7 @@ def init_multi_wire_scene(scene, context):
     func = lambda time: [[moving_anchor_position[0] + time,
                           moving_anchor_position[1]], 0.0]
 
-    moving_anchor_animator = objects.Animator(func, context)
+    moving_anchor_animator = objects.Animator(func, dispatcher.context())
 
     # collider shape
     collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
@@ -53,27 +53,34 @@ def init_multi_wire_scene(scene, context):
     collider_rotation = 45.
 
     # Populate Scene with data and conditions
-    moving_anchor = cmds.add_kinematic(scene, moving_anchor_shape,
-                                                moving_anchor_position,
-                                                moving_anchor_rotation,
-                                                moving_anchor_animator)
+    moving_anchor_handle = dispatcher.run('add_kinematic', shape = moving_anchor_shape,
+                                                          position = moving_anchor_position,
+                                                          rotation = moving_anchor_rotation,
+                                                          animator =moving_anchor_animator)
 
-    collider = cmds.add_kinematic(scene, collider_shape,
-                                           collider_position,
-                                           collider_rotation)
+    collider_handle = dispatcher.run('add_kinematic', shape = collider_shape,
+                                                        position = collider_position,
+                                                        rotation = collider_rotation)
 
     for wire_shape in wire_shapes:
-        wire = cmds.add_dynamic(scene, wire_shape, PARTICLE_MASS)
-        edge_condiction = cmds.add_edge_constraint(scene, wire, stiffness=100.0, damping=0.0)
-        wire_bending_condition = cmds.add_wire_bending_constraint(scene, wire, stiffness=0.2, damping=0.0)
-        cmds.add_kinematic_attachment(scene, wire, moving_anchor, stiffness=100.0, damping=0.0, distance=0.1)
-        cmds.add_kinematic_collision(scene, wire, collider, stiffness=1000.0, damping=0.0)
-        cmds.add_gravity(scene, GRAVITY)
+        wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, particle_mass = PARTICLE_MASS)
 
-        # Add Metadata to visualize the data and constraints
-        cmds.add_render_prefs(wire, ['co', 1])
-        cmds.add_render_prefs(edge_condiction, ['m-', 1])
-        cmds.add_render_prefs(wire_bending_condition, ['m-', 1])
+        edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = wire_handle,
+                                                               stiffness = 100.0, damping = 0.0)
+
+        dispatcher.run('add_wire_bending_constraint', dynamic= wire_handle,
+                                                       stiffness = 0.2, damping = 0.0)
+
+        dispatcher.run('add_kinematic_attachment', dynamic0 = wire_handle, dynamic1 = moving_anchor_handle,
+                                                   stiffness = 100.0, damping = 0.0, distance = 0.1)
+
+        dispatcher.run('add_kinematic_collision', dynamic = wire_handle, kinematic = collider_handle,
+                                                   stiffness = 1000.0, damping = 0.0)
+
+        dispatcher.run('add_gravity', gravity = GRAVITY)
+
+        dispatcher.run('add_render_prefs', obj = wire_handle, prefs = ['co', 1])
+        dispatcher.run('add_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
 
 
 def init_wire_example(dispatcher):
@@ -118,6 +125,7 @@ def init_wire_example(dispatcher):
 
     dispatcher.run('add_render_prefs', obj = wire_handle, prefs = ['co', 1])
     dispatcher.run('add_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
+
 
 def init_beam_scene(scene, context):
     '''
