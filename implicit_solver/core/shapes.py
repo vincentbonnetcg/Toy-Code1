@@ -73,6 +73,16 @@ class Shape:
         self.edge = EdgeComponent(num_edges)
         self.face = FaceComponent(num_faces)
 
+    def extract_transform_from_shape(self):
+        '''
+        Returns the 'optimal' position and modify the shape vertices from world space to local space
+        Optimal rotation is not computed
+        '''
+        optimal_pos = np.average(self.vertex.position, axis=0)
+        np.subtract(self.vertex.position, optimal_pos, out=self.vertex.position)
+        optimal_rot = 0
+        return optimal_pos, optimal_rot
+
     def num_vertices(self):
         return self.vertex.size()
 

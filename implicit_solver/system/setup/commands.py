@@ -6,22 +6,12 @@
 import objects
 import numpy as np
 
-def add_render_prefs(obj, prefs):
+def set_render_prefs(obj, prefs):
     # Render preferences used by render.py
     # See : https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html for more details
     # fmt = '[color][marker][line]'
     # format of the display State ['fmt', size]
     obj.meta_data['render_prefs'] = prefs
-
-def extract_transform_from_shape(shape):
-    '''
-    Returns the 'optimal' position and modify the shape vertices from world space to local space
-    Optimal rotation is not computed
-    '''
-    optimal_pos = np.average(shape.vertex.position, axis=0)
-    np.subtract(shape.vertex.position, optimal_pos, out=shape.vertex.position)
-    optimal_rot = 0
-    return optimal_pos, optimal_rot
 
 def add_kinematic(scene, shape, position = (0., 0.), rotation = 0., animator = None):
     kinematic = objects.Kinematic(shape, position, rotation)

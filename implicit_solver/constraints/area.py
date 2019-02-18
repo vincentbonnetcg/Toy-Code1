@@ -67,7 +67,7 @@ class Area(Base):
 '''
 def elasticAreaEnergy(x0, x1, x2, rest_area, stiffness):
     area = math2D.area(x0, x1, x2)
-    return 0.5 * stiffness * ((area - rest_area) * (area - rest_area))
+    return 0.5 * stiffness * ((area - rest_area)**2)
 
 
 

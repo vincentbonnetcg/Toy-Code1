@@ -135,4 +135,4 @@ def springDampingForce(x0, x1, v0, v1, damping):
 
 def elasticSpringEnergy(x0, x1, rest, stiffness):
     stretch = math2D.distance(x0, x1)
-    return 0.5 * stiffness * ((stretch - rest) * (stretch - rest))
+    return 0.5 * stiffness * ((stretch - rest)**2)

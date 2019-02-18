@@ -62,11 +62,7 @@ def angle(x0, x1, x2):
     x0  x2
     '''
     t01 = x1 - x0
-    t01norm = norm(t01)
-    t01 /= t01norm
     t12 = x2 - x1
-    t12norm =  norm(t12)
-    t12 /= t12norm
 
     # Discrete angle
     det = t01[0]*t12[1] - t01[1]*t12[0]      # determinant

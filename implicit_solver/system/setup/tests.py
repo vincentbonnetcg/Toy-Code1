@@ -40,7 +40,7 @@ def init_multi_wire_example(dispatcher):
     # anchor shape and animation
     moving_anchor_shape = core.RectangleShape(min_x = -2.0, min_y = 1.5,
                                               max_x = 0.0, max_y =2.0)
-    moving_anchor_position, moving_anchor_rotation = cmds.extract_transform_from_shape(moving_anchor_shape)
+    moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[moving_anchor_position[0] + time,
                           moving_anchor_position[1]], 0.0]
 
@@ -49,7 +49,7 @@ def init_multi_wire_example(dispatcher):
     # collider shape
     collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
                                        WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
-    collider_position, collider_rotation = cmds.extract_transform_from_shape(moving_anchor_shape)
+    collider_position, collider_rotation = moving_anchor_shape.extract_transform_from_shape()
     collider_rotation = 45.
 
     # Populate Scene with data and conditions
@@ -79,8 +79,8 @@ def init_multi_wire_example(dispatcher):
 
         dispatcher.run('add_gravity', gravity = GRAVITY)
 
-        dispatcher.run('add_render_prefs', obj = wire_handle, prefs = ['co', 1])
-        dispatcher.run('add_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
+        dispatcher.run('set_render_prefs', obj = wire_handle, prefs = ['co', 1])
+        dispatcher.run('set_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
 
 
 def init_wire_example(dispatcher):
@@ -98,7 +98,7 @@ def init_wire_example(dispatcher):
     moving_anchor_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
                                               WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
 
-    moving_anchor_position, moving_anchor_rotation = cmds.extract_transform_from_shape(moving_anchor_shape)
+    moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.extract_transform_from_shape()
     decay_rate = 0.5
     func = lambda time: [[moving_anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
                           moving_anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
@@ -123,8 +123,8 @@ def init_wire_example(dispatcher):
                                                stiffness = 100.0, damping = 0.0)
     dispatcher.run('add_gravity', gravity = GRAVITY)
 
-    dispatcher.run('add_render_prefs', obj = wire_handle, prefs = ['co', 1])
-    dispatcher.run('add_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
+    dispatcher.run('set_render_prefs', obj = wire_handle, prefs = ['co', 1])
+    dispatcher.run('set_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
 
 
 def init_beam_example(dispatcher):
@@ -142,14 +142,14 @@ def init_beam_example(dispatcher):
     # left anchor shape and animation
     left_anchor_shape = core.RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
                                             BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
-    l_pos, l_rot = cmds.extract_transform_from_shape(left_anchor_shape)
+    l_pos, l_rot = left_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], l_rot]
     l_animator = objects.Animator(func, dispatcher.context())
 
     # right anchor shape and animation
     right_anchor_shape = core.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
                                              BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
-    r_pos, r_rot = cmds.extract_transform_from_shape(right_anchor_shape)
+    r_pos, r_rot = right_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], r_rot]
     r_animator = objects.Animator(func, dispatcher.context())
 
@@ -187,9 +187,9 @@ def init_beam_example(dispatcher):
 
     dispatcher.run('add_gravity', gravity = GRAVITY)
 
-    dispatcher.run('add_render_prefs', obj = beam_handle, prefs = ['go', 1])
-    dispatcher.run('add_render_prefs', obj = beam_edge_condition_handle, prefs = ['k-', 1])
+    dispatcher.run('set_render_prefs', obj = beam_handle, prefs = ['go', 1])
+    dispatcher.run('set_render_prefs', obj = beam_edge_condition_handle, prefs = ['k-', 1])
 
-    dispatcher.run('add_render_prefs', obj = wire_handle, prefs = ['co', 1])
-    dispatcher.run('add_render_prefs', obj = wire_edge_condition_handle, prefs = ['m-', 1])
+    dispatcher.run('set_render_prefs', obj = wire_handle, prefs = ['co', 1])
+    dispatcher.run('set_render_prefs', obj = wire_edge_condition_handle, prefs = ['m-', 1])
 

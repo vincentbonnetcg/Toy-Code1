@@ -45,7 +45,7 @@ class CommandDispatcher:
                     'add_kinematic_collision' : setup_cmds.add_kinematic_collision,
                     'add_dynamic_attachment' : setup_cmds.add_dynamic_attachment,
                     'add_gravity' : setup_cmds.add_gravity,
-                    'add_render_prefs' : setup_cmds.add_render_prefs}
+                    'set_render_prefs' : setup_cmds.set_render_prefs}
 
         if (command_name == 'initialize' or
             command_name == 'solve_to_next_frame'):
@@ -85,7 +85,7 @@ class CommandDispatcher:
         elif (command_name == 'add_gravity'):
             new_obj = dispatch[command_name](self._scene, kwargs['gravity'])
             result = self.__add_object(new_obj)
-        elif (command_name == 'add_render_prefs'):
+        elif (command_name == 'set_render_prefs'):
             obj = self._object_dict[kwargs['obj']]
             dispatch[command_name](obj, kwargs['prefs'])
         else:
