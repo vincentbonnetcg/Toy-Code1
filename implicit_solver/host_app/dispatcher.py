@@ -5,7 +5,6 @@
 
 import system
 import system.commands as sim_cmds
-import system.setup.commands as setup_cmds
 import uuid
 
 class CommandDispatcher:
@@ -36,16 +35,16 @@ class CommandDispatcher:
 
         dispatch = {'initialize' : sim_cmds.initialize,
                     'solve_to_next_frame' : sim_cmds.solve_to_next_frame,
-                    'add_dynamic' : setup_cmds.add_dynamic,
-                    'add_kinematic' : setup_cmds.add_kinematic,
-                    'add_edge_constraint' : setup_cmds.add_edge_constraint,
-                    'add_wire_bending_constraint' : setup_cmds.add_wire_bending_constraint,
-                    'add_face_constraint': setup_cmds.add_face_constraint,
-                    'add_kinematic_attachment' : setup_cmds.add_kinematic_attachment,
-                    'add_kinematic_collision' : setup_cmds.add_kinematic_collision,
-                    'add_dynamic_attachment' : setup_cmds.add_dynamic_attachment,
-                    'add_gravity' : setup_cmds.add_gravity,
-                    'set_render_prefs' : setup_cmds.set_render_prefs}
+                    'add_dynamic' : sim_cmds.add_dynamic,
+                    'add_kinematic' : sim_cmds.add_kinematic,
+                    'add_edge_constraint' : sim_cmds.add_edge_constraint,
+                    'add_wire_bending_constraint' : sim_cmds.add_wire_bending_constraint,
+                    'add_face_constraint': sim_cmds.add_face_constraint,
+                    'add_kinematic_attachment' : sim_cmds.add_kinematic_attachment,
+                    'add_kinematic_collision' : sim_cmds.add_kinematic_collision,
+                    'add_dynamic_attachment' : sim_cmds.add_dynamic_attachment,
+                    'add_gravity' : sim_cmds.add_gravity,
+                    'set_render_prefs' : sim_cmds.set_render_prefs}
 
         if (command_name == 'initialize' or
             command_name == 'solve_to_next_frame'):

@@ -6,7 +6,7 @@
 import objects
 import core
 import math
-import system.setup.commands as cmds
+import system.commands as cmds
 
 '''
  Global Constants
