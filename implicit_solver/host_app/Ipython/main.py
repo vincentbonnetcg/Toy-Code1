@@ -7,7 +7,7 @@ import tools
 import system
 from render import Render
 from host_app.dispatcher import CommandDispatcher
-import system.setup.tests as tests
+from tests import examples
 
 '''
  Global Constants
@@ -19,6 +19,7 @@ NUM_FRAMES = 100 # number of simulated frame (doesn't include initial frame)
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 USE_REMOTE_SERVER = False # run the program locally or connect to a server
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
+
 
 def main():
 
@@ -35,7 +36,7 @@ def main():
         cmd_dispatcher = CommandDispatcher(context)
 
     # Init bundle with example
-    tests.init_wire_example(cmd_dispatcher)
+    examples.init_wire_example(cmd_dispatcher)
 
     # Creates render and profiler
     render = Render()

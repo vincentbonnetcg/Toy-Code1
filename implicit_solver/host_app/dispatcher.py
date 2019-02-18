@@ -29,7 +29,7 @@ class CommandDispatcher:
 
     def run(self, command_name, **kwargs):
         '''
-        Execute functions from system.setup.commands and system.commands
+        Execute functions from system.commands
         '''
         result = None
 
