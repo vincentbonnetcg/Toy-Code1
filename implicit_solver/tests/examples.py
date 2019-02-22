@@ -6,7 +6,6 @@
 import objects
 import core
 import math
-import system.commands as cmds
 
 '''
  Global Constants
@@ -30,6 +29,7 @@ def init_multi_wire_example(dispatcher):
     '''
     Initalizes a scene with multiple wire attached to a kinematic object
     '''
+    context = dispatcher.run('get_context')
     # wire shape
     wire_shapes = []
     for i in range(6):
@@ -44,7 +44,7 @@ def init_multi_wire_example(dispatcher):
     func = lambda time: [[moving_anchor_position[0] + time,
                           moving_anchor_position[1]], 0.0]
 
-    moving_anchor_animator = objects.Animator(func, dispatcher.context())
+    moving_anchor_animator = objects.Animator(func, context)
 
     # collider shape
     collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
@@ -87,6 +87,7 @@ def init_wire_example(dispatcher):
     '''
     Initalizes a scene with a wire attached to a kinematic object
     '''
+    context = dispatcher.run('get_context')
     # wire shape
     wire_shape = core.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
 
@@ -102,7 +103,7 @@ def init_wire_example(dispatcher):
     decay_rate = 0.5
     func = lambda time: [[moving_anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
                           moving_anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
-    moving_anchor_animator = objects.Animator(func, dispatcher.context())
+    moving_anchor_animator = objects.Animator(func, context)
 
     # Populate scene with commands
     wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, particle_mass = PARTICLE_MASS)
@@ -131,6 +132,7 @@ def init_beam_example(dispatcher):
     '''
     Initalizes a scene with a beam and a wire
     '''
+    context = dispatcher.run('get_context')
     # beam shape
     beam_shape = core.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
 
@@ -144,14 +146,14 @@ def init_beam_example(dispatcher):
                                             BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     l_pos, l_rot = left_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], l_rot]
-    l_animator = objects.Animator(func, dispatcher.context())
+    l_animator = objects.Animator(func, context)
 
     # right anchor shape and animation
     right_anchor_shape = core.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
                                              BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
     r_pos, r_rot = right_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], r_rot]
-    r_animator = objects.Animator(func, dispatcher.context())
+    r_animator = objects.Animator(func, context)
 
     # Populate Scene with data and conditions
     beam_handle = dispatcher.run('add_dynamic', shape = beam_shape, particle_mass = PARTICLE_MASS)

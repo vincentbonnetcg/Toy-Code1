@@ -22,8 +22,7 @@ USE_REMOTE_SERVER = False # run the program locally or connect to a server
 
 
 def main():
-
-    # Creates dispatcher
+    # Creates command dispatcher
     cmd_dispatcher= None
     if USE_REMOTE_SERVER:
         # NOT IMPLEMENTED
@@ -31,11 +30,13 @@ def main():
         #cmd_dispatcher.connect_to_external_server(host = "localhost", port = 8080)
         pass
     else:
-        context = system.Context(time = START_TIME, frame_dt = FRAME_TIMESTEP,
-                             num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
-        cmd_dispatcher = CommandDispatcher(context)
+        cmd_dispatcher = CommandDispatcher()
 
-    # Init bundle with example
+    # Initialize dispatcher (context and scene)
+    context = system.Context(time = START_TIME, frame_dt = FRAME_TIMESTEP,
+                         num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
+
+    cmd_dispatcher.run("set_context", context = context)
     examples.init_wire_example(cmd_dispatcher)
 
     # Creates render and profiler
@@ -52,7 +53,7 @@ def main():
         else:
             cmd_dispatcher.run("solve_to_next_frame")
 
-        render.showCurrentFrame(cmd_dispatcher.solver(), cmd_dispatcher.scene(), frame_id)
+        render.showCurrentFrame(cmd_dispatcher, frame_id)
         render.exportCurrentFrame(str(frame_id).zfill(4) + " .png")
 
         profiler.printLogs()

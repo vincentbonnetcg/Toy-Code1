@@ -86,8 +86,9 @@ class Render:
 
     # Draw and display single frame
     @profiler.timeit
-    def showCurrentFrame(self, solver, scene, frameId):
+    def showCurrentFrame(self, dispatcher, frameId):
         #self.fig = plt.figure(figsize=(7, 4), dpi=200) # to export higher resolution images
+        scene = dispatcher.run("get_scene")
         self.fig = plt.figure()
         self.renderScene(scene, frameId)
         #self.renderSparseMatrix(solver, frameId)

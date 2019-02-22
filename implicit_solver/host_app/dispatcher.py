@@ -11,10 +11,10 @@ class CommandDispatcher:
     '''
     Dispatch commands to manage objects (animators, conditions, dynamics, kinematics, forces)
     '''
-    def __init__(self, context = None):
+    def __init__(self):
         self._scene = system.Scene()
         self._solver = system.ImplicitSolver()
-        self._context = context
+        self._context = None
         self._object_dict = {} # map hash_value with object
 
     def is_defined(self):
@@ -33,7 +33,10 @@ class CommandDispatcher:
         '''
         result = None
 
-        dispatch = {'initialize' : sim_cmds.initialize,
+        dispatch = {'set_context' : None,
+                    'get_context' : None,
+                    'get_scene' : None,
+                    'initialize' : sim_cmds.initialize,
                     'solve_to_next_frame' : sim_cmds.solve_to_next_frame,
                     'add_dynamic' : sim_cmds.add_dynamic,
                     'add_kinematic' : sim_cmds.add_kinematic,
@@ -45,9 +48,15 @@ class CommandDispatcher:
                     'add_dynamic_attachment' : sim_cmds.add_dynamic_attachment,
                     'add_gravity' : sim_cmds.add_gravity,
                     'set_render_prefs' : sim_cmds.set_render_prefs}
-
-        if (command_name == 'initialize' or
-            command_name == 'solve_to_next_frame'):
+        if (command_name == "set_context"):
+            self._context = kwargs['context']
+            result = True
+        if (command_name == "get_context"):
+            result = self._context
+        elif (command_name == "get_scene"):
+            result = self._scene
+        elif (command_name == 'initialize' or
+              command_name == 'solve_to_next_frame'):
             dispatch[command_name](self._scene, self._solver, self._context)
         elif (command_name == 'add_dynamic' or
               command_name == 'add_kinematic'):
@@ -91,13 +100,3 @@ class CommandDispatcher:
             assert("The command  " + command_name + " is not recognized !")
 
         return result
-
-    def scene(self):
-        return self._scene
-
-    def solver(self):
-        return self._solver
-
-    def context(self):
-        return self._context
-
