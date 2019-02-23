@@ -6,53 +6,45 @@
 from multiprocessing.managers import SyncManager
 from multiprocessing import Queue
 
-def make_client_manager(ip="127.0.0.1", port=8080, authkey='12345'):
-    '''
-    Create Client Manager to connect to a server
-    '''
-    class ServerQueueManager(SyncManager):
-        pass
-    ServerQueueManager.register('get_job_queue')
+class ServerQueueManager(SyncManager):
+    pass
 
-    manager = ServerQueueManager(address=(ip, port), authkey=bytes(authkey,encoding='utf8'))
-    manager.connect()
-    print('Client connected to %s:%s' % (ip, port))
-    return manager
-
-def execute_client():
-    manager = make_client_manager()
-    queue = manager.get_job_queue()
-    queue.put("hello")
-    print(queue)
-    queue.put("exit_solver")
-    # TODO
-
-
-if __name__ == '__main__':
-    client_manager = execute_client()
+ServerQueueManager.register('get_job_queue')
+ServerQueueManager.register('get_result_queue')
 
 
 class Client:
     '''
-    Client can store a bundle and/or get bundle from server
+    Client to connect and dispatch commands to a Server
     '''
     def __init__(self):
-        pass
+        self._manager = None
+        self._job_queue = None
+        self._result_queue = None
 
     def is_connected(self):
-        # TODO - NOT IMPLEMENTED
-        return False
+        return self._manager is not None
 
-    def connect_to_external_server(self, host = "localhost", port = 8080):
-        # TODO - NOT IMPLEMENTED
-        return False
+    def connect_to_server(self, ip="127.0.0.1", port=8080, authkey='12345'):
+        try:
+            self._manager = ServerQueueManager(address=(ip, port), authkey=bytes(authkey,encoding='utf8'))
+            self._manager.connect()
+            self._job_queue = self._manager.get_job_queue()
+            self._result_queue = self._manager.get_result_queue()
+            print('Client connected to %s:%s' % (ip, port))
+        except Exception as e:
+            self._manager = None
+            self._job_queue = None
+            self._result_queue = None
+            print('Exception raised by client : ' + str(e))
 
-    def run(self, command_name, *args):
+    def run(self, command_name, **kwargs):
         if self.is_connected():
-            # TODO - NOT IMPLEMENTED
-            pass
+            self._job_queue.put((command_name, kwargs))
+            result = self._result_queue.get(block=True)
+            return result
 
-    def disconnect_from_external_server(self):
+    def disconnect_from_server(self):
         if self.is_connected():
-            # TODO - NOT IMPLEMENTED
-            pass
+            self._job_queue.put('close_server')
+

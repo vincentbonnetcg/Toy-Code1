@@ -3,22 +3,23 @@
 @description : Run Server to be executed on another process
 """
 
-# Development under Spyder IDE
-# The sys.path is not set at the project level but where the file is execute
-# Append the parent of the parent folder to be able to import modules
+'''
+ Development under Spyder IDE
+ The sys.path is not set at the project level but where the file is execute
+ Append the parent of the parent folder to be able to import modules
+'''
 import os
 import sys
 parentdir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(parentdir)
 
-import system
-import pickle
 
+from host_app.dispatcher import CommandDispatcher
 from multiprocessing.managers import SyncManager
 from multiprocessing import Queue
 
 '''
-Custom SyncManager and register global job/result queue
+ Custom SyncManager and register global job/result queue
 '''
 class JobQueueManager(SyncManager):
     pass
@@ -33,45 +34,40 @@ JobQueueManager.register('get_job_queue', callable=function_job_queue)
 JobQueueManager.register('get_result_queue', callable=function_result_queue)
 
 '''
-Global setup and test serialization/deserialization
+ Global Dispatcher
 '''
-global_solver = system.ImplicitSolver()
-global_context = system.Context(time = 0.0, frame_dt = 0.1)
-global_scene = system.Scene()
-system.init_wire_scene(global_scene, global_context)
+global_dispatcher = CommandDispatcher();
 
-
-scene_as_bytes = pickle.dumps(global_solver) # serialize scene
-global_solver = pickle.loads(scene_as_bytes) # deserialize scene
-
-
-def make_server_manager(port=8080, authkey='12345'):
+def execute_server(port=8080, authkey='12345'):
     '''
-    Return a server manager with get_job_q and get_result_q methods.
+    Launch Server
     '''
     manager = JobQueueManager(address=('localhost', port), authkey = bytes(authkey,encoding='utf8'))
     manager.start()
     print('Server started at port %s' % port)
-    return manager
-
-def execute_server():
-    '''
-    Execute job queue
-    '''
-    manager = make_server_manager()
     exit_solver = False
     job_queue = manager.get_job_queue()
-    job_queue.put(global_scene)
+    result_queue = manager.get_result_queue()
+
     while not exit_solver:
-        job = job_queue.get()
-        if (job == "exit_solver"):
+        # Collect a job
+        job = job_queue.get(block=True)
+
+        # Run the command and return result
+        if (isinstance(job, str) and job == 'close_server'):
             exit_solver = True
-        #time.sleep(1)
-        print(job)
+            result_queue.put("server_exit")
+        elif (isinstance(job, tuple)):
+            command_name = job[0]
+            kwargs = job[1]
+            result = global_dispatcher.run(command_name, **kwargs)
+            result_queue.put(result)
+        else:
+            result_queue.put('Command not recognized')
 
     return manager
 
 if __name__ == '__main__':
-    server_manager = execute_server()  
+    server_manager = execute_server()
     input("Press Enter to exit server...")
     server_manager.shutdown()

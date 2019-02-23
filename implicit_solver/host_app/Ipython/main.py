@@ -7,6 +7,7 @@ import tools
 import system
 from render import Render
 from host_app.dispatcher import CommandDispatcher
+from host_app.client import Client
 from tests import examples
 
 '''
@@ -17,7 +18,7 @@ FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 4 # number of substep per frame
 NUM_FRAMES = 100 # number of simulated frame (doesn't include initial frame)
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
-USE_REMOTE_SERVER = False # run the program locally or connect to a server
+USE_REMOTE_SERVER = True # run the program locally or connect to a server
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 
 
@@ -26,9 +27,8 @@ def main():
     cmd_dispatcher= None
     if USE_REMOTE_SERVER:
         # NOT IMPLEMENTED
-        #cmd_dispatcher = ipc.Client()
-        #cmd_dispatcher.connect_to_external_server(host = "localhost", port = 8080)
-        pass
+        cmd_dispatcher = Client()
+        cmd_dispatcher.connect_to_server()
     else:
         cmd_dispatcher = CommandDispatcher()
 
@@ -60,7 +60,7 @@ def main():
 
     # Disconnect client from server
     if USE_REMOTE_SERVER:
-        cmd_dispatcher.disconnect_from_external_server()
+        cmd_dispatcher.disconnect_from_server()
 
 if __name__ == '__main__':
     main()
