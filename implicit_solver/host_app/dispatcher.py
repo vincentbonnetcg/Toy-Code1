@@ -37,7 +37,7 @@ class CommandDispatcher:
                     'get_context' : None,
                     'get_scene' : None,
                     'initialize' : sim_cmds.initialize,
-                    'reset_scene' : sim_cmds.reset_scene,
+                    'reset_scene' : None,
                     'solve_to_next_frame' : sim_cmds.solve_to_next_frame,
                     'add_dynamic' : sim_cmds.add_dynamic,
                     'add_kinematic' : sim_cmds.add_kinematic,

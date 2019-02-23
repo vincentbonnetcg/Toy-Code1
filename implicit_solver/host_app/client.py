@@ -17,10 +17,11 @@ class Client:
     '''
     Client to connect and dispatch commands to a Server
     '''
-    def __init__(self):
+    def __init__(self, name = "noname"):
         self._manager = None
         self._job_queue = None
         self._result_queue = None
+        self._name = name # name of the client for server log
 
     def is_connected(self):
         return self._manager is not None
@@ -40,11 +41,11 @@ class Client:
 
     def run(self, command_name, **kwargs):
         if self.is_connected():
-            self._job_queue.put((command_name, kwargs))
+            self._job_queue.put((command_name, self._name, kwargs))
             result = self._result_queue.get(block=True)
             return result
 
     def disconnect_from_server(self):
         if self.is_connected():
-            self._job_queue.put('close_server')
+            self._job_queue.put(('close_server', self._name))
 

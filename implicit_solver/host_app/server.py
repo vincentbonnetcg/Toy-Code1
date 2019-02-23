@@ -38,7 +38,7 @@ JobQueueManager.register('get_result_queue', callable=function_result_queue)
 '''
 global_dispatcher = CommandDispatcher();
 
-def execute_server(port=8080, authkey='12345'):
+def execute_server(print_log = True, port=8080, authkey='12345'):
     '''
     Launch Server
     '''
@@ -53,17 +53,31 @@ def execute_server(port=8080, authkey='12345'):
         # Collect a job
         job = job_queue.get(block=True)
 
-        # Run the command and return result
-        if (isinstance(job, str) and job == 'close_server'):
-            exit_solver = True
-            result_queue.put("server_exit")
-        elif (isinstance(job, tuple)):
+        # Run the command from client.py and return result
+        result = None
+        log = ""
+        if isinstance(job, tuple):
             command_name = job[0]
-            kwargs = job[1]
-            result = global_dispatcher.run(command_name, **kwargs)
-            result_queue.put(result)
+            client_name = job[1]
+            if command_name == 'close_server':
+                exit_solver = True
+                result = 'server_exit'
+            else:
+                kwargs = job[2]
+                result = global_dispatcher.run(command_name, **kwargs)
+
+            log = "client{%s} runs command{%s}" % (client_name , command_name)
+
         else:
-            result_queue.put('Command not recognized')
+            log = 'Command not recognized (SyntaxError)'
+            result = "SyntaxError"
+
+        # Print Log
+        if print_log:
+            print(log)
+
+        # Add result to result_queue
+        result_queue.put(result)
 
     return manager
 

@@ -26,7 +26,7 @@ def main():
     # Creates command dispatcher
     cmd_dispatcher= None
     if USE_REMOTE_SERVER:
-        cmd_dispatcher = Client()
+        cmd_dispatcher = Client("Spyder")
         cmd_dispatcher.connect_to_server()
     else:
         cmd_dispatcher = CommandDispatcher()
