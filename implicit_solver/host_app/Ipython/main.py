@@ -26,7 +26,6 @@ def main():
     # Creates command dispatcher
     cmd_dispatcher= None
     if USE_REMOTE_SERVER:
-        # NOT IMPLEMENTED
         cmd_dispatcher = Client()
         cmd_dispatcher.connect_to_server()
     else:

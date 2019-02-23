@@ -14,7 +14,7 @@ class Context:
     '''
     Context to store time, time stepping, etc.
     '''
-    def __init__(self, time = 0.0, frame_dt = 1.0/24.0, num_substep = 4, num_frames = 100):
+    def __init__(self, time = 0.0, frame_dt = 1.0/24.0, num_substep = 4, num_frames = 1):
         self.time = time # current time (in seconds)
         self.start_time = time # start time (in seconds)
         self.end_time = time + (num_frames * frame_dt) # end time (in seconds)

@@ -14,7 +14,7 @@ class CommandDispatcher:
     def __init__(self):
         self._scene = system.Scene()
         self._solver = system.ImplicitSolver()
-        self._context = None
+        self._context = system.Context()
         self._object_dict = {} # map hash_value with object
 
     def is_defined(self):
@@ -37,6 +37,7 @@ class CommandDispatcher:
                     'get_context' : None,
                     'get_scene' : None,
                     'initialize' : sim_cmds.initialize,
+                    'reset_scene' : sim_cmds.reset_scene,
                     'solve_to_next_frame' : sim_cmds.solve_to_next_frame,
                     'add_dynamic' : sim_cmds.add_dynamic,
                     'add_kinematic' : sim_cmds.add_kinematic,
@@ -48,13 +49,15 @@ class CommandDispatcher:
                     'add_dynamic_attachment' : sim_cmds.add_dynamic_attachment,
                     'add_gravity' : sim_cmds.add_gravity,
                     'set_render_prefs' : sim_cmds.set_render_prefs}
-        if (command_name == "set_context"):
+        if (command_name == 'set_context'):
             self._context = kwargs['context']
             result = True
-        if (command_name == "get_context"):
+        if (command_name == 'get_context'):
             result = self._context
-        elif (command_name == "get_scene"):
+        elif (command_name == 'get_scene'):
             result = self._scene
+        elif (command_name == 'reset_scene'):
+            self._scene = system.Scene()
         elif (command_name == 'initialize' or
               command_name == 'solve_to_next_frame'):
             dispatch[command_name](self._scene, self._solver, self._context)

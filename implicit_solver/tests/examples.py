@@ -29,6 +29,7 @@ def init_multi_wire_example(dispatcher):
     '''
     Initalizes a scene with multiple wire attached to a kinematic object
     '''
+    dispatcher.run('reset_scene')
     context = dispatcher.run('get_context')
     # wire shape
     wire_shapes = []
@@ -87,6 +88,7 @@ def init_wire_example(dispatcher):
     '''
     Initalizes a scene with a wire attached to a kinematic object
     '''
+    dispatcher.run('reset_scene')
     context = dispatcher.run('get_context')
     # wire shape
     wire_shape = core.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
@@ -132,6 +134,7 @@ def init_beam_example(dispatcher):
     '''
     Initalizes a scene with a beam and a wire
     '''
+    dispatcher.run('reset_scene')
     context = dispatcher.run('get_context')
     # beam shape
     beam_shape = core.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
