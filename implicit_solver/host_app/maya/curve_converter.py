@@ -6,6 +6,8 @@ This code should be run from Maya Python Script Editor
 import maya.api.OpenMaya as om
 import pickle
 
+FILENAME = ""
+
 def extract_tri_mesh_data(points, edge_ids, face_ids):
     # get selected mesh
     selection = om.MSelectionList()
@@ -41,10 +43,30 @@ def extract_tri_mesh_data(points, edge_ids, face_ids):
         face_ids.append((v0, v1, v2))
         polygon_iter.next(0)
 
+def write_to_file(points, edge_ids, face_ids, filename):
+    out_file = open(filename,'wb')
+    out_dict = {'points' : points, 'edge_ids' : edge_ids, 'face_ids' : face_ids }
+    pickle.dump(out_dict, out_file)
+    out_file.close()
+
+def read_from_file(filename):
+    in_file = open(filename,'rb')
+    in_dict = pickle.load(in_file)
+    in_file.close()
+    points = in_dict['points']
+    edge_ids = in_dict['edge_ids']
+    face_ids = in_dict['face_ids']
+    return points, edge_ids, face_ids
+
 points = []
 edge_ids = []
 face_ids = []
 extract_tri_mesh_data(points, edge_ids, face_ids)
+
+write_to_file(points, edge_ids, face_ids, FILENAME)
+
+points, edge_ids, face_ids = read_from_file(FILENAME)
 print(points)
 print(edge_ids)
 print(face_ids)
+
