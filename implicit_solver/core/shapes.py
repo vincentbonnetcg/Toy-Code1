@@ -89,6 +89,9 @@ class Shape:
     def num_edges(self):
         return self.edge.size()
 
+    def num_faces(self):
+        return self.face.size()
+
 class WireShape(Shape):
     '''
     Creates a wire shape

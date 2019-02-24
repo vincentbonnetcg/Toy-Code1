@@ -6,7 +6,7 @@ This code should be run from Maya Python Script Editor
 import maya.api.OpenMaya as om
 import pickle
 
-FILENAME = ""
+FILENAME = "" # ADD FILE
 
 def extract_tri_mesh_data(points, edge_ids, face_ids):
     # get selected mesh

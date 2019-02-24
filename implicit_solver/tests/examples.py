@@ -6,6 +6,7 @@
 import objects
 import core
 import math
+import pickle
 
 '''
  Global Constants
@@ -24,6 +25,63 @@ PARTICLE_MASS = 0.001 # in Kg
 
 GRAVITY = (0.0, -9.81) # in meters per second^2
 
+def init_maya_scene(dispatcher):
+    '''
+    Initalizes a scene from a file create by the Maya mesh_converter.py
+    Latest Maya doesn't support Python 3.x hence cannot use client.py to send data
+    '''
+    dispatcher.run('reset_scene')
+    context = dispatcher.run('get_context')
+
+    # Load Data from file
+    filename = "" # ADD FILE
+    in_file = open(filename,'rb')
+    in_dict = pickle.load(in_file)
+    in_file.close()
+    points = in_dict['points']
+    edge_ids = in_dict['edge_ids']
+    #face_ids = in_dict['face_ids']
+
+    # Create dynamic shape
+    num_vertices = len(points)
+    num_edges = len(edge_ids)
+    shape = core.Shape(num_vertices, num_edges)
+
+    for i in range(num_vertices):
+        shape.vertex.position[i] = (points[i][0], points[i][1])
+
+    for i in range(num_edges):
+        shape.edge.vertex_ids[i] = (edge_ids[i][0], edge_ids[i][1])
+
+    # Create kinematic shape
+    anchor_shape = core.RectangleShape(min_x=-5.0, min_y=4.0,
+                                       max_x=5.0, max_y=4.5)
+    anchor_position, anchor_rotation = anchor_shape.extract_transform_from_shape()
+    func = lambda time: [[anchor_position[0],
+                          anchor_position[1] + math.sin(time * 2) * 1.0], 0.0]
+    anchor_position_animator = objects.Animator(func, context)
+
+    # Add objects to the solver
+    anchor_shape_handle = dispatcher.run('add_kinematic', shape = anchor_shape,
+                                                          position = anchor_position,
+                                                          rotation = anchor_rotation,
+                                                          animator = anchor_position_animator)
+
+    mesh_handle = dispatcher.run('add_dynamic', shape = shape, particle_mass = PARTICLE_MASS)
+
+    edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = mesh_handle,
+                                                           stiffness = 50.0, damping = 0.0)
+
+    dispatcher.run('add_kinematic_attachment', dynamic = mesh_handle,
+                                               kinematic = anchor_shape_handle,
+                                               stiffness = 100.0,
+                                               damping = 0.0,
+                                               distance = 2.5)
+
+    dispatcher.run('add_gravity', gravity = GRAVITY)
+
+    dispatcher.run('set_render_prefs', obj = mesh_handle, prefs = ['co', 1])
+    dispatcher.run('set_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
 
 def init_multi_wire_example(dispatcher):
     '''
@@ -78,10 +136,10 @@ def init_multi_wire_example(dispatcher):
         dispatcher.run('add_kinematic_collision', dynamic = wire_handle, kinematic = collider_handle,
                                                    stiffness = 1000.0, damping = 0.0)
 
-        dispatcher.run('add_gravity', gravity = GRAVITY)
-
         dispatcher.run('set_render_prefs', obj = wire_handle, prefs = ['co', 1])
         dispatcher.run('set_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
+
+    dispatcher.run('add_gravity', gravity = GRAVITY)
 
 
 def init_wire_example(dispatcher):
