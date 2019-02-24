@@ -1,0 +1,50 @@
+"""
+@author: Vincent Bonnet
+@description : Python code to bridge Maya Data to the solver
+This code should be run from Maya Python Script Editor
+"""
+import maya.api.OpenMaya as om
+import pickle
+
+def extract_tri_mesh_data(points, edge_ids, face_ids):
+    # get selected mesh
+    selection = om.MSelectionList()
+    selection = om.MGlobal.getActiveSelectionList()
+    iter_sel = om.MItSelectionList(selection, om.MFn.kMesh)
+
+    if iter_sel.isDone():
+        print("no mesh selected")
+        return
+
+    dag_path = iter_sel.getDagPath()
+    fn_mesh = om.MFnMesh(dag_path)
+
+    # get vertices
+    pts = fn_mesh.getPoints(om.MSpace.kWorld)
+    for i in range(len(pts)) :
+        points.append((pts[i].x, pts[i].z))
+
+    # get edge indices
+    edge_iter = om.MItMeshEdge(dag_path)
+    while not edge_iter.isDone():
+        v0 = edge_iter.vertexId(0)
+        v1 = edge_iter.vertexId(1)
+        edge_ids.append((v0, v1))
+        edge_iter.next()
+
+    # get faces
+    polygon_iter = om.MItMeshPolygon(dag_path)
+    while not polygon_iter.isDone():
+        v0 = polygon_iter.vertexIndex(0)
+        v1 = polygon_iter.vertexIndex(1)
+        v2 = polygon_iter.vertexIndex(2)
+        face_ids.append((v0, v1, v2))
+        polygon_iter.next(0)
+
+points = []
+edge_ids = []
+face_ids = []
+extract_tri_mesh_data(points, edge_ids, face_ids)
+print(points)
+print(edge_ids)
+print(face_ids)
