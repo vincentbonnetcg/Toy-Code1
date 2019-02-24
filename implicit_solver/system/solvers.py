@@ -103,8 +103,10 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def assembleSystem(self, scene, dt):
-        # Assemble the system (Ax=b) where x is the change of velocity
         total_particles = scene.num_particles()
+        if (total_particles == 0):
+            return
+        # Assemble the system (Ax=b) where x is the change of velocity
         num_rows = total_particles
         num_columns = total_particles
         A = BSRSparseMatrix(num_rows, num_columns, 2)
@@ -156,6 +158,9 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def solveSystem(self, scene, dt):
+        total_particles = scene.num_particles()
+        if (total_particles == 0):
+            return
         # Solve the system (Ax=b)
         cgResult = sc.sparse.linalg.cg(self.A, self.b)
         deltaVArray = cgResult[0]
