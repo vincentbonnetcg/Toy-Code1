@@ -37,11 +37,11 @@ class FaceComponent:
 
 def vertex_ids_neighbours(vertex_ids):
     result = {}
-    for component_id, vertex_ids in enumerate(vertex_ids):
-        for vertex_id0 in vertex_ids:
-            for vertex_id1 in vertex_ids:
-                if vertex_id0 != vertex_id1:
-                    result.setdefault(vertex_id0, []).append(vertex_id1)
+    for component_id, vtx_ids in enumerate(vertex_ids):
+        for vtx_id0 in vtx_ids:
+            for vtx_id1 in vtx_ids:
+                if vtx_id0 != vtx_id1:
+                    result.setdefault(vtx_id0, []).append(vtx_id1)
     return result
 
 class Shape:
