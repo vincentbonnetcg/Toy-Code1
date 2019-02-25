@@ -12,11 +12,8 @@ class VertexComponent:
     def __init__(self, num_vertices):
         self.position = np.zeros((num_vertices, 2), dtype=float)
 
-    def size(self):
+    def __len__(self):
         return len(self.position)
-
-    def __str__(self):
-        return str(self.__class__)  + ": " + str(self.__dict__)
 
 class EdgeComponent:
     '''
@@ -25,14 +22,11 @@ class EdgeComponent:
     def __init__(self, num_edges):
         self.vertex_ids = np.zeros((num_edges, 2), dtype=int)
 
-    def size(self):
+    def __len__(self):
         return len(self.vertex_ids)
 
     def vertex_edges_dict(self):
         return component_to_vertex_ids(self.vertex_ids)
-
-    def __str__(self):
-        return str(self.__class__)
 
 class FaceComponent:
     '''
@@ -41,11 +35,8 @@ class FaceComponent:
     def __init__(self, num_faces):
         self.vertex_ids = np.zeros((num_faces, 3), dtype=int)
 
-    def size(self):
+    def __len__(self):
         return len(self.vertex_ids)
-
-    def __str__(self):
-        return str(self.__class__)
 
 def component_to_vertex_ids(vertex_ids):
     result = {}
@@ -84,13 +75,13 @@ class Shape:
         return optimal_pos, optimal_rot
 
     def num_vertices(self):
-        return self.vertex.size()
+        return len(self.vertex)
 
     def num_edges(self):
-        return self.edge.size()
+        return len(self.edge)
 
     def num_faces(self):
-        return self.face.size()
+        return len(self.face)
 
 class WireShape(Shape):
     '''
