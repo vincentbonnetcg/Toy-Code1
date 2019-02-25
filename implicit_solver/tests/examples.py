@@ -7,6 +7,7 @@ import objects
 import core
 import math
 import pickle
+from tests.shape_examples import WireShape, RectangleShape, BeamShape
 
 '''
  Global Constants
@@ -54,7 +55,7 @@ def init_maya_scene(dispatcher):
         shape.edge.vertex_ids[i] = (edge_ids[i][0], edge_ids[i][1])
 
     # Create kinematic shape
-    anchor_shape = core.RectangleShape(min_x=-5.0, min_y=4.0,
+    anchor_shape = RectangleShape(min_x=-5.0, min_y=4.0,
                                        max_x=5.0, max_y=4.5)
     anchor_position, anchor_rotation = anchor_shape.extract_transform_from_shape()
     func = lambda time: [[anchor_position[0],
@@ -93,11 +94,11 @@ def init_multi_wire_example(dispatcher):
     wire_shapes = []
     for i in range(6):
         x = -2.0 + (i * 0.25)
-        wire_shape = core.WireShape([x, 1.5], [x, -1.5] , WIRE_NUM_SEGMENTS)
+        wire_shape = WireShape([x, 1.5], [x, -1.5] , WIRE_NUM_SEGMENTS)
         wire_shapes.append(wire_shape)
 
     # anchor shape and animation
-    moving_anchor_shape = core.RectangleShape(min_x = -2.0, min_y = 1.5,
+    moving_anchor_shape = RectangleShape(min_x = -2.0, min_y = 1.5,
                                               max_x = 0.0, max_y =2.0)
     moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[moving_anchor_position[0] + time,
@@ -106,7 +107,7 @@ def init_multi_wire_example(dispatcher):
     moving_anchor_animator = objects.Animator(func, context)
 
     # collider shape
-    collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
+    collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
                                        WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
     collider_position, collider_rotation = moving_anchor_shape.extract_transform_from_shape()
     collider_rotation = 45.
@@ -149,14 +150,14 @@ def init_wire_example(dispatcher):
     dispatcher.run('reset_scene')
     context = dispatcher.run('get_context')
     # wire shape
-    wire_shape = core.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
+    wire_shape = WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
 
     # collider shape
-    collider_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
-                                       WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
+    collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
+                                    WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
 
     # anchor shape and animation
-    moving_anchor_shape = core.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
+    moving_anchor_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
                                               WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
 
     moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.extract_transform_from_shape()
@@ -195,22 +196,22 @@ def init_beam_example(dispatcher):
     dispatcher.run('reset_scene')
     context = dispatcher.run('get_context')
     # beam shape
-    beam_shape = core.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
+    beam_shape = BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
 
     # wire shape
     wire_start_pos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
     wire_end_pos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
-    wire_shape = core.WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
+    wire_shape = WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
 
     # left anchor shape and animation
-    left_anchor_shape = core.RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
+    left_anchor_shape = RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
                                             BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     l_pos, l_rot = left_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], l_rot]
     l_animator = objects.Animator(func, context)
 
     # right anchor shape and animation
-    right_anchor_shape = core.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
+    right_anchor_shape = RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
                                              BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
     r_pos, r_rot = right_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], r_rot]
