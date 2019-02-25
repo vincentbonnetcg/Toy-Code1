@@ -25,9 +25,6 @@ class EdgeComponent:
     def __len__(self):
         return len(self.vertex_ids)
 
-    def vertex_edges_dict(self):
-        return component_to_vertex_ids(self.vertex_ids)
-
 class FaceComponent:
     '''
     Face Component
@@ -37,14 +34,6 @@ class FaceComponent:
 
     def __len__(self):
         return len(self.vertex_ids)
-
-def component_to_vertex_ids(vertex_ids):
-    result = {}
-    for component_id, vertex_ids in enumerate(vertex_ids):
-        for vertex_id in vertex_ids:
-            result.setdefault(vertex_id, []).append(component_id)
-
-    return result
 
 def vertex_ids_neighbours(vertex_ids):
     result = {}
