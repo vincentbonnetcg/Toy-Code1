@@ -5,7 +5,7 @@
 
 import constraints as cn
 import numpy as np
-import core.shapes as shapes
+import core
 
 class Condition:
     '''
@@ -154,7 +154,7 @@ class WireBendingCondition(Condition):
     def add_constraints(self, scene):
         for object_index in self.dynamicIndices:
             dynamic = scene.dynamics[object_index]
-            vertex_edges_dict = shapes.vertex_ids_neighbours(dynamic.edge_ids)
+            vertex_edges_dict = core.shape.vertex_ids_neighbours(dynamic.edge_ids)
             if self.stiffness > 0.0:
                 for vertex_id, vertex_id_neighbour in vertex_edges_dict.items():
                     if (len(vertex_id_neighbour) == 2):
