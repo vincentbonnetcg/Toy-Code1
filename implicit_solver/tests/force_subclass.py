@@ -1,21 +1,12 @@
 """
 @author: Vincent Bonnet
-@description : External forces
+@description : Subclasses of the Force class
 """
 
+from objects import Force
 import numpy as np
 
-class Force:
-    '''
-    Base to describe a global external force
-    '''
-    def __init__(self):
-        pass
-
-    def apply_forces(self, scene):
-        pass
-
-class Gravity:
+class Gravity(Force):
     '''
     Base to describe gravity
     '''

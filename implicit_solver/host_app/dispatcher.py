@@ -5,6 +5,7 @@
 
 import system
 import system.commands as sim_cmds
+import tests.commands as subclass_cmds
 import uuid
 
 class CommandDispatcher:
@@ -41,13 +42,13 @@ class CommandDispatcher:
                     'solve_to_next_frame' : sim_cmds.solve_to_next_frame,
                     'add_dynamic' : sim_cmds.add_dynamic,
                     'add_kinematic' : sim_cmds.add_kinematic,
-                    'add_edge_constraint' : sim_cmds.add_edge_constraint,
-                    'add_wire_bending_constraint' : sim_cmds.add_wire_bending_constraint,
-                    'add_face_constraint': sim_cmds.add_face_constraint,
-                    'add_kinematic_attachment' : sim_cmds.add_kinematic_attachment,
-                    'add_kinematic_collision' : sim_cmds.add_kinematic_collision,
-                    'add_dynamic_attachment' : sim_cmds.add_dynamic_attachment,
-                    'add_gravity' : sim_cmds.add_gravity,
+                    'add_edge_constraint' : subclass_cmds.add_edge_constraint,
+                    'add_wire_bending_constraint' : subclass_cmds.add_wire_bending_constraint,
+                    'add_face_constraint': subclass_cmds.add_face_constraint,
+                    'add_kinematic_attachment' : subclass_cmds.add_kinematic_attachment,
+                    'add_kinematic_collision' : subclass_cmds.add_kinematic_collision,
+                    'add_dynamic_attachment' : subclass_cmds.add_dynamic_attachment,
+                    'add_gravity' : subclass_cmds.add_gravity,
                     'set_render_prefs' : sim_cmds.set_render_prefs}
         if (command_name == 'set_context'):
             self._context = kwargs['context']

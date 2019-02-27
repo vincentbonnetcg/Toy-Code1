@@ -8,7 +8,7 @@ import system
 from render import Render
 from host_app.dispatcher import CommandDispatcher
 from host_app.client import Client
-from tests import examples
+from tests import scene_examples
 
 '''
  Global Constants
@@ -36,7 +36,7 @@ def main():
                          num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
 
     cmd_dispatcher.run("set_context", context = context)
-    examples.init_wire_example(cmd_dispatcher)
+    scene_examples.init_wire_example(cmd_dispatcher)
 
     # Creates render and profiler
     render = Render()

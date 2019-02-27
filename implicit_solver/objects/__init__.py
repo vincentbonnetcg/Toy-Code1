@@ -2,8 +2,7 @@
 
 from objects.dynamic import Dynamic
 from objects.kinematic import Kinematic
-from objects.forces import Gravity
+from objects.force import Force
 from objects.animator import Animator
-from objects.conditions import KinematicCollisionCondition
-from objects.conditions import KinematicAttachmentCondition, DynamicAttachmentCondition
-from objects.conditions import SpringCondition, AreaCondition, WireBendingCondition
+from objects.condition import Condition
+

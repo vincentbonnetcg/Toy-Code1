@@ -1,7 +1,8 @@
 """
 @author: Vincent Bonnet
-@description : example of simple shapes
+@description : Subclasses of the Shape class
 """
+
 from core import Shape
 import numpy as np
 

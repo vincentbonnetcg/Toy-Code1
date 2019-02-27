@@ -1,13 +1,13 @@
 """
 @author: Vincent Bonnet
-@description : example scenes for unit testing
+@description : example scenes for Unit Testing
 """
 
 import objects
 import core
 import math
 import pickle
-from tests.shape_examples import WireShape, RectangleShape, BeamShape
+from tests import WireShape, RectangleShape, BeamShape
 
 '''
  Global Constants
