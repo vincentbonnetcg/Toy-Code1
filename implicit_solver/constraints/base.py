@@ -15,21 +15,21 @@ class Base:
         self.damping = damping
         self.f = np.zeros((N, 2))
         # Particle identifications
-        self.localIds = np.copy(particles_ids) # local particle indices
-        self.dynamicIndices = np.zeros(N, dtype=int) # indices of the dynamic objects
-        self.globalIds = np.zeros(N, dtype=int)
+        self.particles_ids = np.copy(particles_ids) # local particle indices
+        self.dynamic_ids = np.zeros(N, dtype=int) # indices of the dynamic objects
+        self.global_particle_ids = np.zeros(N, dtype=int) # global particle indices
         for i in range(N):
-            self.dynamicIndices[i] = dynamics[i].index
-            self.globalIds[i] = self.localIds[i] + dynamics[i].global_offset
+            self.dynamic_ids[i] = dynamics[i].index
+            self.global_particle_ids[i] = self.particles_ids[i] + dynamics[i].global_offset
         # Precomputed jacobians.
         # NxN matrix where each element is a 2x2 submatrix
         self.dfdx = np.zeros((N, N, 2, 2))
         self.dfdv = np.zeros((N, N, 2, 2))
 
     def applyForces(self, scene):
-        for i in range(len(self.localIds)):
-            dynamic = scene.dynamics[self.dynamicIndices[i]]
-            dynamic.f[self.localIds[i]] += self.f[i]
+        for i in range(len(self.particles_ids)):
+            dynamic = scene.dynamics[self.dynamic_ids[i]]
+            dynamic.f[self.particles_ids[i]] += self.f[i]
 
     def computeForces(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'computeForces'")

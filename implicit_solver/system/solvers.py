@@ -125,7 +125,7 @@ class ImplicitSolver(BaseSolver):
         # Substract (h * df/dv + h^2 * df/dx)
         constraintsIterator = scene.get_constraints_iterator()
         for constraint in constraintsIterator:
-            ids = constraint.globalIds
+            ids = constraint.global_particle_ids
             for fi in range(len(ids)):
                 for j in range(len(ids)):
                     Jv = constraint.getJacobianDv(fi, j)
@@ -144,14 +144,14 @@ class ImplicitSolver(BaseSolver):
         # set (df/dx * v0 * h * h)
         constraintsIterator = scene.get_constraints_iterator()
         for constraint in constraintsIterator:
-            ids = constraint.globalIds
-            localIds = constraint.localIds
-            dynamicIndices = constraint.dynamicIndices
-            for fi in range(len(ids)):
-                for xi in range(len(ids)):
-                    dynamic = scene.dynamics[dynamicIndices[xi]]
+            g_pids = constraint.global_particle_ids
+            pids = constraint.particles_ids
+            dynamic_ids = constraint.dynamic_ids
+            for fi in range(len(g_pids)):
+                for xi in range(len(g_pids)):
+                    dynamic = scene.dynamics[dynamic_ids[xi]]
                     Jx = constraint.getJacobianDx(fi, xi)
-                    self.b[ids[fi]*2:ids[fi]*2+2] += np.matmul(dynamic.v[localIds[xi]], Jx) * dt * dt
+                    self.b[g_pids[fi]*2:g_pids[fi]*2+2] += np.matmul(dynamic.v[pids[xi]], Jx) * dt * dt
 
         # convert sparse matrix
         self.A = A.sparse_matrix()

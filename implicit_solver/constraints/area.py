@@ -11,23 +11,23 @@ class Area(Base):
     '''
     Describes a 2D area constraint between three particles
     '''
-    def __init__(self, stiffness, damping, dynamics, particleIds):
-        Base.__init__(self, stiffness, damping, dynamics, particleIds)
-        x0 = dynamics[0].x[particleIds[0]]
-        x1 = dynamics[1].x[particleIds[1]]
-        x2 = dynamics[2].x[particleIds[2]]
+    def __init__(self, stiffness, damping, dynamics, particle_ids):
+        Base.__init__(self, stiffness, damping, dynamics, particle_ids)
+        x0 = dynamics[0].x[particle_ids[0]]
+        x1 = dynamics[1].x[particle_ids[1]]
+        x2 = dynamics[2].x[particle_ids[2]]
         self.rest_area = math2D.area(x0, x1, x2)
 
     def getStates(self, scene):
-        dynamic0 = scene.dynamics[self.dynamicIndices[0]]
-        dynamic1 = scene.dynamics[self.dynamicIndices[1]]
-        dynamic2 = scene.dynamics[self.dynamicIndices[2]]
-        x0 = dynamic0.x[self.localIds[0]]
-        x1 = dynamic1.x[self.localIds[1]]
-        x2 = dynamic2.x[self.localIds[2]]
-        v0 = dynamic0.v[self.localIds[0]]
-        v1 = dynamic1.v[self.localIds[1]]
-        v2 = dynamic2.v[self.localIds[1]]
+        dynamic0 = scene.dynamics[self.dynamic_ids[0]]
+        dynamic1 = scene.dynamics[self.dynamic_ids[1]]
+        dynamic2 = scene.dynamics[self.dynamic_ids[2]]
+        x0 = dynamic0.x[self.particles_ids[0]]
+        x1 = dynamic1.x[self.particles_ids[1]]
+        x2 = dynamic2.x[self.particles_ids[2]]
+        v0 = dynamic0.v[self.particles_ids[0]]
+        v1 = dynamic1.v[self.particles_ids[1]]
+        v2 = dynamic2.v[self.particles_ids[1]]
         return (x0, x1, x2, v0, v1, v2)
 
     def computeForces(self, scene):

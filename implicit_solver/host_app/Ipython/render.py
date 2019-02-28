@@ -45,9 +45,9 @@ class Render:
                 continue
 
             for constraint in condition.constraints:
-                local_ids = constraint.localIds
+                local_ids = constraint.particles_ids
                 dynamics = []
-                for object_index in constraint.dynamicIndices:
+                for object_index in constraint.dynamic_ids:
                     dynamics.append(scene.dynamics[object_index])
 
                 if len(local_ids) >= 2:

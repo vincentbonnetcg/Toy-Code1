@@ -15,15 +15,15 @@ class AnchorSpring(Base):
     def __init__(self, stiffness, damping, dynamic, particle_id, kinematic, point_params):
         Base.__init__(self, stiffness, damping, [dynamic], [particle_id])
         target_pos = kinematic.get_point_from_parametric_value(point_params)
-        self.rest_length = math2D.distance(target_pos, dynamic.x[self.localIds[0]])
+        self.rest_length = math2D.distance(target_pos, dynamic.x[self.particles_ids[0]])
         self.point_params = point_params
         self.kinematicIndex = kinematic.index
 
     def getStates(self, scene):
         kinematic = scene.kinematics[self.kinematicIndex]
-        dynamic = scene.dynamics[self.dynamicIndices[0]]
-        x = dynamic.x[self.localIds[0]]
-        v = dynamic.v[self.localIds[0]]
+        dynamic = scene.dynamics[self.dynamic_ids[0]]
+        x = dynamic.x[self.particles_ids[0]]
+        v = dynamic.v[self.particles_ids[0]]
         return (kinematic, x, v)
 
     def computeForces(self, scene):
@@ -60,12 +60,12 @@ class Spring(Base):
                                           dynamics[1].x[particle_ids[1]])
 
     def getStates(self, scene):
-        dynamic0 = scene.dynamics[self.dynamicIndices[0]]
-        dynamic1 = scene.dynamics[self.dynamicIndices[1]]
-        x0 = dynamic0.x[self.localIds[0]]
-        x1 = dynamic1.x[self.localIds[1]]
-        v0 = dynamic0.v[self.localIds[0]]
-        v1 = dynamic1.v[self.localIds[1]]
+        dynamic0 = scene.dynamics[self.dynamic_ids[0]]
+        dynamic1 = scene.dynamics[self.dynamic_ids[1]]
+        x0 = dynamic0.x[self.particles_ids[0]]
+        x1 = dynamic1.x[self.particles_ids[1]]
+        v0 = dynamic0.v[self.particles_ids[0]]
+        v1 = dynamic1.v[self.particles_ids[1]]
         return (x0, x1, v0, v1)
 
     def computeForces(self, scene):

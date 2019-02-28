@@ -25,8 +25,8 @@ class KinematicCollisionCondition(Condition):
         '''
         Add zero-length springs into the dynamic constraints of the scene
         '''
-        dynamic = scene.dynamics[self.dynamicIndices[0]]
-        kinematic = scene.kinematics[self.kinematicIndices[0]]
+        dynamic = scene.dynamics[self.dynamic_ids[0]]
+        kinematic = scene.kinematics[self.kinematic_ids[0]]
         for particleId, pos in enumerate(dynamic.x):
             if (kinematic.is_inside(pos)):
                 attachmentPointParams = kinematic.get_closest_parametric_value(pos)
@@ -47,8 +47,8 @@ class KinematicAttachmentCondition(Condition):
         '''
         Add springs into the static constraints of the scene
         '''
-        dynamic = scene.dynamics[self.dynamicIndices[0]]
-        kinematic = scene.kinematics[self.kinematicIndices[0]]
+        dynamic = scene.dynamics[self.dynamic_ids[0]]
+        kinematic = scene.kinematics[self.kinematic_ids[0]]
         # Linear search => it will be inefficient for dynamic objects with many particles
         distance2 = self.distance * self.distance
         for particleId, x in enumerate(dynamic.x):
@@ -72,8 +72,8 @@ class DynamicAttachmentCondition(Condition):
         '''
         Add springs into the static constraints of the scene
         '''
-        dynamic0 = scene.dynamics[self.dynamicIndices[0]]
-        dynamic1 = scene.dynamics[self.dynamicIndices[1]]
+        dynamic0 = scene.dynamics[self.dynamic_ids[0]]
+        dynamic1 = scene.dynamics[self.dynamic_ids[1]]
         distance2 = self.distance * self.distance
         for x0i, x0 in enumerate(dynamic0.x):
             for x1i, x1 in enumerate(dynamic1.x):
@@ -92,7 +92,7 @@ class SpringCondition(Condition):
        Condition.__init__(self, dynamics, [], stiffness, damping)
 
     def add_constraints(self, scene):
-        for object_index in self.dynamicIndices:
+        for object_index in self.dynamic_ids:
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.edge_ids:
                 constraint = cn.Spring(self.stiffness, self.damping,
@@ -109,7 +109,7 @@ class AreaCondition(Condition):
        Condition.__init__(self, dynamics, [], stiffness, damping)
 
     def add_constraints(self, scene):
-        for object_index in self.dynamicIndices:
+        for object_index in self.dynamic_ids:
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.face_ids:
                 constraint = cn.Area(self.stiffness, self.damping,
@@ -125,7 +125,7 @@ class WireBendingCondition(Condition):
        Condition.__init__(self, dynamics, [], stiffness, damping)
 
     def add_constraints(self, scene):
-        for object_index in self.dynamicIndices:
+        for object_index in self.dynamic_ids:
             dynamic = scene.dynamics[object_index]
             vertex_edges_dict = core.shape.vertex_ids_neighbours(dynamic.edge_ids)
             if self.stiffness > 0.0:
