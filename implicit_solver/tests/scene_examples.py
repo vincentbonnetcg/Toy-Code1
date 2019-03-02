@@ -2,12 +2,11 @@
 @author: Vincent Bonnet
 @description : example scenes for Unit Testing
 """
-
+import os
 import objects
-import core
 import math
-import pickle
 from tests import WireShape, RectangleShape, BeamShape
+import host_app.dcc_before_python3.shape_io_p2 as dcc_p2_utils
 
 '''
  Global Constants
@@ -26,33 +25,20 @@ PARTICLE_MASS = 0.001 # in Kg
 
 GRAVITY = (0.0, -9.81) # in meters per second^2
 
-def init_maya_scene(dispatcher):
+def get_resources_folder():
+    return os.path.dirname(__file__) + "/resources/"
+
+def init_cat_scene(dispatcher):
     '''
-    Initalizes a scene from a file create by the Maya mesh_converter.py
-    Latest Maya doesn't support Python 3.x hence cannot use client.py to send data
+    Initalizes a scene including a cat shape created by the Maya/mesh_converter.py
+    Latest Maya/Houdini doesn't support Python 3.x hence cannot use client.py to send data
     '''
     dispatcher.run('reset_scene')
     context = dispatcher.run('get_context')
 
     # Load Data from file
-    filename = "" # ADD FILE
-    in_file = open(filename,'rb')
-    in_dict = pickle.load(in_file)
-    in_file.close()
-    points = in_dict['points']
-    edge_ids = in_dict['edge_ids']
-    #face_ids = in_dict['face_ids']
-
-    # Create dynamic shape
-    num_vertices = len(points)
-    num_edges = len(edge_ids)
-    shape = core.Shape(num_vertices, num_edges)
-
-    for i in range(num_vertices):
-        shape.vertex.position[i] = (points[i][0], points[i][1])
-
-    for i in range(num_edges):
-        shape.edge.vertex_ids[i] = (edge_ids[i][0], edge_ids[i][1])
+    filename = get_resources_folder() + "cat.shape"
+    shape = dcc_p2_utils.create_shape_from_file(filename)
 
     # Create kinematic shape
     anchor_shape = RectangleShape(min_x=-5.0, min_y=4.0,
