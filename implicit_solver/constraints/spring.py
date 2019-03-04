@@ -19,7 +19,7 @@ class AnchorSpring(Base):
         self.point_params = point_params
         self.kinematicIndex = kinematic.index
 
-    def getStates(self, scene):
+    def get_states(self, scene):
         kinematic = scene.kinematics[self.kinematicIndex]
         dynamic = scene.dynamics[self.dynamic_ids[0]]
         x = dynamic.x[self.particles_ids[0]]
@@ -27,7 +27,7 @@ class AnchorSpring(Base):
         return (kinematic, x, v)
 
     def compute_forces(self, scene):
-        kinematic, x, v = self.getStates(scene)
+        kinematic, x, v = self.get_states(scene)
         target_pos = kinematic.get_point_from_parametric_value(self.point_params)
         # Numerical forces
         #force = diff.numerical_jacobian(elasticSpringEnergy, 0, x, target_pos, self.rest_length, self.stiffness) * -1.0
@@ -38,7 +38,7 @@ class AnchorSpring(Base):
         self.f[0] = force
 
     def compute_jacobians(self, scene):
-        kinematic, x, v = self.getStates(scene)
+        kinematic, x, v = self.get_states(scene)
         target_pos = kinematic.get_point_from_parametric_value(self.point_params)
         # Numerical jacobians
         #dfdx = diff.numerical_jacobian(springStretchForce, 0, x, target_pos, self.rest_length, self.stiffness)
@@ -59,7 +59,7 @@ class Spring(Base):
         self.rest_length = math2D.distance(dynamics[0].x[particle_ids[0]],
                                           dynamics[1].x[particle_ids[1]])
 
-    def getStates(self, scene):
+    def get_states(self, scene):
         dynamic0 = scene.dynamics[self.dynamic_ids[0]]
         dynamic1 = scene.dynamics[self.dynamic_ids[1]]
         x0 = dynamic0.x[self.particles_ids[0]]
@@ -69,7 +69,7 @@ class Spring(Base):
         return (x0, x1, v0, v1)
 
     def compute_forces(self, scene):
-        x0, x1, v0, v1 = self.getStates(scene)
+        x0, x1, v0, v1 = self.get_states(scene)
         # Numerical forces
         #force = diff.numerical_jacobian(elasticSpringEnergy, 0, x0, x1, self.rest_length, self.stiffness) * -1.0
         # Analytic forces
@@ -80,7 +80,7 @@ class Spring(Base):
         self.f[1] = force * -1
 
     def compute_jacobians(self, scene):
-        x0, x1, v0, v1 = self.getStates(scene)
+        x0, x1, v0, v1 = self.get_states(scene)
         # Numerical jacobians
         #dfdx = diff.numerical_jacobian(springStretchForce, 0, x0, x1, self.rest_length, self.stiffness)
         #dfdv = diff.numerical_jacobian(springDampingForce, 2, x0, x1, v0, v1, self.damping)

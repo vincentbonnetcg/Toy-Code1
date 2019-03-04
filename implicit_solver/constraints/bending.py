@@ -24,7 +24,7 @@ class Bending(Base):
         x2 = dynamics[2].x[particle_ids[2]]
         self.rest_angle = math2D.angle(x0, x1, x2)
 
-    def getStates(self, scene):
+    def get_states(self, scene):
         dynamic0 = scene.dynamics[self.dynamic_ids[0]]
         dynamic1 = scene.dynamics[self.dynamic_ids[1]]
         dynamic2 = scene.dynamics[self.dynamic_ids[2]]
@@ -37,7 +37,7 @@ class Bending(Base):
         return (x0, x1, x2, v0, v1, v2)
 
     def compute_forces(self, scene):
-        x0, x1, x2, v0, v1, v2 = self.getStates(scene)
+        x0, x1, x2, v0, v1, v2 = self.get_states(scene)
         # Numerical forces
         force0 = diff.numerical_jacobian(elasticBendingEnergy, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         force1 = diff.numerical_jacobian(elasticBendingEnergy, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
@@ -50,7 +50,7 @@ class Bending(Base):
         self.f[2] = force2
 
     def compute_jacobians(self, scene):
-        x0, x1, x2, v0, v1, v2 = self.getStates(scene)
+        x0, x1, x2, v0, v1, v2 = self.get_states(scene)
         # Numerical jacobians (Aka Hessian of the energy)
         dfdx00 = diff.numerical_hessian(elasticBendingEnergy, 0, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         dfdx11 = diff.numerical_hessian(elasticBendingEnergy, 1, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
