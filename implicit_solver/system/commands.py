@@ -36,7 +36,7 @@ def solve_to_next_frame(scene, solver, context):
     '''
     for _ in range(context.num_substep):
         context.time += context.dt
-        solver.solveStep(scene, context)
+        solver.solve_step(scene, context)
 
 def initialize(scene, solver, context):
     '''

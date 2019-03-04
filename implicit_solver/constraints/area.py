@@ -30,7 +30,7 @@ class Area(Base):
         v2 = dynamic2.v[self.particles_ids[1]]
         return (x0, x1, x2, v0, v1, v2)
 
-    def computeForces(self, scene):
+    def compute_forces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical forces
         force0 = diff.numerical_jacobian(elasticAreaEnergy, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
@@ -43,7 +43,7 @@ class Area(Base):
         self.f[1] = force1
         self.f[2] = force2
 
-    def computeJacobians(self, scene):
+    def compute_jacobians(self, scene):
         x0, x1, x2, v0, v1, v2 = self.getStates(scene)
         # Numerical jacobians (Aka Hessian of the energy)
         dfdx00 = diff.numerical_hessian(elasticAreaEnergy, 0, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0

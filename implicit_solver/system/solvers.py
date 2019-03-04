@@ -39,31 +39,31 @@ class BaseSolver:
         scene.update_conditions(False) # Update dynamic conditions
 
     @profiler.timeit
-    def solveStep(self, scene, context):
-        self.preStep(scene, context)
+    def solve_step(self, scene, context):
+        self.pre_step(scene, context)
         self.step(scene, context)
-        self.postStep(scene, context)
+        self.post_step(scene, context)
 
-    def preStep(self, scene, context):
+    def pre_step(self, scene, context):
         scene.update_kinematics(context.time, context.dt)
         scene.update_conditions(False) # Update dynamic conditions
 
     def step(self, scene, context):
-        self.prepareSystem(scene, context.dt)
-        self.assembleSystem(scene, context.dt)
-        self.solveSystem(scene, context.dt)
+        self.prepare_system(scene, context.dt)
+        self.assemble_system(scene, context.dt)
+        self.solve_system(scene, context.dt)
 
-    def postStep(self, scene, context):
+    def post_step(self, scene, context):
         pass
 
-    def prepareSystem(self, scene, dt):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'prepareSystem'")
+    def prepare_system(self, scene, dt):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'prepare_system'")
 
-    def assembleSystem(self, scene, dt):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'assembleSystem'")
+    def assemble_system(self, scene, dt):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'assemble_system'")
 
-    def solveSystem(self, scene, dt):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solveSystem'")
+    def solve_system(self, scene, dt):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solve_system'")
 
 
 class ImplicitSolver(BaseSolver):
@@ -85,7 +85,7 @@ class ImplicitSolver(BaseSolver):
         self.b = None
 
     @profiler.timeit
-    def prepareSystem(self, scene, dt):
+    def prepare_system(self, scene, dt):
         # Reset forces
         for dynamic in scene.dynamics:
             dynamic.f.fill(0.0)
@@ -95,14 +95,14 @@ class ImplicitSolver(BaseSolver):
             force.apply_forces(scene)
 
         # Prepare constraints (forces and jacobians)
-        constraintsIterator = scene.get_constraints_iterator()
-        for constraint in constraintsIterator:
-            constraint.computeForces(scene)
-            constraint.computeJacobians(scene)
-            constraint.applyForces(scene)
+        constraints_iterator = scene.get_constraints_iterator()
+        for constraint in constraints_iterator:
+            constraint.compute_forces(scene)
+            constraint.compute_jacobians(scene)
+            constraint.apply_forces(scene)
 
     @profiler.timeit
-    def assembleSystem(self, scene, dt):
+    def assemble_system(self, scene, dt):
         total_particles = scene.num_particles()
         if (total_particles == 0):
             return
@@ -123,8 +123,8 @@ class ImplicitSolver(BaseSolver):
                 A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
-        constraintsIterator = scene.get_constraints_iterator()
-        for constraint in constraintsIterator:
+        constraints_iterator = scene.get_constraints_iterator()
+        for constraint in constraints_iterator:
             ids = constraint.global_particle_ids
             for fi in range(len(ids)):
                 for j in range(len(ids)):
@@ -142,8 +142,8 @@ class ImplicitSolver(BaseSolver):
                 self.b[idx*2:idx*2+2] += dynamic.f[i] * dt
 
         # set (df/dx * v0 * h * h)
-        constraintsIterator = scene.get_constraints_iterator()
-        for constraint in constraintsIterator:
+        constraints_iterator = scene.get_constraints_iterator()
+        for constraint in constraints_iterator:
             g_pids = constraint.global_particle_ids
             pids = constraint.particles_ids
             dynamic_ids = constraint.dynamic_ids
@@ -157,7 +157,7 @@ class ImplicitSolver(BaseSolver):
         self.A = A.sparse_matrix()
 
     @profiler.timeit
-    def solveSystem(self, scene, dt):
+    def solve_system(self, scene, dt):
         total_particles = scene.num_particles()
         if (total_particles == 0):
             return
@@ -183,7 +183,7 @@ class SemiImplicitSolver(BaseSolver):
         BaseSolver.__init__(self)
 
     @profiler.timeit
-    def prepareSystem(self, scene, dt):
+    def prepare_system(self, scene, dt):
         # Reset forces
         for dynamic in scene.dynamics:
             dynamic.f.fill(0.0)
@@ -193,17 +193,17 @@ class SemiImplicitSolver(BaseSolver):
             force.apply_forces(scene)
 
         # Apply internal forces
-        constraintsIterator = scene.get_constraints_iterator()
-        for constraint in constraintsIterator:
-            constraint.computeForces(scene)
-            constraint.applyForces(scene)
+        constraints_iterator = scene.get_constraints_iterator()
+        for constraint in constraints_iterator:
+            constraint.compute_forces(scene)
+            constraint.apply_forces(scene)
 
     @profiler.timeit
-    def assembleSystem(self, scene, dt):
+    def assemble_system(self, scene, dt):
         pass
 
     @profiler.timeit
-    def solveSystem(self, scene, dt):
+    def solve_system(self, scene, dt):
         # Integrator
         for dynamic in scene.dynamics:
             for i in range(dynamic.num_particles):

@@ -26,16 +26,16 @@ class Base:
         self.dfdx = np.zeros((N, N, 2, 2))
         self.dfdv = np.zeros((N, N, 2, 2))
 
-    def applyForces(self, scene):
+    def apply_forces(self, scene):
         for i in range(len(self.particles_ids)):
             dynamic = scene.dynamics[self.dynamic_ids[i]]
             dynamic.f[self.particles_ids[i]] += self.f[i]
 
-    def computeForces(self, scene):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'computeForces'")
+    def compute_forces(self, scene):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'compute_forces'")
 
-    def computeJacobians(self, scene):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'computeJacobians'")
+    def compute_jacobians(self, scene):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'compute_jacobians'")
 
     def getJacobianDx(self, fi, xj):
         return self.dfdx[fi][xj]
