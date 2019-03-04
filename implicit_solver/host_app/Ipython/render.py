@@ -15,14 +15,14 @@ class Render:
         self.font = {'color':  'darkblue',
                      'weight': 'normal',
                      'size': 18}
-        self.renderFolderPath = ""
+        self.render_folder_path = ""
         self.ax = None
 
     # Set where to save the files
-    def setRenderFolderPath(self, path):
-        self.renderFolderPath = path
+    def set_render_folder_path(self, path):
+        self.render_folder_path = path
 
-    def renderScene(self, scene, frameId):
+    def render_scene(self, scene, frameId):
         '''
         Render the scene
         '''
@@ -74,7 +74,7 @@ class Render:
 
         plt.show()
 
-    def renderSparseMatrix(self, solver, frameId):
+    def render_sparse_matrix(self, solver, frameId):
         '''
         Render the sparse matrix
         '''
@@ -86,15 +86,15 @@ class Render:
 
     # Draw and display single frame
     @profiler.timeit
-    def showCurrentFrame(self, dispatcher, frameId):
+    def show_current_frame(self, dispatcher, frameId):
         #self.fig = plt.figure(figsize=(7, 4), dpi=200) # to export higher resolution images
         scene = dispatcher.run("get_scene")
         self.fig = plt.figure()
-        self.renderScene(scene, frameId)
-        #self.renderSparseMatrix(solver, frameId)
+        self.render_scene(scene, frameId)
+        #self.render_sparse_matrix(solver, frameId)
 
     # Export frame
     @profiler.timeit
-    def exportCurrentFrame(self, filename):
-        if len(filename) > 0 and len(self.renderFolderPath) > 0:
-            self.fig.savefig(self.renderFolderPath + "/" + filename)
+    def export_current_frame(self, filename):
+        if len(filename) > 0 and len(self.render_folder_path) > 0:
+            self.fig.savefig(self.render_folder_path + "/" + filename)

@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-from core.data_block import DataBlock
+import core
 
 class Dynamic:
     '''
@@ -25,7 +25,7 @@ class Dynamic:
         self.num_particles = shape.num_vertices()
 
         # Create particle data
-        self.data = DataBlock()
+        self.data = core.DataBlock()
         self.data.add_field("x", np.float, 2)
         self.data.add_field("v", np.float, 2)
         self.data.add_field("f", np.float, 2)
@@ -36,12 +36,8 @@ class Dynamic:
         self.data.m.fill(particle_mass)
         self.data.im.fill(1.0 / particle_mass)
 
-        # Reference on particle state for easy access
-        self.x = self.data.x # position
-        self.v = self.data.v # velocity
-        self.m = self.data.m # mass
-        self.im = self.data.im # inverse mass
-        self.f = self.data.f # force
+        # Reference particle attribute for easy access
+        self.data.set_attribute_to_object(self)
 
         # Initialize particle connectivities
         self.edge_ids = np.copy(shape.edge.vertex_ids)
@@ -59,3 +55,22 @@ class Dynamic:
         '''
         self.index = index
         self.global_offset = global_offset
+
+    def convert_to_shape(self):
+        '''
+        Create a simple shape from the dynamic datablock and
+        particle connectivities
+        '''
+        num_vertices = self.num_particles
+        num_edges = len(self.edge_ids)
+        num_faces = len(self.face_ids)
+        shape = core.Shape(num_vertices, num_edges, num_faces)
+
+        for i in range(num_vertices):
+            shape.vertex.position[i] = self.x[i]
+
+        shape.edge.vertex_ids = np.copy(self.edge_ids)
+        shape.face.vertex_ids = np.copy(self.face_ids)
+
+        return shape
+

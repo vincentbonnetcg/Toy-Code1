@@ -40,7 +40,7 @@ def main():
 
     # Creates render and profiler
     render = Render()
-    render.setRenderFolderPath(RENDER_FOLDER_PATH)
+    render.set_render_folder_path(RENDER_FOLDER_PATH)
     profiler = tools.Profiler()
 
     # Simulate frames
@@ -52,8 +52,8 @@ def main():
         else:
             cmd_dispatcher.run("solve_to_next_frame")
 
-        render.showCurrentFrame(cmd_dispatcher, frame_id)
-        render.exportCurrentFrame(str(frame_id).zfill(4) + " .png")
+        render.show_current_frame(cmd_dispatcher, frame_id)
+        render.export_current_frame(str(frame_id).zfill(4) + " .png")
 
         profiler.printLogs()
 

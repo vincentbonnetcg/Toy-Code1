@@ -73,7 +73,14 @@ class DataBlock:
             aosoa_dtype = np.dtype(dtype_aosoa_dict)
             self.data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
         else:
-            warnings.warn('DataBlock is already allocataed')
+            warnings.warn('DataBlock is already allocated')
+
+    def set_attribute_to_object(self, obj):
+        if self.data is None:
+            return None
+
+        for field_index, field_name in enumerate(self.dtype_dict['names']):
+            setattr(obj, field_name, self.data[field_index])
 
     def __getattr__(self, item):
         '''
