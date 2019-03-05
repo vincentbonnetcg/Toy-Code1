@@ -23,14 +23,13 @@ def read_from_file(filename):
     face_ids = in_dict['face_ids']
     return points, edge_ids, face_ids
 
+def write_shape_to_file(shape, filename):
+    # TODO
+    pass
+
 def create_shape_from_file(filename):
-    # Load Data from file
-    in_file = open(filename,'rb')
-    in_dict = pickle.load(in_file)
-    in_file.close()
-    points = in_dict['points']
-    edge_ids = in_dict['edge_ids']
-    face_ids = in_dict['face_ids']
+    # Read File
+    points, edge_ids, face_ids = read_from_file(filename)
 
     # Create shape
     num_vertices = len(points)
