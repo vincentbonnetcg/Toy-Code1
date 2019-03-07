@@ -139,8 +139,8 @@ def init_wire_example(dispatcher):
     wire_shape = WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
 
     # collider shape
-    collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
-                                    WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
+    collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3.5,
+                                    WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1] - 2)
 
     # anchor shape and animation
     moving_anchor_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,

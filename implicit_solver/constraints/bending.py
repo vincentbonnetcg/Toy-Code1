@@ -74,5 +74,5 @@ class Bending(Base):
 @njit
 def elasticBendingEnergy(x0, x1, x2, rest_angle, stiffness):
     angle = math2D.angle(x0, x1, x2)
-    arc_length = math2D.norm(x1 - x0) + math2D.norm(x2 - x1) * 0.5
+    arc_length = (math2D.norm(x1 - x0) + math2D.norm(x2 - x1)) * 0.5
     return 0.5 * stiffness * ((angle - rest_angle)**2) * arc_length
