@@ -33,11 +33,13 @@ class Client:
             self._job_queue = self._manager.get_job_queue()
             self._result_queue = self._manager.get_result_queue()
             print('Client connected to %s:%s' % (ip, port))
+            return True
         except Exception as e:
             self._manager = None
             self._job_queue = None
             self._result_queue = None
             print('Exception raised by client : ' + str(e))
+            return False
 
     def run(self, command_name, **kwargs):
         if self.is_connected():

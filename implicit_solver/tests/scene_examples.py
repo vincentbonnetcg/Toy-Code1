@@ -168,7 +168,7 @@ def init_wire_example(dispatcher):
     dispatcher.run('add_kinematic_attachment', dynamic = wire_handle, kinematic = moving_anchor_handle,
                                                stiffness = 100.0, damping = 0.0, distance = 0.1)
     dispatcher.run('add_kinematic_collision', dynamic = wire_handle, kinematic = collider_handle,
-                                               stiffness = 100.0, damping = 0.0)
+                                               stiffness = 1000.0, damping = 0.0)
     dispatcher.run('add_gravity', gravity = GRAVITY)
 
     dispatcher.run('set_render_prefs', obj = wire_handle, prefs = ['co', 1])
