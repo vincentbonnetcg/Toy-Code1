@@ -7,6 +7,8 @@ from constraints.base import Base
 import core.differentiation as diff
 import core.math_2d as math2D
 from numba import njit
+from math import atan2, sqrt
+import numpy as np
 
 class Bending(Base):
     '''
@@ -39,11 +41,13 @@ class Bending(Base):
     def compute_forces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.get_states(scene)
         # Numerical forces
-        force0 = diff.numerical_jacobian(elasticBendingEnergy, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        force1 = diff.numerical_jacobian(elasticBendingEnergy, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        force2 = diff.numerical_jacobian(elasticBendingEnergy, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #force0 = diff.numerical_jacobian(elasticBendingEnergy, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #force1 = diff.numerical_jacobian(elasticBendingEnergy, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #force2 = diff.numerical_jacobian(elasticBendingEnergy, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         # Analytic forces
-        # TODO
+        force0 = elasticBendingForce0(x0, x1, x2, self.rest_angle, self.stiffness)
+        force1 = elasticBendingForce1(x0, x1, x2, self.rest_angle, self.stiffness)
+        force2 = elasticBendingForce2(x0, x1, x2, self.rest_angle, self.stiffness)
         # Set forces
         self.f[0] = force0
         self.f[1] = force1
@@ -58,6 +62,8 @@ class Bending(Base):
         dfdx01 = diff.numerical_hessian(elasticBendingEnergy, 0, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         dfdx02 = diff.numerical_hessian(elasticBendingEnergy, 0, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         dfdx12 = diff.numerical_hessian(elasticBendingEnergy, 1, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        # Numerical jacobians from forces
+        # TODO
         # Analytic jacobians
         # TODO
         # Set jacobians
@@ -76,3 +82,38 @@ def elasticBendingEnergy(x0, x1, x2, rest_angle, stiffness):
     angle = math2D.angle(x0, x1, x2)
     arc_length = (math2D.norm(x1 - x0) + math2D.norm(x2 - x1)) * 0.5
     return 0.5 * stiffness * ((angle - rest_angle)**2) * arc_length
+
+def elasticBendingForce0(x0, x1, x2, rest_angle, stiffness):
+    force = np.zeros(2)
+    px0 = x0[0]
+    py0 = x0[1]
+    px1 = x1[0]
+    py1 = x1[1]
+    px2 = x2[0]
+    py2 = x2[1]
+    force[0] = stiffness*(rest_angle - atan2((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1), (px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*(0.25*(px0 - px1)*(rest_angle - atan2((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1), (px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*(((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2))**2 + ((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1))**2) + 0.5*((px1 - px2)*((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1)) - (py1 - py2)*((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*sqrt((px0 - px1)**2 + (py0 - py1)**2)*(sqrt((px0 - px1)**2 + (py0 - py1)**2) + sqrt((px1 - px2)**2 + (py1 - py2)**2)))/(sqrt((px0 - px1)**2 + (py0 - py1)**2)*(((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2))**2 + ((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1))**2))
+    force[1] = stiffness*(rest_angle - atan2((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1), (px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*(0.25*(py0 - py1)*(rest_angle - atan2((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1), (px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*(((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2))**2 + ((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1))**2) + 0.5*((px1 - px2)*((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)) + (py1 - py2)*((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1)))*sqrt((px0 - px1)**2 + (py0 - py1)**2)*(sqrt((px0 - px1)**2 + (py0 - py1)**2) + sqrt((px1 - px2)**2 + (py1 - py2)**2)))/(sqrt((px0 - px1)**2 + (py0 - py1)**2)*(((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2))**2 + ((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1))**2))
+    return force * -1.0
+
+def elasticBendingForce2(x0, x1, x2, rest_angle, stiffness):
+    force = np.zeros(2)
+    px0 = x0[0]
+    py0 = x0[1]
+    px1 = x1[0]
+    py1 = x1[1]
+    px2 = x2[0]
+    py2 = x2[1]
+    force[0] = -stiffness*(rest_angle - atan2((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1), (px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*(0.25*(px1 - px2)*(rest_angle - atan2((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1), (px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*(((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2))**2 + ((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1))**2) + 0.5*((px0 - px1)*((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1)) + (py0 - py1)*((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*sqrt((px1 - px2)**2 + (py1 - py2)**2)*(sqrt((px0 - px1)**2 + (py0 - py1)**2) + sqrt((px1 - px2)**2 + (py1 - py2)**2)))/(sqrt((px1 - px2)**2 + (py1 - py2)**2)*(((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2))**2 + ((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1))**2))
+    force[1] = stiffness*(rest_angle - atan2((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1), (px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*(-0.25*(py1 - py2)*(rest_angle - atan2((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1), (px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)))*(((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2))**2 + ((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1))**2) + 0.5*((px0 - px1)*((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2)) - (py0 - py1)*((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1)))*sqrt((px1 - px2)**2 + (py1 - py2)**2)*(sqrt((px0 - px1)**2 + (py0 - py1)**2) + sqrt((px1 - px2)**2 + (py1 - py2)**2)))/(sqrt((px1 - px2)**2 + (py1 - py2)**2)*(((px0 - px1)*(px1 - px2) + (py0 - py1)*(py1 - py2))**2 + ((px0 - px1)*(py1 - py2) - (px1 - px2)*(py0 - py1))**2))
+    return force * -1.0
+
+def elasticBendingForce1(x0, x1, x2, rest_angle, stiffness):
+    f0 = elasticBendingForce0(x0, x1, x2, rest_angle, stiffness)
+    f2 = elasticBendingForce2(x0, x1, x2, rest_angle, stiffness)
+    force = np.zeros(2)
+    return (force - f0 - f2)
+
+
+
+
+

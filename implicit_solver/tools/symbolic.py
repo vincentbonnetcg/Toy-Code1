@@ -4,49 +4,37 @@
 """
 
 from sympy.physics.vector import ReferenceFrame
-from sympy import symbols, diff, simplify
+from sympy import symbols, diff, simplify, latex
 from sympy.matrices import Matrix
-import math
+import sympy
 
-# 
-x0,y0=symbols("x0 y0",real=True)
-x1,y1=symbols("x1 y1",real=True)
-d0=Matrix([x0, y0])
-d1=Matrix([x1, y1])
-
-# Compute the derivative of spring energy
-rest = symbols("rest",real=True)
+'''
+Symbolic derivation of bending energy
+'''
+# Create three positions (X0, x1, x2)
 stiffness = symbols("stiffness",real=True)
-f = (d0 - d1).norm()
-f = 0.5 * stiffness * (f - rest)**2
-#print(f)
-print(simplify(diff(f, x0, y0)))
-#print(diff(v0.norm(v1), x0))
+rest_angle = symbols("rest_angle",real=True)
+px0,px1,px2=symbols("px0 px1 px2",real=True)
+py0,py1,py2=symbols("py0 py1 py2",real=True)
+x0=Matrix([px0, py0])
+x1=Matrix([px1, py1])
+x2=Matrix([px2, py2])
 
-print(math.sqrt(0))
+# Angle formula
+t01 = x1 - x0
+t12 = x2 - x1
+det = t01[0]*t12[1] - t01[1]*t12[0]
+dot = t01[0]*t12[0] + t01[1]*t12[1]
+angle = sympy.atan2(det, dot)
 
+# Arc Length
+arc_length = (t01.norm() + t12.norm()) * 0.5
 
-'''
-    direction = x1 - x0
-    stretch = np.linalg.norm(direction)
-    if not np.isclose(stretch, 0.0):
-        direction /= stretch
-    return direction * ((stretch - rest) * stiffness)
-'''
+# Bending Energy
+bending_energy = 0.5 * stiffness * ((angle - rest_angle)**2) * arc_length
 
-#-1.0*stiffness * (rest - norm(d1 - d0) * (x0 - x1) / norm(d1 - d0))
+dEdx0 = [simplify(diff(bending_energy, px0)), simplify(diff(bending_energy, py0))]
+dEdx2 = [simplify(diff(bending_energy, px2)), simplify(diff(bending_energy, py2))]
 
+#dEdx1 = 0 - dEdx0 - dEdx2
 
-#x = sympy.Symbol('x')
-#f = sympy.sin(x)
-#c = sympy.sin(f)**2 + sympy.cos(x)**2
-#x, x1, x2, x3 = sympy.symbols('x x1 x2 x3')
-#A = sympy.Matrix([[x+x1, x+x2, x+x3]])
-#R = ReferenceFrame('R')
-#v = 3*R.x + 4*R.y + 5*R.z
-
-
-#def elasticSpringEnergy(x0, x1, rest, stiffness):
-#    stretch = np.linalg.norm(x1 - x0)
-#    return 0.5 * stiffness * ((stretch - rest) * (stretch - rest))
-#
