@@ -7,7 +7,7 @@ from constraints.base import Base
 import core.differentiation as diff
 import core.math_2d as math2D
 from numba import njit
-from math import atan2, sqrt
+import math
 import numpy as np
 
 class Bending(Base):
@@ -97,13 +97,20 @@ def elasticBendingForce0(x0, x1, x2, rest_angle, stiffness):
     det = u[0]*v[1] - v[0]*u[1]
     dot = u[0]*v[0] + u[1]*v[1]
 
-    norm_t12 = sqrt(v[0]**2 + v[1]**2)
-    norm_t01 = sqrt(u[0]**2 + u[1]**2)
+    norm_u = math.sqrt(u[0]**2 + u[1]**2)
+    norm_v = math.sqrt(v[0]**2 + v[1]**2)
 
-    diff_angle = rest_angle - atan2(det, dot)
+    diff_angle = rest_angle - math.atan2(det, dot)
 
-    force[0] = stiffness*diff_angle*(0.25*u[0]*diff_angle*(dot**2 + det**2) + 0.5*(v[0]*det - v[1]*dot)*norm_t01*(norm_t01 + norm_t12))/(norm_t01*(dot**2 + det**2))
-    force[1] = stiffness*diff_angle*(0.25*u[1]*diff_angle*(dot**2 + det**2) + 0.5*(v[0]*dot + v[1]*det)*norm_t01*(norm_t01 + norm_t12))/(norm_t01*(dot**2 + det**2))
+    force[0] = v[0]*det - v[1]*dot
+    force[1] = v[0]*dot + v[1]*det
+
+    force *= 0.5*norm_u*(norm_u + norm_v)
+    force += 0.25*u*diff_angle*(dot**2 + det**2)
+
+    force /= norm_u*(dot**2 + det**2)
+    force *= stiffness*diff_angle
+
     return force * -1.0
 
 @njit
@@ -115,13 +122,20 @@ def elasticBendingForce2(x0, x1, x2, rest_angle, stiffness):
     det = u[0]*v[1] - u[1]*v[0]
     dot = u[0]*v[0] + v[1]*u[1]
 
-    norm_t12 = sqrt(v[0]**2 + v[1]**2)
-    norm_t01 = sqrt(u[0]**2 + u[1]**2)
+    norm_u = math.sqrt(u[0]**2 + u[1]**2)
+    norm_v = math.sqrt(v[0]**2 + v[1]**2)
 
-    diff_angle = rest_angle - atan2(det, dot)
+    diff_angle = rest_angle - math.atan2(det, dot)
 
-    force[0] = -stiffness*diff_angle*(0.25*v[0]*diff_angle*(dot**2 + det**2) + 0.5*(u[0]*det + u[1]*dot)*norm_t12*(norm_t01 + norm_t12))/(norm_t12*(dot**2 + det**2))
-    force[1] = stiffness*diff_angle*(-0.25*v[1]*diff_angle*(dot**2 + det**2) + 0.5*(u[0]*dot - u[1]*det)*norm_t12*(norm_t01 + norm_t12))/(norm_t12*(dot**2 + det**2))
+    force[0] = -(u[0]*det + u[1]*dot)
+    force[1] = (u[0]*dot - u[1]*det)
+
+    force *= 0.5 * norm_v*(norm_u + norm_v)
+    force += -0.25 * v * diff_angle * (dot**2 + det**2)
+
+    force /= norm_v*(dot**2 + det**2)
+    force *= stiffness*diff_angle
+
     return force * -1.0
 
 @njit
