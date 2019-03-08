@@ -115,7 +115,7 @@ def init_multi_wire_example(dispatcher):
                                                                stiffness = 100.0, damping = 0.0)
 
         dispatcher.run('add_wire_bending_constraint', dynamic= wire_handle,
-                                                       stiffness = 0.2, damping = 0.0)
+                                                       stiffness = 0.15, damping = 0.0)
 
         dispatcher.run('add_kinematic_attachment', dynamic = wire_handle, kinematic = moving_anchor_handle,
                                                    stiffness = 100.0, damping = 0.0, distance = 0.1)
@@ -140,7 +140,7 @@ def init_wire_example(dispatcher):
 
     # collider shape
     collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3.5,
-                                    WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1] - 2)
+                                    WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
 
     # anchor shape and animation
     moving_anchor_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,

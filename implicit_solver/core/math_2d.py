@@ -61,12 +61,12 @@ def angle(x0, x1, x2):
      /  \
     x0  x2
     '''
-    t01 = x1 - x0
-    t12 = x2 - x1
+    u = x0 - x1
+    v = x1 - x2
 
     # Discrete angle
-    det = t01[0]*t12[1] - t01[1]*t12[0]      # determinant
-    dot = t01[0]*t12[0] + t01[1]*t12[1]      # dot product
+    det = u[0]*v[1] - u[1]*v[0]      # determinant
+    dot = u[0]*v[0] + u[1]*v[1]      # dot product
     angle = math.atan2(det,dot)  # atan2 return range [-pi, pi]
     return angle
 
