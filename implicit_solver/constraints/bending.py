@@ -45,9 +45,7 @@ class Bending(Base):
         #force1 = diff.numerical_jacobian(elasticBendingEnergy, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         #force2 = diff.numerical_jacobian(elasticBendingEnergy, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         # Analytic forces
-        force0 = elasticBendingForce0(x0, x1, x2, self.rest_angle, self.stiffness)
-        force2 = elasticBendingForce2(x0, x1, x2, self.rest_angle, self.stiffness)
-        force1 = np.zeros(2) - force0 - force2
+        force0, force1, force2 = elasticBendingForces(x0, x1, x2, self.rest_angle, self.stiffness, [True, True, True])
         # Set forces
         self.f[0] = force0
         self.f[1] = force1
@@ -87,6 +85,45 @@ def elasticBendingEnergy(x0, x1, x2, rest_angle, stiffness):
     angle = math2D.angle(x0, x1, x2)
     arc_length = (math2D.norm(x1 - x0) + math2D.norm(x2 - x1)) * 0.5
     return 0.5 * stiffness * ((angle - rest_angle)**2) * arc_length
+
+@njit
+def elasticBendingForces(x0, x1, x2, rest_angle, stiffness, enable_force = [True, True, True]):
+    forces = np.zeros((3, 2))
+
+    u = x0 - x1
+    v = x1 - x2
+    det = u[0]*v[1] - v[0]*u[1]
+    dot = u[0]*v[0] + u[1]*v[1]
+
+    norm_u = math.sqrt(u[0]**2 + u[1]**2)
+    norm_v = math.sqrt(v[0]**2 + v[1]**2)
+
+    diff_angle = rest_angle - math.atan2(det, dot)
+
+    if enable_force[0] or enable_force[1]:
+        forces[0][0] = v[0]*det - v[1]*dot
+        forces[0][1] = v[0]*dot + v[1]*det
+
+        forces[0] *= 0.5*norm_u*(norm_u + norm_v)
+        forces[0] += 0.25*u*diff_angle*(dot**2 + det**2)
+
+        forces[0] /= norm_u*(dot**2 + det**2)
+        forces[0] *= stiffness*diff_angle*-1.0
+
+    if enable_force[2] or enable_force[1]:
+        forces[2][0] = -(u[0]*det + u[1]*dot)
+        forces[2][1] = u[0]*dot - u[1]*det
+
+        forces[2] *= 0.5 * norm_v*(norm_u + norm_v)
+        forces[2] += -0.25 * v * diff_angle * (dot**2 + det**2)
+
+        forces[2] /= norm_v*(dot**2 + det**2)
+        forces[2] *= stiffness*diff_angle*-1.0
+
+    if enable_force[1]:
+        forces[1] -= (forces[0] + forces[2])
+
+    return forces
 
 @njit
 def elasticBendingForce0(x0, x1, x2, rest_angle, stiffness):
