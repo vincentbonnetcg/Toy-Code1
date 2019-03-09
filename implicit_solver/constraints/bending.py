@@ -4,7 +4,6 @@
 """
 
 from constraints.base import Base
-import core.differentiation as diff
 import core.math_2d as math2D
 from numba import njit
 import math

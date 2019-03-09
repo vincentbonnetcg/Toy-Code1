@@ -1,6 +1,7 @@
 """
 @author: Vincent Bonnet
-@description :  Numerical differentiation
+@description :  Generic Numerical differentiation
+Slow and only just for testing
 """
 
 # Reference #
