@@ -142,7 +142,7 @@ def elasticBendingNumericalJacobians(x0, x1, x2, rest_angle, stiffness):
     for gradient_id in range(2):
         x_cid = x_cids[gradient_id]
         f_id = f_ids[gradient_id]
-        x0_ = np.copy(x0)
+        x0_ = math2D.copy(x0)
         x0_[x_cid] = x0[x_cid]+STENCIL_SIZE
         forces = elasticBendingForces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
         gradient = forces[f_id]
@@ -156,7 +156,7 @@ def elasticBendingNumericalJacobians(x0, x1, x2, rest_angle, stiffness):
     x_cids = [0, 1] # x component id means x[0], x[1]
     for gradient_id in range(2):
         x_cid = x_cids[gradient_id]
-        x1_ = np.copy(x1)
+        x1_ = math2D.copy(x1)
         x1_[x_cid] = x1[x_cid]+STENCIL_SIZE
         forces = elasticBendingForces(x0, x1_, x2, rest_angle, stiffness, [True, True, False])
         grad_f0_x1 = forces[0]
@@ -172,7 +172,7 @@ def elasticBendingNumericalJacobians(x0, x1, x2, rest_angle, stiffness):
     x_cids = [0, 1] # x component id means x[0], x[1]
     for gradient_id in range(2):
         x_cid = x_cids[gradient_id]
-        x2_ = np.copy(x2)
+        x2_ = math2D.copy(x2)
         x2_[x_cid] = x2[x_cid]+STENCIL_SIZE
         forces = elasticBendingForces(x0, x1, x2_, rest_angle, stiffness, [True, True, True])
         grad_f0_x2 = forces[0]

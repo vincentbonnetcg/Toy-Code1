@@ -4,6 +4,7 @@
 """
 import math
 from numba import njit
+import numpy as np
 
 @njit
 def dot(v0, v1):
@@ -99,3 +100,13 @@ def curvature(x0, x1, x2):
     curvature = angle / ((t01norm + t12norm) * 0.5)
 
     return curvature
+
+@njit
+def copy(v):
+    '''
+    Fast copy of v
+    '''
+    v_copy = np.zeros(2)
+    v_copy[0] = v[0]
+    v_copy[1] = v[1]
+    return v_copy
