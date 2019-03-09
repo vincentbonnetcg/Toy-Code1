@@ -61,17 +61,13 @@ class Bending(Base):
         #dfdx02 = diff.numerical_hessian(elasticBendingEnergy, 0, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         #dfdx12 = diff.numerical_hessian(elasticBendingEnergy, 1, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         # Numerical jacobians from forces
-        #dfdx00 = diff.numerical_jacobian(elasticBendingForce0, 0, x0, x1, x2, self.rest_angle, self.stiffness)
-        #dfdx11 = diff.numerical_jacobian(elasticBendingForce1, 1, x0, x1, x2, self.rest_angle, self.stiffness)
-        #dfdx22 = diff.numerical_jacobian(elasticBendingForce2, 2, x0, x1, x2, self.rest_angle, self.stiffness)
-        dfdx01 = diff.numerical_jacobian(elasticBendingForce0, 1, x0, x1, x2, self.rest_angle, self.stiffness)
-        dfdx02 = diff.numerical_jacobian(elasticBendingForce0, 2, x0, x1, x2, self.rest_angle, self.stiffness)
-        dfdx12 = diff.numerical_jacobian(elasticBendingForce1, 2, x0, x1, x2, self.rest_angle, self.stiffness)
-
-        jacobians = elasticBendingJacobians(x0, x1, x2, self.rest_angle, self.stiffness)
+        jacobians = elasticBendingNumericalJacobians(x0, x1, x2, self.rest_angle, self.stiffness)
         dfdx00 = jacobians[0]
         dfdx11 = jacobians[1]
         dfdx22 = jacobians[2]
+        dfdx01 = jacobians[3]
+        dfdx02 = jacobians[4]
+        dfdx12 = jacobians[5]
         # Analytic jacobians
         # TODO
         # Set jacobians
@@ -131,124 +127,65 @@ def elasticBendingForces(x0, x1, x2, rest_angle, stiffness, enable_force = [True
     return forces
 
 @njit
-def elasticBendingJacobians(x0, x1, x2, rest_angle, stiffness):
+def elasticBendingNumericalJacobians(x0, x1, x2, rest_angle, stiffness):
     '''
-    Returns the six jacobians matrices
-    df0dx0, df1dx1,df2dx2, df0dx1, df0dx2, df1dx2
+    Returns the six jacobians matrices in the following order
+    df0dx0, df1dx1, df2dx2, df0dx1, df0dx2, df1dx2
     dfdx01 is the derivative of f0 relative to x1
     etc.
     '''
-    jacobians = np.zeros(shape=(3, 2, 2))
+    jacobians = np.zeros(shape=(6, 2, 2))
     STENCIL_SIZE = 1e-6
 
     # derivate of f0 relative to x0
     x_cids = [0, 1] # x component id means x[0], x[1]
     f_ids = [0, 0] # is the force id
-    jacobian_id = 0
     for gradient_id in range(2):
         x_cid = x_cids[gradient_id]
         f_id = f_ids[gradient_id]
         x0_ = np.copy(x0)
         x0_[x_cid] = x0[x_cid]+STENCIL_SIZE
-        gradients = elasticBendingForces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
-        gradient = gradients[f_id]
+        forces = elasticBendingForces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
+        gradient = forces[f_id]
         x0_[x_cid] = x0[x_cid]-STENCIL_SIZE
-        gradients = elasticBendingForces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
-        gradient -= gradients[f_id]
+        forces = elasticBendingForces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
+        gradient -= forces[f_id]
         gradient /= (2.0 * STENCIL_SIZE)
-        jacobians[jacobian_id, 0:2, x_cid] = gradient
+        jacobians[0, 0:2, x_cid] = gradient
 
-    # derivate of f1 relative to x1
+    # derivate of f0, f1 relative to x1
     x_cids = [0, 1] # x component id means x[0], x[1]
-    f_ids = [1, 1] # is the force id
-    jacobian_id = 1
     for gradient_id in range(2):
         x_cid = x_cids[gradient_id]
-        f_id = f_ids[gradient_id]
         x1_ = np.copy(x1)
         x1_[x_cid] = x1[x_cid]+STENCIL_SIZE
-        gradients = elasticBendingForces(x0, x1_, x2, rest_angle, stiffness, [False, True, False])
-        gradient = gradients[f_id]
+        forces = elasticBendingForces(x0, x1_, x2, rest_angle, stiffness, [True, True, False])
+        grad_f0_x1 = forces[0]
+        grad_f1_x1 = forces[1]
         x1_[x_cid] = x1[x_cid]-STENCIL_SIZE
-        gradients = elasticBendingForces(x0, x1_, x2, rest_angle, stiffness, [False, True, False])
-        gradient -= gradients[f_id]
-        gradient /= (2.0 * STENCIL_SIZE)
-        jacobians[jacobian_id, 0:2, x_cid] = gradient
+        forces = elasticBendingForces(x0, x1_, x2, rest_angle, stiffness, [True, True, False])
+        grad_f0_x1 -= forces[0]
+        grad_f1_x1 -= forces[1]
+        jacobians[1, 0:2, x_cid] = grad_f1_x1 / (2.0 * STENCIL_SIZE)
+        jacobians[3, 0:2, x_cid] = grad_f0_x1 / (2.0 * STENCIL_SIZE)
 
-    # derivate of f2 relative to x2
+    # derivate of f0, f1, f2 relative to x2
     x_cids = [0, 1] # x component id means x[0], x[1]
-    f_ids = [2, 2] # is the force id
-    jacobian_id = 2
     for gradient_id in range(2):
         x_cid = x_cids[gradient_id]
-        f_id = f_ids[gradient_id]
         x2_ = np.copy(x2)
         x2_[x_cid] = x2[x_cid]+STENCIL_SIZE
-        gradients = elasticBendingForces(x0, x1, x2_, rest_angle, stiffness, [False, False, True])
-        gradient = gradients[f_id]
+        forces = elasticBendingForces(x0, x1, x2_, rest_angle, stiffness, [True, True, True])
+        grad_f0_x2 = forces[0]
+        grad_f1_x2 = forces[1]
+        grad_f2_x2 = forces[2]
         x2_[x_cid] = x2[x_cid]-STENCIL_SIZE
-        gradients = elasticBendingForces(x0, x1, x2_, rest_angle, stiffness, [False, False, True])
-        gradient -= gradients[f_id]
-        gradient /= (2.0 * STENCIL_SIZE)
-        jacobians[jacobian_id, 0:2, x_cid] = gradient
-
+        forces = elasticBendingForces(x0, x1, x2_, rest_angle, stiffness, [True, True, True])
+        grad_f0_x2 -= forces[0]
+        grad_f1_x2 -= forces[1]
+        grad_f2_x2 -= forces[2]
+        jacobians[4, 0:2, x_cid] = grad_f0_x2 / (2.0 * STENCIL_SIZE)
+        jacobians[5, 0:2, x_cid] = grad_f1_x2 / (2.0 * STENCIL_SIZE)
+        jacobians[2, 0:2, x_cid] = grad_f2_x2 / (2.0 * STENCIL_SIZE)
 
     return jacobians
-
-@njit
-def elasticBendingForce0(x0, x1, x2, rest_angle, stiffness):
-    force = np.zeros(2)
-
-    u = x0 - x1
-    v = x1 - x2
-    det = u[0]*v[1] - v[0]*u[1]
-    dot = u[0]*v[0] + u[1]*v[1]
-
-    norm_u = math.sqrt(u[0]**2 + u[1]**2)
-    norm_v = math.sqrt(v[0]**2 + v[1]**2)
-
-    diff_angle = rest_angle - math.atan2(det, dot)
-
-    force[0] = v[0]*det - v[1]*dot
-    force[1] = v[0]*dot + v[1]*det
-
-    force *= 0.5*norm_u*(norm_u + norm_v)
-    force += 0.25*u*diff_angle*(dot**2 + det**2)
-
-    force /= norm_u*(dot**2 + det**2)
-    force *= stiffness*diff_angle
-
-    return force * -1.0
-
-@njit
-def elasticBendingForce2(x0, x1, x2, rest_angle, stiffness):
-    force = np.zeros(2)
-
-    u = x0 - x1
-    v = x1 - x2
-    det = u[0]*v[1] - u[1]*v[0]
-    dot = u[0]*v[0] + v[1]*u[1]
-
-    norm_u = math.sqrt(u[0]**2 + u[1]**2)
-    norm_v = math.sqrt(v[0]**2 + v[1]**2)
-
-    diff_angle = rest_angle - math.atan2(det, dot)
-
-    force[0] = -(u[0]*det + u[1]*dot)
-    force[1] = (u[0]*dot - u[1]*det)
-
-    force *= 0.5 * norm_v*(norm_u + norm_v)
-    force += -0.25 * v * diff_angle * (dot**2 + det**2)
-
-    force /= norm_v*(dot**2 + det**2)
-    force *= stiffness*diff_angle
-
-    return force * -1.0
-
-@njit
-def elasticBendingForce1(x0, x1, x2, rest_angle, stiffness):
-    f0 = elasticBendingForce0(x0, x1, x2, rest_angle, stiffness)
-    f2 = elasticBendingForce2(x0, x1, x2, rest_angle, stiffness)
-    force = np.zeros(2)
-    return (force - f0 - f2)
-
