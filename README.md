@@ -9,7 +9,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 - Numerical Differentiations (Numerical Jacobian and Hessian) with high accuracy order
 - Kinematic Objects
 - Dynamic/Dynamic and Dynamic/Static attachment
-- Collision Dynamic/Static
+- Kinematic Collision
+- Server-Client (IPC) to communicate solver with other processes
 
 ![Implicit Solver Beam](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_beam.gif)
 ![Implicit Solver Wire](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_wire.gif)
@@ -31,12 +32,12 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ![Explicit Integrators](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/spring1D_integrator.png)
 
 ## . Inverse Kinematics
-**File** [inverseKinematics_pseudoInverse.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/inverseKinematics_pseudoInverse.py)<br>
+**File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/inverseKinematics_withJacobian.py)<br>
 **Description** Implementation of inverse kinematics using pseudo-inverse of a jacobian matrix
-- Numerical Jacobian matrix (using central difference) or
-- Analytic Jacobian matrix
+- Assemble Numerical/Analytic Jacobian matrix (using central difference)
+- Solve system with Pseudo-Inverse or Damped Least Squares method
 
-![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/inverseKinematics_pseudoInverse.gif)
+![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/inverseKinematics_withJacobian.gif)
 
 [1] Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
 
