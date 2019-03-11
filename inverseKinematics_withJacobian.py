@@ -122,8 +122,7 @@ def computePseudoInverse(jacobian):
     return(jacobian.transpose() * jacobiantInv)
 
 def computeDampedLeastSquare(jacobian):
-    damping_constant = 1.0
-    damping_matrix_constant = np.identity(2) * damping_constant
+    damping_matrix_constant = np.identity(2) * DAMPING_CONSTANT
 
     jacobiantInv = jacobian * jacobian.transpose()
     jacobiantInv += damping_matrix_constant
