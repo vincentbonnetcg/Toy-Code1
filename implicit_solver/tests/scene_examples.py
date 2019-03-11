@@ -34,36 +34,58 @@ def init_cat_scene(dispatcher):
     Latest Maya/Houdini doesn't support Python 3.x hence cannot use client.py to send data
     '''
     dispatcher.run('reset_scene')
-    context = dispatcher.run('get_context')
 
     # Load Data from file
     filename = get_resources_folder() + "cat.shape"
     shape = dcc_p2_utils.create_shape_from_file(filename)
 
-    # Create kinematic shape
-    anchor_shape = RectangleShape(min_x=-5.0, min_y=4.0,
-                                       max_x=5.0, max_y=4.5)
-    anchor_position, anchor_rotation = anchor_shape.extract_transform_from_shape()
-    func = lambda time: [[anchor_position[0],
-                          anchor_position[1] + math.sin(time * 2) * 1.0], 0.0]
-    anchor_position_animator = objects.Animator(func, context)
+    # Create collider 0
+    anchor0_shape = RectangleShape(min_x=-5.0, min_y=4.0, max_x=4.5, max_y=5.0)
+    anchor0_position, anchor_rotation = anchor0_shape.extract_transform_from_shape()
+    anchor0_position[0] = -7
+    anchor0_position[1] = -13
+    anchor0_rotation = 30
+
+    # Create collider 1
+    anchor1_shape = RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=4.5)
+    anchor1_position, anchor_rotation = anchor1_shape.extract_transform_from_shape()
+    anchor1_position[0] = 13
+    anchor1_position[1] = -20
+    anchor1_rotation = -45
+
+    # Create collider 2
+    anchor2_shape = RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=4.5)
+    anchor2_position, anchor_rotation = anchor2_shape.extract_transform_from_shape()
+    anchor2_position[0] = 0
+    anchor2_position[1] = -30
+    anchor2_rotation = 45
 
     # Add objects to the solver
-    anchor_shape_handle = dispatcher.run('add_kinematic', shape = anchor_shape,
-                                                          position = anchor_position,
-                                                          rotation = anchor_rotation,
-                                                          animator = anchor_position_animator)
+    collider0_handle = dispatcher.run('add_kinematic', shape = anchor0_shape,
+                                                         position = anchor0_position,
+                                                         rotation = anchor0_rotation)
+
+    collider1_handle = dispatcher.run('add_kinematic', shape = anchor1_shape,
+                                                         position = anchor1_position,
+                                                         rotation = anchor1_rotation)
+
+    collider2_handle = dispatcher.run('add_kinematic', shape = anchor2_shape,
+                                                         position = anchor2_position,
+                                                         rotation = anchor2_rotation)
 
     mesh_handle = dispatcher.run('add_dynamic', shape = shape, particle_mass = PARTICLE_MASS)
 
     edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = mesh_handle,
-                                                           stiffness = 50.0, damping = 0.0)
+                                                           stiffness = 100.0, damping = 0.0)
 
-    dispatcher.run('add_kinematic_attachment', dynamic = mesh_handle,
-                                               kinematic = anchor_shape_handle,
-                                               stiffness = 100.0,
-                                               damping = 0.0,
-                                               distance = 2.5)
+    dispatcher.run('add_kinematic_collision', dynamic = mesh_handle, kinematic = collider0_handle,
+                                               stiffness = 10000.0, damping = 0.0)
+
+    dispatcher.run('add_kinematic_collision', dynamic = mesh_handle, kinematic = collider1_handle,
+                                               stiffness = 10000.0, damping = 0.0)
+
+    dispatcher.run('add_kinematic_collision', dynamic = mesh_handle, kinematic = collider2_handle,
+                                               stiffness = 10000.0, damping = 0.0)
 
     dispatcher.run('add_gravity', gravity = GRAVITY)
 
