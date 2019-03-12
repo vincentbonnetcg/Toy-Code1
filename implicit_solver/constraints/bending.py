@@ -137,52 +137,46 @@ def elasticBendingNumericalJacobians(x0, x1, x2, rest_angle, stiffness):
     STENCIL_SIZE = 1e-6
 
     # derivate of f0 relative to x0
-    x_cids = [0, 1] # x component id means x[0], x[1]
-    for gradient_id in range(2):
-        x_cid = x_cids[gradient_id]
+    for g_id in range(2):
         x0_ = math2D.copy(x0)
-        x0_[x_cid] = x0[x_cid]+STENCIL_SIZE
+        x0_[g_id] = x0[g_id]+STENCIL_SIZE
         forces = elasticBendingForces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
         grad_f0_x0 = forces[0]
-        x0_[x_cid] = x0[x_cid]-STENCIL_SIZE
+        x0_[g_id] = x0[g_id]-STENCIL_SIZE
         forces = elasticBendingForces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
         grad_f0_x0 -= forces[0]
         grad_f0_x0 /= (2.0 * STENCIL_SIZE)
-        jacobians[0, 0:2, x_cid] = grad_f0_x0
+        jacobians[0, 0:2, g_id] = grad_f0_x0
 
     # derivate of f0, f1 relative to x1
-    x_cids = [0, 1] # x component id means x[0], x[1]
-    for gradient_id in range(2):
-        x_cid = x_cids[gradient_id]
+    for g_id in range(2):
         x1_ = math2D.copy(x1)
-        x1_[x_cid] = x1[x_cid]+STENCIL_SIZE
+        x1_[g_id] = x1[g_id]+STENCIL_SIZE
         forces = elasticBendingForces(x0, x1_, x2, rest_angle, stiffness, [True, True, False])
         grad_f0_x1 = forces[0]
         grad_f1_x1 = forces[1]
-        x1_[x_cid] = x1[x_cid]-STENCIL_SIZE
+        x1_[g_id] = x1[g_id]-STENCIL_SIZE
         forces = elasticBendingForces(x0, x1_, x2, rest_angle, stiffness, [True, True, False])
         grad_f0_x1 -= forces[0]
         grad_f1_x1 -= forces[1]
-        jacobians[1, 0:2, x_cid] = grad_f1_x1 / (2.0 * STENCIL_SIZE)
-        jacobians[3, 0:2, x_cid] = grad_f0_x1 / (2.0 * STENCIL_SIZE)
+        jacobians[1, 0:2, g_id] = grad_f1_x1 / (2.0 * STENCIL_SIZE)
+        jacobians[3, 0:2, g_id] = grad_f0_x1 / (2.0 * STENCIL_SIZE)
 
     # derivate of f0, f1, f2 relative to x2
-    x_cids = [0, 1] # x component id means x[0], x[1]
-    for gradient_id in range(2):
-        x_cid = x_cids[gradient_id]
+    for g_id in range(2):
         x2_ = math2D.copy(x2)
-        x2_[x_cid] = x2[x_cid]+STENCIL_SIZE
+        x2_[g_id] = x2[g_id]+STENCIL_SIZE
         forces = elasticBendingForces(x0, x1, x2_, rest_angle, stiffness, [True, True, True])
         grad_f0_x2 = forces[0]
         grad_f1_x2 = forces[1]
         grad_f2_x2 = forces[2]
-        x2_[x_cid] = x2[x_cid]-STENCIL_SIZE
+        x2_[g_id] = x2[g_id]-STENCIL_SIZE
         forces = elasticBendingForces(x0, x1, x2_, rest_angle, stiffness, [True, True, True])
         grad_f0_x2 -= forces[0]
         grad_f1_x2 -= forces[1]
         grad_f2_x2 -= forces[2]
-        jacobians[4, 0:2, x_cid] = grad_f0_x2 / (2.0 * STENCIL_SIZE)
-        jacobians[5, 0:2, x_cid] = grad_f1_x2 / (2.0 * STENCIL_SIZE)
-        jacobians[2, 0:2, x_cid] = grad_f2_x2 / (2.0 * STENCIL_SIZE)
+        jacobians[4, 0:2, g_id] = grad_f0_x2 / (2.0 * STENCIL_SIZE)
+        jacobians[5, 0:2, g_id] = grad_f1_x2 / (2.0 * STENCIL_SIZE)
+        jacobians[2, 0:2, g_id] = grad_f2_x2 / (2.0 * STENCIL_SIZE)
 
     return jacobians
