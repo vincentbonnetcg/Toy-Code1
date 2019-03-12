@@ -37,6 +37,7 @@ class CommandDispatcher:
         dispatch = {'set_context' : None,
                     'get_context' : None,
                     'get_scene' : None,
+                    'get_dynamic_handles' : None,
                     'initialize' : sim_cmds.initialize,
                     'reset_scene' : None,
                     'solve_to_next_frame' : sim_cmds.solve_to_next_frame,
@@ -57,6 +58,12 @@ class CommandDispatcher:
             result = self._context
         elif (command_name == 'get_scene'):
             result = self._scene
+        elif (command_name == 'get_dynamic_handles'):
+            result = []
+            for obj in self._scene.dynamics:
+                for k, v in self._object_dict.items():
+                    if obj == v:
+                        result.append(k)
         elif (command_name == 'reset_scene'):
             self._scene = system.Scene()
         elif (command_name == 'initialize' or

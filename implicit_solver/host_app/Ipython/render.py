@@ -30,8 +30,8 @@ class Render:
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
         self.ax.axis('equal')
-        self.ax.set_xlim(-3.5, 3.5)
-        self.ax.set_ylim(-3.5, 3.5)
+        self.ax.set_xlim(-2.5, 2.5)
+        self.ax.set_ylim(-2.5, 2.5)
 
         # Set label
         plt.title('Implicit Solver - frame ' + str(frameId), fontdict = self.font)
