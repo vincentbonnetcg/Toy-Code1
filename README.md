@@ -61,7 +61,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
 
-**File** [polynomialRegression.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/interpolation_regression/interpolation_regression/polynomialRegression.py)<br>
+**File** [polynomialRegression.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/interpolation_regression/polynomialRegression.py)<br>
 **Description** Polynomial Linear Regression on 1D dataset
 
 ![Regression](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/polynomial_regression.png)
