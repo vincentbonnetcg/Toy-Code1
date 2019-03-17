@@ -56,10 +56,16 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ![PCA](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/optimalTransformation_covarianceMatrix.png)
 
 ## . Interpolation and Regression
-**File** [scatteredDataInterpolation_radialBasisFunction.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/scatteredDataInterpolation_radialBasisFunction.py)<br>
+**File** [scatteredDataInterpolation_radialBasisFunction.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/interpolation_regression/scatteredDataInterpolation_radialBasisFunction.py)<br>
 **Description** Interpolation of a 1D function with Radial Basis Functions
 
 ![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
+
+**File** [polynomialRegression.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/interpolation_regression/interpolation_regression/polynomialRegression.py)<br>
+**Description** Polynomial Linear Regression on 1D dataset
+
+![Regression](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/polynomial_regression.png)
+
 
 ## . Performance (Numba, Cuda ...)
 **Folder** [performance](https://github.com/vincentbonnetcg/Toy-Code/blob/master/performance)<br>

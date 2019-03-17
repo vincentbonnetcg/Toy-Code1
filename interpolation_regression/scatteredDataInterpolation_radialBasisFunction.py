@@ -21,7 +21,7 @@ NUM_SAMPLES = 15
 def randomSampleFromFunction1D(function, minRange, maxRange, numSamples):
     result = []
     samples_x = np.linspace(minRange, maxRange, numSamples, endpoint=True)
-    
+
     for i in range(0,numSamples):
         result.append((samples_x[i], function(samples_x[i])))
 
@@ -46,16 +46,16 @@ def inverseMultiQuadraticKernel(r):
 '''
  we should solve the system below
  Aw = b where
- 
+
  b are the sampled points [y0, y1, y2]
- 
+
  A is the interpolation matrix :
   | k(x0-x0) k(x0-x1) k(x0-x2) ... |
   | k(x1-x0) k(x1-x1) k(x1-x2) ... |
   | k(x2-x0) k(x2-x1) k(x2-x2) ... |
   |   ...      ...      ...    ... |
-  
- w are the weights [w0, w1, w2] - unknown 
+
+ w are the weights [w0, w1, w2] - unknown
 '''
 def computeRBF_weights(points, kernel):
     numSamples = np.size(points,0)
@@ -63,14 +63,14 @@ def computeRBF_weights(points, kernel):
     for i in range(numSamples):
         for j in range(numSamples):
             interpolationMatrix[i,j] = kernel(points[j][0]-points[i][0])
-    
+
     samplePoints = np.zeros(shape=(numSamples, 1))
     for i in range(numSamples):
         samplePoints[i]  = points[i][1]
 
     inverseInterpolationMatrix = np.linalg.inv(interpolationMatrix)
     weights = np.matmul(inverseInterpolationMatrix, samplePoints)
-    
+
     return weights
 
 '''
@@ -81,7 +81,7 @@ def radialBasisFunction(points, rfbWeights, kernel, x):
     result = 0.0
     for i in range(numSamples):
         result += kernel(x - points[i][0]) * rfbWeights[i]
-        
+
     return result
 
 '''
@@ -94,34 +94,35 @@ def drawFunction1D(function1D, minRange, maxRange, step):
     ax.axis('equal')
     # draw
     t = np.linspace(minRange, maxRange, int((maxRange - minRange) / step), endpoint=True)
-    plt.plot(t, function1D(t), '-.', color="blue")
+    plt.plot(t, function1D(t), '-', color="blue")
     # display
     plt.tight_layout()
     plt.show()
 
-def drawRBF_1D(points, weights, kernel, referenceFunction, minRange, maxRange, step):   
+def drawRBF_1D(points, weights, kernel, referenceFunction, minRange, maxRange, step):
     # prepare figure
     fig, ax = plt.subplots()
+    ax.grid()
     ax.axis('equal')
-    # draw reference function 
+    # draw reference function
     t = np.linspace(minRange, maxRange, int((maxRange - minRange) / step), endpoint=True)
-    plt.plot(t, referenceFunction(t), linestyle='solid', color="green", label="reference function")
+    plt.plot(t, referenceFunction(t), linestyle='solid', color="green", label="Reference function")
     # draw rbf
     t = np.linspace(minRange, maxRange, int((maxRange - minRange) / step), endpoint=True)
-    plt.plot(t, radialBasisFunction(points, weights, kernel, t), linestyle='dotted', color="blue", label="rbf interpolation")
+    plt.plot(t, radialBasisFunction(points, weights, kernel, t), linestyle='dotted', color="blue", label="RBF interpolation")
     # draw points
     x, y = zip(*points)
-    plt.plot(x, y, '*', color='red', label="samples")   
+    plt.plot(x, y, '.', color='red', label="Samples")
     # display
-    font = {'family': 'serif',
-            'color':  'darkred',
+    font = {'family': 'arial',
+            'color':  'darkblue',
             'weight': 'normal',
             'size': 16 }
-    plt.title('RBF interpolation', fontdict=font)
+    plt.title('RBF Interpolation', fontdict=font)
     plt.xlabel('x')
     plt.ylabel('f(x)')
     plt.legend(bbox_to_anchor=(1, 1), loc=2)
-    plt.show()  
+    plt.show()
 
 '''
  Execute
