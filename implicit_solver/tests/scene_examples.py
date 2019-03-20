@@ -28,7 +28,10 @@ GRAVITY = (0.0, -9.81) # in meters per second^2
 def get_resources_folder():
     return os.path.dirname(__file__) + "/resources/"
 
-def init_cat_scene(dispatcher):
+def meta_data_render(width=1.0, color='grey', style='solid'):
+    return {'width':width, 'color':color, 'style':style}
+
+def init_cat_scene(dispatcher, render):
     '''
     Initalizes a scene including a cat shape created by the Maya/mesh_converter.py
     Latest Maya/Houdini doesn't support Python 3.x hence cannot use client.py to send data
@@ -89,10 +92,16 @@ def init_cat_scene(dispatcher):
 
     dispatcher.run('add_gravity', gravity = GRAVITY)
 
-    dispatcher.run('set_render_prefs', obj = mesh_handle, prefs = ['co', 1])
-    dispatcher.run('set_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
+    # Set render preferences
+    dispatcher.run('set_render_prefs', obj = mesh_handle,
+                                       prefs = meta_data_render(1.0, 'grey', 'solid'))
+    dispatcher.run('set_render_prefs', obj = edge_condition_handle,
+                                       prefs = meta_data_render(1.0, 'blue', 'solid'))
 
-def init_multi_wire_example(dispatcher):
+    render.set_viewport_limit(-20.0, -40.0, 20.0, 0.0)
+
+
+def init_multi_wire_example(dispatcher, render):
     '''
     Initalizes a scene with multiple wire attached to a kinematic object
     '''
@@ -118,7 +127,7 @@ def init_multi_wire_example(dispatcher):
     collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
                                        WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
     collider_position, collider_rotation = moving_anchor_shape.extract_transform_from_shape()
-    collider_rotation = 45.
+    collider_rotation = 45.0
 
     # Populate Scene with data and conditions
     moving_anchor_handle = dispatcher.run('add_kinematic', shape = moving_anchor_shape,
@@ -145,13 +154,18 @@ def init_multi_wire_example(dispatcher):
         dispatcher.run('add_kinematic_collision', dynamic = wire_handle, kinematic = collider_handle,
                                                    stiffness = 1000.0, damping = 0.0)
 
-        dispatcher.run('set_render_prefs', obj = wire_handle, prefs = ['co', 1])
-        dispatcher.run('set_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
+        dispatcher.run('set_render_prefs', obj = wire_handle,
+                                           prefs = meta_data_render(1.0, 'blue', 'solid'))
+        dispatcher.run('set_render_prefs', obj = edge_condition_handle,
+                                           prefs = meta_data_render(1.0, 'green', 'solid'))
 
     dispatcher.run('add_gravity', gravity = GRAVITY)
 
+    # Set render preferences
+    render.set_viewport_limit(-2.5, -2.5, 2.5, 2.5)
 
-def init_wire_example(dispatcher):
+
+def init_wire_example(dispatcher, render):
     '''
     Initalizes a scene with a wire attached to a kinematic object
     '''
@@ -193,11 +207,16 @@ def init_wire_example(dispatcher):
                                                stiffness = 1000.0, damping = 0.0)
     dispatcher.run('add_gravity', gravity = GRAVITY)
 
-    dispatcher.run('set_render_prefs', obj = wire_handle, prefs = ['co', 1])
-    dispatcher.run('set_render_prefs', obj = edge_condition_handle, prefs = ['m-', 1])
+    # Set render preferences
+    dispatcher.run('set_render_prefs', obj = wire_handle,
+                                       prefs = meta_data_render(1.0, 'blue', 'solid'))
+    dispatcher.run('set_render_prefs', obj = edge_condition_handle,
+                                       prefs = meta_data_render(1.0, 'green', 'solid'))
+
+    render.set_viewport_limit(-2.5, -2.5, 2.5, 2.5)
 
 
-def init_beam_example(dispatcher):
+def init_beam_example(dispatcher, render):
     '''
     Initalizes a scene with a beam and a wire
     '''
@@ -259,9 +278,16 @@ def init_beam_example(dispatcher):
 
     dispatcher.run('add_gravity', gravity = GRAVITY)
 
-    dispatcher.run('set_render_prefs', obj = beam_handle, prefs = ['go', 1])
-    dispatcher.run('set_render_prefs', obj = beam_edge_condition_handle, prefs = ['k-', 1])
+    # Set render preferences
+    dispatcher.run('set_render_prefs', obj = beam_handle,
+                                       prefs = meta_data_render(1.0, 'grey', 'solid'))
+    dispatcher.run('set_render_prefs', obj = beam_edge_condition_handle,
+                                       prefs = meta_data_render(1.0, 'blue', 'solid'))
 
-    dispatcher.run('set_render_prefs', obj = wire_handle, prefs = ['co', 1])
-    dispatcher.run('set_render_prefs', obj = wire_edge_condition_handle, prefs = ['m-', 1])
+    dispatcher.run('set_render_prefs', obj = wire_handle,
+                                       prefs = meta_data_render(1.0, 'grey', 'solid'))
+    dispatcher.run('set_render_prefs', obj = wire_edge_condition_handle,
+                                       prefs = meta_data_render(1.0, 'green', 'solid'))
+
+    render.set_viewport_limit(-3.5, -3.5, 3.5, 3.5)
 

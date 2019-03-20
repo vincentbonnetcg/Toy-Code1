@@ -15,7 +15,7 @@ from tests import scene_examples
 '''
 START_TIME = 0
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
-NUM_SUBSTEP = 6 # number of substep per frame
+NUM_SUBSTEP = 10 # number of substep per frame
 NUM_FRAMES = 100 # number of simulated frame (doesn't include initial frame)
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 USE_REMOTE_SERVER = False # run the program locally or connect to a server
@@ -23,6 +23,11 @@ USE_REMOTE_SERVER = False # run the program locally or connect to a server
 
 
 def main():
+    # Creates render and profiler
+    render = Render()
+    render.set_render_folder_path(RENDER_FOLDER_PATH)
+    profiler = tools.Profiler()
+
     # Creates command dispatcher
     cmd_dispatcher= None
     if USE_REMOTE_SERVER:
@@ -36,12 +41,7 @@ def main():
                          num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
 
     cmd_dispatcher.run("set_context", context = context)
-    scene_examples.init_wire_example(cmd_dispatcher)
-
-    # Creates render and profiler
-    render = Render()
-    render.set_render_folder_path(RENDER_FOLDER_PATH)
-    profiler = tools.Profiler()
+    scene_examples.init_wire_example(cmd_dispatcher, render)
 
     # Simulate frames
     for frame_id in range(context.num_frames+1):

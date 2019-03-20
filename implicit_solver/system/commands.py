@@ -8,9 +8,6 @@ import objects
 def set_render_prefs(obj, prefs):
     '''
     Render preferences used by render.py
-    See : https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.plot.html for more details
-    fmt = '[color][marker][line]'
-    format of the display State ['fmt', size]
     '''
     obj.meta_data['render_prefs'] = prefs
 
