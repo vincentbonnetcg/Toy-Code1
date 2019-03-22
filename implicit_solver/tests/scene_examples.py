@@ -28,8 +28,8 @@ GRAVITY = (0.0, -9.81) # in meters per second^2
 def get_resources_folder():
     return os.path.dirname(__file__) + "/resources/"
 
-def meta_data_render(width=1.0, color='grey', style='solid'):
-    return {'width':width, 'color':color, 'style':style}
+def meta_data_render(width=1.0, color='grey', style='solid', alpha = 1.0):
+    return {'width':width, 'color':color, 'style':style, 'alpha' : alpha}
 
 def init_cat_scene(dispatcher, render):
     '''
@@ -97,6 +97,13 @@ def init_cat_scene(dispatcher, render):
                                        prefs = meta_data_render(1.0, 'grey', 'solid'))
     dispatcher.run('set_render_prefs', obj = edge_condition_handle,
                                        prefs = meta_data_render(1.0, 'blue', 'solid'))
+    dispatcher.run('set_render_prefs', obj = collider0_handle,
+                                       prefs = meta_data_render(1.0, 'orange', 'solid', 0.8))
+    dispatcher.run('set_render_prefs', obj = collider1_handle,
+                                       prefs = meta_data_render(1.0, 'orange', 'solid', 0.8))
+    dispatcher.run('set_render_prefs', obj = collider2_handle,
+                                       prefs = meta_data_render(1.0, 'orange', 'solid', 0.8))
+
 
     render.set_viewport_limit(-20.0, -40.0, 20.0, 0.0)
 
@@ -162,6 +169,11 @@ def init_multi_wire_example(dispatcher, render):
     dispatcher.run('add_gravity', gravity = GRAVITY)
 
     # Set render preferences
+    dispatcher.run('set_render_prefs', obj = moving_anchor_handle,
+                                       prefs = meta_data_render(1.0, 'orange', 'solid', 0.8))
+    dispatcher.run('set_render_prefs', obj = collider_handle,
+                                       prefs = meta_data_render(1.0, 'orange', 'solid', 0.8))
+
     render.set_viewport_limit(-2.5, -2.5, 2.5, 2.5)
 
 
@@ -212,6 +224,10 @@ def init_wire_example(dispatcher, render):
                                        prefs = meta_data_render(1.0, 'blue', 'solid'))
     dispatcher.run('set_render_prefs', obj = edge_condition_handle,
                                        prefs = meta_data_render(1.0, 'green', 'solid'))
+    dispatcher.run('set_render_prefs', obj = collider_handle,
+                                       prefs = meta_data_render(1.0, 'orange', 'solid', 0.8))
+    dispatcher.run('set_render_prefs', obj = moving_anchor_handle,
+                                       prefs = meta_data_render(1.0, 'orange', 'solid', 0.8))
 
     render.set_viewport_limit(-2.5, -2.5, 2.5, 2.5)
 
@@ -288,6 +304,10 @@ def init_beam_example(dispatcher, render):
                                        prefs = meta_data_render(1.0, 'grey', 'solid'))
     dispatcher.run('set_render_prefs', obj = wire_edge_condition_handle,
                                        prefs = meta_data_render(1.0, 'green', 'solid'))
+    dispatcher.run('set_render_prefs', obj = left_anchor_handle,
+                                       prefs = meta_data_render(1.0, 'orange', 'solid', 0.8))
+    dispatcher.run('set_render_prefs', obj = right_anchor_handle,
+                                       prefs = meta_data_render(1.0, 'orange', 'solid', 0.8))
 
     render.set_viewport_limit(-3.5, -3.5, 3.5, 3.5)
 

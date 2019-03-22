@@ -77,7 +77,8 @@ class Render:
             line_segments = LineCollection(segs,
                                            linewidths=render_prefs['width'],
                                            colors=render_prefs['color'],
-                                           linestyles=render_prefs['style'])
+                                           linestyles=render_prefs['style'],
+                                           alpha=render_prefs['alpha'])
 
             self.ax.add_collection(line_segments)
 
@@ -88,12 +89,16 @@ class Render:
                 continue
 
             x, y = zip(*dynamic.x)
-            self.ax.plot(x, y, '.', color=render_prefs['color'], markersize = render_prefs['width'])
+            self.ax.plot(x, y, '.', alpha=render_prefs['alpha'], color=render_prefs['color'], markersize = render_prefs['width'])
 
         # Draw kinematics
         for kinematic in scene.kinematics:
+            render_prefs = kinematic.meta_data.get("render_prefs" , None)
+            if render_prefs is None:
+                continue
+
             vertices = kinematic.get_vertices(False)
-            polygon  = patches.Polygon(vertices, facecolor='orange', alpha=0.8)
+            polygon  = patches.Polygon(vertices, facecolor=render_prefs['color'], alpha=render_prefs['alpha'])
             self.ax.add_patch(polygon)
 
         plt.show()
