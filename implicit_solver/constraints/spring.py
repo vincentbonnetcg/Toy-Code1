@@ -139,6 +139,7 @@ def springDampingForce(x0, x1, v0, v1, damping):
     relativeVelocity = v1 - v0
     return direction * (np.dot(relativeVelocity, direction) * damping)
 
+@njit
 def elasticSpringEnergy(x0, x1, rest, stiffness):
     stretch = math2D.distance(x0, x1)
     return 0.5 * stiffness * ((stretch - rest)**2)
