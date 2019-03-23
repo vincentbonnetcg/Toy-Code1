@@ -4,6 +4,7 @@
 """
 
 import objects
+from tools import profiler
 
 def set_render_prefs(obj, prefs):
     '''
@@ -27,6 +28,7 @@ def add_dynamic(scene, shape, particle_mass):
     scene.add_dynamic(dynamic)
     return dynamic
 
+@profiler.timeit
 def solve_to_next_frame(scene, solver, context):
     '''
     Solve the scene and move to the next frame

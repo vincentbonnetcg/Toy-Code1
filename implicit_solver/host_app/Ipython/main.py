@@ -45,7 +45,7 @@ def main():
 
     # Simulate frames
     for frame_id in range(context.num_frames+1):
-        profiler.clearLogs()
+        profiler.clear_logs()
 
         if frame_id == 0:
             cmd_dispatcher.run("initialize")
@@ -55,7 +55,7 @@ def main():
         render.show_current_frame(cmd_dispatcher, frame_id)
         render.export_current_frame(str(frame_id).zfill(4) + " .png")
 
-        profiler.printLogs()
+        profiler.print_logs()
 
     # Disconnect client from server
     if USE_REMOTE_SERVER:
