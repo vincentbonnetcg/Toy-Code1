@@ -50,6 +50,10 @@ class Render:
         self.ax.set_xlim(self.min[0], self.max[0])
         self.ax.set_ylim(self.min[1], self.max[1])
 
+        # Statistics for legend
+        stats_total_constraints = 0
+        stats_total_particles = 0
+
         # Set label
         plt.title('Implicit Solver - frame ' + str(frameId), fontdict = self.font)
         plt.xlabel('x (m)')
@@ -57,6 +61,7 @@ class Render:
 
         # Draw constraints
         for condition in scene.conditions:
+            stats_total_constraints += len(condition.constraints)
             render_prefs = condition.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
@@ -84,6 +89,7 @@ class Render:
 
         # Draw particles
         for dynamic in scene.dynamics:
+            stats_total_particles += len(dynamic.data)
             render_prefs = dynamic.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
@@ -101,6 +107,10 @@ class Render:
             polygon  = patches.Polygon(vertices, facecolor=render_prefs['color'], alpha=render_prefs['alpha'])
             self.ax.add_patch(polygon)
 
+        # Add Legend
+        red_patch = patches.Patch(color='red', label=str(stats_total_particles) + ' particles')
+        blue_patch = patches.Patch(color='blue', label=str(stats_total_constraints) + ' constraints')
+        plt.legend(handles=[red_patch, blue_patch])
         plt.show()
 
     def render_sparse_matrix(self, solver, frameId):

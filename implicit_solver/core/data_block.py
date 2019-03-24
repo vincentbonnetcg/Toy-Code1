@@ -82,6 +82,9 @@ class DataBlock:
         for field_index, field_name in enumerate(self.dtype_dict['names']):
             setattr(obj, field_name, self.data[field_index])
 
+    def __len__(self):
+        return self.num_elements
+
     def __getattr__(self, item):
         '''
         Access a specific field from data
