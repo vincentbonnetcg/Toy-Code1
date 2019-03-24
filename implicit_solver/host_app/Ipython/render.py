@@ -110,7 +110,7 @@ class Render:
         # Add Legend
         red_patch = patches.Patch(color='red', label=str(stats_total_particles) + ' particles')
         blue_patch = patches.Patch(color='blue', label=str(stats_total_constraints) + ' constraints')
-        plt.legend(handles=[red_patch, blue_patch])
+        plt.legend(handles=[red_patch, blue_patch], loc='lower left')
         plt.show()
 
     def render_sparse_matrix(self, solver, frameId):
