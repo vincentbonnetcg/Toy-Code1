@@ -163,14 +163,18 @@ class ImplicitSolver(BaseSolver):
             return
         # Solve the system (Ax=b)
         cgResult = sc.sparse.linalg.cg(self.A, self.b)
-        deltaVArray = cgResult[0]
+        delta_v = cgResult[0]
         # Advect
+        self.advect(scene, delta_v, dt)
+
+    @profiler.timeit
+    def advect(self, scene, delta_v, dt):
         for dynamic in scene.dynamics:
             v = dynamic.v
             x = dynamic.x
             for i in range(dynamic.num_particles):
                 ids = dynamic.global_offset + i
-                deltaV = [float(deltaVArray[ids*2]), float(deltaVArray[ids*2+1])]
+                deltaV = [float(delta_v[ids*2]), float(delta_v[ids*2+1])]
                 deltaX = (v[i] + deltaV) * dt
                 v[i] += deltaV
                 x[i] += deltaX
