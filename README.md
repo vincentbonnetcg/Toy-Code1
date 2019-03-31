@@ -91,6 +91,8 @@ Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
 **Folder** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/signed_distance_field.py)<br>
 **Description** Solve Eikonal Equation to compute signed distance field from 2D-polygon
 
+![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/distance_field.png)
+
 ## . Neural Network (placeholder)
 **Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
 **Description** Folder to study Neural Network

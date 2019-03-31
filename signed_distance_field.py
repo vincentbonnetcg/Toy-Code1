@@ -4,15 +4,13 @@
 Placeholder with a brute force implementation
 It will be replaced by Fast Marchin Method or Fast Sweeping Method
 """
-
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcol
+import matplotlib as mpl
 import numpy as np
 import matplotlib.path as mpath
-import numba
-import math
 
-VOXEL_SIZE = 0.1
+VOXEL_SIZE = 0.01
 
 star = mpath.Path.unit_regular_star(6)
 polygon_star = star.to_polygons()
@@ -31,15 +29,62 @@ class Grid:
         return ((i + self.min_cell[0]) * self.voxel_size,
                 (j + self.min_cell[1]) * self.voxel_size)
 
+def project_position_on_segment(p0, p1, p2):
+    '''
+    Project point on segment p1-p2
+    '''
+    d = p2 - p1
+    d_norm = np.linalg.norm(d)
+    d /= d_norm
+    t = np.dot(p0 - p1, d)
+    t = min(max(t, 0.0), d_norm)
+    return p1 + d * t
+
+def project_position_on_mesh(mesh_points, mesh_edge_indices, pos):
+    '''
+    Project position on mesh (mesh_points, mesh_edge_indices)
+    '''
+    result_distance2 = np.finfo(np.float64).max
+    result_pos = pos
+
+    for i in range(mesh_edge_indices.shape[0]):
+        edge_vtx_id = mesh_edge_indices[i]
+        p1 = mesh_points[edge_vtx_id[0]]
+        p2 = mesh_points[edge_vtx_id[1]]
+
+        project_pos = project_position_on_segment(pos, p1, p2)
+        distance2 = np.dot(pos - project_pos, pos - project_pos)
+        if (distance2 < result_distance2):
+            result_distance2 = distance2
+            result_pos = project_pos
+
+    return result_pos, np.sqrt(result_distance2)
+
 class Mesh:
     def __init__(self, polyline):
         self.points = np.asarray(polyline)
         num_points = self.points.shape[0]
         num_edge_indices = num_points - 1
-        self.edge_indices = np.zeros((num_edge_indices, 2))
+        self.edge_indices = np.zeros((num_edge_indices, 2), dtype=np.int32)
         for edge_id in range(num_edge_indices):
             self.edge_indices[edge_id][0] = edge_id
             self.edge_indices[edge_id][1] = edge_id+1
+
+    def get_segments(self):
+        segs = []
+        for edge_vtx_id in self.edge_indices:
+            seg = []
+            for vtx_id in edge_vtx_id:
+                seg.append(self.points[vtx_id])
+            segs.append(seg)
+ 
+        return segs
+
+    def project_position(self, pos):
+        '''
+        Returns the position projected on mesh
+        '''
+        return project_position_on_mesh(self.points, self.edge_indices, pos)
 
 def discretize_polyline(mesh, voxel_size, margin = 1):
     '''
@@ -53,23 +98,15 @@ def discretize_polyline(mesh, voxel_size, margin = 1):
 
     return grid
 
-def distance_from_line(p0, p1, p2):
-    '''
-    Compute the distance between p0 and the segment p1-p2
-    '''
-    d = p2 - p1
-    # TODO
-    pass
-
 def compute_distance(mesh, grid):
     '''
     Compute the distance field with a brute force method
     '''
     for i in range(grid.size[0]):
         for j in range(grid.size[1]):
-            pos = grid.ij_to_ws(i, j)
+            #pos = grid.ij_to_ws(i, j)
+            pass
     # TODO
-    pass
 
 def compute_sign(mesh, grid):
     '''
@@ -98,20 +135,31 @@ def grid_to_points(grid):
 # Discretize polyline
 mesh = Mesh(POLYLINE)
 grid = discretize_polyline(mesh, VOXEL_SIZE)
-compute_sign(mesh, grid)
-compute_distance(mesh, grid)
+#compute_sign(mesh, grid) - NOT IMPLEMENTED
+#compute_distance(mesh, grid) - NOT IMPLEMENTED
 points = grid_to_points(grid)
+distances = np.zeros(points.shape[0])
+colors = np.ones((points.shape[0], 4))
+
+norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+color_mapper = mpl.cm.ScalarMappable(norm=norm, cmap=plt.get_cmap("Greens"))
+for idx, point in enumerate(points):
+     pt, dst = mesh.project_position(point)
+     colors[idx] = color_mapper.to_rgba(dst)
 
 # Display
 ax = plt.subplot(111)
-col = mcol.PathCollection([star], facecolor='blue')
-ax.add_collection(col)
+line_collection = mcol.LineCollection(mesh.get_segments())
+
 ax.axis('equal')
-ax.set_title('Signed distance polygon')
+ax.set_title('Distance Field')
 ax.set_xlim([-2, 2])
 ax.set_ylim([-2, 2])
-plt.tight_layout()
-# TODO - draw distance with a certain colour
+
+ax.add_collection(line_collection)
 px, py = zip(*points)
-ax.plot(px, py, '.', alpha=0.5, color='orange', markersize = 5.0)
+ax.scatter(x=px, y=py, s=1.0, c=colors, alpha=0.5)
+
+
+plt.tight_layout()
 plt.show()
