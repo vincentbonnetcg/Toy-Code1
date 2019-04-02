@@ -130,6 +130,21 @@ def computeDampedLeastSquare(jacobian):
     return(jacobian.transpose() * jacobiantInv)
 
 '''
+Singular values analysis (Only for debugging)
+'''
+def print_singluar_values(matrix):
+    '''
+    Print the singular values to indicate whether the matrix inversion is stable
+    Large singular values would make it unstable
+    matrix is decompose into U.E.Vt
+    where U and V are othogonal and E is the diagonal matrix containing singular values
+    hence its inverse is V.1/E.Ut
+    '''
+    singular_values = np.linalg.svd(matrix, compute_uv = False)
+    print("-- singular_values --")
+    print(singular_values)
+
+'''
  Inverse Kinematics
 '''
 def inverseKinematic(chain):
@@ -149,6 +164,9 @@ def inverseKinematic(chain):
         pseudoInverse = computePseudoInverse(jacobian)
     else:
         pseudoInverse = computeDampedLeastSquare(jacobian)
+
+    # Debugging
+    #print_singluar_values(pseudoInverse)
 
     deltaAngles = np.matmul(pseudoInverse, np.reshape(vec, (2,1)))
     for i in range(chain.numSegments):
