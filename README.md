@@ -19,17 +19,11 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Teschner, Matthias, Bruno Heidelberger, Matthias Muller, and Markus Gross. "A versatile and robust model for geometrically complex deformable solids." In Computer Graphics International, 2004. Proceedings, pp. 312-319. IEEE, 2004.
 
-## . PDE - Numerical Integration
+## . Skeletal Subspace Deformation (placeholder)
+**File** [linear_skinning.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/linear_skinning.py)<br>
+**Description** Skeletal Subspace Deformation
 
-**File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/spring1D_integrator.py)<br>
-**Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
-- Explicit Euler
-- RK2
-- RK4
-- Semi-Implicit Euler (also called Euler-Cromer)
-- Leap Frog
-
-![Explicit Integrators](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/spring1D_integrator.png)
+![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/linear_skinning.png)
 
 ## . Inverse Kinematics
 **File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/inverseKinematics_withJacobian.py)<br>
@@ -100,6 +94,18 @@ Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
 ![MNIST](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/nn_mnist.png)<br>
 
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
+
+## . PDE - Numerical Integration
+
+**File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/spring1D_integrator.py)<br>
+**Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
+- Explicit Euler
+- RK2
+- RK4
+- Semi-Implicit Euler (also called Euler-Cromer)
+- Leap Frog
+
+![Explicit Integrators](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/spring1D_integrator.png)
 
 ## . Graph Colouring
 **File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/graphColouring_greedyAlgorithm.py)<br>
