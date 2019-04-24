@@ -72,20 +72,19 @@ class Skeleton:
         mesh.weights_map = np.zeros((num_bones, num_vertices))
         bone_segments = self.get_bone_segments()
 
-        # compute weights per bone per vertices (weights map)
+        # compute weights per bone per vertices (weights map) from kernel function
         for vertex_id, vertex in enumerate(mesh.vertex_buffer):
             for bone_id, bone_seg in enumerate (bone_segments):
                 distance = distance_from_segment(vertex, bone_seg[0], bone_seg[1])
                 mesh.weights_map[bone_id][vertex_id] = kernel_func(distance)
 
         # updates the weights map by limiting ...
-        # the number of influences by picking the n closest vertices
+        # the number of influences from the n closest vertices
         num_influences = min(num_bones, max_influences)
         for vertex_id, vertex in enumerate(mesh.vertex_buffer):
             vertex_weights = np.zeros(num_bones)
             for bone_id, bone_seg in enumerate (bone_segments):
                 vertex_weights[bone_id] = mesh.weights_map[bone_id][vertex_id]
-
 
             vertex_weigths_sorted_index = np.argsort(vertex_weights)
             for vtx_id in range(num_bones - num_influences):
@@ -96,26 +95,29 @@ class Skeleton:
                 mesh.weights_map[bone_id][vertex_id] = vertex_weights[bone_id]
 
     def get_bone_segments(self):
-        segments = []
+        homogenous_coordinate = np.asarray([0.0, 0.0, 1.0])
 
+        segments = []
         bone = self.root_bone
-        prev_H = np.identity(3)
-        prev_H[0, 2] = self.root_position[0]
-        prev_H[1, 2] = self.root_position[1]
-        H = np.copy(prev_H)
+        H = np.identity(3)
+        H[0, 2] = self.root_position[0]
+        H[1, 2] = self.root_position[1]
         while bone is not None:
-            prev_H = H
+            start_pos = np.matmul(H, homogenous_coordinate)
+
+            # Concatenate transformation matrice
             bone_H = bone.get_homogenous_transform()
             H = np.matmul(H, bone_H)
+
+            # Append segment into the resulting list
+            end_pos = np.matmul(H, homogenous_coordinate)
+            segments.append([start_pos[0:2], end_pos[0:2]])
+
+            # Go to the children
             if len(bone.bone_children) > 0:
                 bone = bone.bone_children[0]
             else:
                 bone = None
-
-            homogenous_coordinate = np.asarray([0.0, 0.0, 1.0])
-            start_pos = np.matmul(prev_H, homogenous_coordinate)
-            end_pos = np.matmul(H, homogenous_coordinate)
-            segments.append([start_pos[0:2], end_pos[0:2]])
 
         return segments
 
@@ -185,10 +187,10 @@ def create_skeleton():
     '''
     Create a skeleton object
     '''
-    root_bone = Bone(length = 3.0, rotation = 5.0)
-    bone1 = Bone(length = 3.0, rotation = -5.0)
-    bone2 = Bone(length = 3.0, rotation = 5.0)
-    bone3 = Bone(length = 3.0, rotation = -5.0)
+    root_bone = Bone(length = 3.0, rotation = 0.0)
+    bone1 = Bone(length = 3.0, rotation = 0.0)
+    bone2 = Bone(length = 3.0, rotation = 0.0)
+    bone3 = Bone(length = 3.0, rotation = 0.0)
 
     root_bone.rotation_animation = lambda time : np.sin(time * 2) * 10
     bone1.rotation_animation = lambda time : np.sin(time * 2) * 12
