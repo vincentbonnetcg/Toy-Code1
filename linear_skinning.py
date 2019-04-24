@@ -13,10 +13,10 @@ def distance_from_segment(p, seg_p1, seg_p2):
     '''
     d = seg_p2 - seg_p1
     d_norm = np.linalg.norm(d)
-    d /= d_norm
-    t = np.dot(p - seg_p1, d)
+    d_normalized = d / d_norm
+    t = np.dot(p - seg_p1, d_normalized)
     t = min(max(t, 0.0), d_norm)
-    projected_p = seg_p1 + d * t
+    projected_p = seg_p1 + d_normalized * t
     return np.linalg.norm(p - projected_p)
 
 class Bone:
@@ -73,15 +73,16 @@ class Skeleton:
 
         # updates the weights map by limiting ...
         # the number of influences by picking the n closest vertices
+        num_influences = min(num_bones, max_influences)
         for vertex_id, vertex in enumerate(mesh.vertex_buffer):
             vertex_weights = np.zeros(num_bones)
             for bone_id, bone_seg in enumerate (bone_segments):
                 vertex_weights[bone_id] = mesh.weights_map[bone_id][vertex_id]
 
+
             vertex_weigths_sorted_index = np.argsort(vertex_weights)
-            for bone_id in range(num_bones):
-                if vertex_weigths_sorted_index[bone_id] < num_bones - max_influences:
-                    vertex_weights[bone_id] = 0.0
+            for vtx_id in range(num_bones - num_influences):
+                vertex_weights[vertex_weigths_sorted_index[vtx_id]] = 0.0
 
             vertex_weights /= np.sum(vertex_weights)
             for bone_id, bone_seg in enumerate (bone_segments):
@@ -173,10 +174,10 @@ def create_skeleton():
     '''
     Create a skeleton object
     '''
-    root_bone = Bone(length = 3.0, rotation = 5.0)
-    bone1 = Bone(length = 3.0, rotation = -5.0)
-    bone2 = Bone(length = 3.0, rotation = 5.0)
-    bone3 = Bone(length = 3.0, rotation = -5.0)
+    root_bone = Bone(length = 3.0, rotation = 1.0)
+    bone1 = Bone(length = 3.0, rotation = -1.0)
+    bone2 = Bone(length = 3.0, rotation = 1.0)
+    bone3 = Bone(length = 3.0, rotation = -1.0)
 
     skeleton = Skeleton([-6.0, 0.0], root_bone)
     skeleton.add_bone(root_bone)
@@ -200,25 +201,39 @@ def draw(mesh, skeleton):
     ax.set_ylim(-10, 10)
     plt.title('Linear Skinning', fontdict = font)
 
+    colors_template = [mcolors.to_rgba(c)
+          for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
+
     # Draw mesh (points and edges)
     x, y = zip(*mesh.vertex_buffer)
-    ax.plot(x, y, '.', alpha=1.0, color='blue', markersize = 2.0)
+    point_colors = np.ones((len(mesh.vertex_buffer), 4))
+
+    num_bones = len(skeleton.bones)
+    num_vertices = len(mesh.vertex_buffer)
+    for vertex_id in range(num_vertices):
+        point_color = np.zeros(3)
+
+        for bone_id in range(num_bones):
+            weight = mesh.weights_map[bone_id][vertex_id]
+            point_color += (np.asarray(colors_template[bone_id])[0:3] * weight)
+
+        point_colors[vertex_id][0:3] = point_color
+
+    ax.scatter(x, y, color=point_colors, s=10.0)
 
     segments = mesh.get_boundary_segments()
     line_segments = LineCollection(segments,
-                               linewidths=2.0,
+                               linewidths=1.0,
                                colors='orange',
                                linestyles='-',
-                               alpha=0.5)
+                               alpha=1.0)
     ax.add_collection(line_segments)
 
     # Draw skeleton
-    colors = [mcolors.to_rgba(c)
-              for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
     segments = skeleton.get_bone_segments()
     line_segments = LineCollection(segments,
                                    linewidths=3.0,
-                                   colors=colors,
+                                   colors=colors_template,
                                    linestyles='-',
                                    alpha=1.0)
 
@@ -229,7 +244,7 @@ def main():
     '''
     Main
     '''
-    mesh = create_beam_mesh(-7.0, -1.5, 7.0, 1.5, 5, 3)
+    mesh = create_beam_mesh(-7.0, -1.5, 7.0, 1.5, 15, 3)
     skeleton = create_skeleton()
 
     kernal_parameter = 1.0
