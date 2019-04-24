@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib import colors as mcolors
 
+NUM_FRAMES = 100
+FRAME_TIME_STEP = 1.0 / 24.0
+
 def distance_from_segment(p, seg_p1, seg_p2):
     '''
     Distance from segment [seg_p1, seg_p2] and point p
@@ -23,6 +26,7 @@ class Bone:
     def __init__(self, length = 1.0, rotation = 0.0):
         self.length = length
         self.rotation = rotation # in degrees
+        self.rotation_animation = lambda time : rotation
         # hirerarchy info
         self.bone_parent = None
         self.bone_children = []
@@ -46,6 +50,9 @@ class Bone:
         H[1, 2] = sin * self.length
         H[2, 2] = 1.0
         return H
+
+    def animate(self, time):
+        self.rotation = self.rotation_animation(time)
 
 class Skeleton:
     def __init__(self, root_position, root_bone):
@@ -112,6 +119,10 @@ class Skeleton:
 
         return segments
 
+    def animate(self, time):
+        for bone in self.bones:
+            bone.animate(time)
+
 class Mesh:
     '''
     Mesh contains a vertex buffer, index buffer and weights map for binding
@@ -174,10 +185,15 @@ def create_skeleton():
     '''
     Create a skeleton object
     '''
-    root_bone = Bone(length = 3.0, rotation = 1.0)
-    bone1 = Bone(length = 3.0, rotation = -1.0)
-    bone2 = Bone(length = 3.0, rotation = 1.0)
-    bone3 = Bone(length = 3.0, rotation = -1.0)
+    root_bone = Bone(length = 3.0, rotation = 5.0)
+    bone1 = Bone(length = 3.0, rotation = -5.0)
+    bone2 = Bone(length = 3.0, rotation = 5.0)
+    bone3 = Bone(length = 3.0, rotation = -5.0)
+
+    root_bone.rotation_animation = lambda time : np.sin(time * 2) * 10
+    bone1.rotation_animation = lambda time : np.sin(time * 2) * 12
+    bone2.rotation_animation = lambda time : np.sin(time * 2) * 14
+    bone3.rotation_animation = lambda time : np.sin(time * 2) * 16
 
     skeleton = Skeleton([-6.0, 0.0], root_bone)
     skeleton.add_bone(root_bone)
@@ -219,7 +235,7 @@ def draw(mesh, skeleton):
 
         point_colors[vertex_id][0:3] = point_color
 
-    ax.scatter(x, y, color=point_colors, s=10.0)
+    ax.scatter(x, y, color=point_colors, s=6.0)
 
     segments = mesh.get_boundary_segments()
     line_segments = LineCollection(segments,
@@ -249,9 +265,12 @@ def main():
 
     kernal_parameter = 1.0
     kernel_function = lambda v : np.exp(-np.square((v * kernal_parameter)))
-
     skeleton.attach_mesh(mesh, max_influences = 2, kernel_func = kernel_function)
     draw(mesh, skeleton)
+
+    for frame_id in range(NUM_FRAMES):
+        skeleton.animate(frame_id * FRAME_TIME_STEP)
+        draw(mesh, skeleton)
 
 if __name__ == '__main__':
     main()
