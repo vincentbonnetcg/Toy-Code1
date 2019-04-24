@@ -1,16 +1,29 @@
 """
 @author: Vincent Bonnet
-@description : Linear Skinning
+@description : Linear Skinning (Skeletal Subspace Deformation)
 """
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib import colors as mcolors
 
+def distance_from_segment(p, seg_p1, seg_p2):
+    '''
+    Distance from segment [seg_p1, seg_p2] and point p
+    '''
+    d = seg_p2 - seg_p1
+    d_norm = np.linalg.norm(d)
+    d /= d_norm
+    t = np.dot(p - seg_p1, d)
+    t = min(max(t, 0.0), d_norm)
+    projected_p = seg_p1 + d * t
+    return np.linalg.norm(p - projected_p)
+
 class Bone:
     def __init__(self, length = 1.0, rotation = 0.0):
         self.length = length
         self.rotation = rotation # in degrees
+        # hirerarchy info
         self.bone_parent = None
         self.bone_children = []
 
@@ -46,6 +59,34 @@ class Skeleton:
             bone.bone_parent = bone_parent
             bone_parent.bone_children.append(bone)
 
+    def attach_mesh(self, mesh, max_influences, kernel_func):
+        num_vertices = len(mesh.vertex_buffer)
+        num_bones = len(self.bones)
+        mesh.weights_map = np.zeros((num_bones, num_vertices))
+        bone_segments = self.get_bone_segments()
+
+        # compute weights per bone per vertices (weights map)
+        for vertex_id, vertex in enumerate(mesh.vertex_buffer):
+            for bone_id, bone_seg in enumerate (bone_segments):
+                distance = distance_from_segment(vertex, bone_seg[0], bone_seg[1])
+                mesh.weights_map[bone_id][vertex_id] = kernel_func(distance)
+
+        # updates the weights map by limiting ...
+        # the number of influences by picking the n closest vertices
+        for vertex_id, vertex in enumerate(mesh.vertex_buffer):
+            vertex_weights = np.zeros(num_bones)
+            for bone_id, bone_seg in enumerate (bone_segments):
+                vertex_weights[bone_id] = mesh.weights_map[bone_id][vertex_id]
+
+            vertex_weigths_sorted_index = np.argsort(vertex_weights)
+            for bone_id in range(num_bones):
+                if vertex_weigths_sorted_index[bone_id] < num_bones - max_influences:
+                    vertex_weights[bone_id] = 0.0
+
+            vertex_weights /= np.sum(vertex_weights)
+            for bone_id, bone_seg in enumerate (bone_segments):
+                mesh.weights_map[bone_id][vertex_id] = vertex_weights[bone_id]
+
     def get_bone_segments(self):
         segments = []
 
@@ -71,9 +112,13 @@ class Skeleton:
         return segments
 
 class Mesh:
+    '''
+    Mesh contains a vertex buffer, index buffer and weights map for binding
+    '''
     def __init__(self, vertex_buffer, index_buffer):
         self.vertex_buffer = np.asarray(vertex_buffer)
         self.index_buffer = np.asarray(index_buffer)
+        self.weights_map = None # influence for each bones
 
     def get_boundary_segments(self):
         segments = []
@@ -84,11 +129,10 @@ class Mesh:
 
         return segments
 
-
 def create_beam_mesh(min_x, min_y, max_x, max_y, cell_x, cell_y):
     '''
-    Creates a beam by returning a vertex and index buffer
-    Example :
+    Creates a mesh as a beam
+    Example of beam with cell_x(3) and cell_y(2):
         |8 .. 9 .. 10 .. 11
         |4 .. 5 .. 6  .. 7
         |0 .. 1 .. 2  .. 3
@@ -126,6 +170,9 @@ def create_beam_mesh(min_x, min_y, max_x, max_y, cell_x, cell_y):
     return Mesh(vertex_buffer, index_buffer)
 
 def create_skeleton():
+    '''
+    Create a skeleton object
+    '''
     root_bone = Bone(length = 3.0, rotation = 5.0)
     bone1 = Bone(length = 3.0, rotation = -5.0)
     bone2 = Bone(length = 3.0, rotation = 5.0)
@@ -140,6 +187,9 @@ def create_skeleton():
     return skeleton
 
 def draw(mesh, skeleton):
+    '''
+    Drawing function to display the mesh and skeleton
+    '''
     fig = plt.figure()
     font = {'color':  'darkblue',
                  'weight': 'normal',
@@ -176,8 +226,16 @@ def draw(mesh, skeleton):
     plt.show()
 
 def main():
-    mesh = create_beam_mesh(-7.0, -1.5, 7.0, 1.5, 10, 6)
+    '''
+    Main
+    '''
+    mesh = create_beam_mesh(-7.0, -1.5, 7.0, 1.5, 5, 3)
     skeleton = create_skeleton()
+
+    kernal_parameter = 1.0
+    kernel_function = lambda v : np.exp(-np.square((v * kernal_parameter)))
+
+    skeleton.attach_mesh(mesh, max_influences = 2, kernel_func = kernel_function)
     draw(mesh, skeleton)
 
 if __name__ == '__main__':
