@@ -19,7 +19,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Teschner, Matthias, Bruno Heidelberger, Matthias Muller, and Markus Gross. "A versatile and robust model for geometrically complex deformable solids." In Computer Graphics International, 2004. Proceedings, pp. 312-319. IEEE, 2004.
 
-## . Skeletal Subspace Deformation (placeholder)
+## . Skeletal Subspace Deformation
 **File** [linear_skinning.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/linear_skinning.py)<br>
 **Description** Skeletal Subspace Deformation
 
