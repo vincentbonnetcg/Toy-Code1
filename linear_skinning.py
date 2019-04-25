@@ -70,15 +70,16 @@ class Skeleton:
         num_vertices = len(mesh.vertex_buffer)
         num_bones = len(self.bones)
         mesh.weights_map = np.zeros((num_bones, num_vertices))
+        mesh.local_homogenous_vertex = np.zeros((num_vertices, 3))
         bone_segments = self.get_bone_segments()
 
-        # compute weights per bone per vertices (weights map) from kernel function
+        # Compute weights per bone per vertices (weights map) from kernel function
         for vertex_id, vertex in enumerate(mesh.vertex_buffer):
             for bone_id, bone_seg in enumerate (bone_segments):
                 distance = distance_from_segment(vertex, bone_seg[0], bone_seg[1])
                 mesh.weights_map[bone_id][vertex_id] = kernel_func(distance)
 
-        # updates the weights map by limiting ...
+        # Updates the weights map by limiting ...
         # the number of influences from the n closest vertices
         num_influences = min(num_bones, max_influences)
         for vertex_id, vertex in enumerate(mesh.vertex_buffer):
@@ -93,6 +94,56 @@ class Skeleton:
             vertex_weights /= np.sum(vertex_weights)
             for bone_id, bone_seg in enumerate (bone_segments):
                 mesh.weights_map[bone_id][vertex_id] = vertex_weights[bone_id]
+
+        # Compute the local space for each vertices
+        bone_transforms = self.get_bone_homogenous_transform()
+
+        for vertex_id, vertex in enumerate(mesh.vertex_buffer):
+            # Compute the concatenated weighted bone transformation
+            T = np.zeros((3,3))
+            for bone_id, bone_transform in enumerate(bone_transforms):
+                weight = mesh.weights_map[bone_id][vertex_id]
+                T += (bone_transforms[bone_id] * weight)
+
+            # Compute the vertex in local space
+            vertex_homogenous = np.ones(3)
+            vertex_homogenous[0:2] = vertex
+            local_vertex_homogenous = np.matmul(np.linalg.inv(T), vertex_homogenous)
+            mesh.local_homogenous_vertex[vertex_id] = local_vertex_homogenous
+
+        # Update the world space vertices from the local_homogenous_vertex
+        # It should not modify the current configuration and only used for debugging
+        self.update_mesh(mesh)
+
+
+    def get_bone_homogenous_transform(self):
+        '''
+        Returns the world space transform of each bones
+        '''
+        num_bones = len(self.bones)
+        bone_transforms = np.zeros((num_bones,3,3))
+
+        H = np.identity(3)
+        H[0, 2] = self.root_position[0]
+        H[1, 2] = self.root_position[1]
+        bone_id = 0
+
+        bone = self.root_bone
+        while bone is not None:
+            # Concatenate transformation matrice
+            bone_H = bone.get_homogenous_transform()
+            H = np.matmul(H, bone_H)
+
+            # Go to the children
+            if len(bone.bone_children) > 0:
+                bone = bone.bone_children[0]
+            else:
+                bone = None
+
+            bone_transforms[bone_id] = H
+            bone_id += 1
+
+        return bone_transforms
 
     def get_bone_segments(self):
         homogenous_coordinate = np.asarray([0.0, 0.0, 1.0])
@@ -125,6 +176,19 @@ class Skeleton:
         for bone in self.bones:
             bone.animate(time)
 
+    def update_mesh(self, mesh):
+        bone_transforms = self.get_bone_homogenous_transform()
+        for vertex_id, vertex in enumerate(mesh.vertex_buffer):
+
+            T = np.zeros((3,3))
+            for bone_id, bone_transform in enumerate(bone_transforms):
+                weight = mesh.weights_map[bone_id][vertex_id]
+                T += (bone_transforms[bone_id] * weight)
+
+            world_vertex_homogenous = np.matmul(T, mesh.local_homogenous_vertex[vertex_id])
+            vertex[0] = world_vertex_homogenous[0]
+            vertex[1] = world_vertex_homogenous[1]
+
 class Mesh:
     '''
     Mesh contains a vertex buffer, index buffer and weights map for binding
@@ -133,6 +197,7 @@ class Mesh:
         self.vertex_buffer = np.asarray(vertex_buffer)
         self.index_buffer = np.asarray(index_buffer)
         self.weights_map = None # influence for each bones
+        self.local_homogenous_vertex = None
 
     def get_boundary_segments(self):
         segments = []
@@ -192,10 +257,10 @@ def create_skeleton():
     bone2 = Bone(length = 3.0, rotation = 0.0)
     bone3 = Bone(length = 3.0, rotation = 0.0)
 
-    root_bone.rotation_animation = lambda time : np.sin(time * 2) * 10
-    bone1.rotation_animation = lambda time : np.sin(time * 2) * 12
-    bone2.rotation_animation = lambda time : np.sin(time * 2) * 14
-    bone3.rotation_animation = lambda time : np.sin(time * 2) * 16
+    root_bone.rotation_animation = lambda time : np.sin(time * 2) * 20
+    bone1.rotation_animation = lambda time : np.sin(time * 2) * 24
+    bone2.rotation_animation = lambda time : np.sin(time * 2) * 32
+    bone3.rotation_animation = lambda time : np.sin(time * 2) * 36
 
     skeleton = Skeleton([-6.0, 0.0], root_bone)
     skeleton.add_bone(root_bone)
@@ -215,8 +280,8 @@ def draw(mesh, skeleton):
                  'size': 18}
     ax = fig.add_subplot(111)
     ax.axis('equal')
-    ax.set_xlim(-10, 10)
-    ax.set_ylim(-10, 10)
+    ax.set_xlim(-16, 16)
+    ax.set_ylim(-16, 16)
     plt.title('Linear Skinning', fontdict = font)
 
     colors_template = [mcolors.to_rgba(c)
@@ -237,7 +302,7 @@ def draw(mesh, skeleton):
 
         point_colors[vertex_id][0:3] = point_color
 
-    ax.scatter(x, y, color=point_colors, s=6.0)
+    ax.scatter(x, y, color=point_colors, s=3.0)
 
     segments = mesh.get_boundary_segments()
     line_segments = LineCollection(segments,
@@ -262,7 +327,7 @@ def main():
     '''
     Main
     '''
-    mesh = create_beam_mesh(-7.0, -1.5, 7.0, 1.5, 15, 3)
+    mesh = create_beam_mesh(-7.0, -1.0, 7.0, 1.0, 20, 5)
     skeleton = create_skeleton()
 
     kernal_parameter = 1.0
@@ -272,6 +337,7 @@ def main():
 
     for frame_id in range(NUM_FRAMES):
         skeleton.animate(frame_id * FRAME_TIME_STEP)
+        skeleton.update_mesh(mesh)
         draw(mesh, skeleton)
 
 if __name__ == '__main__':
