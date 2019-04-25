@@ -7,8 +7,27 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib import colors as mcolors
 
-NUM_FRAMES = 100
+# TODO
+# get_bone_segments() should use get_bone_homogenous_transform()
+# see bone_children[0] : add support for multiple children per bone
+
+'''
+User Parameters
+'''
+NUM_FRAMES = 97
 FRAME_TIME_STEP = 1.0 / 24.0
+
+BEAM_MIN_X = -7.0
+BEAM_MIN_Y = -1.0
+BEAM_MAX_X = 7.0
+BEAM_MAX_Y = 1.0
+BEAM_CELL_X = 20
+BEAM_CELL_Y = 5
+
+BIDDING_MAX_INFLUENCES = 3
+
+RENDER_FOLDER_PATH = "" # specify a folder to export png files
+# Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 
 def distance_from_segment(p, seg_p1, seg_p2):
     '''
@@ -257,10 +276,10 @@ def create_skeleton():
     bone2 = Bone(length = 3.0, rotation = 0.0)
     bone3 = Bone(length = 3.0, rotation = 0.0)
 
-    root_bone.rotation_animation = lambda time : np.sin(time * 2) * 20
-    bone1.rotation_animation = lambda time : np.sin(time * 2) * 24
-    bone2.rotation_animation = lambda time : np.sin(time * 2) * 32
-    bone3.rotation_animation = lambda time : np.sin(time * 2) * 36
+    root_bone.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 20
+    bone1.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 24
+    bone2.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 32
+    bone3.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 36
 
     skeleton = Skeleton([-6.0, 0.0], root_bone)
     skeleton.add_bone(root_bone)
@@ -270,7 +289,7 @@ def create_skeleton():
 
     return skeleton
 
-def draw(mesh, skeleton):
+def draw(mesh, skeleton, frame_id):
     '''
     Drawing function to display the mesh and skeleton
     '''
@@ -323,22 +342,28 @@ def draw(mesh, skeleton):
     ax.add_collection(line_segments)
     plt.show()
 
+    # Export figure into a png file
+    if len(RENDER_FOLDER_PATH) > 0:
+        filename = str(frame_id).zfill(4) + " .png"
+        fig.savefig(RENDER_FOLDER_PATH + "/" + filename)
+
+
 def main():
     '''
     Main
     '''
-    mesh = create_beam_mesh(-7.0, -1.0, 7.0, 1.0, 20, 5)
+    mesh = create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
     skeleton = create_skeleton()
 
     kernal_parameter = 1.0
     kernel_function = lambda v : np.exp(-np.square((v * kernal_parameter)))
-    skeleton.attach_mesh(mesh, max_influences = 2, kernel_func = kernel_function)
-    draw(mesh, skeleton)
+    skeleton.attach_mesh(mesh, max_influences = BIDDING_MAX_INFLUENCES, kernel_func = kernel_function)
+    draw(mesh, skeleton, 0)
 
-    for frame_id in range(NUM_FRAMES):
+    for frame_id in range(1, NUM_FRAMES):
         skeleton.animate(frame_id * FRAME_TIME_STEP)
         skeleton.update_mesh(mesh)
-        draw(mesh, skeleton)
+        draw(mesh, skeleton, frame_id)
 
 if __name__ == '__main__':
     main()
