@@ -1,15 +1,13 @@
 """
 @author: Vincent Bonnet
-@description : Linear Skinning (Skeletal Subspace Deformation)
+@description : Linear Blend Skinning (Skeletal Subspace Deformation)
 """
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib import colors as mcolors
 
-# TODO
-# get_bone_segments() should use get_bone_homogenous_transform()
-# see bone_children[0] : add support for multiple children per bone
+# TODO - see bone_children[0] : add support for multiple children per bone
 
 '''
 User Parameters
@@ -85,6 +83,12 @@ class Skeleton:
             bone.bone_parent = bone_parent
             bone_parent.bone_children.append(bone)
 
+    def get_homogenous_transform(self):
+        H = np.identity(3)
+        H[0, 2] = self.root_position[0]
+        H[1, 2] = self.root_position[1]
+        return H
+
     def attach_mesh(self, mesh, max_influences, kernel_func):
         num_vertices = len(mesh.vertex_buffer)
         num_bones = len(self.bones)
@@ -115,7 +119,7 @@ class Skeleton:
                 mesh.weights_map[bone_id][vertex_id] = vertex_weights[bone_id]
 
         # Compute the local space for each vertices
-        bone_transforms = self.get_bone_homogenous_transform()
+        bone_transforms = self.get_bone_homogenous_transforms()
 
         for vertex_id, vertex in enumerate(mesh.vertex_buffer):
             # Compute the concatenated weighted bone transformation
@@ -135,16 +139,14 @@ class Skeleton:
         self.update_mesh(mesh)
 
 
-    def get_bone_homogenous_transform(self):
+    def get_bone_homogenous_transforms(self):
         '''
         Returns the world space transform of each bones
         '''
         num_bones = len(self.bones)
         bone_transforms = np.zeros((num_bones,3,3))
 
-        H = np.identity(3)
-        H[0, 2] = self.root_position[0]
-        H[1, 2] = self.root_position[1]
+        H = self.get_homogenous_transform()
         bone_id = 0
 
         bone = self.root_bone
@@ -166,28 +168,19 @@ class Skeleton:
 
     def get_bone_segments(self):
         homogenous_coordinate = np.asarray([0.0, 0.0, 1.0])
+        bone_transforms = self.get_bone_homogenous_transforms()
 
         segments = []
-        bone = self.root_bone
-        H = np.identity(3)
-        H[0, 2] = self.root_position[0]
-        H[1, 2] = self.root_position[1]
-        while bone is not None:
-            start_pos = np.matmul(H, homogenous_coordinate)
 
-            # Concatenate transformation matrice
-            bone_H = bone.get_homogenous_transform()
-            H = np.matmul(H, bone_H)
+        H = self.get_homogenous_transform()
 
-            # Append segment into the resulting list
-            end_pos = np.matmul(H, homogenous_coordinate)
-            segments.append([start_pos[0:2], end_pos[0:2]])
+        prev_pos = np.matmul(H, homogenous_coordinate)
 
-            # Go to the children
-            if len(bone.bone_children) > 0:
-                bone = bone.bone_children[0]
-            else:
-                bone = None
+        for bone_id, bone_H in enumerate(bone_transforms):
+
+            next_pos = np.matmul(bone_H, homogenous_coordinate)
+            segments.append([prev_pos[0:2], next_pos[0:2]])
+            prev_pos = next_pos
 
         return segments
 
@@ -196,7 +189,7 @@ class Skeleton:
             bone.animate(time)
 
     def update_mesh(self, mesh):
-        bone_transforms = self.get_bone_homogenous_transform()
+        bone_transforms = self.get_bone_homogenous_transforms()
         for vertex_id, vertex in enumerate(mesh.vertex_buffer):
 
             T = np.zeros((3,3))
