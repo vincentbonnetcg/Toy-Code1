@@ -6,6 +6,7 @@
 import core.differentiation as diff
 from constraints.base import Base
 import core.math_2d as math2D
+from numba import njit
 
 class Area(Base):
     '''
@@ -65,6 +66,7 @@ class Area(Base):
 '''
  Utility Functions
 '''
+@njit
 def elasticAreaEnergy(x0, x1, x2, rest_area, stiffness):
     area = math2D.area(x0, x1, x2)
     return 0.5 * stiffness * ((area - rest_area)**2)
