@@ -7,6 +7,7 @@ import core.differentiation as diff
 from constraints.base import Base
 import core.math_2d as math2D
 from numba import njit
+import numpy as np
 
 class Area(Base):
     '''
@@ -34,11 +35,11 @@ class Area(Base):
     def compute_forces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.get_states(scene)
         # Numerical forces
-        force0 = diff.numerical_jacobian(elasticAreaEnergy, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
-        force1 = diff.numerical_jacobian(elasticAreaEnergy, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
-        force2 = diff.numerical_jacobian(elasticAreaEnergy, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #force0 = diff.numerical_jacobian(elasticAreaEnergy, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #force1 = diff.numerical_jacobian(elasticAreaEnergy, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #force2 = diff.numerical_jacobian(elasticAreaEnergy, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
         # Analytic forces
-        # TODO
+        force0, force1, force2 = elasticAreaForces(x0, x1, x2, self.rest_area, self.stiffness, [True, True, True])
         # Set forces
         self.f[0] = force0
         self.f[1] = force1
@@ -70,6 +71,32 @@ class Area(Base):
 def elasticAreaEnergy(x0, x1, x2, rest_area, stiffness):
     area = math2D.area(x0, x1, x2)
     return 0.5 * stiffness * ((area - rest_area)**2)
+
+@njit
+def elasticAreaForces(x0, x1, x2, rest_area, stiffness, enable_force = [True, True, True]):
+    forces = np.zeros((3, 2))
+
+    u = x0 - x1
+    v = x1 - x2
+    w = x0 - x2
+    det = u[0]*w[1] - w[0]*u[1]
+
+    if enable_force[0] or enable_force[1]:
+        forces[0][0] = v[1]
+        forces[0][1] = v[0] * -1.0
+        forces[0] *= 0.5*stiffness*(rest_area - 0.5*np.abs(det))*np.sign(det)
+
+    if enable_force[2] or enable_force[1]:
+        forces[2][0] = u[1]
+        forces[2][1] = u[0] * -1.0
+        forces[2] *= 0.5*stiffness*(rest_area - 0.5*np.abs(det))*np.sign(det)
+
+    if enable_force[1]:
+        forces[1] -= (forces[0] + forces[2])
+
+
+    return forces
+
 
 
 
