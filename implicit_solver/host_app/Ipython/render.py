@@ -39,7 +39,7 @@ class Render:
         '''
         self.render_folder_path = path
 
-    def render_scene(self, scene, frameId):
+    def render_scene(self, scene, frame_id):
         '''
         Render the scene into a figue
         '''
@@ -55,7 +55,7 @@ class Render:
         stats_total_particles = 0
 
         # Set label
-        plt.title('Implicit Solver - frame ' + str(frameId), fontdict = self.font)
+        plt.title('Implicit Solver - frame ' + str(frame_id), fontdict = self.font)
         plt.xlabel('x (m)')
         plt.ylabel('y (m)')
 
@@ -68,15 +68,11 @@ class Render:
 
             segs = []
             for constraint in condition.constraints:
-                local_ids = constraint.particles_ids
-                dynamics = []
-                for object_index in constraint.dynamic_ids:
-                    dynamics.append(scene.dynamics[object_index])
-
-                if len(local_ids) == 2:
+                if len(constraint.n_ids) == 2:
                     points = []
-                    for i in range (len(local_ids)):
-                        points.append(dynamics[i].x[local_ids[i]])
+                    for i in range (len(constraint.n_ids)):
+                        x, v = scene.n_state(constraint.n_ids[i])
+                        points.append(x)
                     segs.append(points)
 
             line_segments = LineCollection(segs,
@@ -124,14 +120,14 @@ class Render:
         plt.show()
 
     @profiler.timeit
-    def show_current_frame(self, dispatcher, frameId):
+    def show_current_frame(self, dispatcher, frame_id):
         '''
         Display the current frame
         '''
         #self.fig = plt.figure(figsize=(7, 4), dpi=200) # to export higher resolution images
         scene = dispatcher.run("get_scene")
         self.fig = plt.figure()
-        self.render_scene(scene, frameId)
+        self.render_scene(scene, frame_id)
         #self.render_sparse_matrix(solver, frameId)
 
     @profiler.timeit

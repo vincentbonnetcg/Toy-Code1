@@ -21,15 +21,9 @@ class Area(Base):
         self.rest_area = math2D.area(x0, x1, x2)
 
     def get_states(self, scene):
-        dynamic0 = scene.dynamics[self.dynamic_ids[0]]
-        dynamic1 = scene.dynamics[self.dynamic_ids[1]]
-        dynamic2 = scene.dynamics[self.dynamic_ids[2]]
-        x0 = dynamic0.x[self.particles_ids[0]]
-        x1 = dynamic1.x[self.particles_ids[1]]
-        x2 = dynamic2.x[self.particles_ids[2]]
-        v0 = dynamic0.v[self.particles_ids[0]]
-        v1 = dynamic1.v[self.particles_ids[1]]
-        v2 = dynamic2.v[self.particles_ids[1]]
+        x0, v0 = scene.n_state(self.n_ids[0])
+        x1, v1 = scene.n_state(self.n_ids[1])
+        x2, v2 = scene.n_state(self.n_ids[2])
         return (x0, x1, x2, v0, v1, v2)
 
     def compute_forces(self, scene):

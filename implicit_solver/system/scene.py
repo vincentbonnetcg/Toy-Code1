@@ -62,3 +62,20 @@ class Scene:
     def add_force(self, force):
         self.forces.append(force)
 
+    # Compute node identifier and retrieve node state
+    # TODO : In the future, those functions will live in another class when
+    # dynamics no longer have their own storage
+    # n_state and n_add_f will be generalized too
+    @staticmethod
+    def n_id(object_id, node_id):
+        return [object_id, node_id]
+
+    def n_state(self, n_id):
+        dynamic = self.dynamics[n_id[0]]
+        x = dynamic.x[n_id[1]]
+        v = dynamic.v[n_id[1]]
+        return (x, v)
+
+    def n_add_f(self, n_id, f):
+        dynamic = self.dynamics[n_id[0]]
+        dynamic.f[n_id[1]] += f
