@@ -16,7 +16,7 @@ class AnchorSpring(Base):
     def __init__(self, stiffness, damping, dynamic, particle_id, kinematic, point_params):
         Base.__init__(self, stiffness, damping, [dynamic], [particle_id])
         target_pos = kinematic.get_point_from_parametric_value(point_params)
-        self.rest_length = math2D.distance(target_pos, dynamic.x[self.local_particles_ids[0]])
+        self.rest_length = math2D.distance(target_pos, dynamic.x[particle_id])
         self.point_params = point_params
         self.kinematic_index = kinematic.index
         self.kinematic_vel = np.zeros(2) # No velocity associated to kinematic object

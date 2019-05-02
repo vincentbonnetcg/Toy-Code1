@@ -15,14 +15,9 @@ class Base:
         self.stiffness = stiffness
         self.damping = damping
         self.f = np.zeros((N, 2))
-        # Node identifiers
-        self.n_ids = np.zeros((N, 2), dtype=int) # replace dynamic_ids and local_particle_ids
-
-        self.dynamic_ids = np.zeros(N, dtype=int) # indices of the dynamic objects - TO REMOVE
-        self.local_particles_ids = np.copy(particles_ids) # local particle indices - TO REMOVE
+        self.n_ids = np.zeros((N, 2), dtype=int)  # node identifiers
         self.global_particle_ids = np.zeros(N, dtype=int) # global particle indices
         for i in range(N):
-            self.dynamic_ids[i] = dynamics[i].index
             self.global_particle_ids[i] = particles_ids[i] + dynamics[i].global_offset
             self.n_ids[i][0] = dynamics[i].index
             self.n_ids[i][1] = particles_ids[i]
