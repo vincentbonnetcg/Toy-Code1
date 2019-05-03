@@ -31,10 +31,10 @@ class AnchorSpring(Base):
         kinematic, x, v = self.get_states(scene)
         target_pos = kinematic.get_point_from_parametric_value(self.point_params)
         # Numerical forces
-        #force = diff.numerical_jacobian(elasticSpringEnergy, 0, x, target_pos, self.rest_length, self.stiffness) * -1.0
+        #force = diff.numerical_jacobian(elastic_spring_energy, 0, x, target_pos, self.rest_length, self.stiffness) * -1.0
         # Analytic forces
-        force = springStretchForce(x, target_pos, self.rest_length, self.stiffness)
-        force += springDampingForce(x, target_pos, v, self.kinematic_vel, self.damping)
+        force = spring_stretch_force(x, target_pos, self.rest_length, self.stiffness)
+        force += spring_damping_force(x, target_pos, v, self.kinematic_vel, self.damping)
         # Set forces
         self.f[0] = force
 
@@ -42,11 +42,11 @@ class AnchorSpring(Base):
         kinematic, x, v = self.get_states(scene)
         target_pos = kinematic.get_point_from_parametric_value(self.point_params)
         # Numerical jacobians
-        #dfdx = diff.numerical_jacobian(springStretchForce, 0, x, target_pos, self.rest_length, self.stiffness)
-        #dfdv = diff.numerical_jacobian(springDampingForce, 2, x, target_pos, v, (0,0), self.damping)
+        #dfdx = diff.numerical_jacobian(spring_stretch_force, 0, x, target_pos, self.rest_length, self.stiffness)
+        #dfdv = diff.numerical_jacobian(spring_damping_force, 2, x, target_pos, v, (0,0), self.damping)
         # Analytic jacobians
-        dfdx = springStretchJacobian(x, target_pos, self.rest_length, self.stiffness)
-        dfdv = springDampingJacobian(x, target_pos, v, self.kinematic_vel, self.damping)
+        dfdx = spring_stretch_jacobian(x, target_pos, self.rest_length, self.stiffness)
+        dfdv = spring_damping_jacobian(x, target_pos, v, self.kinematic_vel, self.damping)
         # Set jacobians
         self.dfdx[0][0] = dfdx
         self.dfdv[0][0] = dfdv
@@ -69,10 +69,10 @@ class Spring(Base):
     def compute_forces(self, scene):
         x0, x1, v0, v1 = self.get_states(scene)
         # Numerical forces
-        #force = diff.numerical_jacobian(elasticSpringEnergy, 0, x0, x1, self.rest_length, self.stiffness) * -1.0
+        #force = diff.numerical_jacobian(elastic_spring_energy, 0, x0, x1, self.rest_length, self.stiffness) * -1.0
         # Analytic forces
-        force = springStretchForce(x0, x1, self.rest_length, self.stiffness)
-        force += springDampingForce(x0, x1, v0, v1, self.damping)
+        force = spring_stretch_force(x0, x1, self.rest_length, self.stiffness)
+        force += spring_damping_force(x0, x1, v0, v1, self.damping)
         # Set forces
         self.f[0] = force
         self.f[1] = force * -1
@@ -80,11 +80,11 @@ class Spring(Base):
     def compute_jacobians(self, scene):
         x0, x1, v0, v1 = self.get_states(scene)
         # Numerical jacobians
-        #dfdx = diff.numerical_jacobian(springStretchForce, 0, x0, x1, self.rest_length, self.stiffness)
-        #dfdv = diff.numerical_jacobian(springDampingForce, 2, x0, x1, v0, v1, self.damping)
+        #dfdx = diff.numerical_jacobian(spring_stretch_force, 0, x0, x1, self.rest_length, self.stiffness)
+        #dfdv = diff.numerical_jacobian(spring_damping_force, 2, x0, x1, v0, v1, self.damping)
         # Analytic jacobians
-        dfdx = springStretchJacobian(x0, x1, self.rest_length, self.stiffness)
-        dfdv = springDampingJacobian(x0, x1, v0, v1, self.damping)
+        dfdx = spring_stretch_jacobian(x0, x1, self.rest_length, self.stiffness)
+        dfdv = spring_damping_jacobian(x0, x1, v0, v1, self.damping)
         # Set jacobians
         self.dfdx[0][0] = self.dfdx[1][1] = dfdx
         self.dfdx[0][1] = self.dfdx[1][0] = dfdx * -1
@@ -92,10 +92,10 @@ class Spring(Base):
         self.dfdv[0][1] = self.dfdv[1][0] = dfdv * -1
 
 '''
- Utility Functions
+Utility Functions
 '''
 @njit
-def springStretchJacobian(x0, x1, rest, stiffness):
+def spring_stretch_jacobian(x0, x1, rest, stiffness):
     direction = x0 - x1
     stretch = math2D.norm(direction)
     I = np.identity(2)
@@ -107,7 +107,7 @@ def springStretchJacobian(x0, x1, rest, stiffness):
     return -1.0 * stiffness * I
 
 @njit
-def springDampingJacobian(x0, x1, v0, v1, damping):
+def spring_damping_jacobian(x0, x1, v0, v1, damping):
     jacobian = np.zeros(shape=(2, 2))
     direction = x1 - x0
     stretch = math2D.norm(direction)
@@ -119,7 +119,7 @@ def springDampingJacobian(x0, x1, v0, v1, damping):
     return jacobian
 
 @njit
-def springStretchForce(x0, x1, rest, stiffness):
+def spring_stretch_force(x0, x1, rest, stiffness):
     direction = x1 - x0
     stretch = math2D.norm(direction)
     if not math2D.is_close(stretch, 0.0):
@@ -127,7 +127,7 @@ def springStretchForce(x0, x1, rest, stiffness):
     return direction * ((stretch - rest) * stiffness)
 
 @njit
-def springDampingForce(x0, x1, v0, v1, damping):
+def spring_damping_force(x0, x1, v0, v1, damping):
     direction = x1 - x0
     stretch = math2D.norm(direction)
     if not math2D.is_close(stretch, 0.0):
@@ -136,6 +136,6 @@ def springDampingForce(x0, x1, v0, v1, damping):
     return direction * (np.dot(relativeVelocity, direction) * damping)
 
 @njit
-def elasticSpringEnergy(x0, x1, rest, stiffness):
+def elastic_spring_energy(x0, x1, rest, stiffness):
     stretch = math2D.distance(x0, x1)
     return 0.5 * stiffness * ((stretch - rest)**2)

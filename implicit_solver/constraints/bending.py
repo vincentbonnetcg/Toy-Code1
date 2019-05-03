@@ -34,11 +34,11 @@ class Bending(Base):
     def compute_forces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.get_states(scene)
         # Numerical forces
-        #force0 = diff.numerical_jacobian(elasticBendingEnergy, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #force1 = diff.numerical_jacobian(elasticBendingEnergy, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #force2 = diff.numerical_jacobian(elasticBendingEnergy, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #force0 = diff.numerical_jacobian(elastic_bending_energy, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #force1 = diff.numerical_jacobian(elastic_bending_energy, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #force2 = diff.numerical_jacobian(elastic_bending_energy, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         # Analytic forces
-        force0, force1, force2 = elasticBendingForces(x0, x1, x2, self.rest_angle, self.stiffness, [True, True, True])
+        force0, force1, force2 = elastic_bending_forces(x0, x1, x2, self.rest_angle, self.stiffness, [True, True, True])
         # Set forces
         self.f[0] = force0
         self.f[1] = force1
@@ -47,14 +47,14 @@ class Bending(Base):
     def compute_jacobians(self, scene):
         x0, x1, x2, v0, v1, v2 = self.get_states(scene)
         # Numerical jacobians (Aka Hessian of the energy)
-        #df0dx0 = diff.numerical_hessian(elasticBendingEnergy, 0, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df1dx1 = diff.numerical_hessian(elasticBendingEnergy, 1, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df2dx2 = diff.numerical_hessian(elasticBendingEnergy, 2, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df0dx1 = diff.numerical_hessian(elasticBendingEnergy, 0, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df0dx2 = diff.numerical_hessian(elasticBendingEnergy, 0, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df1dx2 = diff.numerical_hessian(elasticBendingEnergy, 1, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #df0dx0 = diff.numerical_hessian(elastic_bending_energy, 0, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #df1dx1 = diff.numerical_hessian(elastic_bending_energy, 1, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #df2dx2 = diff.numerical_hessian(elastic_bending_energy, 2, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #df0dx1 = diff.numerical_hessian(elastic_bending_energy, 0, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #df0dx2 = diff.numerical_hessian(elastic_bending_energy, 0, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+        #df1dx2 = diff.numerical_hessian(elastic_bending_energy, 1, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
         # Numerical jacobians from forces
-        jacobians = elasticBendingNumericalJacobians(x0, x1, x2, self.rest_angle, self.stiffness)
+        jacobians = elastic_bending_numerical_jacobians(x0, x1, x2, self.rest_angle, self.stiffness)
         df0dx0 = jacobians[0]
         df1dx1 = jacobians[1]
         df2dx2 = jacobians[2]
@@ -75,13 +75,13 @@ class Bending(Base):
  Utility Functions
 '''
 @njit
-def elasticBendingEnergy(x0, x1, x2, rest_angle, stiffness):
+def elastic_bending_energy(x0, x1, x2, rest_angle, stiffness):
     angle = math2D.angle(x0, x1, x2)
     arc_length = (math2D.norm(x1 - x0) + math2D.norm(x2 - x1)) * 0.5
     return 0.5 * stiffness * ((angle - rest_angle)**2) * arc_length
 
 @njit
-def elasticBendingForces(x0, x1, x2, rest_angle, stiffness, enable_force = [True, True, True]):
+def elastic_bending_forces(x0, x1, x2, rest_angle, stiffness, enable_force = [True, True, True]):
     forces = np.zeros((3, 2))
 
     u = x0 - x1
@@ -120,7 +120,7 @@ def elasticBendingForces(x0, x1, x2, rest_angle, stiffness, enable_force = [True
     return forces
 
 @njit
-def elasticBendingNumericalJacobians(x0, x1, x2, rest_angle, stiffness):
+def elastic_bending_numerical_jacobians(x0, x1, x2, rest_angle, stiffness):
     '''
     Returns the six jacobians matrices in the following order
     df0dx0, df1dx1, df2dx2, df0dx1, df0dx2, df1dx2
@@ -134,10 +134,10 @@ def elasticBendingNumericalJacobians(x0, x1, x2, rest_angle, stiffness):
     for g_id in range(2):
         x0_ = math2D.copy(x0)
         x0_[g_id] = x0[g_id]+STENCIL_SIZE
-        forces = elasticBendingForces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
+        forces = elastic_bending_forces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
         grad_f0_x0 = forces[0]
         x0_[g_id] = x0[g_id]-STENCIL_SIZE
-        forces = elasticBendingForces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
+        forces = elastic_bending_forces(x0_, x1, x2, rest_angle, stiffness, [True, False, False])
         grad_f0_x0 -= forces[0]
         grad_f0_x0 /= (2.0 * STENCIL_SIZE)
         jacobians[0, 0:2, g_id] = grad_f0_x0
@@ -146,11 +146,11 @@ def elasticBendingNumericalJacobians(x0, x1, x2, rest_angle, stiffness):
     for g_id in range(2):
         x1_ = math2D.copy(x1)
         x1_[g_id] = x1[g_id]+STENCIL_SIZE
-        forces = elasticBendingForces(x0, x1_, x2, rest_angle, stiffness, [True, True, False])
+        forces = elastic_bending_forces(x0, x1_, x2, rest_angle, stiffness, [True, True, False])
         grad_f0_x1 = forces[0]
         grad_f1_x1 = forces[1]
         x1_[g_id] = x1[g_id]-STENCIL_SIZE
-        forces = elasticBendingForces(x0, x1_, x2, rest_angle, stiffness, [True, True, False])
+        forces = elastic_bending_forces(x0, x1_, x2, rest_angle, stiffness, [True, True, False])
         grad_f0_x1 -= forces[0]
         grad_f1_x1 -= forces[1]
         jacobians[1, 0:2, g_id] = grad_f1_x1 / (2.0 * STENCIL_SIZE)
@@ -160,12 +160,12 @@ def elasticBendingNumericalJacobians(x0, x1, x2, rest_angle, stiffness):
     for g_id in range(2):
         x2_ = math2D.copy(x2)
         x2_[g_id] = x2[g_id]+STENCIL_SIZE
-        forces = elasticBendingForces(x0, x1, x2_, rest_angle, stiffness, [True, True, True])
+        forces = elastic_bending_forces(x0, x1, x2_, rest_angle, stiffness, [True, True, True])
         grad_f0_x2 = forces[0]
         grad_f1_x2 = forces[1]
         grad_f2_x2 = forces[2]
         x2_[g_id] = x2[g_id]-STENCIL_SIZE
-        forces = elasticBendingForces(x0, x1, x2_, rest_angle, stiffness, [True, True, True])
+        forces = elastic_bending_forces(x0, x1, x2_, rest_angle, stiffness, [True, True, True])
         grad_f0_x2 -= forces[0]
         grad_f1_x2 -= forces[1]
         grad_f2_x2 -= forces[2]

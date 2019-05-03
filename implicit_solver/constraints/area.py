@@ -29,11 +29,11 @@ class Area(Base):
     def compute_forces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.get_states(scene)
         # Numerical forces
-        #force0 = diff.numerical_jacobian(elasticAreaEnergy, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
-        #force1 = diff.numerical_jacobian(elasticAreaEnergy, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
-        #force2 = diff.numerical_jacobian(elasticAreaEnergy, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #force0 = diff.numerical_jacobian(elastic_area_anergy, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #force1 = diff.numerical_jacobian(elastic_area_anergy, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #force2 = diff.numerical_jacobian(elastic_area_anergy, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
         # Analytic forces
-        force0, force1, force2 = elasticAreaForces(x0, x1, x2, self.rest_area, self.stiffness, [True, True, True])
+        force0, force1, force2 = elastic_area_forces(x0, x1, x2, self.rest_area, self.stiffness, [True, True, True])
         # Set forces
         self.f[0] = force0
         self.f[1] = force1
@@ -42,14 +42,14 @@ class Area(Base):
     def compute_jacobians(self, scene):
         x0, x1, x2, v0, v1, v2 = self.get_states(scene)
         # Numerical jacobians (Aka Hessian of the energy)
-        #df0dx0 = diff.numerical_hessian(elasticAreaEnergy, 0, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
-        #df1dx1 = diff.numerical_hessian(elasticAreaEnergy, 1, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
-        #df2dx2 = diff.numerical_hessian(elasticAreaEnergy, 2, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
-        #df0dx1 = diff.numerical_hessian(elasticAreaEnergy, 0, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
-        #df0dx2 = diff.numerical_hessian(elasticAreaEnergy, 0, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
-        #df1dx2 = diff.numerical_hessian(elasticAreaEnergy, 1, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #df0dx0 = diff.numerical_hessian(elastic_area_anergy, 0, 0, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #df1dx1 = diff.numerical_hessian(elastic_area_anergy, 1, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #df2dx2 = diff.numerical_hessian(elastic_area_anergy, 2, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #df0dx1 = diff.numerical_hessian(elastic_area_anergy, 0, 1, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #df0dx2 = diff.numerical_hessian(elastic_area_anergy, 0, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
+        #df1dx2 = diff.numerical_hessian(elastic_area_anergy, 1, 2, x0, x1, x2, self.rest_area, self.stiffness) * -1.0
         # Numerical jacobians from forces
-        jacobians = elasticAreaNumericalJacobians(x0, x1, x2, self.rest_area, self.stiffness)
+        jacobians = elastic_area_numerical_jacobians(x0, x1, x2, self.rest_area, self.stiffness)
         df0dx0 = jacobians[0]
         df1dx1 = jacobians[1]
         df2dx2 = jacobians[2]
@@ -68,12 +68,12 @@ class Area(Base):
  Utility Functions
 '''
 @njit
-def elasticAreaEnergy(x0, x1, x2, rest_area, stiffness):
+def elastic_area_anergy(x0, x1, x2, rest_area, stiffness):
     area = math2D.area(x0, x1, x2)
     return 0.5 * stiffness * ((area - rest_area)**2)
 
 @njit
-def elasticAreaForces(x0, x1, x2, rest_area, stiffness, enable_force = [True, True, True]):
+def elastic_area_forces(x0, x1, x2, rest_area, stiffness, enable_force = [True, True, True]):
     forces = np.zeros((3, 2))
 
     u = x0 - x1
@@ -97,7 +97,7 @@ def elasticAreaForces(x0, x1, x2, rest_area, stiffness, enable_force = [True, Tr
     return forces
 
 @njit
-def elasticAreaNumericalJacobians(x0, x1, x2, rest_area, stiffness):
+def elastic_area_numerical_jacobians(x0, x1, x2, rest_area, stiffness):
     '''
     Returns the six jacobians matrices in the following order
     df0dx0, df1dx1, df2dx2, df0dx1, df0dx2, df1dx2
@@ -111,10 +111,10 @@ def elasticAreaNumericalJacobians(x0, x1, x2, rest_area, stiffness):
     for g_id in range(2):
         x0_ = math2D.copy(x0)
         x0_[g_id] = x0[g_id]+STENCIL_SIZE
-        forces = elasticAreaForces(x0_, x1, x2, rest_area, stiffness, [True, False, False])
+        forces = elastic_area_forces(x0_, x1, x2, rest_area, stiffness, [True, False, False])
         grad_f0_x0 = forces[0]
         x0_[g_id] = x0[g_id]-STENCIL_SIZE
-        forces = elasticAreaForces(x0_, x1, x2, rest_area, stiffness, [True, False, False])
+        forces = elastic_area_forces(x0_, x1, x2, rest_area, stiffness, [True, False, False])
         grad_f0_x0 -= forces[0]
         grad_f0_x0 /= (2.0 * STENCIL_SIZE)
         jacobians[0, 0:2, g_id] = grad_f0_x0
@@ -123,11 +123,11 @@ def elasticAreaNumericalJacobians(x0, x1, x2, rest_area, stiffness):
     for g_id in range(2):
         x1_ = math2D.copy(x1)
         x1_[g_id] = x1[g_id]+STENCIL_SIZE
-        forces = elasticAreaForces(x0, x1_, x2, rest_area, stiffness, [True, True, False])
+        forces = elastic_area_forces(x0, x1_, x2, rest_area, stiffness, [True, True, False])
         grad_f0_x1 = forces[0]
         grad_f1_x1 = forces[1]
         x1_[g_id] = x1[g_id]-STENCIL_SIZE
-        forces = elasticAreaForces(x0, x1_, x2, rest_area, stiffness, [True, True, False])
+        forces = elastic_area_forces(x0, x1_, x2, rest_area, stiffness, [True, True, False])
         grad_f0_x1 -= forces[0]
         grad_f1_x1 -= forces[1]
         jacobians[1, 0:2, g_id] = grad_f1_x1 / (2.0 * STENCIL_SIZE)
@@ -137,12 +137,12 @@ def elasticAreaNumericalJacobians(x0, x1, x2, rest_area, stiffness):
     for g_id in range(2):
         x2_ = math2D.copy(x2)
         x2_[g_id] = x2[g_id]+STENCIL_SIZE
-        forces = elasticAreaForces(x0, x1, x2_, rest_area, stiffness, [True, True, True])
+        forces = elastic_area_forces(x0, x1, x2_, rest_area, stiffness, [True, True, True])
         grad_f0_x2 = forces[0]
         grad_f1_x2 = forces[1]
         grad_f2_x2 = forces[2]
         x2_[g_id] = x2[g_id]-STENCIL_SIZE
-        forces = elasticAreaForces(x0, x1, x2_, rest_area, stiffness, [True, True, True])
+        forces = elastic_area_forces(x0, x1, x2_, rest_area, stiffness, [True, True, True])
         grad_f0_x2 -= forces[0]
         grad_f1_x2 -= forces[1]
         grad_f2_x2 -= forces[2]
