@@ -10,18 +10,12 @@ class Base:
     '''
     Describes the constraint base
     '''
-    def __init__(self, stiffness, damping, dynamics, particles_ids):
-        N = len(particles_ids) # number of particles involved in the constraint
+    def __init__(self, scene, stiffness, damping, node_ids):
+        N = len(node_ids) # number of particles involved in the constraint
         self.stiffness = stiffness
         self.damping = damping
-        self.f = np.zeros((N, 2))
-        self.n_ids = np.zeros((N, 2), dtype=int)  # node identifiers
-        self.global_particle_ids = np.zeros(N, dtype=int) # global particle indices
-        for i in range(N):
-            self.global_particle_ids[i] = particles_ids[i] + dynamics[i].global_offset
-            self.n_ids[i][0] = dynamics[i].index
-            self.n_ids[i][1] = particles_ids[i]
-
+        self.f = np.zeros((N, 2)) # forces
+        self.n_ids = np.copy(node_ids) # node ids
         # Precomputed jacobians.
         # NxN matrix where each element is a 2x2 submatrix
         self.dfdx = np.zeros((N, N, 2, 2))
@@ -47,5 +41,3 @@ class Base:
     def specify_data_block(data_block : core.DataBlock):
         print("BUILD BASE DATA")
         # TODO
-
-

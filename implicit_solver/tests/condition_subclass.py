@@ -27,12 +27,13 @@ class KinematicCollisionCondition(Condition):
         '''
         dynamic = scene.dynamics[self.dynamic_ids[0]]
         kinematic = scene.kinematics[self.kinematic_ids[0]]
-        for particleId, pos in enumerate(dynamic.x):
-            if (kinematic.is_inside(pos)):
-                attachmentPointParams = kinematic.get_closest_parametric_value(pos)
+        for node_index, node_pos in enumerate(dynamic.x):
+            if (kinematic.is_inside(node_pos)):
+                attachmentPointParams = kinematic.get_closest_parametric_value(node_pos)
                 kinematicNormal = kinematic.get_normal_from_parametric_value(attachmentPointParams)
-                if (np.dot(kinematicNormal, dynamic.v[particleId]) < 0.0):
-                    constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
+                if (np.dot(kinematicNormal, dynamic.v[node_index]) < 0.0):
+                    node_id = scene.n_id(dynamic.index, node_index)
+                    constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic, attachmentPointParams)
                     self.constraints.append(constraint)
 
 class KinematicAttachmentCondition(Condition):
@@ -51,13 +52,14 @@ class KinematicAttachmentCondition(Condition):
         kinematic = scene.kinematics[self.kinematic_ids[0]]
         # Linear search => it will be inefficient for dynamic objects with many particles
         distance2 = self.distance * self.distance
-        for particleId, x in enumerate(dynamic.x):
-            attachmentPointParams = kinematic.get_closest_parametric_value(x)
-            attachmentPoint = kinematic.get_point_from_parametric_value(attachmentPointParams)
-            direction = (attachmentPoint - x)
+        for node_index, node_pos in enumerate(dynamic.x):
+            attachment_point_params = kinematic.get_closest_parametric_value(node_pos)
+            attachment_point = kinematic.get_point_from_parametric_value(attachment_point_params)
+            direction = (attachment_point - node_pos)
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
-                constraint = cn.AnchorSpring(self.stiffness, self.damping, dynamic, particleId, kinematic, attachmentPointParams)
+                node_id = scene.n_id(dynamic.index, node_index)
+                constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic, attachment_point_params)
                 self.constraints.append(constraint)
 
 class DynamicAttachmentCondition(Condition):
@@ -80,7 +82,10 @@ class DynamicAttachmentCondition(Condition):
                 direction = (x0 - x1)
                 dist2 = np.inner(direction, direction)
                 if dist2 < distance2:
-                    constraint = cn.Spring(self.stiffness, self.damping, [dynamic0, dynamic1], [x0i, x1i])
+                    node_ids = []
+                    node_ids.append(scene.n_id(dynamic0.index, x0i))
+                    node_ids.append(scene.n_id(dynamic1.index, x1i))
+                    constraint = cn.Spring(scene, self.stiffness, self.damping, node_ids)
                     self.constraints.append(constraint)
 
 class SpringCondition(Condition):
@@ -95,9 +100,10 @@ class SpringCondition(Condition):
         for object_index in self.dynamic_ids:
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.edge_ids:
-                constraint = cn.Spring(self.stiffness, self.damping,
-                                       [dynamic, dynamic],
-                                       [vertex_index[0], vertex_index[1]])
+                node_ids = []
+                node_ids.append(scene.n_id(object_index, vertex_index[0]))
+                node_ids.append(scene.n_id(object_index, vertex_index[1]))
+                constraint = cn.Spring(scene, self.stiffness, self.damping, node_ids)
                 self.constraints.append(constraint)
 
 class AreaCondition(Condition):
@@ -112,9 +118,11 @@ class AreaCondition(Condition):
         for object_index in self.dynamic_ids:
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.face_ids:
-                constraint = cn.Area(self.stiffness, self.damping,
-                                     [dynamic, dynamic, dynamic],
-                                     [vertex_index[0], vertex_index[1], vertex_index[2]])
+                node_ids = []
+                node_ids.append(scene.n_id(object_index, vertex_index[0]))
+                node_ids.append(scene.n_id(object_index, vertex_index[1]))
+                node_ids.append(scene.n_id(object_index, vertex_index[2]))
+                constraint = cn.Area(scene, self.stiffness, self.damping, node_ids)
                 self.constraints.append(constraint)
 
 class WireBendingCondition(Condition):
@@ -129,10 +137,13 @@ class WireBendingCondition(Condition):
             dynamic = scene.dynamics[object_index]
             vertex_edges_dict = core.shape.vertex_ids_neighbours(dynamic.edge_ids)
             if self.stiffness > 0.0:
-                for vertex_id, vertex_id_neighbour in vertex_edges_dict.items():
-                    if (len(vertex_id_neighbour) == 2):
-                        constraint =(cn.Bending(self.stiffness, self.damping,
-                                                [dynamic, dynamic, dynamic],
-                                                [vertex_id_neighbour[0], vertex_id, vertex_id_neighbour[1]]))
+                for vertex_index, vertex_index_neighbour in vertex_edges_dict.items():
+                    if (len(vertex_index_neighbour) == 2):
+                        node_ids = []
+                        node_ids.append(scene.n_id(object_index, vertex_index_neighbour[0]))
+                        node_ids.append(scene.n_id(object_index, vertex_index))
+                        node_ids.append(scene.n_id(object_index, vertex_index_neighbour[1]))
+
+                        constraint =(cn.Bending(scene, self.stiffness, self.damping, node_ids))
                         self.constraints.append(constraint)
 

@@ -13,10 +13,11 @@ class AnchorSpring(Base):
     '''
     Describes a 2D spring constraint between a particle and point
     '''
-    def __init__(self, stiffness, damping, dynamic, particle_id, kinematic, point_params):
-        Base.__init__(self, stiffness, damping, [dynamic], [particle_id])
+    def __init__(self, scene, stiffness, damping, node_id, kinematic, point_params):
+        Base.__init__(self, scene, stiffness, damping, [node_id])
         target_pos = kinematic.get_point_from_parametric_value(point_params)
-        self.rest_length = math2D.distance(target_pos, dynamic.x[particle_id])
+        x, v = scene.n_state(node_id)
+        self.rest_length = math2D.distance(target_pos, x)
         self.point_params = point_params
         self.kinematic_index = kinematic.index
         self.kinematic_vel = np.zeros(2) # No velocity associated to kinematic object
@@ -54,10 +55,11 @@ class Spring(Base):
     '''
     Describes a 2D spring constraint between two particles
     '''
-    def __init__(self, stiffness, damping, dynamics, particle_ids):
-        Base.__init__(self, stiffness, damping, dynamics, particle_ids)
-        self.rest_length = math2D.distance(dynamics[0].x[particle_ids[0]],
-                                          dynamics[1].x[particle_ids[1]])
+    def __init__(self, scene, stiffness, damping, node_ids):
+        Base.__init__(self, scene, stiffness, damping, node_ids)
+        x0, v0 = scene.n_state(self.n_ids[0])
+        x1, v1 = scene.n_state(self.n_ids[1])
+        self.rest_length = math2D.distance(x0, x1)
 
     def get_states(self, scene):
         x0, v0 = scene.n_state(self.n_ids[0])

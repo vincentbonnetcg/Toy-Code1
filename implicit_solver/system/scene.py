@@ -66,9 +66,12 @@ class Scene:
     # TODO : In the future, those functions will live in another class when
     # dynamics no longer have their own storage
     # n_state and n_add_f will be generalized too
-    @staticmethod
-    def n_id(object_id, node_id):
-        return [object_id, node_id]
+    def n_id(self, object_id, node_id):
+        global_node_id = self.dynamics[object_id].global_offset + node_id
+        return [object_id, node_id, global_node_id]
+
+    def n_global_index(self, n_id):
+        return n_id[2]
 
     def n_state(self, n_id):
         dynamic = self.dynamics[n_id[0]]

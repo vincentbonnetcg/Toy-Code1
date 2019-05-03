@@ -119,18 +119,19 @@ class ImplicitSolver(BaseSolver):
                 mass_matrix = np.zeros((2,2))
                 np.fill_diagonal(mass_matrix, dynamic.m[i])
                 idx = dynamic.global_offset + i
-
                 A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
         constraints_iterator = scene.get_constraints_iterator()
         for constraint in constraints_iterator:
-            ids = constraint.global_particle_ids
+            ids = constraint.n_ids
             for fi in range(len(ids)):
                 for j in range(len(ids)):
                     Jv = constraint.getJacobianDv(fi, j)
                     Jx = constraint.getJacobianDx(fi, j)
-                    A.add(ids[fi], ids[j], ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+                    global_fi_id = scene.n_global_index(ids[fi])
+                    global_j_id = scene.n_global_index(ids[j])
+                    A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
@@ -143,12 +144,13 @@ class ImplicitSolver(BaseSolver):
         # set (df/dx * v0 * h * h)
         constraints_iterator = scene.get_constraints_iterator()
         for constraint in constraints_iterator:
-            g_pids = constraint.global_particle_ids
-            for fi in range(len(g_pids)):
-                for xi in range(len(g_pids)):
+            ids = constraint.n_ids
+            for fi in range(len(ids)):
+                for xi in range(len(ids)):
                     Jx = constraint.getJacobianDx(fi, xi)
                     x, v = scene.n_state(constraint.n_ids[xi])
-                    self.b[g_pids[fi]*2:g_pids[fi]*2+2] += np.matmul(v, Jx) * dt * dt
+                    global_fi_id = scene.n_global_index(ids[fi])
+                    self.b[global_fi_id*2:global_fi_id*2+2] += np.matmul(v, Jx) * dt * dt
 
         # convert sparse matrix
         self.A = A.sparse_matrix()

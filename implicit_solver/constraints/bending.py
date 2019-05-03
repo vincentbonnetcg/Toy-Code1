@@ -16,13 +16,13 @@ class Bending(Base):
     This bending is NOT the proper bending formulation and uses angle instead of curvature
     Some instabilities when using the curvature => Need to investigate
     '''
-    def __init__(self, stiffness, damping, dynamics, particle_ids):
-        Base.__init__(self, stiffness, damping, dynamics, particle_ids)
+    def __init__(self, scene, stiffness, damping, node_ids):
+        Base.__init__(self, scene, stiffness, damping, node_ids)
         # Constraint three points
         #  x0 -- x1 -- x2
-        x0 = dynamics[0].x[particle_ids[0]]
-        x1 = dynamics[1].x[particle_ids[1]]
-        x2 = dynamics[2].x[particle_ids[2]]
+        x0, v0 = scene.n_state(self.n_ids[0])
+        x1, v1 = scene.n_state(self.n_ids[1])
+        x2, v2 = scene.n_state(self.n_ids[2])
         self.rest_angle = math2D.angle(x0, x1, x2)
 
     def get_states(self, scene):
