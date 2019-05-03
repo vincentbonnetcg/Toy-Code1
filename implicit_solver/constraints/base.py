@@ -11,7 +11,7 @@ class Base:
     Describes the constraint base
     '''
     def __init__(self, scene, stiffness, damping, node_ids):
-        N = len(node_ids) # number of particles involved in the constraint
+        N = len(node_ids) # number of nodes involved in the constraint
         self.stiffness = stiffness
         self.damping = damping
         self.f = np.zeros((N, 2)) # forces

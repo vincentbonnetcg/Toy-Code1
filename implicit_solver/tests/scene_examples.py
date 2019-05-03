@@ -21,7 +21,7 @@ BEAM_HEIGHT = 1.0 # in meters
 BEAM_CELL_X = 6 # number of cells along x
 BEAM_CELL_Y = 4 # number of cells along y
 
-PARTICLE_MASS = 0.001 # in Kg
+NODE_MASS = 0.001 # in Kg
 
 GRAVITY = (0.0, -9.81) # in meters per second^2
 
@@ -76,7 +76,7 @@ def init_cat_scene(dispatcher, render):
                                                          position = anchor2_position,
                                                          rotation = anchor2_rotation)
 
-    mesh_handle = dispatcher.run('add_dynamic', shape = shape, particle_mass = PARTICLE_MASS)
+    mesh_handle = dispatcher.run('add_dynamic', shape = shape, node_mass = NODE_MASS)
 
     edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = mesh_handle,
                                                            stiffness = 100.0, damping = 0.0)
@@ -147,7 +147,7 @@ def init_multi_wire_example(dispatcher, render):
                                                         rotation = collider_rotation)
 
     for wire_shape in wire_shapes:
-        wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, particle_mass = PARTICLE_MASS)
+        wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, node_mass = NODE_MASS)
 
         edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = wire_handle,
                                                                stiffness = 100.0, damping = 0.0)
@@ -201,7 +201,7 @@ def init_wire_example(dispatcher, render):
     moving_anchor_animator = objects.Animator(func, context)
 
     # Populate scene with commands
-    wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, particle_mass = PARTICLE_MASS)
+    wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, node_mass = NODE_MASS)
     collider_handle = dispatcher.run('add_kinematic', shape = collider_shape)
 
     moving_anchor_handle = dispatcher.run('add_kinematic', shape = moving_anchor_shape,
@@ -261,8 +261,8 @@ def init_beam_example(dispatcher, render):
     r_animator = objects.Animator(func, context)
 
     # Populate Scene with data and conditions
-    beam_handle = dispatcher.run('add_dynamic', shape = beam_shape, particle_mass = PARTICLE_MASS)
-    wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, particle_mass = PARTICLE_MASS)
+    beam_handle = dispatcher.run('add_dynamic', shape = beam_shape, node_mass = NODE_MASS)
+    wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, node_mass = NODE_MASS)
 
     left_anchor_handle = dispatcher.run('add_kinematic', shape = left_anchor_shape,
                                                          position = l_pos,

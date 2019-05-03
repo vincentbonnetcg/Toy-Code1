@@ -12,7 +12,7 @@ import numpy as np
 class Bending(Base):
     '''
     Describes a 2D bending constraint of a thin inextensible wire
-    between three particles.
+    between three nodes.
     This bending is NOT the proper bending formulation and uses angle instead of curvature
     Some instabilities when using the curvature => Need to investigate
     '''

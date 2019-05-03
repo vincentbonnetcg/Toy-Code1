@@ -103,22 +103,22 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def assemble_system(self, scene, dt):
-        total_particles = scene.num_particles()
-        if (total_particles == 0):
+        total_nodes = scene.num_nodes()
+        if (total_nodes == 0):
             return
         # Assemble the system (Ax=b) where x is the change of velocity
-        num_rows = total_particles
-        num_columns = total_particles
+        num_rows = total_nodes
+        num_columns = total_nodes
         A = BSRSparseMatrix(num_rows, num_columns, 2)
 
         ## Assemble A = (M - h * df/dv - h^2 * df/dx)
         ## => Assemble A = (M - (h * df/dv + h^2 * df/dx))
         # set mass matrix
         for dynamic in scene.dynamics:
-            for i in range(dynamic.num_particles):
+            for i in range(dynamic.num_nodes):
                 mass_matrix = np.zeros((2,2))
                 np.fill_diagonal(mass_matrix, dynamic.m[i])
-                idx = dynamic.global_offset + i
+                idx = dynamic.node_global_offset + i
                 A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
@@ -137,8 +137,8 @@ class ImplicitSolver(BaseSolver):
         # set (f0 * h)
         self.b = np.zeros(num_columns * 2)
         for dynamic in scene.dynamics:
-            for i in range(dynamic.num_particles):
-                idx = dynamic.global_offset + i
+            for i in range(dynamic.num_nodes):
+                idx = dynamic.node_global_offset + i
                 self.b[idx*2:idx*2+2] += dynamic.f[i] * dt
 
         # set (df/dx * v0 * h * h)
@@ -157,8 +157,7 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def solve_system(self, scene, dt):
-        total_particles = scene.num_particles()
-        if (total_particles == 0):
+        if (scene.num_nodes() == 0):
             return
         # Solve the system (Ax=b)
         cgResult = sc.sparse.linalg.cg(self.A, self.b)
@@ -171,8 +170,8 @@ class ImplicitSolver(BaseSolver):
         for dynamic in scene.dynamics:
             v = dynamic.v
             x = dynamic.x
-            for i in range(dynamic.num_particles):
-                ids = dynamic.global_offset + i
+            for i in range(dynamic.num_nodes):
+                ids = dynamic.node_global_offset + i
                 deltaV = [float(delta_v[ids*2]), float(delta_v[ids*2+1])]
                 deltaX = (v[i] + deltaV) * dt
                 v[i] += deltaV
@@ -209,6 +208,6 @@ class SemiImplicitSolver(BaseSolver):
     def solve_system(self, scene, dt):
         # Integrator
         for dynamic in scene.dynamics:
-            for i in range(dynamic.num_particles):
+            for i in range(dynamic.num_nodes):
                 dynamic.v[i] += dynamic.f[i] * dynamic.im[i] * dt
                 dynamic.x[i] += dynamic.v[i] * dt

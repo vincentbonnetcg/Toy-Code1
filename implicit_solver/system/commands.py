@@ -20,11 +20,11 @@ def add_kinematic(scene, shape, position = (0., 0.), rotation = 0., animator = N
     scene.add_kinematic(kinematic, animator)
     return kinematic
 
-def add_dynamic(scene, shape, particle_mass):
+def add_dynamic(scene, shape, node_mass):
     '''
     Add a Dynamic object
     '''
-    dynamic = objects.Dynamic(shape, particle_mass)
+    dynamic = objects.Dynamic(shape, node_mass)
     scene.add_dynamic(dynamic)
     return dynamic
 

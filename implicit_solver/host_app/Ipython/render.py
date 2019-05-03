@@ -52,7 +52,7 @@ class Render:
 
         # Statistics for legend
         stats_total_constraints = 0
-        stats_total_particles = 0
+        stats_total_nodes = 0
 
         # Set label
         plt.title('Implicit Solver - frame ' + str(frame_id), fontdict = self.font)
@@ -83,9 +83,9 @@ class Render:
 
             self.ax.add_collection(line_segments)
 
-        # Draw particles
+        # Draw nodes
         for dynamic in scene.dynamics:
-            stats_total_particles += len(dynamic.data)
+            stats_total_nodes += len(dynamic.data)
             render_prefs = dynamic.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
@@ -104,7 +104,7 @@ class Render:
             self.ax.add_patch(polygon)
 
         # Add Legend
-        red_patch = patches.Patch(color='red', label=str(stats_total_particles) + ' particles')
+        red_patch = patches.Patch(color='red', label=str(stats_total_nodes) + ' nodes')
         blue_patch = patches.Patch(color='blue', label=str(stats_total_constraints) + ' constraints')
         plt.legend(handles=[red_patch, blue_patch], loc='lower left')
         plt.show()

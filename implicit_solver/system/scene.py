@@ -19,7 +19,7 @@ class Scene:
         index = (len(self.dynamics))
         offset = 0
         for i in range(index):
-            offset += self.dynamics[i].num_particles
+            offset += self.dynamics[i].num_nodes
 
         dynamic.set_indexing(index, offset)
         self.dynamics.append(dynamic)
@@ -36,11 +36,11 @@ class Scene:
                 position, rotation = animation.get_value(time)
                 kinematic.state.update(position, rotation, dt)
 
-    def num_particles(self):
-        num_particles = 0
+    def num_nodes(self):
+        num_nodes = 0
         for dynamic in self.dynamics:
-            num_particles += dynamic.num_particles
-        return num_particles
+            num_nodes += dynamic.num_nodes
+        return num_nodes
 
     # Constraint Functions #
     def add_condition(self, condition):
@@ -67,7 +67,7 @@ class Scene:
     # dynamics no longer have their own storage
     # node_state and node_add_f will be generalized too
     def node_id(self, object_id, local_node_id):
-        global_node_id = self.dynamics[object_id].global_offset + local_node_id
+        global_node_id = self.dynamics[object_id].node_global_offset + local_node_id
         return [object_id, local_node_id, global_node_id]
 
     def node_global_index(self, n_id):

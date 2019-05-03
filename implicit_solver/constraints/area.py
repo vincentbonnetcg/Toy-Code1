@@ -11,7 +11,7 @@ import numpy as np
 
 class Area(Base):
     '''
-    Describes a 2D area constraint between three particles
+    Describes a 2D area constraint between three nodes
     '''
     def __init__(self, scene, stiffness, damping, node_ids):
         Base.__init__(self, scene, stiffness, damping, node_ids)

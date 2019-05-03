@@ -50,7 +50,7 @@ class KinematicAttachmentCondition(Condition):
         '''
         dynamic = scene.dynamics[self.dynamic_indices[0]]
         kinematic = scene.kinematics[self.kinematic_indices[0]]
-        # Linear search => it will be inefficient for dynamic objects with many particles
+        # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
         for node_index, node_pos in enumerate(dynamic.x):
             attachment_point_params = kinematic.get_closest_parametric_value(node_pos)

@@ -11,57 +11,57 @@ class Dynamic:
     Dynamic describes a simulated object
     It contains:
     Object data:
-        - num_particles
+        - num_nodes
         - position: x
         - velocity: v
         - mass: m
         - inverse mass: im
         - external forces: f
     Indexing:
-        - global particle offset :globalOffset
+        - node global offset : node_global_offset
         - object index in the scene.dynamics : index
     '''
-    def __init__(self, shape, particle_mass):
-        self.num_particles = shape.num_vertices()
+    def __init__(self, shape, node_mass):
+        self.num_nodes = shape.num_vertices()
 
-        # Create particle data
+        # Create node data
         self.data = core.DataBlock()
         self.data.add_field("x", np.float, 2)
         self.data.add_field("v", np.float, 2)
         self.data.add_field("f", np.float, 2)
         self.data.add_field("m", np.float)
         self.data.add_field("im", np.float)
-        self.data.initialize(self.num_particles)
+        self.data.initialize(self.num_nodes)
         np.copyto(self.data.x, shape.vertex.position)
-        self.data.m.fill(particle_mass)
-        self.data.im.fill(1.0 / particle_mass)
+        self.data.m.fill(node_mass)
+        self.data.im.fill(1.0 / node_mass)
 
-        # Reference particle attribute for easy access
+        # Reference node attributes on this object for easy access
         self.data.set_attribute_to_object(self)
 
-        # Initialize particle connectivities
+        # Initialize node connectivities
         self.edge_ids = np.copy(shape.edge.vertex_ids)
         self.face_ids = np.copy(shape.face.vertex_ids)
         # Useful indices set after adding the object into the scene
-        self.global_offset = 0 # global particle offset
+        self.node_global_offset = 0 # global offset of the node in the complete system
         self.index = 0 # object index in the scene.dynamics[.]
         # Metadata
         self.meta_data = {}
 
-    def set_indexing(self, index, global_offset):
+    def set_indexing(self, index, node_global_offset):
         '''
-        Sets the global indices (object index and particle offset)
+        Sets the global indices (object index and node global offset)
         Those indices are set after the object has been added to the scene
         '''
         self.index = index
-        self.global_offset = global_offset
+        self.node_global_offset = node_global_offset
 
     def convert_to_shape(self):
         '''
         Create a simple shape from the dynamic datablock and
-        particle connectivities
+        node connectivities
         '''
-        num_vertices = self.num_particles
+        num_vertices = self.num_nodes
         num_edges = len(self.edge_ids)
         num_faces = len(self.face_ids)
         shape = core.Shape(num_vertices, num_edges, num_faces)

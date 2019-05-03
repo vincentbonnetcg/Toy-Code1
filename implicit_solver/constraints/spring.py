@@ -11,7 +11,7 @@ from numba import njit
 
 class AnchorSpring(Base):
     '''
-    Describes a 2D spring constraint between a particle and point
+    Describes a 2D spring constraint between a node and point
     '''
     def __init__(self, scene, stiffness, damping, node_id, kinematic, point_params):
         Base.__init__(self, scene, stiffness, damping, [node_id])
@@ -53,7 +53,7 @@ class AnchorSpring(Base):
 
 class Spring(Base):
     '''
-    Describes a 2D spring constraint between two particles
+    Describes a 2D spring constraint between two nodes
     '''
     def __init__(self, scene, stiffness, damping, node_ids):
         Base.__init__(self, scene, stiffness, damping, node_ids)

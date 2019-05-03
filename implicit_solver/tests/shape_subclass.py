@@ -67,7 +67,7 @@ class BeamShape(Shape):
                 self.vertex.position[vertex_id] = (axisx[i], axisy[j])
                 vertex_id += 1
 
-        # Lambda function to get particle indices from cell coordinates
+        # Lambda function to get node indices from cell coordinates
         cell_to_pids = lambda i, j: [i + (j*(cell_x+1)),
                                      i + (j*(cell_x+1)) + 1,
                                      i + ((j+1)*(cell_x+1)),

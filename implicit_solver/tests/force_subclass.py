@@ -16,6 +16,6 @@ class Gravity(Force):
     def apply_forces(self, scene):
         for dynamic in scene.dynamics:
             dynamic.f.fill(0.0)
-            for i in range(dynamic.num_particles):
+            for i in range(dynamic.num_nodes):
                 dynamic.f[i] += np.multiply(self.gravity, dynamic.m[i])
 
