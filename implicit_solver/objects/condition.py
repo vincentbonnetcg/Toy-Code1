@@ -10,8 +10,8 @@ class Condition:
     def __init__(self, dynamics, kinematics, stiffness, damping):
         self.stiffness = stiffness
         self.damping = damping
-        self.dynamic_ids = [dynamic.index for dynamic in dynamics]
-        self.kinematic_ids = [kinematic.index for kinematic in kinematics]
+        self.dynamic_indices = [dynamic.index for dynamic in dynamics]
+        self.kinematic_indices = [kinematic.index for kinematic in kinematics]
         self.constraints = []
         # Metadata
         self.meta_data = {}
