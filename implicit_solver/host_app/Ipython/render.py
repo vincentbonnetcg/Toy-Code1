@@ -71,7 +71,7 @@ class Render:
                 if len(constraint.n_ids) == 2:
                     points = []
                     for i in range (len(constraint.n_ids)):
-                        x, v = scene.n_state(constraint.n_ids[i])
+                        x, v = scene.node_state(constraint.n_ids[i])
                         points.append(x)
                     segs.append(points)
 

@@ -65,20 +65,20 @@ class Scene:
     # Compute node identifier and retrieve node state
     # TODO : In the future, those functions will live in another class when
     # dynamics no longer have their own storage
-    # n_state and n_add_f will be generalized too
-    def n_id(self, object_id, node_id):
-        global_node_id = self.dynamics[object_id].global_offset + node_id
-        return [object_id, node_id, global_node_id]
+    # node_state and node_add_f will be generalized too
+    def node_id(self, object_id, local_node_id):
+        global_node_id = self.dynamics[object_id].global_offset + local_node_id
+        return [object_id, local_node_id, global_node_id]
 
-    def n_global_index(self, n_id):
+    def node_global_index(self, n_id):
         return n_id[2]
 
-    def n_state(self, n_id):
+    def node_state(self, n_id):
         dynamic = self.dynamics[n_id[0]]
         x = dynamic.x[n_id[1]]
         v = dynamic.v[n_id[1]]
         return (x, v)
 
-    def n_add_f(self, n_id, f):
+    def node_add_f(self, n_id, f):
         dynamic = self.dynamics[n_id[0]]
         dynamic.f[n_id[1]] += f

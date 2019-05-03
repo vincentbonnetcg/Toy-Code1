@@ -16,7 +16,7 @@ class AnchorSpring(Base):
     def __init__(self, scene, stiffness, damping, node_id, kinematic, point_params):
         Base.__init__(self, scene, stiffness, damping, [node_id])
         target_pos = kinematic.get_point_from_parametric_value(point_params)
-        x, v = scene.n_state(node_id)
+        x, v = scene.node_state(node_id)
         self.rest_length = math2D.distance(target_pos, x)
         self.point_params = point_params
         self.kinematic_index = kinematic.index
@@ -24,7 +24,7 @@ class AnchorSpring(Base):
 
     def get_states(self, scene):
         kinematic = scene.kinematics[self.kinematic_index]
-        x, v = scene.n_state(self.n_ids[0])
+        x, v = scene.node_state(self.n_ids[0])
         return (kinematic, x, v)
 
     def compute_forces(self, scene):
@@ -57,13 +57,13 @@ class Spring(Base):
     '''
     def __init__(self, scene, stiffness, damping, node_ids):
         Base.__init__(self, scene, stiffness, damping, node_ids)
-        x0, v0 = scene.n_state(self.n_ids[0])
-        x1, v1 = scene.n_state(self.n_ids[1])
+        x0, v0 = scene.node_state(self.n_ids[0])
+        x1, v1 = scene.node_state(self.n_ids[1])
         self.rest_length = math2D.distance(x0, x1)
 
     def get_states(self, scene):
-        x0, v0 = scene.n_state(self.n_ids[0])
-        x1, v1 = scene.n_state(self.n_ids[1])
+        x0, v0 = scene.node_state(self.n_ids[0])
+        x1, v1 = scene.node_state(self.n_ids[1])
         return (x0, x1, v0, v1)
 
     def compute_forces(self, scene):

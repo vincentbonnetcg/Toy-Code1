@@ -23,7 +23,7 @@ class Base:
 
     def apply_forces(self, scene):
         for node_id in range(len(self.n_ids)):
-            scene.n_add_f(self.n_ids[node_id], self.f[node_id])
+            scene.node_add_f(self.n_ids[node_id], self.f[node_id])
 
     def compute_forces(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'compute_forces'")

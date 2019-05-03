@@ -129,8 +129,8 @@ class ImplicitSolver(BaseSolver):
                 for j in range(len(ids)):
                     Jv = constraint.getJacobianDv(fi, j)
                     Jx = constraint.getJacobianDx(fi, j)
-                    global_fi_id = scene.n_global_index(ids[fi])
-                    global_j_id = scene.n_global_index(ids[j])
+                    global_fi_id = scene.node_global_index(ids[fi])
+                    global_j_id = scene.node_global_index(ids[j])
                     A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
         ## Assemble b = h *( f0 + h * df/dx * v0)
@@ -148,8 +148,8 @@ class ImplicitSolver(BaseSolver):
             for fi in range(len(ids)):
                 for xi in range(len(ids)):
                     Jx = constraint.getJacobianDx(fi, xi)
-                    x, v = scene.n_state(constraint.n_ids[xi])
-                    global_fi_id = scene.n_global_index(ids[fi])
+                    x, v = scene.node_state(constraint.n_ids[xi])
+                    global_fi_id = scene.node_global_index(ids[fi])
                     self.b[global_fi_id*2:global_fi_id*2+2] += np.matmul(v, Jx) * dt * dt
 
         # convert sparse matrix

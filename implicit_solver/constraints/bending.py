@@ -20,15 +20,15 @@ class Bending(Base):
         Base.__init__(self, scene, stiffness, damping, node_ids)
         # Constraint three points
         #  x0 -- x1 -- x2
-        x0, v0 = scene.n_state(self.n_ids[0])
-        x1, v1 = scene.n_state(self.n_ids[1])
-        x2, v2 = scene.n_state(self.n_ids[2])
+        x0, v0 = scene.node_state(self.n_ids[0])
+        x1, v1 = scene.node_state(self.n_ids[1])
+        x2, v2 = scene.node_state(self.n_ids[2])
         self.rest_angle = math2D.angle(x0, x1, x2)
 
     def get_states(self, scene):
-        x0, v0 = scene.n_state(self.n_ids[0])
-        x1, v1 = scene.n_state(self.n_ids[1])
-        x2, v2 = scene.n_state(self.n_ids[2])
+        x0, v0 = scene.node_state(self.n_ids[0])
+        x1, v1 = scene.node_state(self.n_ids[1])
+        x2, v2 = scene.node_state(self.n_ids[2])
         return (x0, x1, x2, v0, v1, v2)
 
     def compute_forces(self, scene):

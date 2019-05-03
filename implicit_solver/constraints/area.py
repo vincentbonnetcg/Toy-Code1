@@ -15,15 +15,15 @@ class Area(Base):
     '''
     def __init__(self, scene, stiffness, damping, node_ids):
         Base.__init__(self, scene, stiffness, damping, node_ids)
-        x0, v0 = scene.n_state(self.n_ids[0])
-        x1, v1 = scene.n_state(self.n_ids[1])
-        x2, v2 = scene.n_state(self.n_ids[2])
+        x0, v0 = scene.node_state(self.n_ids[0])
+        x1, v1 = scene.node_state(self.n_ids[1])
+        x2, v2 = scene.node_state(self.n_ids[2])
         self.rest_area = math2D.area(x0, x1, x2)
 
     def get_states(self, scene):
-        x0, v0 = scene.n_state(self.n_ids[0])
-        x1, v1 = scene.n_state(self.n_ids[1])
-        x2, v2 = scene.n_state(self.n_ids[2])
+        x0, v0 = scene.node_state(self.n_ids[0])
+        x1, v1 = scene.node_state(self.n_ids[1])
+        x2, v2 = scene.node_state(self.n_ids[2])
         return (x0, x1, x2, v0, v1, v2)
 
     def compute_forces(self, scene):
