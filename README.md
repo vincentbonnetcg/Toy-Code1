@@ -24,8 +24,11 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 **Description** Skeletal Subspace Deformation
 
 - Linear Blend Skinning
+- Dual Quaternion Skinning (WIP)
 
 ![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/linear_blend_skinning.gif)
+
+[1] Kavan, Ladislav, Steven Collins, Jiří Žára, and Carol O'Sullivan. "Skinning with dual quaternions." In Proceedings of the 2007 symposium on Interactive 3D graphics and games, pp. 39-46. ACM, 2007.
 
 ## . Inverse Kinematics
 **File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/inverseKinematics_withJacobian.py)<br>
