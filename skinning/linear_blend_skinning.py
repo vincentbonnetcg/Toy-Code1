@@ -23,7 +23,6 @@ BEAM_CELL_X = 20
 BEAM_CELL_Y = 5
 
 BIDDING_MAX_INFLUENCES = 3
-NUM_BONES = 4
 
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
@@ -261,23 +260,41 @@ def create_beam_mesh(min_x, min_y, max_x, max_y, cell_x, cell_y):
 
     return Mesh(vertex_buffer, index_buffer)
 
-def create_skeleton(num_bones):
+def create_skeleton_with_4_bones():
     '''
     Create a skeleton object
     '''
-    total_chain_length = 12.0
-    bone_length = total_chain_length / num_bones
-    bones = []
-    rotation_amplitude = np.linspace(20.0, 36.0, num=num_bones, endpoint=True)
-    for bone_id in range(num_bones):
-        bone = Bone(length = bone_length, rotation = 0.0)
-        bone.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * rotation_amplitude[bone_id]
-        bones.append(bone)
+    root_bone = Bone(length = 3.0, rotation = 0.0)
+    bone1 = Bone(length = 3.0, rotation = 0.0)
+    bone2 = Bone(length = 3.0, rotation = 0.0)
+    bone3 = Bone(length = 3.0, rotation = 0.0)
 
-    skeleton = Skeleton([-6.0, 0.0], bones[0])
-    skeleton.add_bone(bones[0])
-    for bone_id in range(num_bones-1):
-        skeleton.add_bone(bones[bone_id+1], bones[bone_id])
+    root_bone.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 20.0
+    bone1.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 24.0
+    bone2.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 32.0
+    bone3.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 36.0
+
+    skeleton = Skeleton([-6.0, 0.0], root_bone)
+    skeleton.add_bone(root_bone)
+    skeleton.add_bone(bone1, root_bone)
+    skeleton.add_bone(bone2, bone1)
+    skeleton.add_bone(bone3, bone2)
+
+    return skeleton
+
+def create_skeleton_with_2_bones():
+    '''
+    Create a skeleton object
+    '''
+    root_bone = Bone(length = 6.0, rotation = 0.0)
+    bone1 = Bone(length = 6.0, rotation = 0.0)
+
+    root_bone.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 0
+    bone1.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 90
+
+    skeleton = Skeleton([-6.0, 0.0], root_bone)
+    skeleton.add_bone(root_bone)
+    skeleton.add_bone(bone1, root_bone)
 
     return skeleton
 
@@ -345,7 +362,7 @@ def main():
     Main
     '''
     mesh = create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
-    skeleton = create_skeleton(NUM_BONES)
+    skeleton = create_skeleton_with_4_bones()
 
     kernal_parameter = 1.0
     kernel_function = lambda v : np.exp(-np.square((v * kernal_parameter)))
