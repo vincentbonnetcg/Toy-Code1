@@ -44,15 +44,18 @@ class BaseSolver:
         self.step(scene, context)
         self.post_step(scene, context)
 
+    @profiler.timeit
     def pre_step(self, scene, context):
         scene.update_kinematics(context.time, context.dt)
         scene.update_conditions(False) # Update dynamic conditions
 
+    @profiler.timeit
     def step(self, scene, context):
         self.prepare_system(scene, context.dt)
         self.assemble_system(scene, context.dt)
         self.solve_system(scene, context.dt)
 
+    @profiler.timeit
     def post_step(self, scene, context):
         pass
 
