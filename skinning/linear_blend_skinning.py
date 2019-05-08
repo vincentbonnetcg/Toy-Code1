@@ -22,7 +22,7 @@ BEAM_MAX_Y = 1.0
 BEAM_CELL_X = 20
 BEAM_CELL_Y = 5
 
-BIDDING_MAX_INFLUENCES = 3
+BIDDING_MAX_INFLUENCES = 2
 
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
@@ -93,7 +93,7 @@ class Skeleton:
         num_vertices = len(mesh.vertex_buffer)
         num_bones = len(self.bones)
         mesh.weights_map = np.zeros((num_bones, num_vertices))
-        mesh.local_homogenous_vertex = np.zeros((num_vertices, 3))
+        mesh.local_homogenous_vertex = np.zeros((num_bones, num_vertices, 3))
         bone_segments = self.get_bone_segments()
 
         # Compute weights per bone per vertices (weights map) from kernel function
@@ -122,17 +122,21 @@ class Skeleton:
         bone_transforms = self.get_bone_homogenous_transforms()
 
         for vertex_id, vertex in enumerate(mesh.vertex_buffer):
-            # Compute the concatenated weighted bone transformation
-            T = np.zeros((3,3))
+
             for bone_id, bone_transform in enumerate(bone_transforms):
                 weight = mesh.weights_map[bone_id][vertex_id]
-                T += (bone_transforms[bone_id] * weight)
 
-            # Compute the vertex in local space
-            vertex_homogenous = np.ones(3)
-            vertex_homogenous[0:2] = vertex
-            local_vertex_homogenous = np.matmul(np.linalg.inv(T), vertex_homogenous)
-            mesh.local_homogenous_vertex[vertex_id] = local_vertex_homogenous
+                if (weight == 0.0):
+                    local_vertex_homogenous = np.zeros(3)
+                    local_vertex_homogenous[2] = 1.0
+                    mesh.local_homogenous_vertex[bone_id][vertex_id] = local_vertex_homogenous
+                else:
+                    T = (bone_transforms[bone_id])
+                    vertex_homogenous = np.ones(3)
+                    vertex_homogenous[0:2] = vertex
+                    local_vertex_homogenous = np.matmul(np.linalg.inv(T), vertex_homogenous) * weight
+                    local_vertex_homogenous /= local_vertex_homogenous[2]
+                    mesh.local_homogenous_vertex[bone_id][vertex_id] = local_vertex_homogenous
 
         # Update the world space vertices from the local_homogenous_vertex
         # It should not modify the current configuration and only used for debugging
@@ -192,14 +196,18 @@ class Skeleton:
         bone_transforms = self.get_bone_homogenous_transforms()
         for vertex_id, vertex in enumerate(mesh.vertex_buffer):
 
-            T = np.zeros((3,3))
+            updated_vertex = np.zeros(2)
             for bone_id, bone_transform in enumerate(bone_transforms):
                 weight = mesh.weights_map[bone_id][vertex_id]
-                T += (bone_transforms[bone_id] * weight)
+                T = (bone_transforms[bone_id]) * weight
 
-            world_vertex_homogenous = np.matmul(T, mesh.local_homogenous_vertex[vertex_id])
-            vertex[0] = world_vertex_homogenous[0]
-            vertex[1] = world_vertex_homogenous[1]
+                world_vertex_homogenous = np.matmul(T, mesh.local_homogenous_vertex[bone_id][vertex_id])
+
+                updated_vertex[0] += world_vertex_homogenous[0]
+                updated_vertex[1] += world_vertex_homogenous[1]
+
+            vertex[0] = updated_vertex[0]
+            vertex[1] = updated_vertex[1]
 
 class Mesh:
     '''
@@ -362,10 +370,10 @@ def main():
     Main
     '''
     mesh = create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
-    skeleton = create_skeleton_with_4_bones()
+    skeleton = create_skeleton_with_2_bones()
 
-    kernal_parameter = 1.0
-    kernel_function = lambda v : np.exp(-np.square((v * kernal_parameter)))
+    kernel_parameter = 1.0
+    kernel_function = lambda v : np.exp(-np.square((v * kernel_parameter)))
     skeleton.attach_mesh(mesh, max_influences = BIDDING_MAX_INFLUENCES, kernel_func = kernel_function)
     draw(mesh, skeleton, 0)
 
@@ -373,7 +381,7 @@ def main():
         skeleton.animate(frame_id * FRAME_TIME_STEP)
         skeleton.update_mesh(mesh)
         draw(mesh, skeleton, frame_id)
-
+        
 if __name__ == '__main__':
     main()
 
