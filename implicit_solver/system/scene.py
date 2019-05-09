@@ -29,7 +29,10 @@ class Scene:
         self.kinematics.append(kinematic)
         self.animators.append(animator)
 
-    def update_kinematics(self, time, dt = 0.0):
+    def init_kinematics(self, start_time):
+        self.update_kinematics(start_time, dt = 0.0)
+
+    def update_kinematics(self, time, dt):
         for index, kinematic in enumerate(self.kinematics):
             animation = self.animators[index]
             if animation:
@@ -46,9 +49,16 @@ class Scene:
     def add_condition(self, condition):
         self.conditions.append(condition)
 
-    def update_conditions(self, static = True):
+    def init_conditions(self):
         for condition in self.conditions:
-            if condition.is_static() is static:
+            condition.update_constraints(self)
+
+    def update_conditions(self):
+        '''
+        Update only the dynamic conditions
+        '''
+        for condition in self.conditions:
+            if condition.is_static() is False:
                 condition.update_constraints(self)
 
     def get_constraints_iterator(self):

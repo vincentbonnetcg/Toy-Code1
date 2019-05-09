@@ -34,9 +34,8 @@ class BaseSolver:
         '''
         Initialize the solver and the data used by the solver
         '''
-        scene.update_kinematics(context.time)
-        scene.update_conditions(True) # Update static conditions
-        scene.update_conditions(False) # Update dynamic conditions
+        scene.init_kinematics(context.start_time)
+        scene.init_conditions()
 
     @profiler.timeit
     def solve_step(self, scene, context):
@@ -47,7 +46,7 @@ class BaseSolver:
     @profiler.timeit
     def pre_step(self, scene, context):
         scene.update_kinematics(context.time, context.dt)
-        scene.update_conditions(False) # Update dynamic conditions
+        scene.update_conditions()
 
     @profiler.timeit
     def step(self, scene, context):
