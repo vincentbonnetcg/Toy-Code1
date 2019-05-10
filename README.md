@@ -23,12 +23,14 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 **File** [linear_blend_skinning.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/skinning/linear_blend_skinning.py)<br>
 **Description** Skeletal Subspace Deformation
 
-- Linear Blend Skinning
-- Dual Quaternion Skinning (WIP)
+- Linear Blend Skinning [1]
+- Dual Quaternion Skinning (WIP) [2]
 
 ![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/linear_blend_skinning.gif)
 
-[1] Kavan, Ladislav, Steven Collins, Jiří Žára, and Carol O'Sullivan. "Skinning with dual quaternions." In Proceedings of the 2007 symposium on Interactive 3D graphics and games, pp. 39-46. ACM, 2007.
+[1] Magnenat-Thalmann, Nadia, Richard Laperrire, and Daniel Thalmann. "Joint-dependent local deformations for hand animation and object grasping." In In Proceedings on Graphics interface’88. 1988.
+
+[2] Kavan, Ladislav, Steven Collins, Jiří Žára, and Carol O'Sullivan. "Skinning with dual quaternions." In Proceedings of the 2007 symposium on Interactive 3D graphics and games, pp. 39-46. ACM, 2007.
 
 ## . Inverse Kinematics
 **File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/inverseKinematics_withJacobian.py)<br>

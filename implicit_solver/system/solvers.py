@@ -129,8 +129,8 @@ class ImplicitSolver(BaseSolver):
             ids = constraint.n_ids
             for fi in range(len(ids)):
                 for j in range(len(ids)):
-                    Jv = constraint.getJacobianDv(fi, j)
-                    Jx = constraint.getJacobianDx(fi, j)
+                    Jv = constraint.jacobian_dv(fi, j)
+                    Jx = constraint.jacobian_dx(fi, j)
                     global_fi_id = scene.node_global_index(ids[fi])
                     global_j_id = scene.node_global_index(ids[j])
                     A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
@@ -149,7 +149,7 @@ class ImplicitSolver(BaseSolver):
             ids = constraint.n_ids
             for fi in range(len(ids)):
                 for xi in range(len(ids)):
-                    Jx = constraint.getJacobianDx(fi, xi)
+                    Jx = constraint.jacobian_dx(fi, xi)
                     x, v = scene.node_state(constraint.n_ids[xi])
                     global_fi_id = scene.node_global_index(ids[fi])
                     self.b[global_fi_id*2:global_fi_id*2+2] += np.matmul(v, Jx) * dt * dt

@@ -31,10 +31,10 @@ class Base:
     def compute_jacobians(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'compute_jacobians'")
 
-    def getJacobianDx(self, fi, xj):
+    def jacobian_dx(self, fi, xj):
         return self.dfdx[fi][xj]
 
-    def getJacobianDv(self, fi, xj):
+    def jacobian_dv(self, fi, xj):
         return self.dfdv[fi][xj]
 
     @staticmethod
