@@ -46,6 +46,15 @@ class MNIST_Loader:
                 print("download complete.")
 
     def load_into_array(self):
+        '''
+        Return a dictionnary containing the following data
+        {
+         'training_images' :[[image_data],...,[image_data]],
+         'test_images' : [[image_data],...,[image_data]],
+         'training_labels' : [5 0 4 ... 5 6 8],
+         'test_labels' : [7 2 1 ... 4 5 6],
+         }
+        '''
         mnist = {}
         # load the images (training and test)
         for name in self.filenames[:2]:
@@ -60,5 +69,3 @@ class MNIST_Loader:
                 mnist[name[0]] = np.frombuffer(f.read(), np.uint8, offset=8)
 
         return mnist
-
-
