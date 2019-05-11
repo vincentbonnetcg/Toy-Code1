@@ -16,21 +16,26 @@ num_examples : number of examples used for the training
 |y            | (1, num_examples)          |                                  |
 |X            | (num_inputs, num_examples) | training data stored into column |
 
-|Function Name | Description         |
-|--------------|---------------------|
-|sigma         | activation function |
-|L(y_hat, y)   | error function      |
+|Function Name | Description                                   |
+|--------------|-----------------------------------------------|
+|sigma         | activation function (sigmoid, tanh, Relu ...) |
+|L(y_hat, y)   | error function                                |
 '''
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+'''
+Activation functions
+'''
 def sigmoid_activation(z):
-    # TODO - add other activation function such as tanh and ReLU
-    '''
-    Sigmoid activation Function
-    '''
     return 1.0 / (1.0 + np.exp(-z))
+
+def tanh_activation(z):
+    return np.tanh(z)
+
+def ReLU(z):
+   return z * (z > 0)
 
 def draw_activation(f):
     '''
@@ -64,6 +69,7 @@ class LogisticRegressionMNIST():
         # Parameters
         self.X = None # training data with a shape (num_inputs, num_examples)
         self.w = None # input weights with a shape (num_inputs, 1)
+        # TODO - add bias
 
         # Optimizer Hyperparameters
         self.learning_rate = 1.0
