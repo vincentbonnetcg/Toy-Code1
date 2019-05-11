@@ -67,9 +67,11 @@ class LogisticRegressionMNIST():
         self.number_to_detect = number_to_detect
 
         # Parameters
-        self.X = None # training data with a shape (num_inputs, num_examples)
-        self.w = None # input weights with a shape (num_inputs, 1)
-        # TODO - add bias
+        self.X = None # training data of shape (num_inputs, num_examples)
+        self.b = None # bias of shape (1,1)
+        self.w = None # weights of shape (num_inputs, 1)
+        self.y = None # output of shape (1, num_examples)
+        self.activation_function = None
 
         # Optimizer Hyperparameters
         self.learning_rate = 1.0
@@ -81,32 +83,34 @@ class LogisticRegressionMNIST():
         #self.num_layers = 1
         #self.num_units = 1
 
-    def train(self, training_data_array):
+    def train(self, training_data_array, training_label_array):
         '''
         Compute the input weights for a single logistic regression
         '''
-        # Prepare training data and parameters
+        # Prepare training data ('X')
         self.X = training_data_array.transpose()
+
+        # Set the parameters - weights and bias ('w', 'b')
         num_inputs = len(self.X) # self.X.shape[0]
-        num_examples = self.X.shape[1]
         self.w = np.random.randn(num_inputs, 1)
-        print(num_inputs)
+        self.b = np.zeros((1,1))
+
+        # Set the training labels ('y')
+        # Update training labels so number_to_detect is 1 and !number_to_detect is 0
+        num_examples = self.X.shape[1]
+        assert(num_examples == len(training_label_array))
+        self.y = training_label_array.reshape((1, num_examples))
+        #TODO : update self.y
+
+        # Set activation function
+        self.activation_function = sigmoid_activation
 
         # Train
         for epoch_id in range(self.num_epoch):
-            # TODO
-            pass
+            # TODO - forward propagation and evaluate the cost
 
-    def forward_propagation(self):
-        '''
-        Forward propagation
-        '''
-        pass
+            # TODO - update weights and bias
 
-
-    def back_propagation(self):
-        '''
-        Figure out how the cost function
-        '''
-        pass
+            if (epoch_id % 100 == 0):
+                print("Epoch", epoch_id)
 
