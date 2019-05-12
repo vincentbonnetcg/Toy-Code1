@@ -45,7 +45,7 @@ class MNIST_Loader:
                 request.urlretrieve(full_url, full_path)
                 print("download complete.")
 
-    def load_into_array(self):
+    def load_into_float_array(self, normalize = False):
         '''
         Return a dictionnary containing the following data
         {
@@ -60,12 +60,20 @@ class MNIST_Loader:
         for name in self.filenames[:2]:
             full_path = self.download_folder + name[1]
             with gzip.open(full_path, 'rb') as f:
-                mnist[name[0]] = np.frombuffer(f.read(), np.uint8, offset=16).reshape(-1,self.size[0]*self.size[1])
+                tmp = np.frombuffer(f.read(), np.uint8, offset=16).reshape(-1,self.size[0]*self.size[1])
+                mnist[name[0]] = tmp.astype(float)
+
+                if normalize:
+                    min_data = np.min(mnist[name[0]])
+                    max_data = np.max(mnist[name[0]])
+                    mnist[name[0]] -= min_data
+                    mnist[name[0]] /= (max_data - min_data)
 
         # load the labels (training and test)
         for name in self.filenames[2:]:
             full_path = self.download_folder + name[1]
             with gzip.open(full_path, 'rb') as f:
-                mnist[name[0]] = np.frombuffer(f.read(), np.uint8, offset=8)
+                tmp = np.frombuffer(f.read(), np.uint8, offset=8)
+                mnist[name[0]] = tmp.astype(float)
 
         return mnist

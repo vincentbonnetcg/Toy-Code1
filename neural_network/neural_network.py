@@ -54,7 +54,10 @@ def cross_entropy_cost_function(y, y_hat):
     'y_hat' is the value from the activation function
     '''
     m = y.shape[1]
-    L = -(1./m) * (np.sum(np.multiply(y, np.log(y_hat))) + np.sum(np.multiply((1-y), np.log(1-y_hat))))
+    cross_entropy_part_0 = np.multiply(y, np.log(y_hat))
+    cross_entropy_part_1 = np.multiply((1.0-y), np.log(1.0-y_hat))
+
+    L = -(1./m) * (np.sum(cross_entropy_part_0 + cross_entropy_part_1))
     return L
 
 class LogisticRegressionMNIST():
@@ -74,7 +77,7 @@ class LogisticRegressionMNIST():
         self.activation_function = None
 
         # Optimizer Hyperparameters
-        self.learning_rate = 1.0
+        self.learning_rate = 0.1
         self.minibatch_size = 1 # Not used
         self.num_epoch = 1000
 
@@ -87,12 +90,14 @@ class LogisticRegressionMNIST():
         '''
         Compute the input weights for a single logistic regression
         '''
+        # Makes the function predictable
+        np.random.seed(0)
         # Prepare training data ('X')
         self.X = training_data_array.transpose()
 
         # Set the parameters - weights and bias ('w', 'b')
         num_inputs = len(self.X) # self.X.shape[0]
-        self.w = np.random.randn(num_inputs, 1)
+        self.w = np.random.randn(num_inputs, 1) * 0.01 # random weight to start with
         self.b = np.zeros((1,1))
 
         # Set the training labels ('y')
@@ -110,10 +115,20 @@ class LogisticRegressionMNIST():
 
         # Train
         for epoch_id in range(self.num_epoch):
-            # TODO - forward propagation and evaluate the cost
+            # Forward propagation to compute the activations with current parameters
+            # y_hat = sigma(transpose(w)*X+b)
+            z = np.matmul(self.w.T, self.X) + self.b
+            y_hat = self.activation_function(z)
 
-            # TODO - update weights and bias
+            # Compute cost
+            cost = cross_entropy_cost_function(self.y, y_hat)
 
-            if (epoch_id % 100 == 0):
-                print("Epoch", epoch_id)
+            # update weights
+            # TODO - update bias
+            dW = (1.0/num_examples) * np.matmul(self.X, (y_hat-self.y).T)
+
+            self.w = self.w - self.learning_rate * dW
+
+            if (epoch_id % 10 == 0):
+                print("Epoch", epoch_id, " | cost: ", cost)
 
