@@ -96,11 +96,14 @@ class LogisticRegressionMNIST():
         self.b = np.zeros((1,1))
 
         # Set the training labels ('y')
-        # Update training labels so number_to_detect is 1 and !number_to_detect is 0
+        # Update training labels so number_to_detect is 1.0 and !number_to_detect is 0.0
         num_examples = self.X.shape[1]
         assert(num_examples == len(training_label_array))
-        self.y = training_label_array.reshape((1, num_examples))
-        #TODO : update self.y
+        training_label_array_updated = np.copy(training_label_array)
+        index_with_number = np.where(training_label_array_updated == self.number_to_detect)[0]
+        training_label_array_updated[:] = 0.0
+        training_label_array_updated[index_with_number] = 1.0
+        self.y = training_label_array_updated.reshape((1, num_examples))
 
         # Set activation function
         self.activation_function = sigmoid_activation
