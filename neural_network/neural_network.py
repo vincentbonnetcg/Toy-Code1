@@ -19,7 +19,7 @@ num_examples : number of examples used for the training
 |Function Name | Description                                   |
 |--------------|-----------------------------------------------|
 |sigma         | activation function (sigmoid, tanh, Relu ...) |
-|L(y_hat, y)   | error function                                |
+|L(y_hat, y)   | error function (cross_entropy, ...)           |
 '''
 
 import numpy as np
@@ -60,6 +60,20 @@ def cross_entropy_cost_function(y, y_hat):
     L = -(1./m) * (np.sum(cross_entropy_part_0 + cross_entropy_part_1))
     return L
 
+def prepare_label_array(label_array, number_to_detect):
+    '''
+    Update training labels and set :
+    element ==number_to_detect to 1.0
+    element !=number_to_detect to 0.0
+    TODO - should be done on the data_loader
+    '''
+    num_examples = len(label_array)
+    label_array_updated = np.copy(label_array)
+    index_with_number = np.where(label_array_updated == number_to_detect)[0]
+    label_array_updated[:] = 0.0
+    label_array_updated[index_with_number] = 1.0
+    return label_array_updated.reshape((1, num_examples))
+
 class LogisticRegressionMNIST():
     '''
     Logistic regression to detect a single number
@@ -94,26 +108,18 @@ class LogisticRegressionMNIST():
         np.random.seed(0)
         # Prepare training data ('X')
         self.X = training_data_array.transpose()
-
         # Set the parameters - weights and bias ('w', 'b')
-        num_inputs = len(self.X) # self.X.shape[0]
+        num_inputs = self.X.shape[0] # len(self.X)
+        num_examples = self.X.shape[1]
         self.w = np.random.randn(num_inputs, 1) * 0.01 # random weight to start with
         self.b = np.zeros((1,1))
-
-        # Set the training labels ('y')
-        # Update training labels so number_to_detect is 1.0 and !number_to_detect is 0.0
-        num_examples = self.X.shape[1]
+        # Prepare training labels ('y')
         assert(num_examples == len(training_label_array))
-        training_label_array_updated = np.copy(training_label_array)
-        index_with_number = np.where(training_label_array_updated == self.number_to_detect)[0]
-        training_label_array_updated[:] = 0.0
-        training_label_array_updated[index_with_number] = 1.0
-        self.y = training_label_array_updated.reshape((1, num_examples))
-
+        self.y = prepare_label_array(training_label_array, self.number_to_detect)
         # Set activation function
         self.activation_function = sigmoid_activation
 
-        # Train
+        # Training Loop
         for epoch_id in range(self.num_epoch):
             # Forward propagation to compute the activations with current parameters
             # y_hat = sigma(transpose(w)*X+b)
@@ -132,3 +138,24 @@ class LogisticRegressionMNIST():
             if (epoch_id % 10 == 0):
                 print("Epoch", epoch_id, " | cost: ", cost)
 
+    def test(self, test_data_array, test_label_array):
+        '''
+        Test with test data and the trained neural network
+        '''
+        # Prepare test data
+        X_test = test_data_array.transpose()
+
+        # Test
+        z = np.matmul(self.w.T, X_test) + self.b
+        y_hat = self.activation_function(z)
+
+        # Map the activations to predictions whether or not its a 'number_to_detect'
+        # TODO - DISPLAY confusion_matrix
+        predictions = (y_hat>0.5)[0]
+        correct_prediction_counter = 0
+        for pred_id, pred in enumerate(predictions):
+            # Correct prediction
+            if (test_label_array[pred_id] == self.number_to_detect)  == pred:
+                correct_prediction_counter += 1
+
+        print("Correct Prediction (%) : ", correct_prediction_counter / len(predictions))

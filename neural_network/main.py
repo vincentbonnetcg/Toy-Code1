@@ -39,14 +39,14 @@ def main():
     #draw_sample_mnist(loader_mnist)
 
     # Create logistic regression with its Hyperparameters
-    number_to_detect = 0.0
+    number_to_detect = 2.0
     neural_network = nn.LogisticRegressionMNIST(number_to_detect)
     neural_network.learning_rate = LEARNING_RATE
     neural_network.num_epoch = MAX_EPOCH
 
-    # Train
+    # Training and Tests
     neural_network.train(mnist_data["training_images"], mnist_data["training_labels"])
-
+    neural_network.test(mnist_data["test_images"], mnist_data["test_labels"])
 
 
 if __name__ == '__main__':
