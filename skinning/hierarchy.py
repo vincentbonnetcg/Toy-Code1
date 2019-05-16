@@ -1,31 +1,11 @@
 """
 @author: Vincent Bonnet
-@description : Linear Blend Skinning (Skeletal Subspace Deformation)
+@description : Skeleton and Bone class
 """
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
-from matplotlib import colors as mcolors
 
 # TODO - see bone_children[0] : add support for multiple children per bone
 
-'''
-User Parameters
-'''
-NUM_FRAMES = 97
-FRAME_TIME_STEP = 1.0 / 24.0
-
-BEAM_MIN_X = -7.0
-BEAM_MIN_Y = -1.0
-BEAM_MAX_X = 7.0
-BEAM_MAX_Y = 1.0
-BEAM_CELL_X = 20
-BEAM_CELL_Y = 5
-
-BIDDING_MAX_INFLUENCES = 2
-
-RENDER_FOLDER_PATH = "" # specify a folder to export png files
-# Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
+import numpy as np
 
 def distance_from_segment(p, seg_p1, seg_p2):
     '''
@@ -38,6 +18,45 @@ def distance_from_segment(p, seg_p1, seg_p2):
     t = min(max(t, 0.0), d_norm)
     projected_p = seg_p1 + d_normalized * t
     return np.linalg.norm(p - projected_p)
+
+def create_skeleton_with_4_bones():
+    '''
+    Create a skeleton object
+    '''
+    root_bone = Bone(length = 3.0, rotation = 0.0)
+    bone1 = Bone(length = 3.0, rotation = 0.0)
+    bone2 = Bone(length = 3.0, rotation = 0.0)
+    bone3 = Bone(length = 3.0, rotation = 0.0)
+
+    root_bone.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 20.0
+    bone1.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 24.0
+    bone2.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 32.0
+    bone3.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 36.0
+
+    skeleton = Skeleton([-6.0, 0.0], root_bone)
+    skeleton.add_bone(root_bone)
+    skeleton.add_bone(bone1, root_bone)
+    skeleton.add_bone(bone2, bone1)
+    skeleton.add_bone(bone3, bone2)
+
+    return skeleton
+
+def create_skeleton_with_2_bones():
+    '''
+    Create a skeleton object
+    '''
+    root_bone = Bone(length = 6.0, rotation = 0.0)
+    bone1 = Bone(length = 6.0, rotation = 0.0)
+
+    root_bone.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 0
+    bone1.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 90
+
+    skeleton = Skeleton([-6.0, 0.0], root_bone)
+    skeleton.add_bone(root_bone)
+    skeleton.add_bone(bone1, root_bone)
+
+    return skeleton
+
 
 class Bone:
     def __init__(self, length = 1.0, rotation = 0.0):
@@ -208,181 +227,3 @@ class Skeleton:
 
             vertex[0] = updated_vertex[0]
             vertex[1] = updated_vertex[1]
-
-class Mesh:
-    '''
-    Mesh contains a vertex buffer, index buffer and weights map for binding
-    '''
-    def __init__(self, vertex_buffer, index_buffer):
-        self.vertex_buffer = np.asarray(vertex_buffer)
-        self.index_buffer = np.asarray(index_buffer)
-        self.weights_map = None # influence for each bones
-        self.local_homogenous_vertex = None
-
-    def get_boundary_segments(self):
-        segments = []
-
-        for vertex_ids in self.index_buffer:
-            segments.append([self.vertex_buffer[vertex_ids[0]],
-                             self.vertex_buffer[vertex_ids[1]]])
-
-        return segments
-
-def create_beam_mesh(min_x, min_y, max_x, max_y, cell_x, cell_y):
-    '''
-    Creates a mesh as a beam
-    Example of beam with cell_x(3) and cell_y(2):
-        |8 .. 9 .. 10 .. 11
-        |4 .. 5 .. 6  .. 7
-        |0 .. 1 .. 2  .. 3
-    '''
-    num_vertices = (cell_x + 1) * (cell_y + 1)
-    vertex_buffer = np.zeros((num_vertices,2))
-
-    # Set Points
-    vertex_id = 0
-    axisx = np.linspace(min_x, max_x, num=cell_x+1, endpoint=True)
-    axisy = np.linspace(min_y, max_y, num=cell_y+1, endpoint=True)
-
-    for j in range(cell_y+1):
-        for i in range(cell_x+1):
-            vertex_buffer[vertex_id] = (axisx[i], axisy[j])
-            vertex_id += 1
-
-    # Set Edge Indices
-    cell_to_ids = lambda i, j: i + (j*(cell_x+1))
-    edge_indices = []
-    for j in range(cell_y):
-        ids = [cell_to_ids(0, j), cell_to_ids(0, j+1)]
-        edge_indices.append(ids)
-        ids = [cell_to_ids(cell_x, j), cell_to_ids(cell_x, j+1)]
-        edge_indices.append(ids)
-
-    for i in range(cell_x):
-        ids = [cell_to_ids(i, 0), cell_to_ids(i+1, 0)]
-        edge_indices.append(ids)
-        ids = [cell_to_ids(i, cell_y), cell_to_ids(i+1, cell_y)]
-        edge_indices.append(ids)
-
-    index_buffer = np.array(edge_indices, dtype=int)
-
-    return Mesh(vertex_buffer, index_buffer)
-
-def create_skeleton_with_4_bones():
-    '''
-    Create a skeleton object
-    '''
-    root_bone = Bone(length = 3.0, rotation = 0.0)
-    bone1 = Bone(length = 3.0, rotation = 0.0)
-    bone2 = Bone(length = 3.0, rotation = 0.0)
-    bone3 = Bone(length = 3.0, rotation = 0.0)
-
-    root_bone.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 20.0
-    bone1.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 24.0
-    bone2.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 32.0
-    bone3.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 36.0
-
-    skeleton = Skeleton([-6.0, 0.0], root_bone)
-    skeleton.add_bone(root_bone)
-    skeleton.add_bone(bone1, root_bone)
-    skeleton.add_bone(bone2, bone1)
-    skeleton.add_bone(bone3, bone2)
-
-    return skeleton
-
-def create_skeleton_with_2_bones():
-    '''
-    Create a skeleton object
-    '''
-    root_bone = Bone(length = 6.0, rotation = 0.0)
-    bone1 = Bone(length = 6.0, rotation = 0.0)
-
-    root_bone.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 0
-    bone1.rotation_animation = lambda time : np.sin(time / 2.0 * np.pi) * 90
-
-    skeleton = Skeleton([-6.0, 0.0], root_bone)
-    skeleton.add_bone(root_bone)
-    skeleton.add_bone(bone1, root_bone)
-
-    return skeleton
-
-def draw(mesh, skeleton, frame_id):
-    '''
-    Drawing function to display the mesh and skeleton
-    '''
-    fig = plt.figure()
-    font = {'color':  'darkblue',
-                 'weight': 'normal',
-                 'size': 18}
-    ax = fig.add_subplot(111)
-    ax.axis('equal')
-    ax.set_xlim(-16, 16)
-    ax.set_ylim(-16, 16)
-    plt.title('Linear Skinning', fontdict = font)
-
-    colors_template = [mcolors.to_rgba(c)
-          for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
-
-    # Draw mesh (points and edges)
-    x, y = zip(*mesh.vertex_buffer)
-    point_colors = np.ones((len(mesh.vertex_buffer), 4))
-
-    num_bones = len(skeleton.bones)
-    num_vertices = len(mesh.vertex_buffer)
-    for vertex_id in range(num_vertices):
-        point_color = np.zeros(3)
-
-        for bone_id in range(num_bones):
-            weight = mesh.weights_map[bone_id][vertex_id]
-            point_color += (np.asarray(colors_template[bone_id])[0:3] * weight)
-
-        point_colors[vertex_id][0:3] = point_color
-
-    ax.scatter(x, y, color=point_colors, s=3.0)
-
-    segments = mesh.get_boundary_segments()
-    line_segments = LineCollection(segments,
-                               linewidths=1.0,
-                               colors='orange',
-                               linestyles='-',
-                               alpha=1.0)
-    ax.add_collection(line_segments)
-
-    # Draw skeleton
-    segments = skeleton.get_bone_segments()
-    line_segments = LineCollection(segments,
-                                   linewidths=3.0,
-                                   colors=colors_template,
-                                   linestyles='-',
-                                   alpha=1.0)
-
-    ax.add_collection(line_segments)
-    plt.show()
-
-    # Export figure into a png file
-    if len(RENDER_FOLDER_PATH) > 0:
-        filename = str(frame_id).zfill(4) + " .png"
-        fig.savefig(RENDER_FOLDER_PATH + "/" + filename)
-
-
-def main():
-    '''
-    Main
-    '''
-    mesh = create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
-    skeleton = create_skeleton_with_2_bones()
-
-    kernel_parameter = 1.0
-    kernel_function = lambda v : np.exp(-np.square((v * kernel_parameter)))
-    skeleton.attach_mesh(mesh, max_influences = BIDDING_MAX_INFLUENCES, kernel_func = kernel_function)
-    draw(mesh, skeleton, 0)
-
-    for frame_id in range(1, NUM_FRAMES):
-        skeleton.animate(frame_id * FRAME_TIME_STEP)
-        skeleton.update_mesh(mesh)
-        draw(mesh, skeleton, frame_id)
-        
-if __name__ == '__main__':
-    main()
-
-
