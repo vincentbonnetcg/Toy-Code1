@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib import colors as mcolors
 
-def draw(mesh, skeleton, frame_id, render_folder_path):
+def draw(mesh, skeleton, weights_map, frame_id, render_folder_path):
     '''
     Drawing function to display the mesh and skeleton
     '''
@@ -35,7 +35,7 @@ def draw(mesh, skeleton, frame_id, render_folder_path):
         point_color = np.zeros(3)
 
         for bone_id in range(num_bones):
-            weight = mesh.weights_map[bone_id][vertex_id]
+            weight = weights_map[bone_id][vertex_id]
             point_color += (np.asarray(colors_template[bone_id])[0:3] * weight)
 
         point_colors[vertex_id][0:3] = point_color

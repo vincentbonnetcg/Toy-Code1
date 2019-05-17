@@ -52,8 +52,6 @@ class Mesh:
     def __init__(self, vertex_buffer, index_buffer):
         self.vertex_buffer = np.asarray(vertex_buffer)
         self.index_buffer = np.asarray(index_buffer)
-        self.weights_map = None # influence for each bones
-        self.local_homogenous_vertex = None
 
     def get_boundary_segments(self):
         segments = []
