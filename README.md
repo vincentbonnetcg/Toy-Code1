@@ -64,6 +64,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [1] Powell, Michael JD. "Radial basis functions for multivariable interpolation: a review." Algorithms for approximation (1987).
 
+[2] Powell, Michael JD. "The theory of radial basis function approximation in 1990." Advances in numerical analysis (1992): 105-210.
+
 **File** [polynomialRegression.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/interpolation_regression/polynomialRegression.py)<br>
 **Description** Polynomial Linear Regression on 1D dataset
 
