@@ -96,6 +96,31 @@ class Skeleton:
         H[1, 2] = self.root_position[1]
         return H
 
+    def get_relative_rotations(self):
+        num_bones = len(self.bones)
+        relative_rotations = np.zeros(num_bones)
+
+        bone_id = 0
+
+        bone = self.root_bone
+        while bone is not None:
+
+            relative_rotation = 0.0
+            if bone.bone_parent:
+                relative_rotation = bone.rotation - bone.bone_parent.rotation
+
+            # Go to the children
+            if len(bone.bone_children) > 0:
+                bone = bone.bone_children[0]
+            else:
+                bone = None
+
+            relative_rotations[bone_id] = relative_rotation
+            bone_id += 1
+
+        return relative_rotations
+
+
     def get_bone_homogenous_transforms(self):
         '''
         Returns the world space transform of each bones

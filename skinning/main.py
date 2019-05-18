@@ -8,6 +8,7 @@ import geometry
 import render
 from linear_blend_skinning import LinearBlendSkinning
 from pose_space_deformer import PoseSpaceDeformer
+import pose_space_deformer
 import numpy as np
 
 '''
@@ -23,12 +24,15 @@ BEAM_MIN_Y = -1.0
 BEAM_MAX_X = 7.0
 BEAM_MAX_Y = 1.0
 BEAM_CELL_X = 20
-BEAM_CELL_Y = 5
+BEAM_CELL_Y = 2
 
 # Weight function settings
 KERNEL_PARAMETER = 1.0
 KERNEL_FUNCTION = lambda v : np.exp(-np.square((v * KERNEL_PARAMETER)))
 BIDDING_MAX_INFLUENCES = 4
+
+# Pose Space Deformation
+NUM_POSES = 10
 
 # Folder output
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
@@ -56,20 +60,38 @@ def pose_based_deformation():
     '''
     mesh = geometry.create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
     skeleton = hierarchy.create_skeleton_with_2_bones()
+    pose_deformers = PoseSpaceDeformer()
 
-    # Create blendshapes from a linear blend skinning (bidding_max_influences > 1)
+    # Training Part
+    # Create poses from a LinearBlendSkinning (bidding_max_influences > 1)
     linear_blend_skinning = LinearBlendSkinning(mesh, skeleton)
     bidding_max_influences = 4
     linear_blend_skinning.attach_mesh(max_influences = bidding_max_influences, kernel_func = KERNEL_FUNCTION)
-    render.draw(mesh, skeleton, linear_blend_skinning.weights_map, 0, RENDER_FOLDER_PATH)
-    # TODO
+
+    for pose_id in range(NUM_POSES):
+        # create a new pose
+        frame_id = pose_id * (NUM_FRAMES / NUM_POSES)
+        skeleton.animate(frame_id * FRAME_TIME_STEP)
+        linear_blend_skinning.update_mesh()
+
+        # record the new feature and mesh from the pose
+        feature = pose_space_deformer.feature_from_skeleton(skeleton)
+        psd_target = linear_blend_skinning.mesh.vertex_buffer
+        pose_deformers.add_pose(feature, psd_target)
+        render.draw(mesh, skeleton, linear_blend_skinning.weights_map, frame_id, RENDER_FOLDER_PATH)
+
+    # Test Part
+    # Use Linear Rigid Skinning (not blend) as the underlying skinning (bidding_max_influences == 1)
+    # Use PoseSpaceDeformer to add the displacement to reproduce Linear Blend Skinning
+    #bidding_max_influences = 1
+    #linear_blend_skinning.attach_mesh(max_influences = bidding_max_influences, kernel_func = KERNEL_FUNCTION)
 
 
 def main():
     '''
     Main
     '''
-    linear_blend_skinning();
+    pose_based_deformation();
 
 if __name__ == '__main__':
     main()
