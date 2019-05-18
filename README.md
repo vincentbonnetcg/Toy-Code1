@@ -32,6 +32,10 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Kavan, Ladislav, Steven Collins, Jiří Žára, and Carol O'Sullivan. "Skinning with dual quaternions." In Proceedings of the 2007 symposium on Interactive 3D graphics and games, pp. 39-46. ACM, 2007.
 
+[3] Lewis, John P., Matt Cordner, and Nickson Fong. "Pose space deformation: a unified approach to shape interpolation and skeleton-driven deformation." In Proceedings of the 27th annual conference on Computer graphics and interactive techniques, pp. 165-172. ACM Press/Addison-Wesley Publishing Co., 2000.
+
+[4] Bickel, Bernd, Manuel Lang, Mario Botsch, Miguel A. Otaduy, and Markus Gross. "Pose-space animation and transfer of facial details." In Proceedings of the 2008 ACM SIGGRAPH/Eurographics Symposium on Computer Animation, pp. 57-66. Eurographics Association, 2008.
+
 ## . Inverse Kinematics
 **File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/inverseKinematics_withJacobian.py)<br>
 **Description** Implementation of inverse kinematics using pseudo-inverse of a jacobian matrix
@@ -41,13 +45,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/inverseKinematics_withJacobian.gif)
 
 [1] Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
-
-## . Local Optimisations
-**File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/optimisation_gradientDescent.py)<br>
-**Description** Implementation of Gradient Descent for multivariable functions
-- with/without normalized step
-
-![Gradient Descent](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/optimisation_gradientDescent.png)
 
 ## . Local Deformations
 **File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/optimalTransformation_covarianceMatrix.py)<br>
@@ -71,6 +68,13 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![Regression](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/polynomial_regression.png)
 
+## . Neural Network (placeholder)
+**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
+**Description** Folder to study Neural Network
+
+![MNIST](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/nn_mnist.png)<br>
+
+[1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
 ## . Performance (Numba, Cuda ...)
 **Folder** [performance](https://github.com/vincentbonnetcg/Toy-Code/blob/master/performance)<br>
@@ -98,13 +102,12 @@ Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
 
 ![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/distance_field.png)
 
-## . Neural Network (placeholder)
-**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
-**Description** Folder to study Neural Network
+## . Local Optimisations
+**File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/optimisation_gradientDescent.py)<br>
+**Description** Implementation of Gradient Descent for multivariable functions
+- with/without normalized step
 
-![MNIST](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/nn_mnist.png)<br>
-
-[1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
+![Gradient Descent](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/optimisation_gradientDescent.png)
 
 ## . PDE - Numerical Integration
 
