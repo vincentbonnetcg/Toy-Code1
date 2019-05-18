@@ -47,9 +47,8 @@ def linear_blend_skinning():
 
     linear_blend_skinning = LinearBlendSkinning(mesh, skeleton)
     linear_blend_skinning.attach_mesh(max_influences = BIDDING_MAX_INFLUENCES, kernel_func = KERNEL_FUNCTION)
-    render.draw(mesh, skeleton, linear_blend_skinning.weights_map, 0, RENDER_FOLDER_PATH)
 
-    for frame_id in range(1, NUM_FRAMES):
+    for frame_id in range(NUM_FRAMES):
         skeleton.animate(frame_id * FRAME_TIME_STEP)
         linear_blend_skinning.update_mesh()
         render.draw(mesh, skeleton, linear_blend_skinning.weights_map, frame_id, RENDER_FOLDER_PATH)
@@ -91,7 +90,7 @@ def main():
     '''
     Main
     '''
-    pose_based_deformation();
+    linear_blend_skinning();
 
 if __name__ == '__main__':
     main()
