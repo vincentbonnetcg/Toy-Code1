@@ -30,11 +30,14 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [1] Magnenat-Thalmann, Nadia, Richard Laperrire, and Daniel Thalmann. "Joint-dependent local deformations for hand animation and object grasping." In In Proceedings on Graphics interface’88. 1988.
 
-[2] Kavan, Ladislav, Steven Collins, Jiří Žára, and Carol O'Sullivan. "Skinning with dual quaternions." In Proceedings of the 2007 symposium on Interactive 3D graphics and games, pp. 39-46. ACM, 2007.
+[2] Lewis, John P., Matt Cordner, and Nickson Fong. "Pose space deformation: a unified approach to shape interpolation and skeleton-driven deformation." In Proceedings of the 27th annual conference on Computer graphics and interactive techniques, pp. 165-172. ACM Press/Addison-Wesley Publishing Co., 2000.
 
-[3] Lewis, John P., Matt Cordner, and Nickson Fong. "Pose space deformation: a unified approach to shape interpolation and skeleton-driven deformation." In Proceedings of the 27th annual conference on Computer graphics and interactive techniques, pp. 165-172. ACM Press/Addison-Wesley Publishing Co., 2000.
+[3] Rhee, Taehyun, John P. Lewis, and Ulrich Neumann. "Real‐time weighted pose‐space deformation on the GPU." In Computer Graphics Forum, vol. 25, no. 3, pp. 439-448. Oxford, UK and Boston, USA: Blackwell Publishing, Inc, 2006.
 
-[4] Bickel, Bernd, Manuel Lang, Mario Botsch, Miguel A. Otaduy, and Markus Gross. "Pose-space animation and transfer of facial details." In Proceedings of the 2008 ACM SIGGRAPH/Eurographics Symposium on Computer Animation, pp. 57-66. Eurographics Association, 2008.
+[4] Kavan, Ladislav, Steven Collins, Jiří Žára, and Carol O'Sullivan. "Skinning with dual quaternions." In Proceedings of the 2007 symposium on Interactive 3D graphics and games, pp. 39-46. ACM, 2007.
+
+[5] Bickel, Bernd, Manuel Lang, Mario Botsch, Miguel A. Otaduy, and Markus Gross. "Pose-space animation and transfer of facial details." In Proceedings of the 2008 ACM SIGGRAPH/Eurographics Symposium on Computer Animation, pp. 57-66. Eurographics Association, 2008.
+
 
 ## . Inverse Kinematics
 **File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/inverseKinematics_withJacobian.py)<br>
