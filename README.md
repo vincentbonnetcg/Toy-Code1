@@ -24,7 +24,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 **Description** Skeletal Subspace Deformation
 
 - Linear Blend Skinning [1]
-- Dual Quaternion Skinning (WIP) [2]
+- Dual Quaternion Skinning (WIP) [4]
+- Pose‐Space deformation [3]
 
 ![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/linear_blend_skinning.gif)
 
