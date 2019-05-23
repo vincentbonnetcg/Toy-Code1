@@ -3,6 +3,8 @@
 @description : Pose Space Deformer
 '''
 
+import numpy as np
+
 '''
 PoseSpaceDeformer decouples animation control from target geometry
 It maps features with PSD target
@@ -17,10 +19,16 @@ def feature_from_skeleton(skeleton):
 class PoseSpaceDeformer:
     def __init__(self):
         self.features = []
+        self.underlying_surfaces = []
         self.psd_targets = []
+        self.displacements = []
 
-    def add_pose(self, feature, psd_target):
+    def add_pose(self, feature, underlying_surface, psd_target):
         self.features.append(feature)
+        self.underlying_surfaces.append(underlying_surface)
         self.psd_targets.append(psd_target)
+        self.displacements.append(np.subtract(psd_target, underlying_surface))
 
-
+    def compute_displacement(feature):
+        # TODO
+        pass

@@ -40,7 +40,7 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 
 def linear_blend_skinning():
     '''
-    Linear blend skinning main
+    Linear blend skinning main (or Smooth skinning)
     '''
     mesh = geometry.create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
     skeleton = hierarchy.create_skeleton_with_2_bones()
@@ -51,33 +51,40 @@ def linear_blend_skinning():
     for frame_id in range(NUM_FRAMES):
         skeleton.animate(frame_id * FRAME_TIME_STEP)
         linear_blend_skinning.update_mesh()
-        render.draw(mesh, skeleton, linear_blend_skinning.weights_map, frame_id, RENDER_FOLDER_PATH)
+        render.draw(mesh, skeleton, linear_blend_skinning.weights_map, None, frame_id, RENDER_FOLDER_PATH)
 
 def pose_based_deformation():
     '''
     PSD main
     '''
-    mesh = geometry.create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
+    smooth_mesh = geometry.create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
+    rigid_mesh = geometry.create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
     skeleton = hierarchy.create_skeleton_with_2_bones()
     pose_deformers = PoseSpaceDeformer()
 
     # Training Part
-    # Create poses from a LinearBlendSkinning (bidding_max_influences > 1)
-    linear_blend_skinning = LinearBlendSkinning(mesh, skeleton)
-    bidding_max_influences = 4
-    linear_blend_skinning.attach_mesh(max_influences = bidding_max_influences, kernel_func = KERNEL_FUNCTION)
+    # Create poses from a SmoothSkinning (max_influences > 1) and RigidSkinning (max_influences = 1)
+    smooth_skinning = LinearBlendSkinning(smooth_mesh, skeleton)
+    smooth_skinning.attach_mesh(max_influences = 4, kernel_func = KERNEL_FUNCTION)
+    rigid_skinning = LinearBlendSkinning(rigid_mesh, skeleton)
+    rigid_skinning.attach_mesh(max_influences = 1, kernel_func = KERNEL_FUNCTION)
 
     for pose_id in range(NUM_POSES):
         # create a new pose
         frame_id = pose_id * (NUM_FRAMES / NUM_POSES)
         skeleton.animate(frame_id * FRAME_TIME_STEP)
-        linear_blend_skinning.update_mesh()
+        smooth_skinning.update_mesh()
+        rigid_skinning.update_mesh()
 
         # record the new feature and mesh from the pose
         feature = pose_space_deformer.feature_from_skeleton(skeleton)
-        psd_target = linear_blend_skinning.mesh.vertex_buffer
-        pose_deformers.add_pose(feature, psd_target)
-        render.draw(mesh, skeleton, linear_blend_skinning.weights_map, frame_id, RENDER_FOLDER_PATH)
+        psd_target = smooth_skinning.mesh.vertex_buffer
+        underlying_surface = rigid_skinning.mesh.vertex_buffer
+
+        pose_deformers.add_pose(feature, underlying_surface, psd_target)
+        last_displacement = pose_deformers.displacements[-1]
+
+        render.draw(rigid_mesh, skeleton, smooth_skinning.weights_map, last_displacement, frame_id, RENDER_FOLDER_PATH)
 
     # Test Part
     # Use Linear Rigid Skinning (not blend) as the underlying skinning (bidding_max_influences == 1)
@@ -90,7 +97,7 @@ def main():
     '''
     Main
     '''
-    linear_blend_skinning();
+    pose_based_deformation();
 
 if __name__ == '__main__':
     main()

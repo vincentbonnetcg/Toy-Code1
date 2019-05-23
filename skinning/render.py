@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib import colors as mcolors
 
-def draw(mesh, skeleton, weights_map, frame_id, render_folder_path):
+def draw(mesh, skeleton, weights_map, displacement, frame_id, render_folder_path = ""):
     '''
     Drawing function to display the mesh and skeleton
     '''
@@ -49,6 +49,22 @@ def draw(mesh, skeleton, weights_map, frame_id, render_folder_path):
                                linestyles='-',
                                alpha=1.0)
     ax.add_collection(line_segments)
+
+    # Draw displacement
+    if displacement is not None:
+        segments = []
+        for vertex_id, vertex in enumerate(mesh.vertex_buffer):
+            segments.append([vertex, vertex+displacement[vertex_id]])
+
+        line_segments = LineCollection(segments,
+                               linewidths=1.0,
+                               colors='green',
+                               linestyles='-',
+                               alpha=1.0)
+
+        ax.add_collection(line_segments)
+
+
 
     # Draw skeleton
     segments = skeleton.get_bone_segments()
