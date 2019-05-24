@@ -29,7 +29,7 @@ BEAM_CELL_Y = 2
 # Weight function settings
 KERNEL_PARAMETER = 1.0
 KERNEL_FUNCTION = lambda v : np.exp(-np.square((v * KERNEL_PARAMETER)))
-BIDDING_MAX_INFLUENCES = 4
+BIDDING_MAX_INFLUENCES = 2
 
 # Pose Space Deformation
 NUM_POSES = 10
@@ -52,6 +52,7 @@ def linear_blend_skinning():
         skeleton.animate(frame_id * FRAME_TIME_STEP)
         linear_blend_skinning.update_mesh()
         render.draw(mesh, skeleton, linear_blend_skinning.weights_map, None, frame_id, RENDER_FOLDER_PATH)
+        print("")
 
 def pose_based_deformation():
     '''
@@ -97,7 +98,7 @@ def main():
     '''
     Main
     '''
-    pose_based_deformation();
+    linear_blend_skinning();
 
 if __name__ == '__main__':
     main()

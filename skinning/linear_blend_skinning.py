@@ -25,7 +25,8 @@ class LinearBlendSkinning:
         num_vertices = len(self.mesh.vertex_buffer)
         num_bones = len(self.skeleton.bones)
         self.weights_map = np.zeros((num_bones, num_vertices))
-        self.local_homogenous_vertex = np.zeros((num_bones, num_vertices, 3))
+        self.local_homogenous_vertices = np.zeros((num_vertices, 3))
+        self.local_inv_homogeneous_transforms = np.zeros((num_bones,3,3))
 
     def attach_mesh(self, max_influences, kernel_func):
         num_bones = len(self.skeleton.bones)
@@ -53,25 +54,15 @@ class LinearBlendSkinning:
             for bone_id, bone_seg in enumerate (bone_segments):
                 self.weights_map[bone_id][vertex_id] = vertex_weights[bone_id]
 
-        # Compute the local space for each vertices
+        # Store the local inverse homogeneous transform and local homogeneous vector
         bone_transforms = self.skeleton.get_bone_homogenous_transforms()
+        for bone_id, bone_transform in enumerate(bone_transforms):
+            self.local_inv_homogeneous_transforms[bone_id] = np.linalg.inv(bone_transform)
 
         for vertex_id, vertex in enumerate(self.mesh.vertex_buffer):
-
-            for bone_id, bone_transform in enumerate(bone_transforms):
-                weight = self.weights_map[bone_id][vertex_id]
-
-                if (weight == 0.0):
-                    local_vertex_homogenous = np.zeros(3)
-                    local_vertex_homogenous[2] = 1.0
-                    self.local_homogenous_vertex[bone_id][vertex_id] = local_vertex_homogenous
-                else:
-                    T = (bone_transforms[bone_id])
-                    vertex_homogenous = np.ones(3)
-                    vertex_homogenous[0:2] = vertex
-                    local_vertex_homogenous = np.matmul(np.linalg.inv(T), vertex_homogenous) * weight
-                    local_vertex_homogenous /= local_vertex_homogenous[2]
-                    self.local_homogenous_vertex[bone_id][vertex_id] = local_vertex_homogenous
+            local_vertex_homogenous = np.ones(3)
+            local_vertex_homogenous[0:2] = vertex
+            self.local_homogenous_vertices[vertex_id] = local_vertex_homogenous
 
         # Update the world space vertices from the local_homogenous_vertex
         # It should not modify the current configuration and only used for debugging
@@ -84,12 +75,10 @@ class LinearBlendSkinning:
             updated_vertex = np.zeros(2)
             for bone_id, bone_transform in enumerate(bone_transforms):
                 weight = self.weights_map[bone_id][vertex_id]
-                T = (bone_transforms[bone_id]) * weight
+                invT0 = self.local_inv_homogeneous_transforms[bone_id]
+                T = (bone_transforms[bone_id])
+                local_homogenous_vertex = np.matmul(invT0, self.local_homogenous_vertices[vertex_id])
+                world_vertex_homogenous = np.matmul(T, local_homogenous_vertex) * weight
+                updated_vertex[0:2] += world_vertex_homogenous[0:2]
 
-                world_vertex_homogenous = np.matmul(T, self.local_homogenous_vertex[bone_id][vertex_id])
-
-                updated_vertex[0] += world_vertex_homogenous[0]
-                updated_vertex[1] += world_vertex_homogenous[1]
-
-            vertex[0] = updated_vertex[0]
-            vertex[1] = updated_vertex[1]
+            vertex[0:2] = updated_vertex[0:2]
