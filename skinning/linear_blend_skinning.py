@@ -77,8 +77,7 @@ class LinearBlendSkinning:
                 weight = self.weights_map[bone_id][vertex_id]
                 invT0 = self.local_inv_homogeneous_transforms[bone_id]
                 T = (bone_transforms[bone_id])
-                local_homogenous_vertex = np.matmul(invT0, self.local_homogenous_vertices[vertex_id])
-                world_vertex_homogenous = np.matmul(T, local_homogenous_vertex) * weight
+                world_vertex_homogenous = np.matmul(np.matmul(T, invT0), self.local_homogenous_vertices[vertex_id]) * weight
                 updated_vertex[0:2] += world_vertex_homogenous[0:2]
 
             vertex[0:2] = updated_vertex[0:2]
