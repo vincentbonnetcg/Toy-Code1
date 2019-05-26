@@ -98,20 +98,18 @@ def elastic_bending_forces(x0, x1, x2, rest_angle, stiffness, enable_force = [Tr
         forces[0][0] = v[0]*det - v[1]*dot
         forces[0][1] = v[0]*dot + v[1]*det
 
-        forces[0] *= 0.5*norm_u*(norm_u + norm_v)
-        forces[0] += 0.25*u*diff_angle*(dot**2 + det**2)
+        forces[0] *= 0.5*(norm_u + norm_v)/(dot**2 + det**2)
+        forces[0] += 0.25*u*diff_angle/norm_u
 
-        forces[0] /= norm_u*(dot**2 + det**2)
         forces[0] *= stiffness*diff_angle*-1.0
 
     if enable_force[2] or enable_force[1]:
         forces[2][0] = -(u[0]*det + u[1]*dot)
         forces[2][1] = u[0]*dot - u[1]*det
 
-        forces[2] *= 0.5 * norm_v*(norm_u + norm_v)
-        forces[2] += -0.25 * v * diff_angle * (dot**2 + det**2)
+        forces[2] *= 0.5*(norm_u + norm_v)/(dot**2 + det**2)
+        forces[2] += -0.25*v*diff_angle/norm_v
 
-        forces[2] /= norm_v*(dot**2 + det**2)
         forces[2] *= stiffness*diff_angle*-1.0
 
     if enable_force[1]:
