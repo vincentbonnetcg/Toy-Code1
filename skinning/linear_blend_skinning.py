@@ -70,14 +70,36 @@ class LinearBlendSkinning:
 
     def update_mesh(self):
         bone_transforms = self.skeleton.get_bone_homogenous_transforms()
-        for vertex_id, vertex in enumerate(self.mesh.vertex_buffer):
 
-            updated_vertex = np.zeros(2)
+        for vertex_id, vertex in enumerate(self.mesh.vertex_buffer):
+            # Compute total transform matrix
+            total_transform = np.zeros((3,3))
             for bone_id, bone_transform in enumerate(bone_transforms):
                 weight = self.weights_map[bone_id][vertex_id]
                 invT0 = self.local_inv_homogeneous_transforms[bone_id]
                 T = (bone_transforms[bone_id])
-                world_vertex_homogenous = np.matmul(np.matmul(T, invT0), self.local_homogenous_vertices[vertex_id]) * weight
-                updated_vertex[0:2] += world_vertex_homogenous[0:2]
+                total_transform += np.matmul(T * weight, invT0)
 
-            vertex[0:2] = updated_vertex[0:2]
+            # Transform mesh vertex
+            local_homogenous_vertex = self.local_homogenous_vertices[vertex_id]
+            world_vertex_homogenous = np.matmul(total_transform, local_homogenous_vertex)
+            vertex[0:2] = world_vertex_homogenous[0:2]
+
+    def local_to_world(self, local_homogenous_vertices):
+        '''
+        Convert homogenous vertices from local to world space
+        local_homogenous_vertices should be the size of the self.mesh.vertex_buffer
+        '''
+        assert(len(local_homogenous_vertices) == len( self.mesh.vertex_buffer))
+        # TODO
+        pass
+
+
+    def world_to_local(self, world_homogenous_vertices):
+        '''
+        Convert homogenous vertices from world to local space
+        world_homogenous_vertices should be the size of the self.mesh.vertex_buffer
+        '''
+        assert(len(world_homogenous_vertices) == len( self.mesh.vertex_buffer))
+        # TODO
+        pass
