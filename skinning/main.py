@@ -52,7 +52,6 @@ def linear_blend_skinning():
         skeleton.animate(frame_id * FRAME_TIME_STEP)
         linear_blend_skinning.update_mesh()
         render.draw(mesh, skeleton, linear_blend_skinning.weights_map, None, frame_id, RENDER_FOLDER_PATH)
-        print("")
 
 def pose_based_deformation():
     '''
@@ -84,21 +83,13 @@ def pose_based_deformation():
 
         pose_deformers.add_pose(feature, underlying_surface, psd_target)
         last_displacement = pose_deformers.displacements[-1]
-
         render.draw(rigid_mesh, skeleton, smooth_skinning.weights_map, last_displacement, frame_id, RENDER_FOLDER_PATH)
-
-    # Test Part
-    # Use Linear Rigid Skinning (not blend) as the underlying skinning (bidding_max_influences == 1)
-    # Use PoseSpaceDeformer to add the displacement to reproduce Linear Blend Skinning
-    #bidding_max_influences = 1
-    #linear_blend_skinning.attach_mesh(max_influences = bidding_max_influences, kernel_func = KERNEL_FUNCTION)
-
 
 def main():
     '''
     Main
     '''
-    linear_blend_skinning();
+    pose_based_deformation();
 
 if __name__ == '__main__':
     main()
