@@ -88,7 +88,7 @@ class DynamicAttachmentCondition(Condition):
                     constraint = cn.Spring(scene, self.stiffness, self.damping, node_ids)
                     self.constraints.append(constraint)
 
-class SpringCondition(Condition):
+class EdgeCondition(Condition):
     '''
     Creates Spring constraints
     Replaces edges with Spring constraints

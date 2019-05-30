@@ -11,7 +11,7 @@ def add_wire_bending_constraint(scene, dynamic, stiffness, damping):
     return condition
 
 def add_edge_constraint(scene, dynamic, stiffness, damping):
-    condition = tests.SpringCondition([dynamic], stiffness, damping)
+    condition = tests.EdgeCondition([dynamic], stiffness, damping)
     scene.add_condition(condition)
     return condition
 
