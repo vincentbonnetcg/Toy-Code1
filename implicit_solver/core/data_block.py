@@ -17,13 +17,26 @@ import numpy as np
 class DataBlock:
 
     def __init__(self):
-        self.num_elements = 0
+        self.reset()
+
+    def reset(self):
+        '''
+        Reset the datablock (reset data and datatype)
+        '''
         # Data
+        self.num_elements = 0
         self.data = None
-        # Dictionnary to describe the dtype
+        # Datatype
         self.dtype_dict = {}
         self.dtype_dict['names'] = []
         self.dtype_dict['formats'] = []
+
+    def clear(self):
+        '''
+        Clear the data on the datablock (it doesn't reset the datatype)
+        '''
+        self.num_elements = 0
+        self.data = None
 
     def add_field(self, name, data_type=np.float, data_shape=1):
         '''
