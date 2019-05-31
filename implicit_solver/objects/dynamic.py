@@ -36,7 +36,7 @@ class Dynamic:
         self.data.m.fill(node_mass)
         self.data.im.fill(1.0 / node_mass)
 
-        # Reference node attributes on this object for easy access
+        # Reference datablock attributes on the object for easy access
         self.data.set_attribute_to_object(self)
 
         # Initialize node connectivities

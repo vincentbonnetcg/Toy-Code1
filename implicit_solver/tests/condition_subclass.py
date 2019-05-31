@@ -96,7 +96,20 @@ class EdgeCondition(Condition):
     def __init__(self, dynamics, stiffness, damping):
        Condition.__init__(self, dynamics, [], stiffness, damping)
 
+    @classmethod
+    def create(cls, dynamics, stiffness : float, damping : float) -> 'Condition':
+        condition = EdgeCondition(dynamics, stiffness, damping)
+        condition.initialize_datablock()
+        return condition
+
+    def initialize_datablock(self):
+        '''
+        Initialize the datablock with the field requried by spring constraint
+        '''
+        super().initialize_datablock(cn.Spring)
+
     def add_constraints(self, scene):
+        # Old - use constraint list
         for object_index in self.dynamic_indices:
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.edge_ids:
@@ -105,6 +118,19 @@ class EdgeCondition(Condition):
                 node_ids.append(scene.node_id(object_index, vertex_index[1]))
                 constraint = cn.Spring(scene, self.stiffness, self.damping, node_ids)
                 self.constraints.append(constraint)
+
+        # New - datablock => TODO : use this instead of self.constraints
+        num_constraints = len(self.constraints)
+        self.data.initialize(num_constraints)
+        print(self.data.dtype())
+        for index, constraint in enumerate(self.constraints):
+            self.data.stiffness[index] = constraint.stiffness
+            self.data.damping[index] = constraint.damping
+            self.data.f[index] = constraint.f
+            self.data.node_ids[index] = constraint.n_ids
+            self.data.dfdx[index] = constraint.dfdx
+            self.data.dfdv[index] = constraint.dfdv
+            self.data.rest_length[index] = constraint.rest_length
 
 class AreaCondition(Condition):
     '''

@@ -7,6 +7,8 @@ import numpy as np
 from constraints.base import Base
 import core.math_2d as math2D
 import core.differentiation as diff
+from core.data_block import DataBlock
+from system.scene import Scene
 from numba import njit
 
 class AnchorSpring(Base):
@@ -91,6 +93,31 @@ class Spring(Base):
         self.dfdv[0][0] = self.dfdv[1][1] = dfdv
         self.dfdv[0][1] = self.dfdv[1][0] = dfdv * -1
 
+    @classmethod
+    def num_nodes(cls) -> int :
+        return 2
+
+    @classmethod
+    def add_fields(cls, datablock_cts : DataBlock) -> None:
+        datablock_cts.add_field('rest_length', np.float)
+
+    @classmethod
+    def add_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+        '''
+        Add the force to the datablock
+        '''
+        for i in range(len(datablock_cts)):
+            pass
+            # TODO
+
+    @classmethod
+    def add_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+        '''
+        Add the force jacobian functions to the datablock
+        '''
+        for i in range(len(datablock_cts)):
+            pass
+            # TODO
 '''
 Utility Functions
 '''
