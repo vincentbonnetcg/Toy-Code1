@@ -22,7 +22,7 @@ class ConvexHull:
         returns the closest parametric value as a tuple [edgeId, ratio]
         self.equations is an array of equation [a, b, c]
         '''
-        result = [-1, 0.0] # [simplices index, parameteric value]
+        result = [-1, 0.0] # [simplices index, parametric value]
 
         # Search for the closest segment
         min_distance2 = np.finfo(np.float64).max

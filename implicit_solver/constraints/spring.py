@@ -20,7 +20,8 @@ class AnchorSpring(Base):
         target_pos = kinematic.get_point_from_parametric_value(point_params)
         x, v = scene.node_state(node_id)
         self.rest_length = math2D.distance(target_pos, x)
-        self.point_params = point_params
+        self.kinematic_component_index =  point_params[0]
+        self.kinematic_component_param = point_params[1]
         self.kinematic_index = kinematic.index
         self.kinematic_vel = np.zeros(2) # No velocity associated to kinematic object
 
@@ -31,7 +32,8 @@ class AnchorSpring(Base):
 
     def compute_forces(self, scene):
         kinematic, x, v = self.get_states(scene)
-        target_pos = kinematic.get_point_from_parametric_value(self.point_params)
+        point_params = [self.kinematic_component_index, self.kinematic_component_param]
+        target_pos = kinematic.get_point_from_parametric_value(point_params)
         force = spring_stretch_force(x, target_pos, self.rest_length, self.stiffness)
         force += spring_damping_force(x, target_pos, v, self.kinematic_vel, self.damping)
         # Set forces
@@ -39,12 +41,32 @@ class AnchorSpring(Base):
 
     def compute_jacobians(self, scene):
         kinematic, x, v = self.get_states(scene)
-        target_pos = kinematic.get_point_from_parametric_value(self.point_params)
+        point_params = [self.kinematic_component_index, self.kinematic_component_param]
+        target_pos = kinematic.get_point_from_parametric_value(point_params)
         dfdx = spring_stretch_jacobian(x, target_pos, self.rest_length, self.stiffness)
         dfdv = spring_damping_jacobian(x, target_pos, v, self.kinematic_vel, self.damping)
         # Set jacobians
         self.dfdx[0][0] = dfdx
         self.dfdv[0][0] = dfdv
+
+    @classmethod
+    def num_nodes(cls) -> int :
+        return 1
+
+    @classmethod
+    def add_fields(cls, datablock_cts : DataBlock) -> None:
+        datablock_cts.add_field('rest_length', np.float)
+        # TODO - add other field
+
+    @classmethod
+    def compute_forces_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+        # TODO
+        pass
+
+    @classmethod
+    def compute_jacobians_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+        # TODO
+        pass
 
 class Spring(Base):
     '''
