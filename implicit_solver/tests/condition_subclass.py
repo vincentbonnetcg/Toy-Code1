@@ -29,11 +29,11 @@ class KinematicCollisionCondition(Condition):
         kinematic = scene.kinematics[self.kinematic_indices[0]]
         for node_index, node_pos in enumerate(dynamic.x):
             if (kinematic.is_inside(node_pos)):
-                attachmentPointParams = kinematic.get_closest_parametric_value(node_pos)
-                kinematicNormal = kinematic.get_normal_from_parametric_value(attachmentPointParams)
+                attachment_point_params = kinematic.get_closest_parametric_value(node_pos)
+                kinematicNormal = kinematic.get_normal_from_parametric_value(attachment_point_params)
                 if (np.dot(kinematicNormal, dynamic.v[node_index]) < 0.0):
                     node_id = scene.node_id(dynamic.index, node_index)
-                    constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic, attachmentPointParams)
+                    constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic, attachment_point_params)
                     self.constraints.append(constraint)
 
 class KinematicAttachmentCondition(Condition):
