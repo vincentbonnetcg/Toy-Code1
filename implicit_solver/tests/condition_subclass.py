@@ -98,15 +98,12 @@ class EdgeCondition(Condition):
 
     @classmethod
     def create(cls, dynamics, stiffness : float, damping : float) -> 'Condition':
+        '''
+        Create and initialize the datablock with the property field
+        '''
         condition = EdgeCondition(dynamics, stiffness, damping)
-        condition.initialize_datablock()
+        condition.initialize_datablock(cn.Spring)
         return condition
-
-    def initialize_datablock(self):
-        '''
-        Initialize the datablock with the field requried by spring constraint
-        '''
-        super().initialize_datablock(cn.Spring)
 
     def add_constraints(self, scene):
         # Old - use constraint list
@@ -122,7 +119,6 @@ class EdgeCondition(Condition):
         # New - datablock => TODO : use this instead of self.constraints
         num_constraints = len(self.constraints)
         self.data.initialize(num_constraints)
-        print(self.data.dtype())
         for index, constraint in enumerate(self.constraints):
             self.data.stiffness[index] = constraint.stiffness
             self.data.damping[index] = constraint.damping
