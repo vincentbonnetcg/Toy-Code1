@@ -102,7 +102,7 @@ class EdgeCondition(Condition):
         Create and initialize the datablock with the property field
         '''
         condition = EdgeCondition(dynamics, stiffness, damping)
-        condition.initialize_datablock(cn.Spring)
+        condition.initialize(cn.Spring)
         return condition
 
     def add_constraints(self, scene):

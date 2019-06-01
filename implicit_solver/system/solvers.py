@@ -72,9 +72,9 @@ class ImplicitSolver(BaseSolver):
     '''
      Implicit Step
      Solve :
-         (M - h * df/dv - h^2 * df/dx) * deltaV = h * (fo + h * df/dx * v0)
+         (M - h * df/dv - h^2 * df/dx) * deltaV = h * (f0 + h * df/dx * v0)
            A = (M - h^2 * df/dx)
-           b = h * (fo + h * df/dx * v0)
+           b = h * (f0 + h * df/dx * v0)
          => A * deltaV = b <=> deltaV = A^-1 * b
          deltaX = (v0 + deltaV) * h
          v = v + deltaV
@@ -98,10 +98,19 @@ class ImplicitSolver(BaseSolver):
 
         # Prepare constraints (forces and jacobians)
         for condition in scene.conditions:
+            condition.compute_forces(scene)
+            condition.compute_jacobians(scene)
             for constraint in condition.constraints:
                 constraint.compute_forces(scene)
                 constraint.compute_jacobians(scene)
-                constraint.apply_forces(scene)
+
+        # Add forces to object from constraints
+        for condition in scene.conditions:
+            if (condition.tmp_valid_datablock()) :
+                condition.apply_forces(scene)
+            else:
+                for constraint in condition.constraints:
+                    constraint.apply_forces(scene)
 
     @profiler.timeit
     def assemble_system(self, scene, dt):

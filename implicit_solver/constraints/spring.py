@@ -32,9 +32,6 @@ class AnchorSpring(Base):
     def compute_forces(self, scene):
         kinematic, x, v = self.get_states(scene)
         target_pos = kinematic.get_point_from_parametric_value(self.point_params)
-        # Numerical forces
-        #force = diff.numerical_jacobian(elastic_spring_energy, 0, x, target_pos, self.rest_length, self.stiffness) * -1.0
-        # Analytic forces
         force = spring_stretch_force(x, target_pos, self.rest_length, self.stiffness)
         force += spring_damping_force(x, target_pos, v, self.kinematic_vel, self.damping)
         # Set forces
@@ -43,10 +40,6 @@ class AnchorSpring(Base):
     def compute_jacobians(self, scene):
         kinematic, x, v = self.get_states(scene)
         target_pos = kinematic.get_point_from_parametric_value(self.point_params)
-        # Numerical jacobians
-        #dfdx = diff.numerical_jacobian(spring_stretch_force, 0, x, target_pos, self.rest_length, self.stiffness)
-        #dfdv = diff.numerical_jacobian(spring_damping_force, 2, x, target_pos, v, (0,0), self.damping)
-        # Analytic jacobians
         dfdx = spring_stretch_jacobian(x, target_pos, self.rest_length, self.stiffness)
         dfdv = spring_damping_jacobian(x, target_pos, v, self.kinematic_vel, self.damping)
         # Set jacobians
@@ -70,9 +63,6 @@ class Spring(Base):
 
     def compute_forces(self, scene):
         x0, x1, v0, v1 = self.get_states(scene)
-        # Numerical forces
-        #force = diff.numerical_jacobian(elastic_spring_energy, 0, x0, x1, self.rest_length, self.stiffness) * -1.0
-        # Analytic forces
         force = spring_stretch_force(x0, x1, self.rest_length, self.stiffness)
         force += spring_damping_force(x0, x1, v0, v1, self.damping)
         # Set forces
@@ -81,10 +71,6 @@ class Spring(Base):
 
     def compute_jacobians(self, scene):
         x0, x1, v0, v1 = self.get_states(scene)
-        # Numerical jacobians
-        #dfdx = diff.numerical_jacobian(spring_stretch_force, 0, x0, x1, self.rest_length, self.stiffness)
-        #dfdv = diff.numerical_jacobian(spring_damping_force, 2, x0, x1, v0, v1, self.damping)
-        # Analytic jacobians
         dfdx = spring_stretch_jacobian(x0, x1, self.rest_length, self.stiffness)
         dfdv = spring_damping_jacobian(x0, x1, v0, v1, self.damping)
         # Set jacobians
@@ -102,22 +88,48 @@ class Spring(Base):
         datablock_cts.add_field('rest_length', np.float)
 
     @classmethod
-    def add_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+    def compute_forces_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         '''
         Add the force to the datablock
         '''
-        for i in range(len(datablock_cts)):
-            pass
-            # TODO
+        node_ids_ptr = datablock_cts.node_ids
+        rest_length_ptr = datablock_cts.rest_length
+        stiffness_ptr = datablock_cts.stiffness
+        damping_ptr = datablock_cts.damping
+        force_ptr = datablock_cts.f
+
+        for ct_index in range(len(datablock_cts)):
+            node_ids = node_ids_ptr[ct_index]
+            x0, v0 = scene.node_state(node_ids[0])
+            x1, v1 = scene.node_state(node_ids[1])
+            force = spring_stretch_force(x0, x1, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
+            force += spring_damping_force(x0, x1, v0, v1, damping_ptr[ct_index])
+            force_ptr[ct_index][0] = force
+            force_ptr[ct_index][1] = force * -1.0
 
     @classmethod
-    def add_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+    def compute_jacobians_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         '''
         Add the force jacobian functions to the datablock
         '''
-        for i in range(len(datablock_cts)):
-            pass
-            # TODO
+        node_ids_ptr = datablock_cts.node_ids
+        rest_length_ptr = datablock_cts.rest_length
+        stiffness_ptr = datablock_cts.stiffness
+        damping_ptr = datablock_cts.damping
+        dfdx_ptr = datablock_cts.dfdx
+        dfdv_ptr = datablock_cts.dfdv
+
+        for ct_index in range(len(datablock_cts)):
+            x0, v0 = scene.node_state(node_ids_ptr[ct_index][0])
+            x1, v1 = scene.node_state(node_ids_ptr[ct_index][1])
+            dfdx = spring_stretch_jacobian(x0, x1, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
+            dfdv = spring_damping_jacobian(x0, x1, v0, v1, damping_ptr[ct_index])
+            # Set jacobians
+            dfdx_ptr[ct_index][0][0] = dfdx_ptr[ct_index][1][1] = dfdx
+            dfdx_ptr[ct_index][0][1] = dfdx_ptr[ct_index][1][0] = dfdx * -1
+            dfdv_ptr[ct_index][0][0] = dfdv_ptr[ct_index][1][1] = dfdv
+            dfdv_ptr[ct_index][0][1] = dfdv_ptr[ct_index][1][0] = dfdv * -1
+
 '''
 Utility Functions
 '''

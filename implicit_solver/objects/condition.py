@@ -23,13 +23,18 @@ class Condition:
         self.constraints = []
         # Data
         self.data = core.DataBlock()
+        # Energy / Force / Jacobian
+        self.energy_func = None # Not used yet
+        self.force_func = None # derivative of the energy function
+        self.jacobian_func = None # derivative of the force function
         # Metadata
         self.meta_data = {}
 
-    def initialize_datablock(self, constraint_type):
+    def initialize(self, constraint_type):
         '''
-        Initialize the datablock field from a constraint type
+        Initialize the datablock field and energy functions from the constraint type
         '''
+        # Initialize datablock
         num_nodes = constraint_type.num_nodes()
         self.data.add_field("stiffness", np.float)
         self.data.add_field("damping", np.float)
@@ -38,6 +43,10 @@ class Condition:
         self.data.add_field("dfdx", np.float, (num_nodes, num_nodes, 2, 2))
         self.data.add_field("dfdv", np.float, (num_nodes, num_nodes, 2, 2))
         constraint_type.add_fields(self.data)
+        # Initialize functions
+        self.energy_func = None
+        self.force_func = constraint_type.compute_forces_db
+        self.jacobian_func = constraint_type.compute_jacobians_db
 
     def num_constraints(self) -> int:
         return len(self.data)
@@ -50,9 +59,33 @@ class Condition:
         '''
         return True
 
+    def tmp_valid_datablock(self):
+        return len(self.data) > 0
+
     def update_constraints(self, scene):
         self.constraints.clear()
         self.add_constraints(scene)
+
+    def compute_forces(self, scene):
+        if self.force_func:
+            self.force_func(self.data, scene)
+
+    def compute_jacobians(self, scene):
+        if self.jacobian_func:
+            self.jacobian_func(self.data, scene)
+
+    def apply_forces(self, scene):
+        if self.tmp_valid_datablock() == False:
+            return
+
+        node_ids_ptr = self.data.node_ids
+        force_ptr = self.data.f
+
+        for ct_index in range(len(self.data)):
+            node_ids = node_ids_ptr[ct_index]
+            forces = force_ptr[ct_index]
+            for node_id in range(len(node_ids)):
+                scene.node_add_f(node_ids[node_id], forces[node_id])
 
     def add_constraints(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'add_constraints'")

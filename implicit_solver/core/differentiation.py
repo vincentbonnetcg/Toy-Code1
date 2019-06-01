@@ -8,6 +8,11 @@ Slow and only just for testing
 # Fornberg, Bengt. "Generation of finite difference formulas on arbitrarily spaced grids."
 # Mathematics of computation 51, no. 184 (1988): 699-706.
 
+# Examples #
+#force = diff.numerical_jacobian(elastic_spring_energy, 0, x0, x1, rest_length, stiffness) * -1.0
+#dfdx = diff.numerical_jacobian(spring_stretch_force, 0, x0, x1, rest_length, stiffness)
+#dfdv = diff.numerical_jacobian(spring_damping_force, 2, x0, x1, v0, v1, damping)
+
 import numpy as np
 
 # Central Difference tables and accuracy order
