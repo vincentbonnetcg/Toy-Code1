@@ -39,7 +39,10 @@ class Condition:
         self.data.add_field("dfdv", np.float, (num_nodes, num_nodes, 2, 2))
         constraint_type.add_fields(self.data)
 
-    def is_static(self):
+    def num_constraints(self) -> int:
+        return len(self.data)
+
+    def is_static(self) -> bool:
         '''
         Returns whether or not the created constraints are dynamic or static
         Dynamic constraints are recreated every substep

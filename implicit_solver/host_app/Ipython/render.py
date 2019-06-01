@@ -61,17 +61,20 @@ class Render:
 
         # Draw constraints
         for condition in scene.conditions:
-            stats_total_constraints += len(condition.constraints)
+            num_constraints = condition.num_constraints()
+            stats_total_constraints += num_constraints
             render_prefs = condition.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
 
             segs = []
-            for constraint in condition.constraints:
-                if len(constraint.n_ids) == 2:
+            node_ids = condition.data.node_ids
+            for ct_index in range(num_constraints):
+                num_nodes = len(node_ids[ct_index])
+                if num_nodes == 2:
                     points = []
-                    for i in range (len(constraint.n_ids)):
-                        x, v = scene.node_state(constraint.n_ids[i])
+                    for node_index in range (num_nodes):
+                        x, v = scene.node_state(node_ids[ct_index][node_index])
                         points.append(x)
                     segs.append(points)
 
