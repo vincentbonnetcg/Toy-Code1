@@ -33,7 +33,10 @@ class KinematicCollisionCondition(Condition):
                 kinematicNormal = kinematic.get_normal_from_parametric_value(attachment_point_params)
                 if (np.dot(kinematicNormal, dynamic.v[node_index]) < 0.0):
                     node_id = scene.node_id(dynamic.index, node_index)
-                    constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic, attachment_point_params)
+                    kinematic_component_index = attachment_point_params[0]
+                    kinematic_component_param = attachment_point_params[1]
+                    constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic,
+                                                 kinematic_component_index, kinematic_component_param)
                     self.constraints.append(constraint)
 
 class KinematicAttachmentCondition(Condition):
@@ -59,7 +62,10 @@ class KinematicAttachmentCondition(Condition):
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
                 node_id = scene.node_id(dynamic.index, node_index)
-                constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic, attachment_point_params)
+                kinematic_component_index = attachment_point_params[0]
+                kinematic_component_param = attachment_point_params[1]
+                constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic,
+                                             kinematic_component_index, kinematic_component_param)
                 self.constraints.append(constraint)
 
 class DynamicAttachmentCondition(Condition):

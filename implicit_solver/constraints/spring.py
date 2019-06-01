@@ -15,13 +15,14 @@ class AnchorSpring(Base):
     '''
     Describes a 2D spring constraint between a node and point
     '''
-    def __init__(self, scene, stiffness, damping, node_id, kinematic, point_params):
+    def __init__(self, scene, stiffness, damping, node_id, kinematic, kinematic_component_index, kinematic_component_param):
         Base.__init__(self, scene, stiffness, damping, [node_id])
+        point_params = [kinematic_component_index, kinematic_component_param]
         target_pos = kinematic.get_point_from_parametric_value(point_params)
         x, v = scene.node_state(node_id)
         self.rest_length = math2D.distance(target_pos, x)
-        self.kinematic_component_index =  point_params[0]
-        self.kinematic_component_param = point_params[1]
+        self.kinematic_component_index =  kinematic_component_index
+        self.kinematic_component_param = kinematic_component_param
         self.kinematic_index = kinematic.index
         self.kinematic_vel = np.zeros(2) # No velocity associated to kinematic object
 
