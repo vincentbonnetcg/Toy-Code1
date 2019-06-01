@@ -4,8 +4,6 @@
 The scene stores data in SI unit which are used by the solver
 """
 
-import itertools
-
 class Scene:
     def __init__(self):
         self.dynamics = [] # dynamic objects
@@ -60,13 +58,6 @@ class Scene:
         for condition in self.conditions:
             if condition.is_static() is False:
                 condition.update_constraints(self)
-
-    def get_constraints_iterator(self):
-        values = []
-        for condition in self.conditions:
-            values.append(condition.constraints)
-
-        return itertools.chain.from_iterable(values)
 
     # Force Functions #
     def add_force(self, force):

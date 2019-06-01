@@ -97,11 +97,11 @@ class ImplicitSolver(BaseSolver):
             force.apply_forces(scene)
 
         # Prepare constraints (forces and jacobians)
-        constraints_iterator = scene.get_constraints_iterator()
-        for constraint in constraints_iterator:
-            constraint.compute_forces(scene)
-            constraint.compute_jacobians(scene)
-            constraint.apply_forces(scene)
+        for condition in scene.conditions:
+            for constraint in condition.constraints:
+                constraint.compute_forces(scene)
+                constraint.compute_jacobians(scene)
+                constraint.apply_forces(scene)
 
     @profiler.timeit
     def assemble_system(self, scene, dt):
@@ -124,16 +124,16 @@ class ImplicitSolver(BaseSolver):
                 A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
-        constraints_iterator = scene.get_constraints_iterator()
-        for constraint in constraints_iterator:
-            ids = constraint.n_ids
-            for fi in range(len(ids)):
-                for j in range(len(ids)):
-                    Jv = constraint.jacobian_dv(fi, j)
-                    Jx = constraint.jacobian_dx(fi, j)
-                    global_fi_id = scene.node_global_index(ids[fi])
-                    global_j_id = scene.node_global_index(ids[j])
-                    A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+        for condition in scene.conditions:
+            for constraint in condition.constraints:
+                ids = constraint.n_ids
+                for fi in range(len(ids)):
+                    for j in range(len(ids)):
+                        Jv = constraint.jacobian_dv(fi, j)
+                        Jx = constraint.jacobian_dx(fi, j)
+                        global_fi_id = scene.node_global_index(ids[fi])
+                        global_j_id = scene.node_global_index(ids[j])
+                        A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
@@ -144,15 +144,15 @@ class ImplicitSolver(BaseSolver):
                 self.b[idx*2:idx*2+2] += dynamic.f[i] * dt
 
         # set (df/dx * v0 * h * h)
-        constraints_iterator = scene.get_constraints_iterator()
-        for constraint in constraints_iterator:
-            ids = constraint.n_ids
-            for fi in range(len(ids)):
-                for xi in range(len(ids)):
-                    Jx = constraint.jacobian_dx(fi, xi)
-                    x, v = scene.node_state(ids[xi])
-                    global_fi_id = scene.node_global_index(ids[fi])
-                    self.b[global_fi_id*2:global_fi_id*2+2] += np.matmul(v, Jx) * dt * dt
+        for condition in scene.conditions:
+            for constraint in condition.constraints:
+                ids = constraint.n_ids
+                for fi in range(len(ids)):
+                    for xi in range(len(ids)):
+                        Jx = constraint.jacobian_dx(fi, xi)
+                        x, v = scene.node_state(ids[xi])
+                        global_fi_id = scene.node_global_index(ids[fi])
+                        self.b[global_fi_id*2:global_fi_id*2+2] += np.matmul(v, Jx) * dt * dt
 
         # convert sparse matrix
         self.A = A.sparse_matrix()
@@ -197,10 +197,10 @@ class SemiImplicitSolver(BaseSolver):
             force.apply_forces(scene)
 
         # Apply internal forces
-        constraints_iterator = scene.get_constraints_iterator()
-        for constraint in constraints_iterator:
-            constraint.compute_forces(scene)
-            constraint.apply_forces(scene)
+        for condition in scene.conditions:
+            for constraint in condition.constraints:
+                constraint.compute_forces(scene)
+                constraint.apply_forces(scene)
 
     @profiler.timeit
     def assemble_system(self, scene, dt):

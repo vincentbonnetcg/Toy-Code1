@@ -33,8 +33,8 @@ class Condition:
         num_nodes = constraint_type.num_nodes()
         self.data.add_field("stiffness", np.float)
         self.data.add_field("damping", np.float)
-        self.data.add_field("f", np.float, (num_nodes, 2))
         self.data.add_field("node_ids", np.uint32, (num_nodes, 3)) # see Scene.node_id() to understand the 3
+        self.data.add_field("f", np.float, (num_nodes, 2))
         self.data.add_field("dfdx", np.float, (num_nodes, num_nodes, 2, 2))
         self.data.add_field("dfdv", np.float, (num_nodes, num_nodes, 2, 2))
         constraint_type.add_fields(self.data)
