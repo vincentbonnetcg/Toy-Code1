@@ -37,7 +37,3 @@ class Base:
     def jacobian_dv(self, fi, xj):
         return self.dfdv[fi][xj]
 
-    @staticmethod
-    def specify_data_block(data_block : core.DataBlock):
-        print("BUILD BASE DATA")
-        # TODO

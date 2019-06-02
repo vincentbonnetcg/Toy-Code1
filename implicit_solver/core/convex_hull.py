@@ -9,6 +9,17 @@ import core.math_2d as math2D
 
 class ConvexHull:
 
+    class ParametricPoint:
+        __slots__  = ['index', 't']
+
+        def __init__(self, index : int, t : float):
+            '''
+            index : simplex index
+            t : parametric value
+            '''
+            self.index = index
+            self.t = t
+
     def __init__(self, points):
         hull = spatial.ConvexHull(points)
         self.points = np.copy(points)
@@ -16,13 +27,13 @@ class ConvexHull:
         self.equations = hull.equations
         self.counter_clockwise_points = np.take(hull.points, hull.vertices, axis=0)
 
-    def get_closest_parametric_value(self, point):
+    def get_closest_parametric_point(self, point):
         '''
         Projects the point on the closest segment of the convex hull and
         returns the closest parametric value as a tuple [edgeId, ratio]
         self.equations is an array of equation [a, b, c]
         '''
-        result = [-1, 0.0] # [simplices index, parametric value]
+        result = ConvexHull.ParametricPoint(-1, 0.0)
 
         # Search for the closest segment
         min_distance2 = np.finfo(np.float64).max
@@ -44,20 +55,19 @@ class ConvexHull:
             distance2 = math2D.dot(vector_distance, vector_distance)
             # update the minimum distance
             if distance2 < min_distance2:
-                result = [index, t]
+                result.index = index
+                result.t = t
                 min_distance2 = distance2
 
         return result
 
-    def get_point_from_parametric_value(self, param):
-        index, t = param
-        segment_pts = np.take(self.points, self.simplices[index], axis=0)# could be precomputed
+    def get_position_from_parametric_point(self, param : ParametricPoint):
+        segment_pts = np.take(self.points, self.simplices[param.index], axis=0)# could be precomputed
         segment_direction = segment_pts[1] - segment_pts[0] # could be precomputed
-        return segment_pts[0] + segment_direction * t
+        return segment_pts[0] + segment_direction * param.t
 
-    def get_normal_from_parametric_value(self, param):
-        index, t = param
-        equation = self.equations[index]
+    def get_normal_from_parametric_point(self, param : ParametricPoint):
+        equation = self.equations[param.index]
         return equation[0:2]
 
     def is_inside(self, point):

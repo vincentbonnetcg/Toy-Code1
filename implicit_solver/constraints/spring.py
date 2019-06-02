@@ -8,21 +8,22 @@ from constraints.base import Base
 import core.math_2d as math2D
 import core.differentiation as diff
 from core.data_block import DataBlock
+from core.convex_hull import ConvexHull
 from system.scene import Scene
 from numba import njit
+
 
 class AnchorSpring(Base):
     '''
     Describes a 2D spring constraint between a node and point
     '''
-    def __init__(self, scene, stiffness, damping, node_id, kinematic, kinematic_component_index, kinematic_component_param):
+    def __init__(self, scene, stiffness, damping, node_id, kinematic, kinematic_parametric_point):
         Base.__init__(self, scene, stiffness, damping, [node_id])
-        point_params = [kinematic_component_index, kinematic_component_param]
-        target_pos = kinematic.get_point_from_parametric_value(point_params)
+        target_pos = kinematic.get_position_from_parametric_point(kinematic_parametric_point)
         x, v = scene.node_state(node_id)
         self.rest_length = math2D.distance(target_pos, x)
-        self.kinematic_component_index =  kinematic_component_index
-        self.kinematic_component_param = kinematic_component_param
+        self.kinematic_component_index =  kinematic_parametric_point.index
+        self.kinematic_component_param = kinematic_parametric_point.t
         self.kinematic_index = kinematic.index
         self.kinematic_vel = np.zeros(2) # No velocity associated to kinematic object
 
@@ -33,8 +34,8 @@ class AnchorSpring(Base):
 
     def compute_forces(self, scene):
         kinematic, x, v = self.get_states(scene)
-        point_params = [self.kinematic_component_index, self.kinematic_component_param]
-        target_pos = kinematic.get_point_from_parametric_value(point_params)
+        point_params = ConvexHull.ParametricPoint(self.kinematic_component_index, self.kinematic_component_param)
+        target_pos = kinematic.get_position_from_parametric_point(point_params)
         force = spring_stretch_force(x, target_pos, self.rest_length, self.stiffness)
         force += spring_damping_force(x, target_pos, v, self.kinematic_vel, self.damping)
         # Set forces
@@ -42,8 +43,8 @@ class AnchorSpring(Base):
 
     def compute_jacobians(self, scene):
         kinematic, x, v = self.get_states(scene)
-        point_params = [self.kinematic_component_index, self.kinematic_component_param]
-        target_pos = kinematic.get_point_from_parametric_value(point_params)
+        point_params = ConvexHull.ParametricPoint(self.kinematic_component_index, self.kinematic_component_param)
+        target_pos = kinematic.get_position_from_parametric_point(point_params)
         dfdx = spring_stretch_jacobian(x, target_pos, self.rest_length, self.stiffness)
         dfdv = spring_damping_jacobian(x, target_pos, v, self.kinematic_vel, self.damping)
         # Set jacobians

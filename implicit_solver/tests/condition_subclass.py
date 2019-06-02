@@ -29,14 +29,12 @@ class KinematicCollisionCondition(Condition):
         kinematic = scene.kinematics[self.kinematic_indices[0]]
         for node_index, node_pos in enumerate(dynamic.x):
             if (kinematic.is_inside(node_pos)):
-                attachment_point_params = kinematic.get_closest_parametric_value(node_pos)
-                kinematicNormal = kinematic.get_normal_from_parametric_value(attachment_point_params)
+                attachment_point_params = kinematic.get_closest_parametric_point(node_pos)
+                kinematicNormal = kinematic.get_normal_from_parametric_point(attachment_point_params)
                 if (np.dot(kinematicNormal, dynamic.v[node_index]) < 0.0):
                     node_id = scene.node_id(dynamic.index, node_index)
-                    kinematic_component_index = attachment_point_params[0]
-                    kinematic_component_param = attachment_point_params[1]
                     constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic,
-                                                 kinematic_component_index, kinematic_component_param)
+                                                 attachment_point_params)
                     self.constraints.append(constraint)
 
 class KinematicAttachmentCondition(Condition):
@@ -56,16 +54,14 @@ class KinematicAttachmentCondition(Condition):
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
         for node_index, node_pos in enumerate(dynamic.x):
-            attachment_point_params = kinematic.get_closest_parametric_value(node_pos)
-            attachment_point = kinematic.get_point_from_parametric_value(attachment_point_params)
+            attachment_point_params = kinematic.get_closest_parametric_point(node_pos)
+            attachment_point = kinematic.get_position_from_parametric_point(attachment_point_params)
             direction = (attachment_point - node_pos)
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
                 node_id = scene.node_id(dynamic.index, node_index)
-                kinematic_component_index = attachment_point_params[0]
-                kinematic_component_param = attachment_point_params[1]
                 constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic,
-                                             kinematic_component_index, kinematic_component_param)
+                                             attachment_point_params)
                 self.constraints.append(constraint)
 
 class DynamicAttachmentCondition(Condition):
