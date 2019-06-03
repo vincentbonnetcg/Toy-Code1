@@ -3,6 +3,30 @@
 @description : Neural Network main
 """
 
+
+# http://jonathanweisberg.org/post/A%20Neural%20Network%20from%20Scratch%20-%20Part%201/
+# https://jonathanweisberg.org/post/A%20Neural%20Network%20from%20Scratch%20-%20Part%202/
+
+# https://www.codementor.io/mgalarny/making-your-first-machine-learning-classifier-in-scikit-learn-python-db7d7iqdh
+
+# http://www.wildml.com/2015/09/implementing-a-neural-network-from-scratch/
+# https://iamtrask.github.io/2015/07/12/basic-python-network/
+
+# https://nyilmazdata.net/2018/03/01/hello-world-of-machine-learning/
+# https://github.com/valivetiravichandra/mnist-from-scratch-using-numpy
+
+# Interisting animated gif
+# https://towardsdatascience.com/lets-code-a-neural-network-in-plain-numpy-ae7e74410795
+
+
+# TODO - add another cost function
+# TODO - add bias update 
+# TODO - understand the derivation and weight update 
+# TODO - serialzie/deserialize the trained network
+# TODO - number_to_detect should be part of the training_labels and not neural network
+# TODO - how to pick the result ? statistics ? 
+
+
 import data_loader
 import neural_network as nn
 import matplotlib.pyplot as plt
