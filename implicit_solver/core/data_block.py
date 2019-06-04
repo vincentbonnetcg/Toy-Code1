@@ -74,7 +74,10 @@ class DataBlock:
                 # (x, y, ...) becomes (num_elements, x, y, ...)
                 new_field_shape = tuple()
                 if np.isscalar(field_shape):
-                    new_field_shape = (self.num_elements, field_shape)
+                    if field_shape == 1:
+                        new_field_shape = (self.num_elements)
+                    else:
+                        new_field_shape = (self.num_elements, field_shape)
                 else:
                     list_shape = list(field_shape)
                     list_shape.insert(0, self.num_elements)

@@ -45,12 +45,23 @@ class KinematicAttachmentCondition(Condition):
        Condition.__init__(self, [dynamic], [kinematic], stiffness, damping)
        self.distance = distance
 
+    @classmethod
+    def create(cls, dynamic, kinematic, stiffness : float, damping : float, distance : float) -> 'Condition':
+        '''
+        Create and initialize the datablock with the property field
+        '''
+        condition = KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
+        condition.initialize(cn.AnchorSpring)
+        return condition
+
     def add_constraints(self, scene):
         '''
         Add springs into the static constraints of the scene
         '''
         dynamic = scene.dynamics[self.dynamic_indices[0]]
         kinematic = scene.kinematics[self.kinematic_indices[0]]
+
+        # Old - use constraint list
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
         for node_index, node_pos in enumerate(dynamic.x):
@@ -63,6 +74,22 @@ class KinematicAttachmentCondition(Condition):
                 constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic,
                                              attachment_point_params)
                 self.constraints.append(constraint)
+
+        # New - datablock => TODO : use this instead of self.constraints
+        num_constraints = len(self.constraints)
+        self.data.initialize(num_constraints)
+        for index, constraint in enumerate(self.constraints):
+            self.data.stiffness[index] = constraint.stiffness
+            self.data.damping[index] = constraint.damping
+            self.data.f[index] = constraint.f
+            self.data.node_ids[index] = constraint.n_ids
+            self.data.dfdx[index] = constraint.dfdx
+            self.data.dfdv[index] = constraint.dfdv
+            self.data.rest_length[index] = constraint.rest_length
+            self.data.kinematic_index[index] = constraint.kinematic_index
+            self.data.kinematic_component_index[index] = constraint.kinematic_component_index
+            self.data.kinematic_component_param[index] = constraint.kinematic_component_param
+
 
 class DynamicAttachmentCondition(Condition):
     '''

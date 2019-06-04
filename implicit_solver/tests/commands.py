@@ -22,7 +22,7 @@ def add_face_constraint(scene, dynamic, stiffness, damping) -> Condition:
     return condition
 
 def add_kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance) -> Condition:
-    condition = tests.KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
+    condition = tests.KinematicAttachmentCondition.create(dynamic, kinematic, stiffness, damping, distance)
     scene.add_condition(condition)
     return condition
 
