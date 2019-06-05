@@ -44,15 +44,7 @@ class KinematicAttachmentCondition(Condition):
     def __init__(self, dynamic, kinematic, stiffness, damping, distance):
        Condition.__init__(self, [dynamic], [kinematic], stiffness, damping)
        self.distance = distance
-
-    @classmethod
-    def create(cls, dynamic, kinematic, stiffness : float, damping : float, distance : float) -> 'Condition':
-        '''
-        Create and initialize the datablock with the property field
-        '''
-        condition = KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
-        condition.initialize(cn.AnchorSpring)
-        return condition
+       self.initialize(cn.AnchorSpring)
 
     def add_constraints(self, scene):
         '''
@@ -124,15 +116,7 @@ class EdgeCondition(Condition):
     '''
     def __init__(self, dynamics, stiffness, damping):
        Condition.__init__(self, dynamics, [], stiffness, damping)
-
-    @classmethod
-    def create(cls, dynamics, stiffness : float, damping : float) -> 'Condition':
-        '''
-        Create and initialize the datablock with the property field
-        '''
-        condition = EdgeCondition(dynamics, stiffness, damping)
-        condition.initialize(cn.Spring)
-        return condition
+       self.initialize(cn.Spring)
 
     def add_constraints(self, scene):
         # Old - use constraint list
