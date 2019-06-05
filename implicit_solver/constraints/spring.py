@@ -69,11 +69,12 @@ class AnchorSpring(Base):
         node_ids_ptr = datablock_cts.node_ids
         stiffness_ptr = datablock_cts.stiffness
         damping_ptr = datablock_cts.damping
-        force_ptr = datablock_cts.f
         rest_length_ptr = datablock_cts.rest_length
         k_index_ptr = datablock_cts.kinematic_index
         k_c_index_ptr = datablock_cts.kinematic_component_index
         k_c_param_ptr = datablock_cts.kinematic_component_param
+        force_ptr = datablock_cts.f
+
         for ct_index in range(len(datablock_cts)):
             node_ids = node_ids_ptr[ct_index]
             x, v = scene.node_state(node_ids[0])
@@ -86,8 +87,27 @@ class AnchorSpring(Base):
 
     @classmethod
     def compute_jacobians_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
-        # TODO
-        pass
+        kinematic_vel = np.zeros(2)
+        node_ids_ptr = datablock_cts.node_ids
+        stiffness_ptr = datablock_cts.stiffness
+        damping_ptr = datablock_cts.damping
+        rest_length_ptr = datablock_cts.rest_length
+        k_index_ptr = datablock_cts.kinematic_index
+        k_c_index_ptr = datablock_cts.kinematic_component_index
+        k_c_param_ptr = datablock_cts.kinematic_component_param
+        dfdx_ptr = datablock_cts.dfdx
+        dfdv_ptr = datablock_cts.dfdv
+
+        for ct_index in range(len(datablock_cts)):
+            node_ids = node_ids_ptr[ct_index]
+            x, v = scene.node_state(node_ids[0])
+            kinematic = scene.kinematics[k_index_ptr[ct_index]]
+            point_params = ConvexHull.ParametricPoint(k_c_index_ptr[ct_index], k_c_param_ptr[ct_index])
+            target_pos = kinematic.get_position_from_parametric_point(point_params)
+            dfdx = spring_stretch_jacobian(x, target_pos, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
+            dfdv = spring_damping_jacobian(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
+            dfdx_ptr[ct_index][0][0] = dfdx
+            dfdv_ptr[ct_index][0][0] = dfdv
 
 class Spring(Base):
     '''
