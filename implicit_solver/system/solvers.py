@@ -134,15 +134,29 @@ class ImplicitSolver(BaseSolver):
 
         # Substract (h * df/dv + h^2 * df/dx)
         for condition in scene.conditions:
-            for constraint in condition.constraints:
-                ids = constraint.n_ids
-                for fi in range(len(ids)):
-                    for j in range(len(ids)):
-                        Jv = constraint.jacobian_dv(fi, j)
-                        Jx = constraint.jacobian_dx(fi, j)
-                        global_fi_id = scene.node_global_index(ids[fi])
-                        global_j_id = scene.node_global_index(ids[j])
-                        A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+            if (condition.tmp_valid_datablock()): # NEW
+                node_ids_ptr = condition.data.node_ids
+                dfdv_ptr = condition.data.dfdv
+                dfdx_ptr = condition.data.dfdx
+                for cid in range(condition.num_constraints()):
+                    ids = node_ids_ptr[cid]
+                    for fi in range(len(ids)):
+                        for j in range(len(ids)):
+                            Jv = dfdv_ptr[cid][fi][j]
+                            Jx = dfdx_ptr[cid][fi][j]
+                            global_fi_id = scene.node_global_index(ids[fi])
+                            global_j_id = scene.node_global_index(ids[j])
+                            A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+            else: # OLD
+                for constraint in condition.constraints:
+                    ids = constraint.n_ids
+                    for fi in range(len(ids)):
+                        for j in range(len(ids)):
+                            Jv = constraint.jacobian_dv(fi, j)
+                            Jx = constraint.jacobian_dx(fi, j)
+                            global_fi_id = scene.node_global_index(ids[fi])
+                            global_j_id = scene.node_global_index(ids[j])
+                            A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
