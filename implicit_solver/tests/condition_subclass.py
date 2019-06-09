@@ -52,8 +52,8 @@ class KinematicAttachmentCondition(Condition):
         '''
         dynamic = scene.dynamics[self.dynamic_indices[0]]
         kinematic = scene.kinematics[self.kinematic_indices[0]]
+        springs = []
 
-        # Old - use constraint list
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
         for node_index, node_pos in enumerate(dynamic.x):
@@ -63,25 +63,14 @@ class KinematicAttachmentCondition(Condition):
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
                 node_id = scene.node_id(dynamic.index, node_index)
-                constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic,
-                                             attachment_point_params)
-                self.constraints.append(constraint)
 
-        # New - datablock => TODO : use this instead of self.constraints
-        num_constraints = len(self.constraints)
-        self.data.initialize(num_constraints)
-        for index, constraint in enumerate(self.constraints):
-            self.data.stiffness[index] = constraint.stiffness
-            self.data.damping[index] = constraint.damping
-            self.data.f[index] = constraint.f
-            self.data.node_ids[index] = constraint.n_ids
-            self.data.dfdx[index] = constraint.dfdx
-            self.data.dfdv[index] = constraint.dfdv
-            self.data.rest_length[index] = constraint.rest_length
-            self.data.kinematic_index[index] = constraint.kinematic_index
-            self.data.kinematic_component_index[index] = constraint.kinematic_component_index
-            self.data.kinematic_component_param[index] = constraint.kinematic_component_param
+                # add spring
+                spring = self.data.create_empty_element()
+                cn.AnchorSpring.init_element(spring, scene, node_id, kinematic, attachment_point_params)
+                Condition.init_element(spring, self.stiffness, self.damping, [node_id])
+                springs.append(spring)
 
+        self.data.initialize_from_array(springs)
 
 class DynamicAttachmentCondition(Condition):
     '''

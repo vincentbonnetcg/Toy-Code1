@@ -57,6 +57,18 @@ class AnchorSpring(Base):
         return 1
 
     @classmethod
+    def init_element(cls, element, scene, node_id, kinematic, kinematic_parametric_point):
+        '''
+        element is an object of type self.datablock_ct generated in add_fields
+        '''
+        target_pos = kinematic.get_position_from_parametric_point(kinematic_parametric_point)
+        x, v = scene.node_state(node_id)
+        element.rest_length = math2D.distance(target_pos, x)
+        element.kinematic_index = kinematic.index
+        element.kinematic_component_index =  kinematic_parametric_point.index
+        element.kinematic_component_param = kinematic_parametric_point.t
+
+    @classmethod
     def add_fields(cls, datablock_cts : DataBlock) -> None:
         datablock_cts.add_field('rest_length', np.float)
         datablock_cts.add_field('kinematic_index', np.uint32)

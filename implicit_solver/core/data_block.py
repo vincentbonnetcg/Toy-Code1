@@ -19,6 +19,12 @@ import keyword
 
 class DataBlock:
 
+    class Element:
+        '''
+        Empty class to describe an element in datablock
+        '''
+        pass
+
     def __init__(self):
         self.reset()
 
@@ -57,23 +63,34 @@ class DataBlock:
         else:
             warnings.warn('Cannot addField on an initialized DataBlock')
 
-    def dtype(self):
-        return np.dtype(self.dtype_dict)
+    def create_empty_element(self) -> 'DataBlock.Element':
+        element = DataBlock.Element()
 
-    def data_class(self):
-        data_default_values = []
-        for field_format in self.dtype_dict['formats']:
+        for field_id, field_format in enumerate(self.dtype_dict['formats']):
+                field_name = self.dtype_dict['names'][field_id]
                 field_type = field_format[0]
                 field_shape = field_format[1]
-                default_value = None
                 if field_shape == 1:
                     default_value = np.asscalar(np.zeros(field_shape, field_type))
+                    setattr(element, field_name, default_value)
                 else:
                     default_value = np.zeros(field_shape, field_type)
-                data_default_values.append(default_value)
+                    setattr(element, field_name, default_value)
 
-        data_class = namedtuple('DataBlockClass', self.dtype_dict['names'], defaults=data_default_values)
-        return data_class
+        return element
+
+    def initialize_from_array(self, array):
+        '''
+        Allocate the fields from the array
+        SLOW but generic
+        '''
+        num_constraints = len(array)
+        self.initialize(num_constraints)
+        for index, element in enumerate(array):
+            for attribute_name, attribute_value in element.__dict__.items():
+                if attribute_name in self.dtype_dict['names']:
+                    field_index = self.dtype_dict['names'].index(attribute_name)
+                    self.data[field_index][index] =  getattr(element, attribute_name)
 
     def initialize(self, num_elements):
         '''
