@@ -14,6 +14,7 @@ class KinematicCollisionCondition(Condition):
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping):
         Condition.__init__(self, [dynamic], [kinematic], stiffness, damping)
+        self.initialize(cn.AnchorSpring)
 
     def is_static(self):
         '''
@@ -27,15 +28,23 @@ class KinematicCollisionCondition(Condition):
         '''
         dynamic = scene.dynamics[self.dynamic_indices[0]]
         kinematic = scene.kinematics[self.kinematic_indices[0]]
+        springs = []
+
         for node_index, node_pos in enumerate(dynamic.x):
             if (kinematic.is_inside(node_pos)):
                 attachment_point_params = kinematic.get_closest_parametric_point(node_pos)
                 kinematicNormal = kinematic.get_normal_from_parametric_point(attachment_point_params)
                 if (np.dot(kinematicNormal, dynamic.v[node_index]) < 0.0):
                     node_id = scene.node_id(dynamic.index, node_index)
-                    constraint = cn.AnchorSpring(scene, self.stiffness, self.damping, node_id, kinematic,
-                                                 attachment_point_params)
-                    self.constraints.append(constraint)
+
+                    # add spring
+                    spring = self.data.create_empty_element()
+                    cn.AnchorSpring.init_element(spring, scene, node_id, kinematic, attachment_point_params)
+                    Condition.init_element(spring, self.stiffness, self.damping, [node_id])
+                    springs.append(spring)
+
+        self.data.initialize_from_array(springs)
+
 
 class KinematicAttachmentCondition(Condition):
     '''

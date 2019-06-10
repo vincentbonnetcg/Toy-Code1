@@ -96,41 +96,42 @@ class DataBlock:
         '''
         Allocate the fields
         '''
-        if self.data is None:
-            self.num_elements = num_elements
-            # create a new dictionnary to create an 'array of structure of array'
-            dtype_aosoa_dict = {}
-            dtype_aosoa_dict['names'] = []
-            dtype_aosoa_dict['formats'] = []
+        self.clear()
+        self.num_elements = num_elements
+        # create a new dictionnary to create an 'array of structure of array'
+        dtype_aosoa_dict = {}
+        dtype_aosoa_dict['names'] = []
+        dtype_aosoa_dict['formats'] = []
 
-            for field_name in self.dtype_dict['names']:
-                dtype_aosoa_dict['names'].append(field_name)
+        for field_name in self.dtype_dict['names']:
+            dtype_aosoa_dict['names'].append(field_name)
 
-            for field_format in self.dtype_dict['formats']:
-                field_type = field_format[0]
-                field_shape = field_format[1]
+        for field_format in self.dtype_dict['formats']:
+            field_type = field_format[0]
+            field_shape = field_format[1]
 
-                # modify the shape to store data as 'array of structure of array'
-                # x becomes (num_elements, x)
-                # (x, y, ...) becomes (num_elements, x, y, ...)
-                new_field_shape = tuple()
-                if np.isscalar(field_shape):
-                    if field_shape == 1:
-                        new_field_shape = (self.num_elements)
-                    else:
-                        new_field_shape = (self.num_elements, field_shape)
+            # modify the shape to store data as 'array of structure of array'
+            # x becomes (num_elements, x)
+            # (x, y, ...) becomes (num_elements, x, y, ...)
+            new_field_shape = tuple()
+            if np.isscalar(field_shape):
+                if field_shape == 1:
+                    # The coma after self.num_elements is essential
+                    # In case field_shape == num_elements == 1,
+                    # it guarantees an array will be produced and not a single value
+                    new_field_shape = (self.num_elements,)
                 else:
-                    list_shape = list(field_shape)
-                    list_shape.insert(0, self.num_elements)
-                    new_field_shape = tuple(list_shape)
+                    new_field_shape = (self.num_elements, field_shape)
+            else:
+                list_shape = list(field_shape)
+                list_shape.insert(0, self.num_elements)
+                new_field_shape = tuple(list_shape)
 
-                dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
+            dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
 
-            # allocate memory
-            aosoa_dtype = np.dtype(dtype_aosoa_dict)
-            self.data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
-        else:
-            warnings.warn('DataBlock is already allocated')
+        # allocate memory
+        aosoa_dtype = np.dtype(dtype_aosoa_dict)
+        self.data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
 
     def set_attribute_to_object(self, obj):
         if self.data is None:
