@@ -159,6 +159,15 @@ class Spring(Base):
         return 2
 
     @classmethod
+    def init_element(cls, element, scene, node_ids):
+        '''
+        element is an object of type self.datablock_ct generated in add_fields
+        '''
+        x0, v0 = scene.node_state(node_ids[0])
+        x1, v1 = scene.node_state(node_ids[1])
+        element.rest_length = math2D.distance(x0, x1)
+
+    @classmethod
     def add_fields(cls, datablock_cts : DataBlock) -> None:
         datablock_cts.add_field('rest_length', np.float)
 

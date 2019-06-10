@@ -108,27 +108,22 @@ class EdgeCondition(Condition):
        self.initialize(cn.Spring)
 
     def add_constraints(self, scene):
-        # Old - use constraint list
+        springs = []
+
         for object_index in self.dynamic_indices:
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.edge_ids:
-                node_ids = []
-                node_ids.append(scene.node_id(object_index, vertex_index[0]))
-                node_ids.append(scene.node_id(object_index, vertex_index[1]))
-                constraint = cn.Spring(scene, self.stiffness, self.damping, node_ids)
-                self.constraints.append(constraint)
+                node_ids = [0, 0]
+                node_ids[0] = scene.node_id(object_index, vertex_index[0])
+                node_ids[1] = scene.node_id(object_index, vertex_index[1])
 
-        # New - datablock => TODO : use this instead of self.constraints
-        num_constraints = len(self.constraints)
-        self.data.initialize(num_constraints)
-        for index, constraint in enumerate(self.constraints):
-            self.data.stiffness[index] = constraint.stiffness
-            self.data.damping[index] = constraint.damping
-            self.data.f[index] = constraint.f
-            self.data.node_ids[index] = constraint.n_ids
-            self.data.dfdx[index] = constraint.dfdx
-            self.data.dfdv[index] = constraint.dfdv
-            self.data.rest_length[index] = constraint.rest_length
+                # add spring
+                spring = self.data.create_empty_element()
+                cn.Spring.init_element(spring, scene, node_ids)
+                Condition.init_element(spring, self.stiffness, self.damping, node_ids)
+                springs.append(spring)
+
+        self.data.initialize_from_array(springs)
 
 class AreaCondition(Condition):
     '''
