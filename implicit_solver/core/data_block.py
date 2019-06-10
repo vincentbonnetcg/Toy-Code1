@@ -130,7 +130,7 @@ class DataBlock:
             dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
 
         # allocate memory
-        aosoa_dtype = np.dtype(dtype_aosoa_dict)
+        aosoa_dtype = np.dtype(dtype_aosoa_dict, align=True)
         self.data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
 
     def set_attribute_to_object(self, obj):
