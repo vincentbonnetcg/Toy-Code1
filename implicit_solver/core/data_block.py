@@ -14,7 +14,6 @@ print(data.field_b)
 
 import warnings
 import numpy as np
-from collections import namedtuple
 import keyword
 
 class DataBlock:

@@ -87,12 +87,15 @@ class DynamicAttachmentCondition(Condition):
     '''
     def __init__(self, dynamic0, dynamic1, stiffness, damping, distance):
        Condition.__init__(self, [dynamic0, dynamic1], [], stiffness, damping)
+       self.initialize(cn.Spring)
        self.distance = distance
 
     def add_constraints(self, scene):
         '''
         Add springs into the static constraints of the scene
         '''
+        springs = []
+
         dynamic0 = scene.dynamics[self.dynamic_indices[0]]
         dynamic1 = scene.dynamics[self.dynamic_indices[1]]
         distance2 = self.distance * self.distance
@@ -101,11 +104,18 @@ class DynamicAttachmentCondition(Condition):
                 direction = (x0 - x1)
                 dist2 = np.inner(direction, direction)
                 if dist2 < distance2:
-                    node_ids = []
-                    node_ids.append(scene.node_id(dynamic0.index, x0i))
-                    node_ids.append(scene.node_id(dynamic1.index, x1i))
-                    constraint = cn.Spring(scene, self.stiffness, self.damping, node_ids)
-                    self.constraints.append(constraint)
+                    node_ids = [0, 0]
+                    node_ids[0] = scene.node_id(dynamic0.index, x0i)
+                    node_ids[1] = scene.node_id(dynamic1.index, x1i)
+
+                    # add spring
+                    spring = self.data.create_empty_element()
+                    cn.Spring.init_element(spring, scene, node_ids)
+                    Condition.init_element(spring, self.stiffness, self.damping, node_ids)
+                    springs.append(spring)
+
+        self.data.initialize_from_array(springs)
+
 
 class EdgeCondition(Condition):
     '''
