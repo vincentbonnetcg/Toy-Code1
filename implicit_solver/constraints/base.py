@@ -4,13 +4,12 @@
 """
 
 import numpy as np
-import core
 
 class Base:
     '''
     Describes the constraint base
     '''
-    def __init__(self, scene, stiffness, damping, node_ids):
+    def __init__(self, stiffness, damping, node_ids):
         N = len(node_ids) # number of nodes involved in the constraint
         self.stiffness = stiffness
         self.damping = damping

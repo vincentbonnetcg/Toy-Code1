@@ -17,7 +17,7 @@ class Bending(Base):
     Some instabilities when using the curvature => Need to investigate
     '''
     def __init__(self, scene, stiffness, damping, node_ids):
-        Base.__init__(self, scene, stiffness, damping, node_ids)
+        Base.__init__(self, stiffness, damping, node_ids)
         # Constraint three points
         #  x0 -- x1 -- x2
         x0, v0 = scene.node_state(self.n_ids[0])

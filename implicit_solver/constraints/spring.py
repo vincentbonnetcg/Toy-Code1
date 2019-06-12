@@ -6,7 +6,6 @@
 import numpy as np
 from constraints.base import Base
 import core.math_2d as math2D
-import core.differentiation as diff
 from core.data_block import DataBlock
 from core.convex_hull import ConvexHull
 from system.scene import Scene
@@ -18,39 +17,13 @@ class AnchorSpring(Base):
     Describes a 2D spring constraint between a node and point
     '''
     def __init__(self, scene, stiffness, damping, node_id, kinematic, kinematic_parametric_point):
-        Base.__init__(self, scene, stiffness, damping, [node_id])
+        Base.__init__(self, stiffness, damping, [node_id])
         target_pos = kinematic.get_position_from_parametric_point(kinematic_parametric_point)
         x, v = scene.node_state(node_id)
-        self.rest_length = math2D.distance(target_pos, x)
-        self.kinematic_index = kinematic.index
-        self.kinematic_component_index =  kinematic_parametric_point.index
-        self.kinematic_component_param = kinematic_parametric_point.t
-
-    def get_states(self, scene):
-        kinematic = scene.kinematics[self.kinematic_index]
-        x, v = scene.node_state(self.n_ids[0])
-        return (kinematic, x, v)
-
-    def compute_forces(self, scene):
-        kinematic_vel = np.zeros(2)
-        kinematic, x, v = self.get_states(scene)
-        point_params = ConvexHull.ParametricPoint(self.kinematic_component_index, self.kinematic_component_param)
-        target_pos = kinematic.get_position_from_parametric_point(point_params)
-        force = spring_stretch_force(x, target_pos, self.rest_length, self.stiffness)
-        force += spring_damping_force(x, target_pos, v, kinematic_vel, self.damping)
-        # Set forces
-        self.f[0] = force
-
-    def compute_jacobians(self, scene):
-        kinematic_vel = np.zeros(2)
-        kinematic, x, v = self.get_states(scene)
-        point_params = ConvexHull.ParametricPoint(self.kinematic_component_index, self.kinematic_component_param)
-        target_pos = kinematic.get_position_from_parametric_point(point_params)
-        dfdx = spring_stretch_jacobian(x, target_pos, self.rest_length, self.stiffness)
-        dfdv = spring_damping_jacobian(x, target_pos, v, kinematic_vel, self.damping)
-        # Set jacobians
-        self.dfdx[0][0] = dfdx
-        self.dfdv[0][0] = dfdv
+        self.rest_length = np.float(math2D.distance(target_pos, x))
+        self.kinematic_index = np.uint32(kinematic.index)
+        self.kinematic_component_index =  np.uint32(kinematic_parametric_point.index)
+        self.kinematic_component_param = np.float(kinematic_parametric_point.t)
 
     @classmethod
     def num_nodes(cls) -> int :
@@ -126,33 +99,10 @@ class Spring(Base):
     Describes a 2D spring constraint between two nodes
     '''
     def __init__(self, scene, stiffness, damping, node_ids):
-        Base.__init__(self, scene, stiffness, damping, node_ids)
+        Base.__init__(self, stiffness, damping, node_ids)
         x0, v0 = scene.node_state(self.n_ids[0])
         x1, v1 = scene.node_state(self.n_ids[1])
-        self.rest_length = math2D.distance(x0, x1)
-
-    def get_states(self, scene):
-        x0, v0 = scene.node_state(self.n_ids[0])
-        x1, v1 = scene.node_state(self.n_ids[1])
-        return (x0, x1, v0, v1)
-
-    def compute_forces(self, scene):
-        x0, x1, v0, v1 = self.get_states(scene)
-        force = spring_stretch_force(x0, x1, self.rest_length, self.stiffness)
-        force += spring_damping_force(x0, x1, v0, v1, self.damping)
-        # Set forces
-        self.f[0] = force
-        self.f[1] = force * -1
-
-    def compute_jacobians(self, scene):
-        x0, x1, v0, v1 = self.get_states(scene)
-        dfdx = spring_stretch_jacobian(x0, x1, self.rest_length, self.stiffness)
-        dfdv = spring_damping_jacobian(x0, x1, v0, v1, self.damping)
-        # Set jacobians
-        self.dfdx[0][0] = self.dfdx[1][1] = dfdx
-        self.dfdx[0][1] = self.dfdx[1][0] = dfdx * -1
-        self.dfdv[0][0] = self.dfdv[1][1] = dfdv
-        self.dfdv[0][1] = self.dfdv[1][0] = dfdv * -1
+        self.rest_length = np.float(math2D.distance(x0, x1))
 
     @classmethod
     def num_nodes(cls) -> int :
