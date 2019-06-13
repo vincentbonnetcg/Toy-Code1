@@ -169,19 +169,26 @@ class WireBendingCondition(Condition):
     '''
     def __init__(self, dynamics, stiffness, damping):
        Condition.__init__(self, dynamics, [], stiffness, damping)
+       self.initialize(cn.Bending)
 
     def add_constraints(self, scene):
+        constraints = []
+
         for object_index in self.dynamic_indices:
             dynamic = scene.dynamics[object_index]
             vertex_edges_dict = core.shape.vertex_ids_neighbours(dynamic.edge_ids)
             if self.stiffness > 0.0:
                 for vertex_index, vertex_index_neighbour in vertex_edges_dict.items():
                     if (len(vertex_index_neighbour) == 2):
-                        node_ids = []
-                        node_ids.append(scene.node_id(object_index, vertex_index_neighbour[0]))
-                        node_ids.append(scene.node_id(object_index, vertex_index))
-                        node_ids.append(scene.node_id(object_index, vertex_index_neighbour[1]))
+                        node_ids = [0, 0, 0]
+                        node_ids[0] = scene.node_id(object_index, vertex_index_neighbour[0])
+                        node_ids[1] = scene.node_id(object_index, vertex_index)
+                        node_ids[2] = scene.node_id(object_index, vertex_index_neighbour[1])
 
-                        constraint =(cn.Bending(scene, self.stiffness, self.damping, node_ids))
-                        self.constraints.append(constraint)
+                        # add bending constraint
+                        constraint = self.data.create_empty_element()
+                        cn.Bending.init_element(constraint, scene, node_ids)
+                        Condition.init_element(constraint, self.stiffness, self.damping, node_ids)
+                        constraints.append(constraint)
 
+        self.data.initialize_from_array(constraints)
