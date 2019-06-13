@@ -100,8 +100,8 @@ class Spring(Base):
     '''
     def __init__(self, scene, stiffness, damping, node_ids):
         Base.__init__(self, stiffness, damping, node_ids)
-        x0, v0 = scene.node_state(self.n_ids[0])
-        x1, v1 = scene.node_state(self.n_ids[1])
+        x0, v0 = scene.node_state(self.node_ids[0])
+        x1, v1 = scene.node_state(self.node_ids[1])
         self.rest_length = np.float(math2D.distance(x0, x1))
 
     @classmethod

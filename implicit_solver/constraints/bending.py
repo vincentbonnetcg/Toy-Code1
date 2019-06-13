@@ -24,9 +24,9 @@ class Bending(Base):
         node_ids[0] - node_ids[1] - node_ids[2]
         '''
         Base.__init__(self, stiffness, damping, node_ids)
-        x0, v0 = scene.node_state(self.n_ids[0])
-        x1, v1 = scene.node_state(self.n_ids[1])
-        x2, v2 = scene.node_state(self.n_ids[2])
+        x0, v0 = scene.node_state(self.node_ids[0])
+        x1, v1 = scene.node_state(self.node_ids[1])
+        x2, v2 = scene.node_state(self.node_ids[2])
         self.rest_angle = math2D.angle(x0, x1, x2)
 
     @classmethod
