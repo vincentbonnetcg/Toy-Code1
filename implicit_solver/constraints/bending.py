@@ -48,7 +48,7 @@ class Bending(Base):
         datablock_cts.add_field('rest_angle', np.float)
 
     @classmethod
-    def compute_forces_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+    def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         '''
         Add the force to the datablock
         '''
@@ -68,7 +68,7 @@ class Bending(Base):
             force_ptr[ct_index][2] = f2
 
     @classmethod
-    def compute_jacobians_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+    def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         '''
         Add the force jacobian functions to the datablock
         '''

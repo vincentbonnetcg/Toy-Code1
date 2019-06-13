@@ -20,7 +20,6 @@ class Condition:
         self.damping = damping
         self.dynamic_indices = [dynamic.index for dynamic in dynamics]
         self.kinematic_indices = [kinematic.index for kinematic in kinematics]
-        self.constraints = []
         # Data
         self.data = core.DataBlock()
         # Energy / Force / Jacobian
@@ -45,8 +44,8 @@ class Condition:
         constraint_type.add_fields(self.data)
         # Initialize functions
         self.energy_func = None
-        self.force_func = constraint_type.compute_forces_db
-        self.jacobian_func = constraint_type.compute_jacobians_db
+        self.force_func = constraint_type.compute_forces
+        self.jacobian_func = constraint_type.compute_jacobians
 
     @classmethod
     def init_element(cls, element, stiffness, damping, node_ids):
@@ -66,7 +65,6 @@ class Condition:
         return True
 
     def update_constraints(self, scene):
-        self.constraints.clear()
         self.init_constraints(scene)
 
     def compute_forces(self, scene):

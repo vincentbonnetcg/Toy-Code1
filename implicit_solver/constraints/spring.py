@@ -49,7 +49,7 @@ class AnchorSpring(Base):
         datablock_cts.add_field('kinematic_component_param', np.float)
 
     @classmethod
-    def compute_forces_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+    def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         kinematic_vel = np.zeros(2)
         node_ids_ptr = datablock_cts.node_ids
         stiffness_ptr = datablock_cts.stiffness
@@ -71,7 +71,7 @@ class AnchorSpring(Base):
             force_ptr[ct_index] = force
 
     @classmethod
-    def compute_jacobians_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+    def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         kinematic_vel = np.zeros(2)
         node_ids_ptr = datablock_cts.node_ids
         stiffness_ptr = datablock_cts.stiffness
@@ -122,7 +122,7 @@ class Spring(Base):
         datablock_cts.add_field('rest_length', np.float)
 
     @classmethod
-    def compute_forces_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+    def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         '''
         Add the force to the datablock
         '''
@@ -142,7 +142,7 @@ class Spring(Base):
             force_ptr[ct_index][1] = force * -1.0
 
     @classmethod
-    def compute_jacobians_db(cls, datablock_cts : DataBlock, scene : Scene) -> None:
+    def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         '''
         Add the force jacobian functions to the datablock
         '''
