@@ -8,10 +8,20 @@ Slow and only just for testing
 # Fornberg, Bengt. "Generation of finite difference formulas on arbitrarily spaced grids."
 # Mathematics of computation 51, no. 184 (1988): 699-706.
 
-# Examples #
+# Spring Example #
 #force = diff.numerical_jacobian(elastic_spring_energy, 0, x0, x1, rest_length, stiffness) * -1.0
 #dfdx = diff.numerical_jacobian(spring_stretch_force, 0, x0, x1, rest_length, stiffness)
 #dfdv = diff.numerical_jacobian(spring_damping_force, 2, x0, x1, v0, v1, damping)
+# Bending Example #
+#force0 = diff.numerical_jacobian(elastic_bending_energy, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+#force1 = diff.numerical_jacobian(elastic_bending_energy, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+#force2 = diff.numerical_jacobian(elastic_bending_energy, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+#df0dx0 = diff.numerical_hessian(elastic_bending_energy, 0, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+#df1dx1 = diff.numerical_hessian(elastic_bending_energy, 1, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+#df2dx2 = diff.numerical_hessian(elastic_bending_energy, 2, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+#df0dx1 = diff.numerical_hessian(elastic_bending_energy, 0, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+#df0dx2 = diff.numerical_hessian(elastic_bending_energy, 0, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
+#df1dx2 = diff.numerical_hessian(elastic_bending_energy, 1, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
 
 import numpy as np
 

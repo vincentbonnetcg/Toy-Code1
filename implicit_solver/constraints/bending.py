@@ -33,43 +33,20 @@ class Bending(Base):
 
     def compute_forces(self, scene):
         x0, x1, x2, v0, v1, v2 = self.get_states(scene)
-        # Numerical forces
-        #force0 = diff.numerical_jacobian(elastic_bending_energy, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #force1 = diff.numerical_jacobian(elastic_bending_energy, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #force2 = diff.numerical_jacobian(elastic_bending_energy, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        # Analytic forces
         force0, force1, force2 = elastic_bending_forces(x0, x1, x2, self.rest_angle, self.stiffness, [True, True, True])
-        # Set forces
         self.f[0] = force0
         self.f[1] = force1
         self.f[2] = force2
 
     def compute_jacobians(self, scene):
         x0, x1, x2, v0, v1, v2 = self.get_states(scene)
-        # Numerical jacobians (Aka Hessian of the energy)
-        #df0dx0 = diff.numerical_hessian(elastic_bending_energy, 0, 0, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df1dx1 = diff.numerical_hessian(elastic_bending_energy, 1, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df2dx2 = diff.numerical_hessian(elastic_bending_energy, 2, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df0dx1 = diff.numerical_hessian(elastic_bending_energy, 0, 1, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df0dx2 = diff.numerical_hessian(elastic_bending_energy, 0, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        #df1dx2 = diff.numerical_hessian(elastic_bending_energy, 1, 2, x0, x1, x2, self.rest_angle, self.stiffness) * -1.0
-        # Numerical jacobians from forces
-        jacobians = elastic_bending_numerical_jacobians(x0, x1, x2, self.rest_angle, self.stiffness)
-        df0dx0 = jacobians[0]
-        df1dx1 = jacobians[1]
-        df2dx2 = jacobians[2]
-        df0dx1 = jacobians[3]
-        df0dx2 = jacobians[4]
-        df1dx2 = jacobians[5]
-        # Analytic jacobians
-        # TODO
-        # Set jacobians
-        self.dfdx[0][0] = df0dx0
-        self.dfdx[1][1] = df1dx1
-        self.dfdx[2][2] = df2dx2
-        self.dfdx[0][1] = self.dfdx[1][0] = df0dx1
-        self.dfdx[0][2] = self.dfdx[2][0] = df0dx2
-        self.dfdx[1][2] = self.dfdx[2][1] = df1dx2
+        dfdx = elastic_bending_numerical_jacobians(x0, x1, x2, self.rest_angle, self.stiffness)
+        self.dfdx[0][0] = dfdx[0]
+        self.dfdx[1][1] = dfdx[1]
+        self.dfdx[2][2] = dfdx[2]
+        self.dfdx[0][1] = self.dfdx[1][0] = dfdx[3]
+        self.dfdx[0][2] = self.dfdx[2][0] = dfdx[4]
+        self.dfdx[1][2] = self.dfdx[2][1] = dfdx[5]
 
 '''
  Utility Functions
