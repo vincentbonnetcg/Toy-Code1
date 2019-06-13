@@ -22,7 +22,7 @@ class KinematicCollisionCondition(Condition):
         '''
         return False
 
-    def add_constraints(self, scene):
+    def init_constraints(self, scene):
         '''
         Add zero-length springs into the dynamic constraints of the scene
         '''
@@ -55,7 +55,7 @@ class KinematicAttachmentCondition(Condition):
        self.distance = distance
        self.initialize(cn.AnchorSpring)
 
-    def add_constraints(self, scene):
+    def init_constraints(self, scene):
         '''
         Add springs into the static constraints of the scene
         '''
@@ -90,7 +90,7 @@ class DynamicAttachmentCondition(Condition):
        self.initialize(cn.Spring)
        self.distance = distance
 
-    def add_constraints(self, scene):
+    def init_constraints(self, scene):
         '''
         Add springs into the static constraints of the scene
         '''
@@ -126,7 +126,7 @@ class EdgeCondition(Condition):
        Condition.__init__(self, dynamics, [], stiffness, damping)
        self.initialize(cn.Spring)
 
-    def add_constraints(self, scene):
+    def init_constraints(self, scene):
         springs = []
 
         for object_index in self.dynamic_indices:
@@ -153,7 +153,7 @@ class AreaCondition(Condition):
        Condition.__init__(self, dynamics, [], stiffness, damping)
        self.initialize(cn.Area)
 
-    def add_constraints(self, scene):
+    def init_constraints(self, scene):
         constraints = []
 
         for object_index in self.dynamic_indices:
@@ -180,7 +180,7 @@ class WireBendingCondition(Condition):
        Condition.__init__(self, dynamics, [], stiffness, damping)
        self.initialize(cn.Bending)
 
-    def add_constraints(self, scene):
+    def init_constraints(self, scene):
         constraints = []
 
         for object_index in self.dynamic_indices:

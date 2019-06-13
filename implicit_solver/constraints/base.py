@@ -23,16 +23,3 @@ class Base:
     def apply_forces(self, scene):
         for node_id in range(len(self.n_ids)):
             scene.node_add_f(self.n_ids[node_id], self.f[node_id])
-
-    def compute_forces(self, scene):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'compute_forces'")
-
-    def compute_jacobians(self, scene):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'compute_jacobians'")
-
-    def jacobian_dx(self, fi, xj):
-        return self.dfdx[fi][xj]
-
-    def jacobian_dv(self, fi, xj):
-        return self.dfdv[fi][xj]
-

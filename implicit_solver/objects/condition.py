@@ -65,12 +65,9 @@ class Condition:
         '''
         return True
 
-    def tmp_valid_datablock(self):
-        return len(self.data) > 0
-
     def update_constraints(self, scene):
         self.constraints.clear()
-        self.add_constraints(scene)
+        self.init_constraints(scene)
 
     def compute_forces(self, scene):
         if self.force_func:
@@ -81,9 +78,6 @@ class Condition:
             self.jacobian_func(self.data, scene)
 
     def apply_forces(self, scene):
-        if self.tmp_valid_datablock() == False:
-            return
-
         node_ids_ptr = self.data.node_ids
         force_ptr = self.data.f
 
@@ -93,6 +87,6 @@ class Condition:
             for node_id in range(len(node_ids)):
                 scene.node_add_f(node_ids[node_id], forces[node_id])
 
-    def add_constraints(self, scene):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'add_constraints'")
+    def init_constraints(self, scene):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
 
