@@ -68,12 +68,10 @@ class Condition:
         self.init_constraints(scene)
 
     def compute_forces(self, scene):
-        if self.force_func:
-            self.force_func(self.data, scene)
+        self.force_func(self.data, scene)
 
     def compute_jacobians(self, scene):
-        if self.jacobian_func:
-            self.jacobian_func(self.data, scene)
+        self.jacobian_func(self.data, scene)
 
     def apply_forces(self, scene):
         node_ids_ptr = self.data.node_ids
