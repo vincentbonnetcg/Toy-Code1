@@ -14,12 +14,9 @@ class Area(Base):
     '''
     Describes a 2D area constraint between three nodes
     '''
-    def __init__(self, scene, stiffness, damping, node_ids):
-        Base.__init__(self, stiffness, damping, node_ids)
-        x0, v0 = scene.node_state(self.node_ids[0])
-        x1, v1 = scene.node_state(self.node_ids[1])
-        x2, v2 = scene.node_state(self.node_ids[2])
-        self.rest_area = math2D.area(x0, x1, x2)
+    def __init__(self):
+        Base.__init__(self, num_nodes = 3)
+        self.rest_area = np.float(0.0)
 
     @classmethod
     def num_nodes(cls) -> int :
@@ -82,7 +79,6 @@ class Area(Base):
             dfdx_ptr[ct_index][0][1] = dfdx_ptr[ct_index][1][0] = dfdx[3]
             dfdx_ptr[ct_index][0][2] = dfdx_ptr[ct_index][2][0] = dfdx[4]
             dfdx_ptr[ct_index][1][2] = dfdx_ptr[ct_index][2][1] = dfdx[5]
-
 
 '''
  Utility Functions

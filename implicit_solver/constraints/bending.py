@@ -18,16 +18,13 @@ class Bending(Base):
     This bending is NOT the proper bending formulation and uses angle instead of curvature
     Some instabilities when using the curvature => Need to investigate
     '''
-    def __init__(self, scene, stiffness, damping, node_ids):
+    def __init__(self):
         '''
         Constraint three nodes to maintain angle between
         node_ids[0] - node_ids[1] - node_ids[2]
         '''
-        Base.__init__(self, stiffness, damping, node_ids)
-        x0, v0 = scene.node_state(self.node_ids[0])
-        x1, v1 = scene.node_state(self.node_ids[1])
-        x2, v2 = scene.node_state(self.node_ids[2])
-        self.rest_angle = math2D.angle(x0, x1, x2)
+        Base.__init__(self, num_nodes = 3)
+        self.rest_angle = np.float(0.0)
 
     @classmethod
     def num_nodes(cls) -> int :

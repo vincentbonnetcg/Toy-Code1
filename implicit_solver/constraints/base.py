@@ -9,13 +9,17 @@ class Base:
     '''
     Describes the constraint base
     '''
-    def __init__(self, stiffness, damping, node_ids):
-        N = len(node_ids) # number of nodes involved in the constraint
-        self.stiffness = stiffness
-        self.damping = damping
-        self.f = np.zeros((N, 2)) # forces
-        self.node_ids = np.copy(node_ids) # node ids
-        # Precomputed jacobians.
-        # NxN matrix where each element is a 2x2 submatrix
-        self.dfdx = np.zeros((N, N, 2, 2))
-        self.dfdv = np.zeros((N, N, 2, 2))
+    def __init__(self, num_nodes : int):
+
+        # Constraint Property
+        self.stiffness = np.float(0.0)
+        self.damping = np.float(0.0)
+
+        # Node ids involved in the constraint
+        # Should match result of scene.node_id()
+        self.node_ids = np.zeros((num_nodes, 3), dtype=np.uint32)
+
+        # Precomputed forces/jacobians.
+        self.f = np.zeros((num_nodes, 2), dtype = np.float)
+        self.dfdx = np.zeros((num_nodes, num_nodes, 2, 2), dtype = np.float)
+        self.dfdv = np.zeros((num_nodes, num_nodes, 2, 2), dtype = np.float)

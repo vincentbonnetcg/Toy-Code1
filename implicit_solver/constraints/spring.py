@@ -11,19 +11,16 @@ from core.convex_hull import ConvexHull
 from system.scene import Scene
 from numba import njit
 
-
 class AnchorSpring(Base):
     '''
     Describes a 2D spring constraint between a node and point
     '''
-    def __init__(self, scene, stiffness, damping, node_id, kinematic, kinematic_parametric_point):
-        Base.__init__(self, stiffness, damping, [node_id])
-        target_pos = kinematic.get_position_from_parametric_point(kinematic_parametric_point)
-        x, v = scene.node_state(node_id)
-        self.rest_length = np.float(math2D.distance(target_pos, x))
-        self.kinematic_index = np.uint32(kinematic.index)
-        self.kinematic_component_index =  np.uint32(kinematic_parametric_point.index)
-        self.kinematic_component_param = np.float(kinematic_parametric_point.t)
+    def __init__(self):
+        Base.__init__(self, num_nodes = 1)
+        self.rest_length = np.float(0.0)
+        self.kinematic_index = np.uint32(0)
+        self.kinematic_component_index =  np.uint32(0)
+        self.kinematic_component_param = np.float(0.0)
 
     @classmethod
     def num_nodes(cls) -> int :
@@ -98,11 +95,9 @@ class Spring(Base):
     '''
     Describes a 2D spring constraint between two nodes
     '''
-    def __init__(self, scene, stiffness, damping, node_ids):
-        Base.__init__(self, stiffness, damping, node_ids)
-        x0, v0 = scene.node_state(self.node_ids[0])
-        x1, v1 = scene.node_state(self.node_ids[1])
-        self.rest_length = np.float(math2D.distance(x0, x1))
+    def __init__(self):
+        Base.__init__(self, num_nodes = 2)
+        self.rest_length = np.float(0.0)
 
     @classmethod
     def num_nodes(cls) -> int :
