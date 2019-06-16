@@ -7,6 +7,7 @@ from keras.datasets import mnist
 from keras.layers import Input, Dense
 from keras.models import Model
 import numpy as np
+import matplotlib.pyplot as plt
 
 def get_test_and_training_images():
     '''
@@ -32,11 +33,35 @@ def get_test_and_training_images():
 
     return x_train, x_test
 
-def show_images():
+def show_images(test_data, predicted_data):
     '''
     Show images
     '''
-    pass
+    font = {'family': 'arial',
+            'color':  'darkblue',
+            'weight': 'normal',
+            'size': 16 }
+
+    # Original image
+    plt.figure(figsize=(15, 4))
+    plt.gray()
+    for i in range(10):
+        ax = plt.subplot(3,  20, i + 1)
+        ax.axis('off')
+        plt.imshow(test_data[i].reshape(28, 28))
+    plt.title('Test Data', fontdict=font)
+    plt.show()
+
+    # Predicted image
+    plt.figure(figsize=(15, 4))
+    plt.gray()
+    for i in range(10):
+        ax = plt.subplot(3, 20, 2*20 +i+ 1)
+        ax.axis('off')
+        plt.imshow(predicted_data[i].reshape(28, 28))
+    plt.title('Predicted Data', fontdict=font)
+    plt.show()
+
 
 def get_autoencoder():
     '''
@@ -53,21 +78,33 @@ def get_autoencoder():
 
     # Build the model
     autoencoder = Model(input_layer, decoded_layer)
-    #encoder = Model(input_layer, encoded_layer)
     #autoencoder.summary()
-    #encoder.summary()
 
     # Compile model
     autoencoder.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     return autoencoder
 
-
 def main():
     '''
     Execute training and test it
     '''
+    # Get NN model and data
     auto_encoder = get_autoencoder()
     x_train, x_test = get_test_and_training_images()
+
+    # Train the autoencoder (input_x==input_y)
+    auto_encoder.fit(x=x_train, y=x_train,
+                     epochs=1,
+                     batch_size=256,
+                     shuffle=True,
+                     validation_data=(x_test, x_test))
+
+    # Test the autoencoder
+    predicted = auto_encoder.predict(x_test)
+
+    # Show results
+    show_images(x_test, predicted)
+
 
 if __name__ == '__main__':
     main()
