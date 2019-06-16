@@ -12,8 +12,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 - Kinematic Collision
 - Server-Client (IPC) to communicate solver with other processes
 
-![Implicit Solver Beam](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_beam.gif)
-![Implicit Solver Wire](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/implicitSolver_wire.gif)
+![Implicit Solver Beam](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/implicitSolver_beam.gif)
+![Implicit Solver Wire](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/implicitSolver_wire.gif)
 
 [1] Baraff, David, and Andrew Witkin. "Large steps in cloth simulation." Proceedings of the 25th annual conference on Computer graphics and interactive techniques. ACM, 1998.
 
@@ -24,14 +24,14 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 [4] Gast, Theodore F., Craig Schroeder, Alexey Stomakhin, Chenfanfu Jiang, and Joseph M. Teran. "Optimization integrator for large time steps." IEEE transactions on visualization and computer graphics 21, no. 10 (2015): 1103-1115.
 
 ## . Skeletal Subspace Deformation
-**Folder** [skinning](https://github.com/vincentbonnetcg/Toy-Code/blob/master/skinning)<br>
+**Folder** [skinning](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/skinning)<br>
 **Description** Skeletal Subspace Deformation
 
 - Linear Blend Skinning [1]
 - Dual Quaternion Skinning (WIP) [4]
 - Pose‐Space deformation [3]
 
-![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/linear_blend_skinning.gif)
+![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/linear_blend_skinning.gif)
 
 [1] Magnenat-Thalmann, Nadia, Richard Laperrire, and Daniel Thalmann. "Joint-dependent local deformations for hand animation and object grasping." In In Proceedings on Graphics interface’88. 1988.
 
@@ -45,61 +45,61 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 
 ## . Inverse Kinematics
-**File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/inverseKinematics_withJacobian.py)<br>
+**File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/inverseKinematics_withJacobian.py)<br>
 **Description** Implementation of inverse kinematics using pseudo-inverse of a jacobian matrix
 - Assemble Numerical/Analytic Jacobian matrix (using central difference)
 - Solve system with Pseudo-Inverse or Damped Least Squares method
 
-![Inverse Kinematics](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/inverseKinematics_withJacobian.gif)
+![Inverse Kinematics](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/inverseKinematics_withJacobian.gif)
 
 [1] Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
 
 ## . Local Deformations
-**File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/optimalTransformation_covarianceMatrix.py)<br>
+**File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimalTransformation_covarianceMatrix.py)<br>
 **Description** Optimal rigid transformation by using Principal Component Analysis (Eigen Decomposition)
 - Compute Covariance Matrix from point cloud
 
-![PCA](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/optimalTransformation_covarianceMatrix.png)
+![PCA](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation_covarianceMatrix.png)
 
 ## . Interpolation and Regression
-**File** [scatteredDataInterpolation_radialBasisFunction.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/interpolation_regression/scatteredDataInterpolation_radialBasisFunction.py)<br>
+**File** [scatteredDataInterpolation_radialBasisFunction.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/interpolation_regression/scatteredDataInterpolation_radialBasisFunction.py)<br>
 **Description** Interpolation of a 1D function with Radial Basis Functions
 
-![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
+![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
 
 [1] Powell, Michael JD. "Radial basis functions for multivariable interpolation: a review." Algorithms for approximation (1987).
 
 [2] Powell, Michael JD. "The theory of radial basis function approximation in 1990." Advances in numerical analysis (1992): 105-210.
 
-**File** [polynomialRegression.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/interpolation_regression/polynomialRegression.py)<br>
+**File** [polynomialRegression.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/interpolation_regression/polynomialRegression.py)<br>
 **Description** Polynomial Linear Regression on 1D dataset
 
-![Regression](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/polynomial_regression.png)
+![Regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/polynomial_regression.png)
 
 ## . Neural Network (placeholder)
 **Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
 **Description** Folder to study Neural Network
 
-![MNIST](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/nn_mnist.png)<br>
+![MNIST](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/nn_mnist.png)<br>
 
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
 ## . Performance (Numba, Cuda ...)
-**Folder** [performance](https://github.com/vincentbonnetcg/Toy-Code/blob/master/performance)<br>
+**Folder** [performance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/performance)<br>
 **Description** Evaluate simple image processing and cellular automata on Cuda
 
 ### Array Operations
 
-![Array_Numba](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/performance_test_array.png)<br>
+![Array_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_array.png)<br>
 
 ### Stencil Operations
 
 #### Laplace's Equation
 Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
-![Laplace_Numba](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/performance_test_laplace_equation.png)<br>
+![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_laplace_equation.png)<br>
 
 #### Cellular Automata and Image Processing
-![Automata_Numba](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/numba_cellularAutomata.gif)<br>
+![Automata_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_cellularAutomata.gif)<br>
 
 [1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.<br>
 [2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
@@ -108,18 +108,18 @@ Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
 **Folder** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/signed_distance_field.py)<br>
 **Description** Solve Eikonal Equation to compute signed distance field from 2D-polygon
 
-![RBF](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/distance_field.png)
+![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/distance_field.png)
 
 ## . Local Optimisations
-**File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/optimisation_gradientDescent.py)<br>
+**File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimisation_gradientDescent.py)<br>
 **Description** Implementation of Gradient Descent for multivariable functions
 - with/without normalized step
 
-![Gradient Descent](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/optimisation_gradientDescent.png)
+![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimisation_gradientDescent.png)
 
 ## . PDE - Numerical Integration
 
-**File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/spring1D_integrator.py)<br>
+**File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/spring1D_integrator.py)<br>
 **Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
 - Explicit Euler
 - RK2
@@ -127,10 +127,10 @@ Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
 - Semi-Implicit Euler (also called Euler-Cromer)
 - Leap Frog
 
-![Explicit Integrators](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/spring1D_integrator.png)
+![Explicit Integrators](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/spring1D_integrator.png)
 
 ## . Graph Colouring
-**File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Toy-Code/blob/master/graphColouring_greedyAlgorithm.py)<br>
+**File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graphColouring_greedyAlgorithm.py)<br>
 **Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
 
-![COLOURING](https://github.com/vincentbonnetcg/Toy-Code/blob/master/img/graphColouring_greedyAlgorithm.png)
+![COLOURING](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/graphColouring_greedyAlgorithm.png)
