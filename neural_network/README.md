@@ -7,6 +7,4 @@ Neural Network Study (Numpy and Kerass)
 
 Auto-Encoder to encode/decode MNIST dataset
 
-![Auto_Encoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/img/auto_encoder.png)
-
-
+![AutoEncoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/auto_encoder.png)
