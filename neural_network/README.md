@@ -1,5 +1,5 @@
 # Neural Network
-Neural Network Study (Numpy and Kerass)
+Neural Network Study (Numpy and Keras)
 
 ## . Auto-Encoder
 **File** [auto_encoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/Keras/autoencoder.py)<br>
