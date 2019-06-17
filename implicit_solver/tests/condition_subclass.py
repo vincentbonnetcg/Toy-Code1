@@ -13,8 +13,7 @@ class KinematicCollisionCondition(Condition):
     Creates collision constraint between one kinematic and one dynamic object
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping):
-        Condition.__init__(self, [dynamic], [kinematic], stiffness, damping)
-        self.initialize(cn.AnchorSpring)
+        Condition.__init__(self, [dynamic], [kinematic], stiffness, damping, cn.AnchorSpring)
 
     def is_static(self):
         '''
@@ -51,9 +50,8 @@ class KinematicAttachmentCondition(Condition):
     Creates attachment constraint between one kinematic and one dynamic object
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping, distance):
-       Condition.__init__(self, [dynamic], [kinematic], stiffness, damping)
+       Condition.__init__(self, [dynamic], [kinematic], stiffness, damping, cn.AnchorSpring)
        self.distance = distance
-       self.initialize(cn.AnchorSpring)
 
     def init_constraints(self, scene):
         '''
@@ -86,8 +84,7 @@ class DynamicAttachmentCondition(Condition):
     Creates attachment constraint between two dynamic objects
     '''
     def __init__(self, dynamic0, dynamic1, stiffness, damping, distance):
-       Condition.__init__(self, [dynamic0, dynamic1], [], stiffness, damping)
-       self.initialize(cn.Spring)
+       Condition.__init__(self, [dynamic0, dynamic1], [], stiffness, damping, cn.Spring)
        self.distance = distance
 
     def init_constraints(self, scene):
@@ -123,8 +120,7 @@ class EdgeCondition(Condition):
     Replaces edges with Spring constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, dynamics, [], stiffness, damping)
-       self.initialize(cn.Spring)
+       Condition.__init__(self, dynamics, [], stiffness, damping, cn.Spring)
 
     def init_constraints(self, scene):
         springs = []
@@ -150,8 +146,7 @@ class AreaCondition(Condition):
     Replaces triangle with Area constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, dynamics, [], stiffness, damping)
-       self.initialize(cn.Area)
+       Condition.__init__(self, dynamics, [], stiffness, damping, cn.Area)
 
     def init_constraints(self, scene):
         constraints = []
@@ -177,8 +172,7 @@ class WireBendingCondition(Condition):
     Creates Wire Bending constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, dynamics, [], stiffness, damping)
-       self.initialize(cn.Bending)
+       Condition.__init__(self, dynamics, [], stiffness, damping, cn.Bending)
 
     def init_constraints(self, scene):
         constraints = []

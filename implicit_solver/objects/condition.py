@@ -10,7 +10,7 @@ class Condition:
     '''
     Base of a condition
     '''
-    def __init__(self, dynamics, kinematics, stiffness, damping):
+    def __init__(self, dynamics, kinematics, stiffness, damping, constraint_type):
         '''
         dynamics and kinematics are the objects involved in the constraint
         stiffness and damping are the constraint parameters
@@ -22,23 +22,13 @@ class Condition:
         self.kinematic_indices = [kinematic.index for kinematic in kinematics]
         # Data
         self.data = core.DataBlock()
-        # Energy / Force / Jacobian
+        self.data.add_field_from_class(constraint_type)
+        # Energy / Force / Jacobian (Used by the optimiser)
         self.energy_func = None # Not used yet
-        self.force_func = None # derivative of the energy function
-        self.jacobian_func = None # derivative of the force function
+        self.force_func =  constraint_type.compute_forces # derivative of the energy function
+        self.jacobian_func = constraint_type.compute_jacobians # derivative of the force function
         # Metadata
         self.meta_data = {}
-
-    def initialize(self, constraint_type):
-        '''
-        Initialize the datablock field and energy functions from the constraint type
-        '''
-        # Initialize data
-        self.data.add_field_from_class(constraint_type)
-        # Initialize energy functions
-        self.energy_func = None
-        self.force_func = constraint_type.compute_forces
-        self.jacobian_func = constraint_type.compute_jacobians
 
     @classmethod
     def init_element(cls, element, stiffness, damping, node_ids):
