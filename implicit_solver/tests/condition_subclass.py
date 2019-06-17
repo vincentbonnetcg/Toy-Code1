@@ -37,7 +37,7 @@ class KinematicCollisionCondition(Condition):
                     node_id = scene.node_id(dynamic.index, node_index)
 
                     # add spring
-                    spring = self.data.create_empty_element()
+                    spring = cn.AnchorSpring()
                     cn.AnchorSpring.init_element(spring, scene, node_id, kinematic, attachment_point_params)
                     Condition.init_element(spring, self.stiffness, self.damping, [node_id])
                     springs.append(spring)
@@ -72,7 +72,7 @@ class KinematicAttachmentCondition(Condition):
                 node_id = scene.node_id(dynamic.index, node_index)
 
                 # add spring
-                spring = self.data.create_empty_element()
+                spring = cn.AnchorSpring()
                 cn.AnchorSpring.init_element(spring, scene, node_id, kinematic, attachment_point_params)
                 Condition.init_element(spring, self.stiffness, self.damping, [node_id])
                 springs.append(spring)
@@ -106,7 +106,7 @@ class DynamicAttachmentCondition(Condition):
                     node_ids[1] = scene.node_id(dynamic1.index, x1i)
 
                     # add spring
-                    spring = self.data.create_empty_element()
+                    spring = cn.Spring()
                     cn.Spring.init_element(spring, scene, node_ids)
                     Condition.init_element(spring, self.stiffness, self.damping, node_ids)
                     springs.append(spring)
@@ -133,7 +133,7 @@ class EdgeCondition(Condition):
                 node_ids[1] = scene.node_id(object_index, vertex_index[1])
 
                 # add spring
-                spring = self.data.create_empty_element()
+                spring = cn.Spring()
                 cn.Spring.init_element(spring, scene, node_ids)
                 Condition.init_element(spring, self.stiffness, self.damping, node_ids)
                 springs.append(spring)
@@ -160,7 +160,7 @@ class AreaCondition(Condition):
                 node_ids[2] = scene.node_id(object_index, vertex_index[2])
 
                 # add area constraint
-                constraint = self.data.create_empty_element()
+                constraint = cn.Area()
                 cn.Area.init_element(constraint, scene, node_ids)
                 Condition.init_element(constraint, self.stiffness, self.damping, node_ids)
                 constraints.append(constraint)
@@ -189,7 +189,7 @@ class WireBendingCondition(Condition):
                         node_ids[2] = scene.node_id(object_index, vertex_index_neighbour[1])
 
                         # add bending constraint
-                        constraint = self.data.create_empty_element()
+                        constraint = cn.Bending()
                         cn.Bending.init_element(constraint, scene, node_ids)
                         Condition.init_element(constraint, self.stiffness, self.damping, node_ids)
                         constraints.append(constraint)
