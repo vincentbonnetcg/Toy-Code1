@@ -24,7 +24,7 @@ class Bending(Base):
         node_ids[0] - node_ids[1] - node_ids[2]
         '''
         Base.__init__(self, num_nodes = 3)
-        self.rest_angle = np.float(0.0)
+        self.rest_angle = np.float32(0.0)
 
     @classmethod
     def num_nodes(cls) -> int :

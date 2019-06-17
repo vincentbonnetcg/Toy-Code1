@@ -17,10 +17,10 @@ class AnchorSpring(Base):
     '''
     def __init__(self):
         Base.__init__(self, num_nodes = 1)
-        self.rest_length = np.float(0.0)
+        self.rest_length = np.float32(0.0)
         self.kinematic_index = np.uint32(0)
         self.kinematic_component_index =  np.uint32(0)
-        self.kinematic_component_param = np.float(0.0)
+        self.kinematic_component_param = np.float32(0.0)
 
     @classmethod
     def num_nodes(cls) -> int :
@@ -97,7 +97,7 @@ class Spring(Base):
     '''
     def __init__(self):
         Base.__init__(self, num_nodes = 2)
-        self.rest_length = np.float(0.0)
+        self.rest_length = np.float32(0.0)
 
     @classmethod
     def num_nodes(cls) -> int :
