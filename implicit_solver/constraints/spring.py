@@ -23,10 +23,6 @@ class AnchorSpring(Base):
         self.kinematic_component_param = np.float32(0.0)
 
     @classmethod
-    def num_nodes(cls) -> int :
-        return 1
-
-    @classmethod
     def init_element(cls, element, scene, node_id, kinematic, kinematic_parametric_point):
         '''
         element is an object of type self.datablock_ct generated in add_fields
@@ -37,13 +33,6 @@ class AnchorSpring(Base):
         element.kinematic_index = kinematic.index
         element.kinematic_component_index =  kinematic_parametric_point.index
         element.kinematic_component_param = kinematic_parametric_point.t
-
-    @classmethod
-    def add_fields(cls, datablock_cts : DataBlock) -> None:
-        datablock_cts.add_field('rest_length', np.float)
-        datablock_cts.add_field('kinematic_index', np.uint32)
-        datablock_cts.add_field('kinematic_component_index', np.uint32)
-        datablock_cts.add_field('kinematic_component_param', np.float)
 
     @classmethod
     def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
@@ -100,10 +89,6 @@ class Spring(Base):
         self.rest_length = np.float32(0.0)
 
     @classmethod
-    def num_nodes(cls) -> int :
-        return 2
-
-    @classmethod
     def init_element(cls, element, scene, node_ids):
         '''
         element is an object of type self.datablock_ct generated in add_fields
@@ -111,10 +96,6 @@ class Spring(Base):
         x0, v0 = scene.node_state(node_ids[0])
         x1, v1 = scene.node_state(node_ids[1])
         element.rest_length = math2D.distance(x0, x1)
-
-    @classmethod
-    def add_fields(cls, datablock_cts : DataBlock) -> None:
-        datablock_cts.add_field('rest_length', np.float)
 
     @classmethod
     def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:

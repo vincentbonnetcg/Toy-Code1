@@ -16,7 +16,7 @@ class Base:
         self.damping = np.float32(0.0)
 
         # Node ids involved in the constraint
-        # Should match result of scene.node_id()
+        # Should match result size of scene.node_id() (three unsigned)
         self.node_ids = np.zeros((num_nodes, 3), dtype=np.uint32)
 
         # Precomputed forces/jacobians.

@@ -46,6 +46,14 @@ class DataBlock:
         self.num_elements = 0
         self.data = None
 
+    def add_field_from_class(self, class_type):
+        tmp = class_type()
+        for name, value in tmp.__dict__.items():
+            if not np.isscalar(value):
+                self.add_field(name, value.dtype.type, value.shape)
+            else:
+                self.add_field(name, type(value))
+
     def add_field(self, name, data_type=np.float, data_shape=1):
         '''
         Add a new field to the data block
