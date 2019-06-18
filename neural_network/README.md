@@ -1,5 +1,16 @@
 # Neural Network
-Neural Network Study (Numpy and Keras)
+Neural Network Study (Python, Numpy and Keras)
+
+## . From Scratch
+**File** [from_scratch](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/from_scratch/)<br>
+**Description** Feed-forward Neural Network only written with Numpy and Python
+
+## . Convolution Neural Network
+
+**File** [convolution_nn](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/Keras/convolution_nn.py)<br>
+**Description** Convolution NN
+
+Convolution Neural Network on the MNIST dataset
 
 ## . Auto-Encoder
 **File** [auto_encoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/Keras/autoencoder.py)<br>
@@ -8,3 +19,6 @@ Neural Network Study (Numpy and Keras)
 Auto-Encoder to encode/decode MNIST dataset
 
 ![AutoEncoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/auto_encoder.png)
+
+
+
