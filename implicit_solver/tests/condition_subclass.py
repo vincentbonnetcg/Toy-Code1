@@ -38,8 +38,9 @@ class KinematicCollisionCondition(Condition):
 
                     # add spring
                     spring = cn.AnchorSpring()
-                    cn.AnchorSpring.init_element(spring, scene, node_id, kinematic, attachment_point_params)
-                    Condition.init_element(spring, self.stiffness, self.damping, [node_id])
+                    spring.set_object(scene, node_id, kinematic, attachment_point_params)
+                    spring.stiffness = self.stiffness
+                    spring.damping = self.damping
                     springs.append(spring)
 
         self.data.initialize_from_array(springs)
@@ -73,8 +74,9 @@ class KinematicAttachmentCondition(Condition):
 
                 # add spring
                 spring = cn.AnchorSpring()
-                cn.AnchorSpring.init_element(spring, scene, node_id, kinematic, attachment_point_params)
-                Condition.init_element(spring, self.stiffness, self.damping, [node_id])
+                spring.set_object(scene, node_id, kinematic, attachment_point_params)
+                spring.stiffness = self.stiffness
+                spring.damping = self.damping
                 springs.append(spring)
 
         self.data.initialize_from_array(springs)
@@ -107,8 +109,9 @@ class DynamicAttachmentCondition(Condition):
 
                     # add spring
                     spring = cn.Spring()
-                    cn.Spring.init_element(spring, scene, node_ids)
-                    Condition.init_element(spring, self.stiffness, self.damping, node_ids)
+                    spring.set_object(scene, node_ids)
+                    spring.stiffness = self.stiffness
+                    spring.damping = self.damping
                     springs.append(spring)
 
         self.data.initialize_from_array(springs)
@@ -134,8 +137,9 @@ class EdgeCondition(Condition):
 
                 # add spring
                 spring = cn.Spring()
-                cn.Spring.init_element(spring, scene, node_ids)
-                Condition.init_element(spring, self.stiffness, self.damping, node_ids)
+                spring.set_object(scene, node_ids)
+                spring.stiffness = self.stiffness
+                spring.damping = self.damping
                 springs.append(spring)
 
         self.data.initialize_from_array(springs)
@@ -161,8 +165,9 @@ class AreaCondition(Condition):
 
                 # add area constraint
                 constraint = cn.Area()
-                cn.Area.init_element(constraint, scene, node_ids)
-                Condition.init_element(constraint, self.stiffness, self.damping, node_ids)
+                constraint.set_object(scene, node_ids)
+                constraint.stiffness = self.stiffness
+                constraint.damping = self.damping
                 constraints.append(constraint)
 
         self.data.initialize_from_array(constraints)
@@ -190,8 +195,9 @@ class WireBendingCondition(Condition):
 
                         # add bending constraint
                         constraint = cn.Bending()
-                        cn.Bending.init_element(constraint, scene, node_ids)
-                        Condition.init_element(constraint, self.stiffness, self.damping, node_ids)
+                        constraint.set_object(scene, node_ids)
+                        constraint.stiffness = self.stiffness
+                        constraint.damping = self.damping
                         constraints.append(constraint)
 
         self.data.initialize_from_array(constraints)

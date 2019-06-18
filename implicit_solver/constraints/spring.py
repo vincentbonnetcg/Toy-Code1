@@ -22,17 +22,17 @@ class AnchorSpring(Base):
         self.kinematic_component_index =  np.uint32(0)
         self.kinematic_component_param = np.float32(0.0)
 
-    @classmethod
-    def init_element(cls, element, scene, node_id, kinematic, kinematic_parametric_point):
+    def set_object(self, scene, node_id, kinematic, kinematic_parametric_point):
         '''
         element is an object of type self.datablock_ct generated in add_fields
         '''
         target_pos = kinematic.get_position_from_parametric_point(kinematic_parametric_point)
         x, v = scene.node_state(node_id)
-        element.rest_length = math2D.distance(target_pos, x)
-        element.kinematic_index = kinematic.index
-        element.kinematic_component_index =  kinematic_parametric_point.index
-        element.kinematic_component_param = kinematic_parametric_point.t
+        self.rest_length = math2D.distance(target_pos, x)
+        self.kinematic_index = kinematic.index
+        self.kinematic_component_index =  kinematic_parametric_point.index
+        self.kinematic_component_param = kinematic_parametric_point.t
+        self.node_ids = np.copy([node_id])
 
     @classmethod
     def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
@@ -88,14 +88,14 @@ class Spring(Base):
         Base.__init__(self, num_nodes = 2)
         self.rest_length = np.float32(0.0)
 
-    @classmethod
-    def init_element(cls, element, scene, node_ids):
+    def set_object(self, scene, node_ids):
         '''
         element is an object of type self.datablock_ct generated in add_fields
         '''
         x0, v0 = scene.node_state(node_ids[0])
         x1, v1 = scene.node_state(node_ids[1])
-        element.rest_length = math2D.distance(x0, x1)
+        self.rest_length = math2D.distance(x0, x1)
+        self.node_ids = np.copy(node_ids)
 
     @classmethod
     def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:

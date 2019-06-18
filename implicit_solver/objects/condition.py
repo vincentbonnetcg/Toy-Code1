@@ -30,12 +30,6 @@ class Condition:
         # Metadata
         self.meta_data = {}
 
-    @classmethod
-    def init_element(cls, element, stiffness, damping, node_ids):
-        element.stiffness = stiffness
-        element.damping = damping
-        element.node_ids = np.copy(node_ids)
-
     def num_constraints(self) -> int:
         return len(self.data)
 
