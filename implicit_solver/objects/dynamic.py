@@ -5,6 +5,7 @@
 
 import numpy as np
 import core
+from objects.data_types.node import Node
 
 class Dynamic:
     '''
@@ -26,11 +27,7 @@ class Dynamic:
 
         # Create node data
         self.data = core.DataBlock()
-        self.data.add_field("x", np.float, 2)
-        self.data.add_field("v", np.float, 2)
-        self.data.add_field("f", np.float, 2)
-        self.data.add_field("m", np.float)
-        self.data.add_field("im", np.float)
+        self.data.add_field_from_class(Node)
         self.data.initialize(self.num_nodes)
         np.copyto(self.data.x, shape.vertex.position)
         self.data.m.fill(node_mass)
