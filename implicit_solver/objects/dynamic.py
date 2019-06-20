@@ -5,7 +5,7 @@
 
 import numpy as np
 import core
-from objects.data_types.node import Node
+from objects.elements.node import Node
 
 class Dynamic:
     '''
