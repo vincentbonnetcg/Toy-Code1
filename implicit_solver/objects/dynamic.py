@@ -25,13 +25,17 @@ class Dynamic:
     def __init__(self, shape, node_mass):
         self.num_nodes = shape.num_vertices()
 
-        # Create node data
+        # Allocate node data
         self.data = core.DataBlock()
         self.data.add_field_from_class(Node)
         self.data.initialize(self.num_nodes)
+
+        # Set node data
         np.copyto(self.data.x, shape.vertex.position)
+        self.data.v.fill(0.0)
         self.data.m.fill(node_mass)
         self.data.im.fill(1.0 / node_mass)
+        self.data.f.fill(0.0)
 
         # Reference datablock attributes on the object for easy access
         self.data.set_attribute_to_object(self)
