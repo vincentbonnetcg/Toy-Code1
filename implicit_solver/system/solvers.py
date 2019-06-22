@@ -140,7 +140,6 @@ class ImplicitSolver(BaseSolver):
                         global_j_id = scene.node_global_index(ids[j])
                         A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
-
         ## Assemble b = h *( f0 + h * df/dx * v0)
         # set (f0 * h)
         self.b = np.zeros(num_columns * 2)
@@ -182,10 +181,9 @@ class ImplicitSolver(BaseSolver):
             x = dynamic.x
             for i in range(dynamic.num_nodes):
                 ids = dynamic.node_global_offset + i
-                deltaV = [float(delta_v[ids*2]), float(delta_v[ids*2+1])]
-                deltaX = (v[i] + deltaV) * dt
+                deltaV = delta_v[ids*2:ids*2+2]
+                x[i] += (v[i] + deltaV) * dt
                 v[i] += deltaV
-                x[i] += deltaX
 
 class SemiImplicitSolver(BaseSolver):
     '''
