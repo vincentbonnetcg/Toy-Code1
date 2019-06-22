@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-from objects.elements import Base
+from objects.components import Base
 import core.math_2d as math2D
 from core.data_block import DataBlock
 from core.convex_hull import ConvexHull

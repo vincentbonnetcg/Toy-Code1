@@ -3,7 +3,7 @@
 @description : Subclasses of the Condition class
 """
 
-import objects.elements as cn
+import objects.components as cn
 from objects import Condition
 import numpy as np
 import core
