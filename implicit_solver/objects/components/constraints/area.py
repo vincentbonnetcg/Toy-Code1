@@ -16,7 +16,7 @@ class Area(Base):
     '''
     def __init__(self):
         Base.__init__(self, num_nodes = 3)
-        self.rest_area = np.float32(0.0)
+        self.rest_area = np.float64(0.0)
 
     def set_object(self, scene, node_ids):
         '''

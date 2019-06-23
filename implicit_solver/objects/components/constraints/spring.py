@@ -17,10 +17,10 @@ class AnchorSpring(Base):
     '''
     def __init__(self):
         Base.__init__(self, num_nodes = 1)
-        self.rest_length = np.float32(0.0)
+        self.rest_length = np.float64(0.0)
         self.kinematic_index = np.uint32(0)
         self.kinematic_component_index =  np.uint32(0)
-        self.kinematic_component_param = np.float32(0.0)
+        self.kinematic_component_param = np.float64(0.0)
 
     def set_object(self, scene, node_id, kinematic, kinematic_parametric_point):
         '''
