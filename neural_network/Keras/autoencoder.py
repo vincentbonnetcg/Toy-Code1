@@ -3,35 +3,11 @@
 @description : Keras Evaluation - Image Autoencoder
 """
 
-from keras.datasets import mnist
 from keras.layers import Input, Dense
 from keras.models import Model
 import numpy as np
 import matplotlib.pyplot as plt
-
-def get_test_and_training_images():
-    '''
-    Returns test data
-    '''
-    (x_train, _), (x_test, _) = mnist.load_data()
-
-    # Normalize Data
-    x_train = x_train.astype('float32')/255
-    x_test = x_test.astype('float32')/255
-
-    # Flatten 2D images into 1D array
-    # x_train.shape = (num_images, width, height) to (num_image, width*height)
-    # x_test.shape = (num_images, width, height) to (num_image, width*height)
-    image_shape = x_train.shape[1:]
-    total_pixel = np.prod(image_shape)
-
-    num_training = x_train.shape[0]
-    num_test = x_test.shape[0]
-
-    x_train = x_train.reshape(num_training, total_pixel)
-    x_test = x_test.reshape(num_test, total_pixel)
-
-    return x_train, x_test
+import keras_utils
 
 def show_images(test_data, predicted_data):
     '''
@@ -69,12 +45,12 @@ def get_autoencoder():
     '''
     # Build the layers
     input_layer = Input(shape=(784,))
-    encoded_layer = Dense(units=128, activation='relu')(input_layer)
-    encoded_layer = Dense(units=64, activation='relu')(encoded_layer)
-    encoded_layer = Dense(units=32, activation='relu')(encoded_layer)
-    decoded_layer = Dense(units=64, activation='relu')(encoded_layer)
-    decoded_layer = Dense(units=128, activation='relu')(decoded_layer)
-    decoded_layer = Dense(units=784, activation='sigmoid')(decoded_layer)
+    encoded_layer = Dense(units=128, activation='relu', name='EncoderLayer1')(input_layer)
+    encoded_layer = Dense(units=64, activation='relu', name='EncoderLayer2')(encoded_layer)
+    encoded_layer = Dense(units=32, activation='relu', name='SampleLayer')(encoded_layer)
+    decoded_layer = Dense(units=64, activation='relu', name='DecoderLayer1')(encoded_layer)
+    decoded_layer = Dense(units=128, activation='relu', name='DecoderLayer2')(decoded_layer)
+    decoded_layer = Dense(units=784, activation='sigmoid', name='Output')(decoded_layer)
 
     # Build the model
     autoencoder = Model(input_layer, decoded_layer)
@@ -90,11 +66,11 @@ def main():
     '''
     # Get NN model and data
     auto_encoder = get_autoencoder()
-    x_train, x_test = get_test_and_training_images()
+    x_train, x_test = keras_utils.get_MNIST_test_and_training_data()
 
     # Train the autoencoder (input_x==input_y)
     auto_encoder.fit(x=x_train, y=x_train,
-                     epochs=1,
+                     epochs=10,
                      batch_size=256,
                      shuffle=True,
                      validation_data=(x_test, x_test))
@@ -104,6 +80,7 @@ def main():
 
     # Show results
     show_images(x_test, predicted)
+    keras_utils.plot_model_to_file(auto_encoder)
 
 
 if __name__ == '__main__':
