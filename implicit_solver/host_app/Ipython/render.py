@@ -8,6 +8,7 @@ import matplotlib.patches as patches
 from matplotlib.collections import LineCollection
 from tools import profiler
 import numpy as np
+import system.node_accessor as na
 
 class Render:
 
@@ -74,7 +75,7 @@ class Render:
                 if num_nodes == 2:
                     points = []
                     for node_index in range (num_nodes):
-                        x, v = scene.node_state(node_ids[ct_index][node_index])
+                        x, v = na.node_state(scene, node_ids[ct_index][node_index])
                         points.append(x)
                     segs.append(points)
 

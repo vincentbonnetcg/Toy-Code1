@@ -9,6 +9,7 @@ import scipy.sparse
 import scipy.sparse.linalg
 from tools import profiler
 from system.sparse_matrix import BSRSparseMatrix, DebugSparseMatrix
+import system.node_accessor as na
 
 class Context:
     '''
@@ -136,8 +137,8 @@ class ImplicitSolver(BaseSolver):
                     for j in range(len(ids)):
                         Jv = dfdv_ptr[cid][fi][j]
                         Jx = dfdx_ptr[cid][fi][j]
-                        global_fi_id = scene.node_global_index(ids[fi])
-                        global_j_id = scene.node_global_index(ids[j])
+                        global_fi_id = na.node_global_index(ids[fi])
+                        global_j_id = na.node_global_index(ids[j])
                         A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
         ## Assemble b = h *( f0 + h * df/dx * v0)
@@ -157,8 +158,8 @@ class ImplicitSolver(BaseSolver):
                 for fi in range(len(ids)):
                     for xi in range(len(ids)):
                         Jx = dfdx_ptr[cid][fi][xi]
-                        x, v = scene.node_state(ids[xi])
-                        global_fi_id = scene.node_global_index(ids[fi])
+                        x, v = na.node_state(scene, ids[xi])
+                        global_fi_id = na.node_global_index(ids[fi])
                         self.b[global_fi_id*2:global_fi_id*2+2] += np.matmul(v, Jx) * dt * dt
 
         # convert sparse matrix

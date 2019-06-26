@@ -10,6 +10,7 @@ from core.data_block import DataBlock
 from core.convex_hull import ConvexHull
 from system.scene import Scene
 from numba import njit
+import system.node_accessor as na
 
 class AnchorSpring(Base):
     '''
@@ -27,7 +28,7 @@ class AnchorSpring(Base):
         element is an object of type self.datablock_ct generated in add_fields
         '''
         target_pos = kinematic.get_position_from_parametric_point(kinematic_parametric_point)
-        x, v = scene.node_state(node_id)
+        x, v = na.node_state(scene, node_id)
         self.rest_length = math2D.distance(target_pos, x)
         self.kinematic_index = kinematic.index
         self.kinematic_component_index =  kinematic_parametric_point.index
@@ -48,7 +49,7 @@ class AnchorSpring(Base):
 
         for ct_index in range(len(datablock_cts)):
             node_ids = node_ids_ptr[ct_index]
-            x, v = scene.node_state(node_ids[0])
+            x, v = na.node_state(scene, node_ids[0])
             kinematic = scene.kinematics[k_index_ptr[ct_index]]
             point_params = ConvexHull.ParametricPoint(k_c_index_ptr[ct_index], k_c_param_ptr[ct_index])
             target_pos = kinematic.get_position_from_parametric_point(point_params)
@@ -71,7 +72,7 @@ class AnchorSpring(Base):
 
         for ct_index in range(len(datablock_cts)):
             node_ids = node_ids_ptr[ct_index]
-            x, v = scene.node_state(node_ids[0])
+            x, v = na.node_state(scene, node_ids[0])
             kinematic = scene.kinematics[k_index_ptr[ct_index]]
             point_params = ConvexHull.ParametricPoint(k_c_index_ptr[ct_index], k_c_param_ptr[ct_index])
             target_pos = kinematic.get_position_from_parametric_point(point_params)
@@ -92,8 +93,8 @@ class Spring(Base):
         '''
         element is an object of type self.datablock_ct generated in add_fields
         '''
-        x0, v0 = scene.node_state(node_ids[0])
-        x1, v1 = scene.node_state(node_ids[1])
+        x0, v0 = na.node_state(scene, node_ids[0])
+        x1, v1 = na.node_state(scene, node_ids[1])
         self.rest_length = math2D.distance(x0, x1)
         self.node_ids = np.copy(node_ids)
 
@@ -110,8 +111,8 @@ class Spring(Base):
 
         for ct_index in range(len(datablock_cts)):
             node_ids = node_ids_ptr[ct_index]
-            x0, v0 = scene.node_state(node_ids[0])
-            x1, v1 = scene.node_state(node_ids[1])
+            x0, v0 = na.node_state(scene, node_ids[0])
+            x1, v1 = na.node_state(scene, node_ids[1])
             force = spring_stretch_force(x0, x1, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
             force += spring_damping_force(x0, x1, v0, v1, damping_ptr[ct_index])
             force_ptr[ct_index][0] = force
@@ -130,8 +131,8 @@ class Spring(Base):
         dfdv_ptr = datablock_cts.dfdv
 
         for ct_index in range(len(datablock_cts)):
-            x0, v0 = scene.node_state(node_ids_ptr[ct_index][0])
-            x1, v1 = scene.node_state(node_ids_ptr[ct_index][1])
+            x0, v0 = na.node_state(scene, node_ids_ptr[ct_index][0])
+            x1, v1 = na.node_state(scene, node_ids_ptr[ct_index][1])
             dfdx = spring_stretch_jacobian(x0, x1, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
             dfdv = spring_damping_jacobian(x0, x1, v0, v1, damping_ptr[ct_index])
             # Set jacobians
