@@ -4,7 +4,7 @@
 """
 
 import objects
-from tools import profiler
+from core import profiler
 
 def set_render_prefs(obj, prefs):
     '''

@@ -7,7 +7,7 @@ import numpy as np
 import scipy as sc
 import scipy.sparse
 import scipy.sparse.linalg
-from tools import profiler
+from core import profiler
 from core.sparse_matrix import BSRSparseMatrix, DebugSparseMatrix
 import core.node_accessor as na
 

@@ -3,7 +3,8 @@
 @description : main
 """
 
-import tools
+
+import core
 import system
 from render import Render
 from host_app.dispatcher import CommandDispatcher
@@ -21,12 +22,11 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 USE_REMOTE_SERVER = False # run the program locally or connect to a server
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 
-
 def main():
     # Creates render and profiler
     render = Render()
     render.set_render_folder_path(RENDER_FOLDER_PATH)
-    profiler = tools.Profiler()
+    profiler = core.Profiler()
 
     # Creates command dispatcher
     cmd_dispatcher= None
@@ -41,7 +41,7 @@ def main():
                          num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
 
     cmd_dispatcher.run("set_context", context = context)
-    scene_examples.init_wire_example(cmd_dispatcher, render)
+    scene_examples.init_cat_scene(cmd_dispatcher, render)
 
     # Simulate frames
     for frame_id in range(context.num_frames+1):
@@ -55,6 +55,7 @@ def main():
         render.show_current_frame(cmd_dispatcher, frame_id)
         render.export_current_frame(str(frame_id).zfill(4) + " .png")
 
+
         profiler.print_logs()
 
     # Disconnect client from server
@@ -63,4 +64,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -6,7 +6,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.collections import LineCollection
-from tools import profiler
+from core import profiler
 import numpy as np
 import core.node_accessor as na
 
