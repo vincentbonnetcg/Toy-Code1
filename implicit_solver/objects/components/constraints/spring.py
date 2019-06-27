@@ -10,7 +10,7 @@ from core.data_block import DataBlock
 from core.convex_hull import ConvexHull
 from system.scene import Scene
 from numba import njit
-import system.node_accessor as na
+import core.node_accessor as na
 
 class AnchorSpring(Base):
     '''

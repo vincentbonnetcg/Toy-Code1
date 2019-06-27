@@ -8,7 +8,7 @@ import matplotlib.patches as patches
 from matplotlib.collections import LineCollection
 from tools import profiler
 import numpy as np
-import system.node_accessor as na
+import core.node_accessor as na
 
 class Render:
 

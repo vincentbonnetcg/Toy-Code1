@@ -6,10 +6,11 @@
 from objects.components import Base
 import core.math_2d as math2D
 from core.data_block import DataBlock
+import core.node_accessor as na
 from system.scene import Scene
 from numba import njit
 import numpy as np
-import system.node_accessor as na
+
 
 class Area(Base):
     '''

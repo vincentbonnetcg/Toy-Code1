@@ -7,7 +7,7 @@ from objects.components import Base
 import core.math_2d as math2D
 from core.data_block import DataBlock
 from system.scene import Scene
-import system.node_accessor as na
+import core.node_accessor as na
 from numba import njit
 import math
 import numpy as np

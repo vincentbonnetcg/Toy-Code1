@@ -7,7 +7,7 @@ import objects.components as cn
 from objects import Condition
 import numpy as np
 import core
-import system.node_accessor as na
+import core.node_accessor as na
 
 class KinematicCollisionCondition(Condition):
     '''

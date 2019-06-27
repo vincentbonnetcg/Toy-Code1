@@ -8,8 +8,8 @@ import scipy as sc
 import scipy.sparse
 import scipy.sparse.linalg
 from tools import profiler
-from system.sparse_matrix import BSRSparseMatrix, DebugSparseMatrix
-import system.node_accessor as na
+from core.sparse_matrix import BSRSparseMatrix, DebugSparseMatrix
+import core.node_accessor as na
 
 class Context:
     '''
