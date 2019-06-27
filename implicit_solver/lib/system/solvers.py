@@ -4,12 +4,13 @@
 """
 
 import numpy as np
-import scipy as sc
+import scipy
 import scipy.sparse
 import scipy.sparse.linalg
-from core import profiler
-from core.sparse_matrix import BSRSparseMatrix, DebugSparseMatrix
-import core.node_accessor as na
+
+import lib.common.node_accessor as na
+from lib.common import profiler
+from lib.common.sparse_matrix import BSRSparseMatrix
 
 class Context:
     '''
@@ -170,7 +171,7 @@ class ImplicitSolver(BaseSolver):
         if (scene.num_nodes() == 0):
             return
         # Solve the system (Ax=b)
-        cgResult = sc.sparse.linalg.cg(self.A, self.b)
+        cgResult = scipy.sparse.linalg.cg(self.A, self.b)
         delta_v = cgResult[0]
         # Advect
         self.advect(scene, delta_v, dt)

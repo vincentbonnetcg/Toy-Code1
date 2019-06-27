@@ -3,8 +3,8 @@
 @description : commands to setup objects and run simulation
 """
 
-import objects
-from core import profiler
+import lib.objects as objects
+from lib.common import profiler
 
 def set_render_prefs(obj, prefs):
     '''

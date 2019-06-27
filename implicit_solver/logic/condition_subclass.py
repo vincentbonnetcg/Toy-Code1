@@ -3,11 +3,11 @@
 @description : Subclasses of the Condition class
 """
 
-import objects.components as cn
-from objects import Condition
+import lib.objects.components as cn
+from lib.objects import Condition
 import numpy as np
-import core
-import core.node_accessor as na
+import lib.common as common
+import lib.common.node_accessor as na
 
 class KinematicCollisionCondition(Condition):
     '''
@@ -185,7 +185,7 @@ class WireBendingCondition(Condition):
 
         for object_index in self.dynamic_indices:
             dynamic = scene.dynamics[object_index]
-            vertex_edges_dict = core.shape.vertex_ids_neighbours(dynamic.edge_ids)
+            vertex_edges_dict = common.shape.vertex_ids_neighbours(dynamic.edge_ids)
             if self.stiffness > 0.0:
                 for vertex_index, vertex_index_neighbour in vertex_edges_dict.items():
                     if (len(vertex_index_neighbour) == 2):

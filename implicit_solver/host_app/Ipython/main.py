@@ -4,12 +4,12 @@
 """
 
 
-import core
-import system
+import lib.common as common
+import lib.system as system
 from render import Render
 from host_app.dispatcher import CommandDispatcher
 from host_app.client import Client
-from tests import scene_examples
+from logic import scene_examples
 
 '''
  Global Constants
@@ -26,7 +26,7 @@ def main():
     # Creates render and profiler
     render = Render()
     render.set_render_folder_path(RENDER_FOLDER_PATH)
-    profiler = core.Profiler()
+    profiler = common.Profiler()
 
     # Creates command dispatcher
     cmd_dispatcher= None

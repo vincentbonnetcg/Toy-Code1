@@ -6,9 +6,11 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.collections import LineCollection
-from core import profiler
+
+from lib.common import profiler
+import lib.common.node_accessor as na
+
 import numpy as np
-import core.node_accessor as na
 
 class Render:
 

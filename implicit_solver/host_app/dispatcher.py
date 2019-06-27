@@ -3,9 +3,9 @@
 @description : Run command and bundle scene/solver/context together
 """
 
-import system
-import system.commands as sim_cmds
-import tests.commands as subclass_cmds
+import lib.system as system
+import logic.commands_lib as sim_cmds
+import logic.commands_subclass as subclass_cmds
 import uuid
 
 class CommandDispatcher:

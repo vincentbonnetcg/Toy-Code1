@@ -3,9 +3,9 @@
 @description : example scenes for Unit Testing
 """
 import os
-import objects
+import lib.objects as objects
 import math
-from tests import WireShape, RectangleShape, BeamShape
+from logic import WireShape, RectangleShape, BeamShape
 import host_app.dcc_before_python3.shape_io_p2 as dcc_p2_utils
 
 '''

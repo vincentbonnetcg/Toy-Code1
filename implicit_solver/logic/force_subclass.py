@@ -3,7 +3,7 @@
 @description : Subclasses of the Force class
 """
 
-from objects import Force
+from lib.objects import Force
 import numpy as np
 
 class Gravity(Force):

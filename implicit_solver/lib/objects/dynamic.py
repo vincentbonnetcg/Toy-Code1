@@ -4,8 +4,8 @@
 """
 
 import numpy as np
-import core
-from objects.components.node import Node
+import lib.common as common
+from lib.objects.components.node import Node
 
 class Dynamic:
     '''
@@ -26,7 +26,7 @@ class Dynamic:
         self.num_nodes = shape.num_vertices()
 
         # Allocate node data
-        self.data = core.DataBlock()
+        self.data = common.DataBlock()
         self.data.add_field_from_class(Node)
         self.data.initialize(self.num_nodes)
 
@@ -65,7 +65,7 @@ class Dynamic:
         num_vertices = self.num_nodes
         num_edges = len(self.edge_ids)
         num_faces = len(self.face_ids)
-        shape = core.Shape(num_vertices, num_edges, num_faces)
+        shape = common.Shape(num_vertices, num_edges, num_faces)
 
         for i in range(num_vertices):
             shape.vertex.position[i] = self.x[i]

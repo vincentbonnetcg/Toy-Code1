@@ -3,9 +3,8 @@
 @description : conditions create a list of constraints from a list of objects
 """
 
-import numpy as np
-import core
-import core.node_accessor as na
+import lib.common as common
+import lib.common.node_accessor as na
 
 class Condition:
     '''
@@ -22,7 +21,7 @@ class Condition:
         self.dynamic_indices = [dynamic.index for dynamic in dynamics]
         self.kinematic_indices = [kinematic.index for kinematic in kinematics]
         # Data
-        self.data = core.DataBlock()
+        self.data = common.DataBlock()
         self.data.add_field_from_class(constraint_type)
         # Energy / Force / Jacobian (Used by the optimiser)
         self.energy_func = None # Not used yet

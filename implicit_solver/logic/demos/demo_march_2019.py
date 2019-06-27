@@ -5,7 +5,7 @@
 import system
 from host_app.client import Client
 from host_app.Ipython.render import Render
-from tests import scene_examples, RectangleShape
+from logic import scene_examples, RectangleShape
 import objects
 import time
 

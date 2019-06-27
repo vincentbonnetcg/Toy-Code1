@@ -3,7 +3,7 @@
 @description : Subclasses of the Shape class
 """
 
-from core import Shape
+from lib.common import Shape
 import numpy as np
 
 class WireShape(Shape):

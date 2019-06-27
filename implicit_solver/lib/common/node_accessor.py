@@ -3,7 +3,7 @@
 @description : This class provides a mapping between node identifiers and data
 """
 
-from system.scene import Scene
+from lib.system.scene import Scene
 
 def node_id(scene : Scene, object_id, local_node_id):
     global_node_id = scene.dynamics[object_id].node_global_offset + local_node_id

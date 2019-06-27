@@ -3,11 +3,11 @@
 @description : Constraint base for the implicit solver
 """
 
-from objects.components import Base
-import core.math_2d as math2D
-from core.data_block import DataBlock
-import core.node_accessor as na
-from system.scene import Scene
+from lib.objects.components import Base
+import lib.common.math_2d as math2D
+from lib.common.data_block import DataBlock
+import lib.common.node_accessor as na
+from lib.system.scene import Scene
 from numba import njit
 import numpy as np
 

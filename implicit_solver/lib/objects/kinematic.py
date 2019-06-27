@@ -5,7 +5,7 @@
 
 import math
 import numpy as np
-from core.convex_hull import ConvexHull
+from lib.common.convex_hull import ConvexHull
 
 class Kinematic:
     '''

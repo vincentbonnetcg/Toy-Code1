@@ -6,7 +6,7 @@ This file will go away as soon as those two DCCs move to Python3
 """
 
 import pickle
-import core
+import lib.common as common
 
 def write_to_file(points, edge_ids, face_ids, filename):
     out_file = open(filename,'wb')
@@ -35,7 +35,7 @@ def create_shape_from_file(filename):
     num_vertices = len(points)
     num_edges = len(edge_ids)
     num_faces = len(face_ids)
-    shape = core.Shape(num_vertices, num_edges, num_faces)
+    shape = common.Shape(num_vertices, num_edges, num_faces)
 
     for i in range(num_vertices):
         shape.vertex.position[i] = (points[i][0], points[i][1])
