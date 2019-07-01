@@ -10,16 +10,10 @@ class Condition:
     '''
     Base of a condition
     '''
-    def __init__(self, dynamics, kinematics, stiffness, damping, constraint_type):
-        '''
-        dynamics and kinematics are the objects involved in the constraint
-        stiffness and damping are the constraint parameters
-        '''
+    def __init__(self, stiffness, damping, constraint_type):
         # Parameters
         self.stiffness = stiffness
         self.damping = damping
-        self.dynamic_indices = [dynamic.index for dynamic in dynamics]
-        self.kinematic_indices = [kinematic.index for kinematic in kinematics]
         # Data
         self.data = common.DataBlock()
         self.data.add_field_from_class(constraint_type)
