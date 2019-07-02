@@ -121,10 +121,11 @@ class ImplicitSolver(BaseSolver):
         ## => Assemble A = (M - (h * df/dv + h^2 * df/dx))
         # set mass matrix
         for dynamic in scene.dynamics:
+            node_id_ptr = dynamic.node_id
             for i in range(dynamic.num_nodes):
                 mass_matrix = np.zeros((2,2))
                 np.fill_diagonal(mass_matrix, dynamic.m[i])
-                idx = dynamic.node_global_offset + i
+                idx = na.node_global_index(node_id_ptr[i])
                 A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
@@ -146,8 +147,9 @@ class ImplicitSolver(BaseSolver):
         # set (f0 * h)
         self.b = np.zeros(num_columns * 2)
         for dynamic in scene.dynamics:
+            node_id_ptr = dynamic.node_id
             for i in range(dynamic.num_nodes):
-                idx = dynamic.node_global_offset + i
+                idx = na.node_global_index(node_id_ptr[i])
                 self.b[idx*2:idx*2+2] += dynamic.f[i] * dt
 
         # set (df/dx * v0 * h * h)
@@ -179,10 +181,11 @@ class ImplicitSolver(BaseSolver):
     @profiler.timeit
     def advect(self, scene, delta_v, dt):
         for dynamic in scene.dynamics:
+            node_id_ptr = dynamic.node_id
             v = dynamic.v
             x = dynamic.x
             for i in range(dynamic.num_nodes):
-                ids = dynamic.node_global_offset + i
+                ids = na.node_global_index(node_id_ptr[i])
                 deltaV = delta_v[ids*2:ids*2+2]
                 x[i] += (v[i] + deltaV) * dt
                 v[i] += deltaV

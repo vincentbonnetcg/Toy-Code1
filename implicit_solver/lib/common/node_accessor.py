@@ -6,8 +6,7 @@
 from lib.system.scene import Scene
 
 def node_id(scene : Scene, object_id, local_node_id):
-    global_node_id = scene.dynamics[object_id].node_global_offset + local_node_id
-    return [object_id, local_node_id, global_node_id]
+    return scene.dynamics[object_id].node_id[local_node_id]
 
 def node_global_index(node_id):
     return node_id[2]
