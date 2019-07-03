@@ -149,8 +149,9 @@ class ImplicitSolver(BaseSolver):
         for dynamic in scene.dynamics:
             node_id_ptr = dynamic.node_id
             for i in range(dynamic.num_nodes):
-                idx = na.node_global_index(node_id_ptr[i])
-                self.b[idx*2:idx*2+2] += dynamic.f[i] * dt
+                vec = dynamic.f[i] * dt
+                b_offset = na.node_global_index(node_id_ptr[i]) * 2
+                self.b[b_offset:b_offset+2] += vec
 
         # set (df/dx * v0 * h * h)
         for condition in scene.conditions:
@@ -162,8 +163,9 @@ class ImplicitSolver(BaseSolver):
                     for xi in range(len(ids)):
                         Jx = dfdx_ptr[cid][fi][xi]
                         x, v = na.node_state(scene, ids[xi])
-                        global_fi_id = na.node_global_index(ids[fi])
-                        self.b[global_fi_id*2:global_fi_id*2+2] += np.matmul(v, Jx) * dt * dt
+                        vec = np.matmul(v, Jx) * dt * dt
+                        b_offset = na.node_global_index(ids[fi]) * 2
+                        self.b[b_offset:b_offset+2] += vec
 
         # convert sparse matrix
         self.A = A.sparse_matrix()
