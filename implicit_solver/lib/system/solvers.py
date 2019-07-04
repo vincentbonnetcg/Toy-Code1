@@ -206,8 +206,8 @@ class ImplicitSolver(BaseSolver):
             v = dynamic.v
             x = dynamic.x
             for i in range(dynamic.num_nodes):
-                ids = na.node_global_index(node_id_ptr[i])
-                deltaV = delta_v[ids*2:ids*2+2]
+                n_offset = na.node_global_index(node_id_ptr[i]) * 2
+                deltaV = delta_v[n_offset:n_offset+2]
                 x[i] += (v[i] + deltaV) * dt
                 v[i] += deltaV
 
