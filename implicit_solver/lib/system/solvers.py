@@ -109,17 +109,26 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def assemble_system(self, scene, dt):
+        '''
+        Assemble the system (Ax=b) where x is the unknow change of velocity
+        '''
+        self.assemble_A(scene, dt)
+        self.assemble_b(scene, dt)
+
+    @profiler.timeit
+    def assemble_A(self, scene, dt):
+        '''
+        Assemble A = (M - (h * df/dv + h^2 * df/dx))
+        '''
         total_nodes = scene.num_nodes()
         if (total_nodes == 0):
             return
-        # Assemble the system (Ax=b) where x is the change of velocity
+
         num_rows = total_nodes
         num_columns = total_nodes
         A = BSRSparseMatrix(num_rows, num_columns, 2)
 
-        ## Assemble A = (M - h * df/dv - h^2 * df/dx)
-        ## => Assemble A = (M - (h * df/dv + h^2 * df/dx))
-        # set mass matrix
+        # Set mass matrix
         for dynamic in scene.dynamics:
             node_id_ptr = dynamic.node_id
             for i in range(dynamic.num_nodes):
@@ -143,9 +152,22 @@ class ImplicitSolver(BaseSolver):
                         global_j_id = na.node_global_index(ids[j])
                         A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
-        ## Assemble b = h *( f0 + h * df/dx * v0)
-        # set (f0 * h)
-        self.b = np.zeros(num_columns * 2)
+        # convert sparse matrix
+        self.A = A.sparse_matrix()
+
+    @profiler.timeit
+    def assemble_b(self, scene, dt):
+        '''
+        Assemble b = h *( f0 + h * df/dx * v0)
+                 b = (f0 * h) + (h^2 * df/dx * v0)
+        '''
+        total_nodes = scene.num_nodes()
+        if (total_nodes == 0):
+            return
+
+        self.b = np.zeros(total_nodes * 2)
+
+        # Set (f0 * h)
         for dynamic in scene.dynamics:
             node_id_ptr = dynamic.node_id
             for i in range(dynamic.num_nodes):
@@ -153,7 +175,7 @@ class ImplicitSolver(BaseSolver):
                 b_offset = na.node_global_index(node_id_ptr[i]) * 2
                 self.b[b_offset:b_offset+2] += vec
 
-        # set (df/dx * v0 * h * h)
+        # add (df/dx * v0 * h * h)
         for condition in scene.conditions:
             node_ids_ptr = condition.data.node_ids
             dfdx_ptr = condition.data.dfdx
@@ -166,9 +188,6 @@ class ImplicitSolver(BaseSolver):
                         vec = np.matmul(v, Jx) * dt * dt
                         b_offset = na.node_global_index(ids[fi]) * 2
                         self.b[b_offset:b_offset+2] += vec
-
-        # convert sparse matrix
-        self.A = A.sparse_matrix()
 
     @profiler.timeit
     def solve_system(self, scene, dt):
