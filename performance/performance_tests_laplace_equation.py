@@ -21,17 +21,37 @@ import math
 import numpy as np
 from numba import njit, cuda, vectorize, prange, float32
 import matplotlib.pyplot as plt
+import skimage
 
 '''
  Global Parameters
 '''
 NUM_NODES = 128 # For GPU should be a multiplier of TPB
-JACOBI_ITERATIONS = 1000
+JACOBI_ITERATIONS = 10000
 TPB = 16 # Thread per block
 GPU_SHARED_MEMORY_SIZE = TPB + 2 # +2 because the stencil requires -1 and +1
 
 # TODO - Test Image restoration using partial differential equations
-# TODO - improve shared memory
+# TODO - improve shared memory - http://jinjiren.github.io/blog/cuda-programming/
+
+def create_domain_from_image(num_nodes=64):
+    '''
+    Returns domain nodes along x, y and grid values
+    The values come from an image
+    '''
+    domain_x = np.linspace(0, 10, num=num_nodes, endpoint=True)
+    domain_y = np.linspace(0, 10, num=num_nodes, endpoint=True)
+
+    # Convert image to greyscale numpy 2D-array
+    image = skimage.img_as_float(skimage.color.rgb2gray(skimage.data.chelsea())).astype(np.float32)
+    # Resize the image to (num_nodes, num_nodes) shape
+    image = skimage.transform.resize(image, output_shape=(num_nodes, num_nodes), anti_aliasing=True)
+    # Flip the image upside-down
+    image = np.flipud(image)
+    # Finally, turn the image into a single memory block to be used by Cuda
+    image = np.ascontiguousarray(image, dtype=np.float32)
+
+    return domain_x, domain_y, image
 
 def create_domain(num_nodes=64):
     '''
@@ -153,12 +173,13 @@ dummy_call_to_compile_jit()
 '''
 fig, ax = plt.subplots()
 domain_x, domain_y, values = create_domain(NUM_NODES)
+#domain_x, domain_y, values = create_domain_from_image(NUM_NODES)
 
 start_time = time.time()
 #dispatch_cpu_algo(values, jacobi_solver, JACOBI_ITERATIONS)
-#dispatch_cpu_algo(values, numba_jacobi_solver, JACOBI_ITERATIONS)
+dispatch_cpu_algo(values, numba_jacobi_solver, JACOBI_ITERATIONS)
 #dispatch_gpu_algo(values, cuda_kernel_jacobi_solver, JACOBI_ITERATIONS)
-dispatch_gpu_algo(values, cuda_kernel_jacobi_solver_with_shared_memory, JACOBI_ITERATIONS)
+#dispatch_gpu_algo(values, cuda_kernel_jacobi_solver_with_shared_memory, JACOBI_ITERATIONS)
 end_time = time.time()
 log = 'Timing - %f sec' % (end_time - start_time)
 print(log)
