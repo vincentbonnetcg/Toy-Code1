@@ -39,9 +39,6 @@ def create_domain_from_image(num_nodes=64):
     Returns domain nodes along x, y and grid values
     The values come from an image
     '''
-    domain_x = np.linspace(0, 10, num=num_nodes, endpoint=True)
-    domain_y = np.linspace(0, 10, num=num_nodes, endpoint=True)
-
     # Convert image to greyscale numpy 2D-array
     image = skimage.img_as_float(skimage.color.rgb2gray(skimage.data.chelsea())).astype(np.float32)
     # Resize the image to (num_nodes, num_nodes) shape
@@ -51,19 +48,16 @@ def create_domain_from_image(num_nodes=64):
     # Finally, turn the image into a single memory block to be used by Cuda
     image = np.ascontiguousarray(image, dtype=np.float32)
 
-    return domain_x, domain_y, image
+    return image
 
 def create_domain(num_nodes=64):
     '''
     Returns domain nodes along x, y and grid values
     '''
-    domain_x = np.linspace(0, 10, num=num_nodes, endpoint=True)
-    domain_y = np.linspace(0, 10, num=num_nodes, endpoint=True)
-
     values = np.zeros((num_nodes, num_nodes), np.float) # unknown function
     values[num_nodes-1:num_nodes] = 1000.0
 
-    return domain_x, domain_y, values
+    return values
 
 '''
  CPU Methods (Python and Numba)
@@ -159,32 +153,40 @@ def dispatch_cpu_algo(x, algo = jacobi_solver, num_iterations = 500):
         algo(buffers[buffer_id], buffers[(buffer_id+1)%2])
         buffer_id = (buffer_id+1)%2
 
-'''
- Dummy - only for proper profiling
-'''
-def dummy_call_to_compile_jit():
-    domain_x, domain_y, values = create_domain(2)
+def dummy_call_to_compile_jit_function():
+    '''
+    Dummy - only for proper profiling
+    '''
+    values = create_domain(2)
     dispatch_cpu_algo(values, numba_jacobi_solver, 1)
 
-dummy_call_to_compile_jit()
+def main():
+    '''
+    Main
+    '''
+    #. pre-compile cpu jit function so timing doesn't
+    dummy_call_to_compile_jit_function()
 
-'''
- Execute dispatcher methods
-'''
-fig, ax = plt.subplots()
-domain_x, domain_y, values = create_domain(NUM_NODES)
-#domain_x, domain_y, values = create_domain_from_image(NUM_NODES)
+    #1. Create 2D grid domain
+    values = create_domain(NUM_NODES)
+    #values = create_domain_from_image(NUM_NODES)
 
-start_time = time.time()
-#dispatch_cpu_algo(values, jacobi_solver, JACOBI_ITERATIONS)
-dispatch_cpu_algo(values, numba_jacobi_solver, JACOBI_ITERATIONS)
-#dispatch_gpu_algo(values, cuda_kernel_jacobi_solver, JACOBI_ITERATIONS)
-#dispatch_gpu_algo(values, cuda_kernel_jacobi_solver_with_shared_memory, JACOBI_ITERATIONS)
-end_time = time.time()
-log = 'Timing - %f sec' % (end_time - start_time)
-print(log)
+    #2. Run and benchmark algorithm
+    start_time = time.time()
+    #dispatch_cpu_algo(values, jacobi_solver, JACOBI_ITERATIONS)
+    dispatch_cpu_algo(values, numba_jacobi_solver, JACOBI_ITERATIONS)
+    #dispatch_gpu_algo(values, cuda_kernel_jacobi_solver, JACOBI_ITERATIONS)
+    #dispatch_gpu_algo(values, cuda_kernel_jacobi_solver_with_shared_memory, JACOBI_ITERATIONS)
+    end_time = time.time()
+    print('Timing - %f sec' % (end_time - start_time))
 
-im = ax.pcolormesh(domain_x, domain_y, values, cmap="rainbow", antialiased=True, shading="gouraud")
-fig.colorbar(im)
-#fig.savefig("test.png")
+    #3. Show result
+    fig, ax = plt.subplots()
+    domain = np.linspace(0, 10, num=NUM_NODES, endpoint=True)
+    im = ax.pcolormesh(domain, domain, values, cmap="rainbow", antialiased=True, shading="gouraud")
+    fig.colorbar(im)
+    #fig.savefig("test.png")
+
+if __name__ == '__main__':
+    main()
 
