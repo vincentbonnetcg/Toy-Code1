@@ -94,9 +94,10 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ### Stencil Operations
 
-#### Laplace's Equation
+#### Laplace's Equation and Image Restoration (Laplace Inpainting)
 Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
-![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_laplace_equation.png)<br>
+![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_laplace_equation.png)
+![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/laplace_inpainting.png)<br>
 
 #### Cellular Automata and Image Processing
 ![Automata_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_cellularAutomata.gif)<br>
