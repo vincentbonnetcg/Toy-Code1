@@ -18,12 +18,6 @@ import keyword
 
 class DataBlock:
 
-    class Element:
-        '''
-        Empty class to describe an element in datablock
-        '''
-        pass
-
     def __init__(self):
         self.reset()
 
@@ -36,8 +30,9 @@ class DataBlock:
         self.data = None
         # Datatype
         self.dtype_dict = {}
-        self.dtype_dict['names'] = []
-        self.dtype_dict['formats'] = []
+        self.dtype_dict['names'] = [] # list of names
+        self.dtype_dict['formats'] = [] # list of tuples (data_type, data_shape)
+        self.dtype_dict['defaults'] = [] # list of default values (should match formats)
 
     def clear(self):
         '''
@@ -57,6 +52,9 @@ class DataBlock:
                 self.add_field(name, type(value))
 
     def add_field(self, name, data_type=np.float, data_shape=1):
+        self.__add_field_from_type(name, data_type, data_shape)
+
+    def __add_field_from_type(self, name, data_type=np.float, data_shape=1):
         '''
         Add a new field to the data block
         '''
@@ -69,25 +67,15 @@ class DataBlock:
         if self.data is None:
             self.dtype_dict['names'].append(name)
             self.dtype_dict['formats'].append((data_type, data_shape))
+            if data_shape == 1:
+                #zero_value = np.asscalar(np.zeros(data_shape, data_type))
+                zero_value = data_type(0.0)
+                self.dtype_dict['defaults'].append(zero_value)
+            else:
+                zero_value = np.zeros(data_shape, data_type)
+                self.dtype_dict['defaults'].append(zero_value)
         else:
             warnings.warn('Cannot addField on an initialized DataBlock')
-
-    def create_empty_element(self) -> 'DataBlock.Element':
-        element = DataBlock.Element()
-
-        for field_id, field_format in enumerate(self.dtype_dict['formats']):
-                field_name = self.dtype_dict['names'][field_id]
-                field_type = field_format[0]
-                field_shape = field_format[1]
-                if field_shape == 1:
-                    #default_value = np.asscalar(np.zeros(field_shape, field_type))
-                    default_value = field_type(0.0)
-                    setattr(element, field_name, default_value)
-                else:
-                    default_value = np.zeros(field_shape, field_type)
-                    setattr(element, field_name, default_value)
-
-        return element
 
     def initialize_from_array(self, array):
         '''
@@ -140,6 +128,7 @@ class DataBlock:
             dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
 
         # allocate memory
+        # TODO : set default values
         aosoa_dtype = np.dtype(dtype_aosoa_dict, align=True)
         self.data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
 
