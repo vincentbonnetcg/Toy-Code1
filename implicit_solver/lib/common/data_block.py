@@ -78,7 +78,8 @@ class DataBlock:
                 field_type = field_format[0]
                 field_shape = field_format[1]
                 if field_shape == 1:
-                    default_value = np.asscalar(np.zeros(field_shape, field_type))
+                    #default_value = np.asscalar(np.zeros(field_shape, field_type))
+                    default_value = field_type(0.0)
                     setattr(element, field_name, default_value)
                 else:
                     default_value = np.zeros(field_shape, field_type)
