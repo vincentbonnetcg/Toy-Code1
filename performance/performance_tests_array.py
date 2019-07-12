@@ -23,7 +23,7 @@ def function(value):
     '''
     Operation on a single value
     '''
-    return math.sqrt(value * value * value)
+    return math.sqrt(math.tan(value) * value * math.cos(value))
 
 '''
 Algorithms
@@ -38,7 +38,7 @@ def python_loop(array):
 
 vectorized_function = np.vectorize(function)
 
-@njit(fastmath=True)
+@njit
 def numba_loop(array):
     for i in numba.prange(array.shape[0]):
         array[i] = function(array[i])

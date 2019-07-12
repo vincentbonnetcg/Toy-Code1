@@ -4,6 +4,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ## . Implicit Soft-body Solver
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
 **Description** Implicit Solver.
+
 - Implicit / Semi-Implicit integrators
 - Spring / Area / Bending Constraint
 - Numerical Differentiations (Numerical Jacobian and Hessian) with high accuracy order
@@ -76,17 +77,16 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![Regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/polynomial_regression.png)
 
-## Stencil Operations
-**Folder** [performance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/performance)<br>
-**Description** Evaluate simple image processing and cellular automata on Cuda
+## Stencil Codes
+**Folder** [stencil_codes](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes)<br>
+**Description** Evaluate stencil codes with Numba
 
-### Laplace's Equation and Image Restoration (Laplace Inpainting)
-Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
+- Laplace's Equation and Laplace Inpainting (CPU and GPU)
+- Cellular Automata GPU
+- Image Processing GPU
+
 ![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_laplace_equation.png)
-![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/laplace_inpainting.png)<br>
-
-### Cellular Automata and Image Processing
-![Automata_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_cellularAutomata.gif)<br>
+![Inpainting_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/laplace_inpainting.png)<br>
 
 [1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.<br>
 [2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
