@@ -76,6 +76,21 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![Regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/polynomial_regression.png)
 
+## Stencil Operations
+**Folder** [performance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/performance)<br>
+**Description** Evaluate simple image processing and cellular automata on Cuda
+
+### Laplace's Equation and Image Restoration (Laplace Inpainting)
+Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
+![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_laplace_equation.png)
+![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/laplace_inpainting.png)<br>
+
+### Cellular Automata and Image Processing
+![Automata_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_cellularAutomata.gif)<br>
+
+[1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.<br>
+[2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
+
 ## . Neural Network (placeholder)
 **Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
 **Description** Folder to study Neural Network
@@ -83,27 +98,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ![MNIST](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/nn_mnist.png)<br>
 
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
-
-## . Performance (Numba, Cuda ...)
-**Folder** [performance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/performance)<br>
-**Description** Evaluate simple image processing and cellular automata on Cuda
-
-### Array Operations
-
-![Array_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_array.png)<br>
-
-### Stencil Operations
-
-#### Laplace's Equation and Image Restoration (Laplace Inpainting)
-Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
-![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_laplace_equation.png)
-![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/laplace_inpainting.png)<br>
-
-#### Cellular Automata and Image Processing
-![Automata_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_cellularAutomata.gif)<br>
-
-[1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.<br>
-[2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
 
 ## . Signed distance field (placeholder)
 **Folder** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/signed_distance_field.py)<br>
@@ -135,3 +129,13 @@ Jacobi iterative solver on CPU (multithreaded) and GPU(with shared memory)<br>
 **Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
 
 ![COLOURING](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/graphColouring_greedyAlgorithm.png)
+
+
+## . Numba - Sandbox Test
+
+### Array Operations
+
+**Folder** [performance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/performance)<br>
+**Description** Evaluate simple 1D array operation with Numba
+
+![Array_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_array.png)<br>
