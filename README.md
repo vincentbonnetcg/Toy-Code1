@@ -85,8 +85,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 - Cellular Automata GPU
 - Image Processing GPU
 
-![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_laplace_equation.png)
-![Inpainting_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/laplace_inpainting.png)<br>
+![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_laplace_equation.png)
 
 [1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.<br>
 [2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.

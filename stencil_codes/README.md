@@ -3,7 +3,8 @@
 Stencil Codes written with Python and Numba
 
 ## Cellular Automata and Image Restoration (Laplace Inpainting)
-Numba Jacobi iterative solver
+**File** [numba_laplace_equation.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/numba_laplace_equation.py)<br>
+**Description** Numba Jacobi iterative solver
 
 - CPU (multithreaded)
 - GPU(with shared memory)
@@ -12,7 +13,8 @@ Numba Jacobi iterative solver
 ![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_laplace_inpainting.png)
 
 ## Cellular Automata and Image Processing
-Numba stencil image processing
+**File** [numba_cuda_stencil_image.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/numba_cuda_stencil_image.py)<br>
+**Description** Numba image operations
 
 - Image Processing with 3x3 kernels
 - Cellular Automata
