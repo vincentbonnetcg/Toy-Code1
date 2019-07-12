@@ -12,7 +12,6 @@ print(data.field_a)
 print(data.field_b)
 """
 
-import warnings
 import numpy as np
 import keyword
 
@@ -46,10 +45,7 @@ class DataBlock:
 
     def add_field_from_instance(self, inst):
         for name, value in inst.__dict__.items():
-            if not np.isscalar(value):
-                self.add_field(name, value.dtype.type, value.shape)
-            else:
-                self.add_field(name, type(value))
+            self.__add_field_from_value(name, value)
 
     def add_field(self, name, data_type=np.float, data_shape=1):
         self.__add_field_from_type(name, data_type, data_shape)
@@ -64,18 +60,47 @@ class DataBlock:
         if name in self.dtype_dict['names']:
             raise ValueError("field name already used : " + name)
 
-        if self.data is None:
-            self.dtype_dict['names'].append(name)
-            self.dtype_dict['formats'].append((data_type, data_shape))
-            if data_shape == 1:
-                #zero_value = np.asscalar(np.zeros(data_shape, data_type))
-                zero_value = data_type(0.0)
-                self.dtype_dict['defaults'].append(zero_value)
-            else:
-                zero_value = np.zeros(data_shape, data_type)
-                self.dtype_dict['defaults'].append(zero_value)
+        if self.data:
+            raise ValueError("Cannot add fields after initialized DataBlock")
+
+        zero_value = None
+
+        if data_shape == 1:
+            zero_value = data_type(0.0)
         else:
-            warnings.warn('Cannot addField on an initialized DataBlock')
+            zero_value = np.zeros(data_shape, data_type)
+
+        self.dtype_dict['names'].append(name)
+        self.dtype_dict['formats'].append((data_type, data_shape))
+        self.dtype_dict['defaults'].append(zero_value)
+
+    def __add_field_from_value(self, name, value):
+        '''
+        Add a new field to the data block
+        '''
+        if keyword.iskeyword(name):
+            raise ValueError("field name cannot be a keyword: " + name)
+
+        if name in self.dtype_dict['names']:
+            raise ValueError("field name already used : " + name)
+
+        if self.data:
+            raise ValueError("Cannot add fields after initialized DataBlock")
+
+        data_type = None
+        data_shape = None
+
+        if np.isscalar(value):
+            data_type = type(value)
+            data_shape = 1
+        else:
+            data_type = value.dtype.type
+            data_shape = value.shape
+
+        self.dtype_dict['names'].append(name)
+        self.dtype_dict['formats'].append((data_type, data_shape))
+        self.dtype_dict['defaults'].append(value)
+
 
     def initialize_from_array(self, array):
         '''
