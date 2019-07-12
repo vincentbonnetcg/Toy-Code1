@@ -152,9 +152,12 @@ class DataBlock:
             dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
 
         # allocate memory
-        # TODO : set default values
         aosoa_dtype = np.dtype(dtype_aosoa_dict, align=True)
         self.data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
+
+        # Set default values
+        for field_index, default_value in enumerate(self.dtype_dict['defaults']):
+            self.data[field_index][:] = default_value
 
     def set_attribute_to_object(self, obj):
         if self.data is None:
