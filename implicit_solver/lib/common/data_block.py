@@ -50,18 +50,24 @@ class DataBlock:
     def add_field(self, name, data_type=np.float, data_shape=1):
         self.__add_field_from_type(name, data_type, data_shape)
 
-    def __add_field_from_type(self, name, data_type=np.float, data_shape=1):
+    def __check_before_add(self, name):
         '''
-        Add a new field to the data block
+        Raise exception if 'name' cannot be added
         '''
+        if self.data:
+            raise ValueError("Cannot add fields after initialized DataBlock")
+
         if keyword.iskeyword(name):
             raise ValueError("field name cannot be a keyword: " + name)
 
         if name in self.dtype_dict['names']:
             raise ValueError("field name already used : " + name)
 
-        if self.data:
-            raise ValueError("Cannot add fields after initialized DataBlock")
+    def __add_field_from_type(self, name, data_type=np.float, data_shape=1):
+        '''
+        Add a new field to the data block
+        '''
+        self.__check_before_add(name)
 
         zero_value = None
 
@@ -78,14 +84,7 @@ class DataBlock:
         '''
         Add a new field to the data block
         '''
-        if keyword.iskeyword(name):
-            raise ValueError("field name cannot be a keyword: " + name)
-
-        if name in self.dtype_dict['names']:
-            raise ValueError("field name already used : " + name)
-
-        if self.data:
-            raise ValueError("Cannot add fields after initialized DataBlock")
+        self.__check_before_add(name)
 
         data_type = None
         data_shape = None
