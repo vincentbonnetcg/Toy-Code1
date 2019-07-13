@@ -27,7 +27,7 @@ import skimage
  Global Parameters
 '''
 NUM_NODES = 128 # For GPU should be a multiplier of TPB
-JACOBI_ITERATIONS = 100000
+JACOBI_ITERATIONS = 10000
 TPB = 16 # Thread per block
 GPU_SHARED_MEMORY_SIZE = TPB + 2 # +2 because the stencil requires -1 and +1
 
@@ -59,9 +59,18 @@ def create_domain(num_nodes=64):
     return values
 
 def create_mask(num_nodes=64):
-    values = np.ones((num_nodes, num_nodes), np.float)
-    values[40:54, 40:50]= 0.0
-    values[80:95, 65:75]= 0.0
+    #values = np.ones((num_nodes, num_nodes), np.float)
+    values = np.random.rand(num_nodes, num_nodes)
+    ratio_of_zero = 0.4 # 10 % dark area
+    values[values > ratio_of_zero] = 1.0
+    values[values <= ratio_of_zero] = 0.0
+    values[0][:] = 1.0 # top row
+    values[-1][:] = 1.0 # bottom row
+    values[:,0] = 1.0 # left column
+    values[:,-1] = 1.0 # right column
+    values[40:54, 40:50]= 0.0 # extra dark area for some reasons
+    values[80:95, 65:75]= 0.0 # extra dark area for no reason
+
     return values
 
 '''
@@ -180,7 +189,7 @@ def main():
     '''
     Main
     '''
-    #. pre-compile cpu jit function so timing doesn't
+    #. pre-execute jit function to help the benchmark to capture only the execution time
     dummy_call_to_compile_jit_function()
 
     #1a. Create 2D grid domain and mask
