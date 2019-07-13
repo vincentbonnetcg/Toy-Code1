@@ -2,7 +2,7 @@
 
 Stencil Codes written with Python and Numba
 
-## Cellular Automata and Image Restoration (Laplace Inpainting)
+## Laplace's Equation and Image Restoration (Laplace Inpainting)
 **File** [numba_laplace_equation.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/numba_laplace_equation.py)<br>
 **Description** Numba Jacobi iterative solver
 
