@@ -22,4 +22,7 @@ Implicit Solver written with Python and Numba
 
 [6] Wang, Huamin, and Yin Yang. "Descent methods for elastic body simulation on the GPU." ACM Transactions on Graphics (TOG) 35, no. 6 (2016): 212.
 
-[7] Liu, Tiantian, Sofien Bouaziz, and Ladislav Kavan. "Quasi-newton methods for real-time simulation of hyperelastic materials." ACM Transactions on Graphics (TOG) 36, no. 3 (2017): 23.
+[7] Macklin, Miles, Matthias Müller, and Nuttapong Chentanez. "XPBD: position-based simulation of compliant constrained dynamics." In Proceedings of the 9th International Conference on Motion in Games, pp. 49-54. ACM, 2016.
+
+[8] Liu, Tiantian, Sofien Bouaziz, and Ladislav Kavan. "Quasi-newton methods for real-time simulation of hyperelastic materials." ACM Transactions on Graphics (TOG) 36, no. 3 (2017): 23.
+
