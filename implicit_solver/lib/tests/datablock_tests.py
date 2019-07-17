@@ -45,8 +45,8 @@ class TestDataBlock(unittest.TestCase):
         datablock = create_test_datablock()
         datablock.initialize(10)
         self.assertEqual(datablock.field_a[0], 0.0)
-        self.assertEqual(db.field_1[0][0][0], 0.5)
-        self.assertEqual(db.field_0[0], 0.6)
+        self.assertEqual(datablock.field_1[0][0][0], 0.5)
+        self.assertEqual(datablock.field_0[0], 0.6)
 
     @unittest.skip("skip test_datablock_vectorize")
     def test_datablock_vectorize(self):
