@@ -1,6 +1,5 @@
 # Numerical Bric-a-Brac - Skeletal Subspace Deformation
-SSD (Skeletal Subspace Deformation) Algorithms written in Python :
-[Source](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/skinning)
+SSD (Skeletal Subspace Deformation) Algorithms written in Python
 
 - Linear Blend Skinning [1]
 - Dual Quaternion Skinning (WIP) [4]
