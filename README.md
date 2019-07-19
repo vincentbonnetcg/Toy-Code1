@@ -36,6 +36,31 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Lewis, John P., Matt Cordner, and Nickson Fong. "Pose space deformation: a unified approach to shape interpolation and skeleton-driven deformation." In Proceedings of the 27th annual conference on Computer graphics and interactive techniques, pp. 165-172. ACM Press/Addison-Wesley Publishing Co., 2000.
 
+## Stencil Codes
+**Folder** [stencil_codes](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes)<br>
+**Description** Evaluate stencil codes with Numba
+
+- Laplace's Equation and Laplace Inpainting (CPU and GPU)
+- Cellular Automata GPU
+- Image Processing GPU
+
+![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_laplace_equation.png)
+
+[1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.
+
+[2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
+
+## . Neural Network
+**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
+**Description** Neural Network study with Python and Keras
+
+- Feed-Forward neural network from scratch
+- Convolution neural network on MNIST dataset
+- Autoencoder and Variational Autoencoder
+
+![Fashion_MNIST](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/fashion_mnist_autoencoder.png)<br>
+
+[1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
 ## . Inverse Kinematics
 **File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/inverseKinematics_withJacobian.py)<br>
@@ -68,28 +93,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 **Description** Polynomial Linear Regression on 1D dataset
 
 ![Regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/polynomial_regression.png)
-
-## Stencil Codes
-**Folder** [stencil_codes](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes)<br>
-**Description** Evaluate stencil codes with Numba
-
-- Laplace's Equation and Laplace Inpainting (CPU and GPU)
-- Cellular Automata GPU
-- Image Processing GPU
-
-![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_laplace_equation.png)
-
-[1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.
-
-[2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
-
-## . Neural Network (placeholder)
-**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
-**Description** Folder to study Neural Network
-
-![MNIST](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/nn_mnist.png)<br>
-
-[1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
 ## . Signed distance field (placeholder)
 **Folder** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/signed_distance_field.py)<br>

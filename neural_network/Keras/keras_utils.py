@@ -4,7 +4,7 @@
 """
 
 from keras.utils import plot_model
-from keras.datasets import mnist
+from keras.datasets import mnist, fashion_mnist
 import numpy as np
 import os
 
@@ -34,11 +34,16 @@ def save_weights(model):
     prepare_Keras_folder()
     model.save_weights(KERAS_OUTPUT_FOLDER + KERAS_MODEL_WEIGHTS_FILE)
 
-def get_MNIST_test_and_training_data():
+def get_test_and_training_data(data_name):
     '''
     Returns test data
     '''
-    (x_train, _), (x_test, _) = mnist.load_data()
+    if data_name == 'mnist':
+        (x_train, _), (x_test, _) = mnist.load_data()
+    elif data_name == 'fashion_mnist':
+        (x_train, _), (x_test, _) = fashion_mnist.load_data()
+    else:
+        return None
 
     # Normalize Data
     x_train = x_train.astype('float32')/255

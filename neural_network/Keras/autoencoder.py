@@ -66,7 +66,7 @@ def main():
     '''
     # Get NN model and data
     auto_encoder = get_autoencoder()
-    x_train, x_test = keras_utils.get_MNIST_test_and_training_data()
+    x_train, x_test = keras_utils.get_test_and_training_data('fashion_mnist')
 
     # Train the autoencoder (input_x==input_y)
     auto_encoder.fit(x=x_train, y=x_train,

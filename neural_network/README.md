@@ -19,7 +19,7 @@ Convolution Neural Network on the MNIST dataset
 
 Auto-Encoder to encode/decode MNIST dataset
 
-![AutoEncoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/auto_encoder.png)
+![AutoEncoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/fashion_mnist_autoencoder.png)
 
 ### . Variational-Auto-Encoder (WIP)
 **File** [variational_autoencoder.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/Keras/variational_autoencoder.py)<br>

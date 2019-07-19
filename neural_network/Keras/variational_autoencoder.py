@@ -68,7 +68,7 @@ def main():
     '''
     # Get NN model and data
     variational_autoencoder = get_variational_autoencoder()
-    x_train, x_test = keras_utils.get_MNIST_test_and_training_data()
+    x_train, x_test = keras_utils.get_test_and_training_data('mnist')
 
     # Plot Informations
     keras_utils.plot_model_to_file(variational_autoencoder)
