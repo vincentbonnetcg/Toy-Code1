@@ -58,7 +58,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 - Convolution neural network on MNIST dataset
 - Autoencoder and Variational Autoencoder
 
-![Fashion_MNIST](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/fashion_mnist_autoencoder.png)<br>
+![Fashion_MNIST](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/fashion_mnist_autoencoder.png)<br>
 
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
