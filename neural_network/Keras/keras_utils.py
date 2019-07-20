@@ -29,10 +29,17 @@ def plot_model_to_file(model):
 
 def save_weights(model):
     '''
-    Save model and weight to into files
+    Save weights to into file
     '''
     prepare_Keras_folder()
     model.save_weights(KERAS_OUTPUT_FOLDER + KERAS_MODEL_WEIGHTS_FILE)
+
+def load_weights(model):
+    '''
+    Load model weights into file
+    '''
+    prepare_Keras_folder()
+    model.load_weights(KERAS_OUTPUT_FOLDER + KERAS_MODEL_WEIGHTS_FILE)
 
 def get_test_and_training_data(data_name):
     '''
