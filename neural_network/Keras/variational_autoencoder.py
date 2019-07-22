@@ -12,11 +12,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import keras_utils
 
-ORIGIN_DIM = 784
+DIGIT_SIZE = 28
+ORIGIN_DIM = DIGIT_SIZE**2
 LATENT_DIM = 2
 HIDDEN_DIM = 521
 EPOCH = 50
-BATCH_SIZE = 50
+BATCH_SIZE = 100
 TRAINING_MODE = False # True (training), False (prediction)
 
 def sampling_z(args):
@@ -40,14 +41,15 @@ def get_variational_autoencoder():
 
     # Encoder Layers (From 2 to ORIGIN_DIM)
     # From 2 to 784
-    decoder_layer = Dense(units=HIDDEN_DIM, activation='relu', name='decoder_layer')(z_layer)
-    output_layer = Dense(units=ORIGIN_DIM, activation='sigmoid', name='decoder_out')(decoder_layer)
+    decoder_layer = Dense(units=HIDDEN_DIM, activation='relu', name='decoder_layer')
+    decoder_out_layer = Dense(units=ORIGIN_DIM, activation='sigmoid', name='decoder_out')
 
-    # VAE model
+    tmp_layer = decoder_layer(z_layer)
+    output_layer = decoder_out_layer(tmp_layer)
+
+    # VAE model + Loss function
+    # Shameless copy-paste from https://keras.io/examples/variational_autoencoder/
     vae = Model(input_layer, output_layer, name='vae')
-
-    # Add loss function to VAE model
-    # Shameless straight copy-paste from https://keras.io/examples/variational_autoencoder/
     reconstruction_loss = binary_crossentropy(input_layer, output_layer)
     reconstruction_loss *= ORIGIN_DIM
     kl_loss = 1 + z_log_var_layer - K.square(z_mean_layer) - K.exp(z_log_var_layer)
@@ -57,18 +59,56 @@ def get_variational_autoencoder():
     vae.add_loss(vae_loss)
     vae.compile(optimizer='adam')
 
-    return vae
+    # decoder model
+    decoder_input = Input(shape=(LATENT_DIM,))
+    decoder_hidden_layer = decoder_layer(decoder_input)
+    decoder_out_layer = decoder_out_layer(decoder_hidden_layer)
+    decoder = Model(decoder_input, decoder_out_layer, name='decoder')
+
+    return decoder, vae
+
+def show_result(decoder):
+    '''
+    Show images
+    '''
+    font = {'family': 'arial',
+            'color':  'darkblue',
+            'weight': 'normal',
+            'size': 16 }
+
+    NUM_DIGIT_X = 10
+    NUM_DIGIT_Y = 10
+    grid_x = np.linspace(-5, 5, NUM_DIGIT_X)
+    grid_y = np.linspace(-5, 5, NUM_DIGIT_Y)
+
+    # Predicted image
+    figure = np.zeros((DIGIT_SIZE * NUM_DIGIT_X, DIGIT_SIZE * NUM_DIGIT_Y))
+    for i, yi in enumerate(grid_y):
+        for j, xi in enumerate(grid_x):
+            z_sample = np.array([[xi, yi]]) # TODO : modify this
+            x_decoded = decoder.predict(z_sample)
+            digit = x_decoded[0].reshape(DIGIT_SIZE, DIGIT_SIZE)
+            figure[i * DIGIT_SIZE: (i + 1) * DIGIT_SIZE,
+                   j * DIGIT_SIZE: (j + 1) * DIGIT_SIZE] = digit
+
+    plt.figure(figsize=(15, 4))
+    plt.gray()
+    plt.xlabel("z[0]")
+    plt.ylabel("z[1]")
+    plt.imshow(figure, cmap='Greys_r')
+    plt.title('VAE', fontdict=font)
+    plt.show()
 
 def main():
     '''
     Execute training and test the neural network
     '''
     # Get NN model and data
-    vae = get_variational_autoencoder()
+    decoder, vae = get_variational_autoencoder()
     x_train, x_test = keras_utils.get_test_and_training_data('mnist')
 
     # Plot NN Structure
-    keras_utils.plot_model_to_file(vae)
+    keras_utils.plot_model_to_file(decoder)
 
     # Train the network
     if TRAINING_MODE:
@@ -82,7 +122,8 @@ def main():
     else:
         keras_utils.load_weights(vae)
 
-    # TODO : show something
+    # plot result
+    show_result(decoder)
 
 
 if __name__ == '__main__':
