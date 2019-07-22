@@ -21,10 +21,11 @@ Auto-Encoder to encode/decode MNIST dataset
 
 ![AutoEncoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/fashion_mnist_autoencoder.png)
 
-### . Variational-Auto-Encoder (WIP)
+### . Variational-Auto-Encoder
 **File** [variational_autoencoder.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/Keras/variational_autoencoder.py)<br>
 **Description** Variational Auto-Encoder
 
+![VariationalAutoEncoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/variational_auto_encoder.png)
 
 ## . Resources
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
