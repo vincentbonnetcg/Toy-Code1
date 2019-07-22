@@ -2,7 +2,7 @@
 Neural Network Study (Python, Numpy and Keras)
 
 ## . Examples
-### . From Scratch
+### . Standard Feed-forward Neural Network from scratch
 **Folder** [from_scratch](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/from_scratch/)<br>
 **Description** Feed-forward Neural Network only written with Numpy and Python
 
@@ -26,6 +26,12 @@ Auto-Encoder to encode/decode MNIST dataset
 **Description** Variational Auto-Encoder
 
 ![VariationalAutoEncoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/variational_auto_encoder.png)
+
+### . Generative Adversarial Network (GAN)
+TODO
+
+### . Recurrent Neural Network (RNN)
+TODO
 
 ## . Resources
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
