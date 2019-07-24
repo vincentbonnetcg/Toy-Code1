@@ -7,24 +7,7 @@ import unittest
 import lib.common as common
 import numpy as np
 from numba import njit, vectorize
-
-'''
-Utilities
-'''
-def numba_helper(method):
-    '''
-    Decorator to replace common.DataBlock arguments, their respectives numpy array
-    '''
-    def execute(*args):
-        arg_list = list(args)
-        for arg_id , arg in enumerate(arg_list):
-            if (isinstance(arg, common.DataBlock)):
-                arg_list[arg_id] = arg.data
-
-        result = method(*arg_list)
-        return result
-
-    return execute
+from numba_helper import numba_friendly
 
 '''
 Datablock Functions
@@ -35,11 +18,6 @@ class ComponentTest:
         self.field_0 = np.float64(0.6)
         self.field_1 = np.ones((2, 2), dtype = np.int64) * 0.5
 
-# TODO - placeholder for vectorize test
-#def set_component(component : ComponentTest, value0, value1):
-#    component.field_0 = value0
-#    component.field_1 = value1
-
 def create_datablock():
     datablock = common.DataBlock()
     datablock.add_field('field_a', np.float64, 1)
@@ -48,7 +26,7 @@ def create_datablock():
     datablock.initialize(10)
     return datablock
 
-@numba_helper
+@numba_friendly
 @njit
 def set_datablock_values(datablock, value0, value1):
     datablock_field_0 = datablock.field_0
