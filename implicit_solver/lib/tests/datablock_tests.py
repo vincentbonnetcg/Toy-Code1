@@ -76,4 +76,4 @@ class TestDataBlock(unittest.TestCase):
         print(" TestDataBlock:", self._testMethodName)
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(TestDataBlock())
