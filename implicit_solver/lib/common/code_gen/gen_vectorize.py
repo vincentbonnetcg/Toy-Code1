@@ -26,6 +26,7 @@ def generate_vectorize_method(method):
         list_variable_accessors = []
         function_args = inspect.signature(method)
         parameter_remap = {} # dictionnary mapping object.attr with object_attr
+        parameter_names = []
         for param in function_args.parameters:
             # regular expression to check whether the argument has a format object.attr
             param_attrs = re.findall(param+'[.][a-zA-Z0-9_]*', function_code)
@@ -43,6 +44,8 @@ def generate_vectorize_method(method):
                 # store renaming
                 parameter_remap[param_attr] = variable_name
 
+            parameter_names.append(param)
+
         # Generate code
         code_lines = function_code.splitlines()
         gen_code_lines = []
@@ -57,7 +60,7 @@ def generate_vectorize_method(method):
                 gen_code_lines.append('@numba.njit')
                 # replace function name
                 # TODO : remove indication
-                gen_code_lines.append(code.replace(method.__name__, generated_function_name))
+                gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(parameter_names) +'):')
                 # add variable accessor
                 num_variables = len(list_variable_names)
                 for var_id in range(num_variables):
