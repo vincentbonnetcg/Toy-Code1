@@ -59,7 +59,6 @@ def generate_vectorize_method(method):
                 # add njit
                 gen_code_lines.append('@numba.njit')
                 # replace function name
-                # TODO : remove indication
                 gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(parameter_names) +'):')
                 # add variable accessor
                 num_variables = len(list_variable_names)
