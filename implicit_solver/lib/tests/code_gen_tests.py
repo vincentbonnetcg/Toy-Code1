@@ -42,6 +42,15 @@ class TestCodeGeneration(unittest.TestCase):
         self.assertEqual(datablock0.data[0][0][0][0], 5.2)
         self.assertEqual(datablock0.data[1][0], 4.0)
 
+    def test_function_generated_once(self):
+        datablock0 = create_datablock()
+        datablock1 = create_datablock()
+        add_values(datablock0.data, datablock1.data, 1.0)
+        function0 = add_values.generated_function
+        add_values(datablock0.data, datablock1.data, 1.0)
+        function1 = add_values.generated_function
+        self.assertEqual(function0, function1)
+
     def setUp(self):
         print(" TestCodeGeneration:", self._testMethodName)
 
