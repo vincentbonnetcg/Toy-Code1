@@ -47,9 +47,12 @@ class TestCodeGeneration(unittest.TestCase):
         datablock1 = create_datablock()
         add_values(datablock0.data, datablock1.data, 1.0)
         function0 = add_values.generated_function
+        source0 = add_values.generated_source
         add_values(datablock0.data, datablock1.data, 1.0)
         function1 = add_values.generated_function
+        source1 = add_values.generated_source
         self.assertEqual(function0, function1)
+        self.assertEqual(source0, source1)
 
     def setUp(self):
         print(" TestCodeGeneration:", self._testMethodName)
