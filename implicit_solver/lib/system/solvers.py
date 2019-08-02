@@ -11,6 +11,8 @@ import scipy.sparse.linalg
 import lib.common.node_accessor as na
 from lib.common import profiler
 from lib.common.sparse_matrix import BSRSparseMatrix
+import lib.common.code_gen as generate
+from lib.objects.components.node import Node
 
 class Context:
     '''
@@ -69,6 +71,13 @@ class BaseSolver:
     def solve_system(self, scene, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solve_system'")
 
+@generate.as_vectorized
+def advect(node : Node, delta_vs, dt):
+    #n_offset = na.node_global_index(node_id_ptr[i]) # NOT WORKING
+    node_offset = node.node_id[2] * 2
+    delta_v = delta_vs[node_offset:node_offset+2]
+    node.x += (node.v + delta_v) * dt
+    node.v += delta_v
 
 class ImplicitSolver(BaseSolver):
     '''
@@ -202,14 +211,7 @@ class ImplicitSolver(BaseSolver):
     @profiler.timeit
     def advect(self, scene, delta_v, dt):
         for dynamic in scene.dynamics:
-            node_id_ptr = dynamic.node_id
-            v = dynamic.v
-            x = dynamic.x
-            for i in range(dynamic.num_nodes):
-                n_offset = na.node_global_index(node_id_ptr[i]) * 2
-                deltaV = delta_v[n_offset:n_offset+2]
-                x[i] += (v[i] + deltaV) * dt
-                v[i] += deltaV
+            advect(dynamic.data.data, delta_v, dt)
 
 class SemiImplicitSolver(BaseSolver):
     '''
