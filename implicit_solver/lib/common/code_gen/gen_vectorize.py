@@ -7,7 +7,7 @@ import inspect
 import re
 import numba
 
-def generate_vectorize_method(method):
+def generate_vectorize_method(method, use_njit = True):
     '''
     Returns a tuple (source code, function object)
     '''
@@ -52,7 +52,8 @@ def generate_vectorize_method(method):
 
         if code[0:4] == 'def ':
             # add njit
-            gen_code_lines.append('@numba.njit')
+            if use_njit:
+                gen_code_lines.append('@numba.njit')
             # replace function name
             gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(parameter_names) +'):')
             # add variable accessor
@@ -79,7 +80,7 @@ def generate_vectorize_method(method):
 
     return generated_function_source, vars().get(generated_function_name)
 
-def as_vectorized(method):
+def as_vectorized(method, use_njit = True):
     '''
     Decorator from Datablock to Component
     '''
@@ -87,7 +88,7 @@ def as_vectorized(method):
         execute.generated_function(*args)
         return True
 
-    source, function = generate_vectorize_method(method)
+    source, function = generate_vectorize_method(method, use_njit)
     execute.generated_source = source
     execute.generated_function = function
 

@@ -73,7 +73,7 @@ class BaseSolver:
 
 @generate.as_vectorized
 def advect(node : Node, delta_vs, dt):
-    #n_offset = na.node_global_index(node_id_ptr[i]) # NOT WORKING
+    #n_offset = na.node_global_index(node_id_ptr[i]) * 2 # NOT WORKING
     node_offset = node.node_id[2] * 2
     delta_v = delta_vs[node_offset:node_offset+2]
     node.x += (node.v + delta_v) * dt
