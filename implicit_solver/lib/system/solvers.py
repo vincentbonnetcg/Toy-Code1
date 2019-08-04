@@ -73,9 +73,9 @@ class BaseSolver:
 
 @generate.as_vectorized
 def advect(node : Node, delta_vs, dt):
-    #n_offset = na.node_global_index(node_id_ptr[i]) * 2 # NOT WORKING
-    node_offset = node.node_id[2] * 2
-    delta_v = delta_vs[node_offset:node_offset+2]
+    #node_index = na.node_global_index(node.node_id) # NOT WORKING
+    node_index = node.node_id[2]
+    delta_v = delta_vs[node_index]
     node.x += (node.v + delta_v) * dt
     node.v += delta_v
 
@@ -202,9 +202,10 @@ class ImplicitSolver(BaseSolver):
     def solve_system(self, scene, dt):
         if (scene.num_nodes() == 0):
             return
-        # Solve the system (Ax=b)
-        cgResult = scipy.sparse.linalg.cg(self.A, self.b)
-        delta_v = cgResult[0]
+        # Solve the system (Ax=b) and reshape the conjugate gradient result
+        # In this case, the reshape operation is not causing any reallocation
+        cg_result = scipy.sparse.linalg.cg(self.A, self.b)
+        delta_v = cg_result[0].reshape(scene.num_nodes(), 2)
         # Advect
         self.advect(scene, delta_v, dt)
 
