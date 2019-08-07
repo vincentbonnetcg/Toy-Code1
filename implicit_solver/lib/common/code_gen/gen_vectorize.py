@@ -3,7 +3,7 @@
 @description : Code Generation to convert function into numba friendly function
 """
 
-# Package used for gen_vectorize
+# Package used by gen_vectorize.py
 import inspect
 import re
 import functools

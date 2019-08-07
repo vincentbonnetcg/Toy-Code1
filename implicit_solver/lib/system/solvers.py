@@ -72,12 +72,20 @@ class BaseSolver:
     def solve_system(self, scene, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solve_system'")
 
+'''
+Vectorized functions
+'''
 @generate.as_vectorized
 def advect(node : Node, delta_vs, dt):
     node_index = na.node_global_index(node.node_id)
     delta_v = delta_vs[node_index]
     node.x += (node.v + delta_v) * dt
     node.v += delta_v
+
+@generate.as_vectorized
+def assemble_b__fo_h(node : Node, b, dt):
+    offset = na.node_global_index(node.node_id) * 2
+    b[offset:offset+2] += node.f * dt
 
 class ImplicitSolver(BaseSolver):
     '''
@@ -178,11 +186,7 @@ class ImplicitSolver(BaseSolver):
 
         # Set (f0 * h)
         for dynamic in scene.dynamics:
-            node_id_ptr = dynamic.node_id
-            for i in range(dynamic.num_nodes):
-                vec = dynamic.f[i] * dt
-                b_offset = na.node_global_index(node_id_ptr[i]) * 2
-                self.b[b_offset:b_offset+2] += vec
+            assemble_b__fo_h(dynamic.data.data, self.b, dt)
 
         # add (df/dx * v0 * h * h)
         for condition in scene.conditions:
