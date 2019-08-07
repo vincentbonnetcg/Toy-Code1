@@ -6,6 +6,7 @@
 import inspect
 import re
 import numba
+import functools
 
 def generate_vectorize_method(method, use_njit = True):
     '''
@@ -78,18 +79,19 @@ def generate_vectorize_method(method, use_njit = True):
     generated_function_object = compile(generated_function_source, generated_function_name, 'exec')
     exec(generated_function_object)
 
-    return generated_function_source, vars().get(generated_function_name)
+    return generated_function_source, generated_function_name, vars().get(generated_function_name)
 
 def as_vectorized(method, use_njit = True):
     '''
     Decorator from Datablock to Component
     '''
+    @functools.wraps(method)
     def execute(*args):
         execute.generated_function(*args)
         return True
 
-    source, function = generate_vectorize_method(method, use_njit)
+    source, name, function = generate_vectorize_method(method, use_njit)
+
     execute.generated_source = source
     execute.generated_function = function
-
     return execute
