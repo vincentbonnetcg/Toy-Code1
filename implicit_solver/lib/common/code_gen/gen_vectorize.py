@@ -14,19 +14,25 @@ import numba
 import numpy as np
 import lib.common.node_accessor as na
 
-def generate_vectorize_method(method, use_njit = True):
+def generate_guvectorize_function(function, use_njit = True):
+    '''
+    Returns at tuple (source code, function object)
+    '''
+    pass
+
+def generate_vectorize_function(function, use_njit = True):
     '''
     Returns a tuple (source code, function object)
     '''
-    generated_function_name = 'generated_' + method.__name__
+    generated_function_name = 'generated_' + function.__name__
 
     # Get code
-    function_source = inspect.getsource(method)
+    function_source = inspect.getsource(function)
 
     # Check arguments
     list_variable_names = []
     list_variable_accessors = []
-    function_args = inspect.signature(method)
+    function_args = inspect.signature(function)
     parameter_remap = {} # dictionnary mapping object.attr with object_attr
     parameter_names = []
     for param in function_args.parameters:
@@ -87,11 +93,11 @@ def generate_vectorize_method(method, use_njit = True):
 
     return generated_function_source, generated_function_name, vars().get(generated_function_name)
 
-def as_vectorized(method, use_njit = True):
+def as_vectorized(function, use_njit = True):
     '''
     Decorator from Datablock to Component
     '''
-    @functools.wraps(method)
+    @functools.wraps(function)
     def execute(*args):
         arg_list = list(args)
 
@@ -104,7 +110,7 @@ def as_vectorized(method, use_njit = True):
 
         return True
 
-    source, name, function = generate_vectorize_method(method, use_njit)
+    source, name, function = generate_vectorize_function(function, use_njit)
 
     execute.generated_source = source
     execute.generated_function = function
