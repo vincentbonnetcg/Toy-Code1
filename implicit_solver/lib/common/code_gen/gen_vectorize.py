@@ -3,10 +3,15 @@
 @description : Code Generation to convert function into numba friendly function
 """
 
+# Package used for gen_vectorize
 import inspect
 import re
-import numba
 import functools
+
+# Possible packages used by the generated functions
+import numba
+import numpy as np
+import lib.common.node_accessor as na
 
 def generate_vectorize_method(method, use_njit = True):
     '''

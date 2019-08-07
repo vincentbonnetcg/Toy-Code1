@@ -7,6 +7,7 @@ import numpy as np
 import scipy
 import scipy.sparse
 import scipy.sparse.linalg
+import numba
 
 import lib.common.node_accessor as na
 from lib.common import profiler
@@ -73,8 +74,7 @@ class BaseSolver:
 
 @generate.as_vectorized
 def advect(node : Node, delta_vs, dt):
-    #node_index = na.node_global_index(node.node_id) # NOT WORKING
-    node_index = node.node_id[2]
+    node_index = na.node_global_index(node.node_id)
     delta_v = delta_vs[node_index]
     node.x += (node.v + delta_v) * dt
     node.v += delta_v

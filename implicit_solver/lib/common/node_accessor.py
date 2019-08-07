@@ -3,11 +3,13 @@
 @description : This class provides a mapping between node identifiers and data
 """
 
+import numba
 from lib.system.scene import Scene
 
 def node_id(scene : Scene, object_id, local_node_id):
     return scene.dynamics[object_id].node_id[local_node_id]
 
+@numba.njit
 def node_global_index(node_id):
     return node_id[2]
 
