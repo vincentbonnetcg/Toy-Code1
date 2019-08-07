@@ -35,10 +35,17 @@ CodeGen Tests
 '''
 class TestCodeGeneration(unittest.TestCase):
 
-    def test_generated_function_value(self):
+    def test_generated_function_with_numpy_input(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
         add_values(datablock0.data, datablock1.data, 1.0)
+        self.assertEqual(datablock0.data[0][0][0][0], 5.2)
+        self.assertEqual(datablock0.data[1][0], 4.0)
+
+    def test_generated_function_with_datablock_input(self):
+        datablock0 = create_datablock()
+        datablock1 = create_datablock()
+        add_values(datablock0, datablock1, 1.0)
         self.assertEqual(datablock0.data[0][0][0][0], 5.2)
         self.assertEqual(datablock0.data[1][0], 4.0)
 

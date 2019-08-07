@@ -7,6 +7,7 @@
 import inspect
 import re
 import functools
+import lib.common as common
 
 # Possible packages used by the generated functions
 import numba
@@ -92,7 +93,15 @@ def as_vectorized(method, use_njit = True):
     '''
     @functools.wraps(method)
     def execute(*args):
-        execute.generated_function(*args)
+        arg_list = list(args)
+
+        # Replace common.DataBlock arguments into numpy array
+        for arg_id , arg in enumerate(arg_list):
+            if (isinstance(arg, common.DataBlock)):
+                arg_list[arg_id] = arg.data
+
+        execute.generated_function(*arg_list)
+
         return True
 
     source, name, function = generate_vectorize_method(method, use_njit)

@@ -186,7 +186,7 @@ class ImplicitSolver(BaseSolver):
 
         # Set (f0 * h)
         for dynamic in scene.dynamics:
-            assemble_b__fo_h(dynamic.data.data, self.b, dt)
+            assemble_b__fo_h(dynamic.data, self.b, dt)
 
         # add (df/dx * v0 * h * h)
         for condition in scene.conditions:
@@ -216,7 +216,7 @@ class ImplicitSolver(BaseSolver):
     @profiler.timeit
     def advect(self, scene, delta_v, dt):
         for dynamic in scene.dynamics:
-            advect(dynamic.data.data, delta_v, dt)
+            advect(dynamic.data, delta_v, dt)
 
 class SemiImplicitSolver(BaseSolver):
     '''
