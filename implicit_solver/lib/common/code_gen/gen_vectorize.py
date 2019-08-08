@@ -42,11 +42,14 @@ def as_vectorized(function, use_njit = True):
     def execute(*args):
         arg_list = list(args)
 
-        # Replace common.DataBlock arguments into numpy array
+        # Fetch numpy array from common.DataBlock or a container of common.DataBlock
         for arg_id , arg in enumerate(arg_list):
-            if (isinstance(arg, common.DataBlock)):
+            if isinstance(arg, common.DataBlock):
                 arg_list[arg_id] = arg.data
+            elif hasattr(arg, 'data') and isinstance(arg.data, common.DataBlock):
+                arg_list[arg_id] = arg.data.data
 
+        # Call function
         execute.generated_function(*arg_list)
 
         return True

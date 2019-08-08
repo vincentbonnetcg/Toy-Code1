@@ -16,11 +16,19 @@ class Vertex:
         self.x = np.ones((2,3)) * 2.1
         self.y = 1.5
 
+class Container:
+    def __init__(self, datablock):
+        self.data = datablock
+
 def create_datablock():
     datablock = common.DataBlock()
     datablock.add_field_from_class(Vertex)
     datablock.initialize(10)
     return datablock
+
+def create_container():
+    container = Container(create_datablock())
+    return container
 
 '''
 Functions to vectorize
@@ -49,6 +57,13 @@ class TestCodeGeneration(unittest.TestCase):
         self.assertEqual(datablock0.data[0][0][0][0], 5.2)
         self.assertEqual(datablock0.data[1][0], 4.0)
 
+    def test_generated_function_with_container_input(self):
+        container0 = create_container()
+        container1 = create_container()
+        add_values(container0, container1, 1.0)
+        self.assertEqual(container0.data.data[0][0][0][0], 5.2)
+        self.assertEqual(container0.data.data[1][0], 4.0)
+
     def test_function_generated_once(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
@@ -63,7 +78,6 @@ class TestCodeGeneration(unittest.TestCase):
 
     def setUp(self):
         print(" TestCodeGeneration:", self._testMethodName)
-
 
 if __name__ == '__main__':
     unittest.main(TestCodeGeneration())
