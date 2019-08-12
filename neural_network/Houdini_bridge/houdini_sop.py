@@ -4,6 +4,12 @@
 This code should be pasted inside a Houdini Python geometry node
 """
 
+"""
+@author: Vincent Bonnet
+@description : Python code to bridge Houdini Data to the solver
+This code should be pasted inside a Houdini Python geometry node
+"""
+
 import numpy as np
 
 def fetch_mesh_data(geo):
@@ -40,22 +46,28 @@ def fetch_mesh_data(geo):
 
 def store_mesh_data(folder, pos_array, edge_array, tri_array):
     if len(folder) > 0:
-        np.savetxt(folder+"\\_pos.txt", pos_array)
-        np.savetxt(folder+'\\_edge.txt', edge_array)
-        np.savetxt(folder+'\\_tri.txt', tri_array)
+        np.savetxt(folder+'/pos.txt', pos_array)
+        np.savetxt(folder+'/edge.txt', edge_array)
+        np.savetxt(folder+'/tri.txt', tri_array)
 
-def create_geo_from_folder(folder):
-    pass
+def set_position_from_folder(geo, folder):
+    if len(folder) > 0:
+        pos_array = np.loadtxt(folder+'/pos.txt')
+        for id, point in enumerate(geo.points()):
+            point.setPosition(pos_array[id])
 
 # Input Data
 time = hou.time()
 node = hou.pwd()
 geo = node.geometry()
-folder = ''
+folder = '' # e.g c:/folder/folder2
 
 # Export Geo
-#pos_array, edge_array, tri_array = fetch_mesh_data(geo)
-#store_mesh(folder, pos_array, edge_array, tri_array)
+pos_array, edge_array, tri_array = fetch_mesh_data(geo)
+#store_mesh_data(folder, pos_array, edge_array, tri_array)
 
-# Import Geo
-# TODO
+# Import Geo Position
+set_position_from_folder(geo, folder)
+
+
+
