@@ -38,19 +38,40 @@ def as_vectorized(function, use_njit = True):
     '''
     Decorator from Datablock to Component
     '''
+
+    def convert(arg):
+        '''
+        Convert function argument into a type reconizable by numba
+        '''
+        if isinstance(arg, list):
+            new_arg = [None] * len(arg)
+            for index, element in enumerate(arg):
+                new_arg[index] = convert(element)
+            return new_arg
+
+        if isinstance(arg, common.DataBlock):
+            return arg.data
+        elif hasattr(arg, 'data') and isinstance(arg.data, common.DataBlock):
+            return arg.data.data
+
+        return arg
+
     @functools.wraps(function)
     def execute(*args):
         arg_list = list(args)
 
         # Fetch numpy array from common.DataBlock or a container of common.DataBlock
         for arg_id , arg in enumerate(arg_list):
-            if isinstance(arg, common.DataBlock):
-                arg_list[arg_id] = arg.data
-            elif hasattr(arg, 'data') and isinstance(arg.data, common.DataBlock):
-                arg_list[arg_id] = arg.data.data
+            arg_list[arg_id] = convert(arg)
 
         # Call function
-        execute.generated_function(*arg_list)
+        if len(arg_list) > 0 and isinstance(arg_list[0], list):
+            new_arg_list = list(arg_list)
+            for element in new_arg_list[0]:
+                new_arg_list[0] = element
+                execute.generated_function(*new_arg_list)
+        else:
+            execute.generated_function(*arg_list)
 
         return True
 
