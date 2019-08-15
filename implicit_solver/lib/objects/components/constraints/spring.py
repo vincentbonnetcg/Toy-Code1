@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-from lib.objects.components import Base
+from lib.objects.components import ConstraintBase
 import lib.common.math_2d as math2D
 from lib.common.data_block import DataBlock
 from lib.common.convex_hull import ConvexHull
@@ -12,12 +12,12 @@ import lib.common.node_accessor as na
 from lib.system.scene import Scene
 from numba import njit
 
-class AnchorSpring(Base):
+class AnchorSpring(ConstraintBase):
     '''
     Describes a 2D spring constraint between a node and point
     '''
     def __init__(self):
-        Base.__init__(self, num_nodes = 1)
+        ConstraintBase.__init__(self, num_nodes = 1)
         self.rest_length = np.float64(0.0)
         self.kinematic_index = np.uint32(0)
         self.kinematic_component_index =  np.uint32(0)
@@ -81,12 +81,12 @@ class AnchorSpring(Base):
             dfdx_ptr[ct_index][0][0] = dfdx
             dfdv_ptr[ct_index][0][0] = dfdv
 
-class Spring(Base):
+class Spring(ConstraintBase):
     '''
     Describes a 2D spring constraint between two nodes
     '''
     def __init__(self):
-        Base.__init__(self, num_nodes = 2)
+        ConstraintBase.__init__(self, num_nodes = 2)
         self.rest_length = np.float32(0.0)
 
     def set_object(self, scene, node_ids):

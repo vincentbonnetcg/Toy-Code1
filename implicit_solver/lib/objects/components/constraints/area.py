@@ -3,7 +3,7 @@
 @description : Constraint base for the implicit solver
 """
 
-from lib.objects.components import Base
+from lib.objects.components import ConstraintBase
 import lib.common.math_2d as math2D
 from lib.common.data_block import DataBlock
 import lib.common.node_accessor as na
@@ -12,12 +12,12 @@ from numba import njit
 import numpy as np
 
 
-class Area(Base):
+class Area(ConstraintBase):
     '''
     Describes a 2D area constraint between three nodes
     '''
     def __init__(self):
-        Base.__init__(self, num_nodes = 3)
+        ConstraintBase.__init__(self, num_nodes = 3)
         self.rest_area = np.float64(0.0)
 
     def set_object(self, scene, node_ids):

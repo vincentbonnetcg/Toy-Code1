@@ -3,7 +3,7 @@
 @description : Bending Constraint for the implicit solver
 """
 
-from lib.objects.components import Base
+from lib.objects.components import ConstraintBase
 import lib.common.math_2d as math2D
 from lib.common.data_block import DataBlock
 import lib.common.node_accessor as na
@@ -12,7 +12,7 @@ from numba import njit
 import math
 import numpy as np
 
-class Bending(Base):
+class Bending(ConstraintBase):
     '''
     Describes a 2D bending constraint of a thin inextensible wire
     between three nodes.
@@ -24,7 +24,7 @@ class Bending(Base):
         Constraint three nodes to maintain angle between
         node_ids[0] - node_ids[1] - node_ids[2]
         '''
-        Base.__init__(self, num_nodes = 3)
+        ConstraintBase.__init__(self, num_nodes = 3)
         self.rest_angle = np.float64(0.0)
 
     def set_object(self, scene, node_ids):

@@ -5,7 +5,7 @@
 
 import numpy as np
 
-class Base:
+class ConstraintBase:
     '''
     Describes the constraint base
     '''

@@ -13,7 +13,7 @@ import lib.common.node_accessor as na
 from lib.common import profiler
 from lib.common.sparse_matrix import BSRSparseMatrix
 import lib.common.code_gen as generate
-from lib.objects.components.node import Node
+import lib.objects.components as cpn
 
 class Context:
     '''
@@ -76,16 +76,21 @@ class BaseSolver:
 Vectorized functions
 '''
 @generate.as_vectorized
-def advect(node : Node, delta_vs, dt):
+def advect(node : cpn.Node, delta_vs, dt):
     node_index = na.node_global_index(node.node_id)
     delta_v = delta_vs[node_index]
     node.x += (node.v + delta_v) * dt
     node.v += delta_v
 
 @generate.as_vectorized
-def assemble_b__fo_h(node : Node, b, dt):
+def assemble_b__fo_h(node : cpn.Node, b, dt):
     offset = na.node_global_index(node.node_id) * 2
     b[offset:offset+2] += node.f * dt
+
+@generate.as_vectorized
+def dfdx_v0_h2(cnt : cpn.ConstraintBase, b, dt):
+    node_ids = cnt.node_ids
+    # TODO
 
 class ImplicitSolver(BaseSolver):
     '''
@@ -184,8 +189,11 @@ class ImplicitSolver(BaseSolver):
 
         self.b = np.zeros(total_nodes * 2)
 
-        # Set (f0 * h)
+        # set (f0 * h)
         assemble_b__fo_h(scene.dynamics, self.b, dt)
+
+        # add (df/dx * v0 * h * h) - NEW
+        dfdx_v0_h2(scene.conditions, self.b, dt)
 
         # add (df/dx * v0 * h * h)
         for condition in scene.conditions:
