@@ -48,8 +48,7 @@ def as_vectorized(function, use_njit = True):
             for index, element in enumerate(arg):
                 new_arg[index] = convert(element)
             return new_arg
-
-        if isinstance(arg, common.DataBlock):
+        elif isinstance(arg, common.DataBlock):
             return arg.data
         elif hasattr(arg, 'data') and isinstance(arg.data, common.DataBlock):
             return arg.data.data
