@@ -88,9 +88,14 @@ def assemble_b__fo_h(node : cpn.Node, b, dt):
     b[offset:offset+2] += node.f * dt
 
 @generate.as_vectorized
-def dfdx_v0_h2(cnt : cpn.ConstraintBase, b, dt):
-    node_ids = cnt.node_ids
-    # TODO
+def dfdx_v0_h2(cnt : cpn.ConstraintBase, dynamics, b, dt):
+    num_nodes = len(cnt.node_ids)
+    for fi in range(num_nodes):
+        for xi in range(num_nodes):
+            Jx = cnt.dfdx[fi][xi]
+            x, v = na.node_xv(dynamics, cnt.node_ids[xi])
+            b_offset = na.node_global_index(cnt.node_ids[fi]) * 2
+            b[b_offset:b_offset+2] += np.dot(v, Jx) * dt * dt
 
 class ImplicitSolver(BaseSolver):
     '''
@@ -192,8 +197,8 @@ class ImplicitSolver(BaseSolver):
         # set (f0 * h)
         assemble_b__fo_h(scene.dynamics, self.b, dt)
 
-        # add (df/dx * v0 * h * h) - NEW
-        dfdx_v0_h2(scene.conditions, self.b, dt)
+        # add (df/dx * v0 * h * h)
+        #dfdx_v0_h2(scene.conditions, scene.dynamics, self.b, dt)
 
         # add (df/dx * v0 * h * h)
         for condition in scene.conditions:
@@ -205,7 +210,7 @@ class ImplicitSolver(BaseSolver):
                     for xi in range(len(ids)):
                         Jx = dfdx_ptr[cid][fi][xi]
                         x, v = na.node_state(scene, ids[xi])
-                        vec = np.matmul(v, Jx) * dt * dt
+                        vec = np.dot(v, Jx) * dt * dt
                         b_offset = na.node_global_index(ids[fi]) * 2
                         self.b[b_offset:b_offset+2] += vec
 

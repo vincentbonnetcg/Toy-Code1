@@ -42,12 +42,16 @@ def as_vectorized(function, use_njit = True):
     def convert(arg):
         '''
         Convert function argument into a type reconizable by numba
+        Convert with the following rules
+        List/Tuple => Tuple
+        DataBlock => DataBlock.data
+        Object => Object.DataBlock.data
         '''
-        if isinstance(arg, list):
+        if isinstance(arg, (list, tuple)):
             new_arg = [None] * len(arg)
             for index, element in enumerate(arg):
                 new_arg[index] = convert(element)
-            return new_arg
+            return tuple(new_arg)
         elif isinstance(arg, common.DataBlock):
             return arg.data
         elif hasattr(arg, 'data') and isinstance(arg.data, common.DataBlock):
@@ -64,7 +68,7 @@ def as_vectorized(function, use_njit = True):
             arg_list[arg_id] = convert(arg)
 
         # Call function
-        if len(arg_list) > 0 and isinstance(arg_list[0], list):
+        if len(arg_list) > 0 and isinstance(arg_list[0], (list, tuple)):
             new_arg_list = list(arg_list)
             for element in new_arg_list[0]:
                 new_arg_list[0] = element
