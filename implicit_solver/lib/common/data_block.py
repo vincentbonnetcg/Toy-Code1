@@ -1,8 +1,6 @@
 """
 @author: Vincent Bonnet
-@description : Hierarchical Tiling Layout to store the data
-This structure is also called an 'array of structure of array'
-The default values are initialized to zero for all channels
+@description : Array of Structures of Arrays (AoSoA)
 Example :
 data = DataBlock()
 data.add_field("field_a", np.float, 1)
@@ -27,11 +25,20 @@ class DataBlock:
         # Data
         self.num_elements = 0
         self.data = None
+        self.blocks = [] # TODO - replace data
         # Datatype
         self.dtype_dict = {}
         self.dtype_dict['names'] = [] # list of names
         self.dtype_dict['formats'] = [] # list of tuples (data_type, data_shape)
         self.dtype_dict['defaults'] = [] # list of default values (should match formats)
+
+    def is_allocated(self):
+        '''
+        Return whether the datablock is allocated
+        '''
+        if self.data:
+            return True
+        return False
 
     def clear(self):
         '''
@@ -39,6 +46,7 @@ class DataBlock:
         '''
         self.num_elements = 0
         self.data = None
+        self.blocks.clear()
 
     def add_field_from_class(self, class_type):
         self.add_field_from_instance(class_type())
@@ -54,7 +62,7 @@ class DataBlock:
         '''
         Raise exception if 'name' cannot be added
         '''
-        if self.data:
+        if self.is_allocated():
             raise ValueError("Cannot add fields after initialized DataBlock")
 
         if keyword.iskeyword(name):
@@ -160,7 +168,7 @@ class DataBlock:
             self.data[field_index][:] = default_value
 
     def set_attribute_to_object(self, obj):
-        if self.data is None:
+        if self.is_allocated() is None:
             return None
 
         for field_index, field_name in enumerate(self.dtype_dict['names']):
@@ -176,7 +184,7 @@ class DataBlock:
         '''
         Access a specific field from data
         '''
-        if item == "data" or self.data is None:
+        if item == "data" or self.is_allocated() is None:
            raise AttributeError
 
         if item in self.dtype_dict['names']:
