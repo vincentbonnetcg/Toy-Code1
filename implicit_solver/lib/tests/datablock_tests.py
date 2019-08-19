@@ -66,12 +66,6 @@ class TestDataBlock(unittest.TestCase):
         self.assertEqual(datablock.field_0[0], 1.5)
         self.assertEqual(datablock.field_1[0][0][0], 2.5)
 
-    @unittest.skip("skip test_datablock_vectorize")
-    def test_datablock_vectorize(self):
-        datablock = create_datablock()
-        # TODO - placeholder for field iterator
-        self.assertEqual(True, False)
-
     def setUp(self):
         print(" TestDataBlock:", self._testMethodName)
 
