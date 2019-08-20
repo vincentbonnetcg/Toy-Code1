@@ -6,39 +6,33 @@
 import numba
 import numpy as np
 
-def allocate_particles_as_sof(num_particles):
+def allocate_particles_as_sof(channel_names, num_particles, default_value):
     '''
     Allocate particle data as a structure of array (sof)
     '''
     array_dtype = []
-    for name in ['x', 'v', 'f']:
+    for name in channel_names:
         array_dtype.append((name, np.float32, (num_particles, 2)))
 
-    particle_data = np.zeros(1, dtype=np.dtype(array_dtype))
+    particle_data = np.ones(1, dtype=np.dtype(array_dtype))[0]
+    for name in channel_names:
+        particle_data[name].fill(default_value)
+
     return particle_data
 
-@numba.njit
-def print_first_particle_system(array_data):
-    indices = [0, 1, 2] # silly but trigger issue
-    print(array_data[indices[2]][0]['x'])
 
-# WORKS - only because array have same size
-particle_data0 = allocate_particles_as_sof(10)
-particle_data1 = allocate_particles_as_sof(10)
-my_array = [particle_data0, particle_data1]
-print_first_particle_system(my_array)
+@numba.njit(debug=True)
+def print_first_particle_system(object_ids, particle_data):
+    for object_id in object_ids:
+        print(particle_data[object_id])
 
-# DOESN'T WORK - array do not have same size
-# ERROR 1 - can't unbox heterogeneous list
-#particle_data0 = allocate_particles_as_sof(10)
-#particle_data1 = allocate_particles_as_sof(15)
-#my_array = [particle_data0, particle_data1]
-#print_first_particle_system(my_array)
 
-# DOESN'T WORK - array do not have same size
-# ERROR 2 - Invalid use of Function(<built-in function getitem>)
-#particle_data0 = allocate_particles_as_sof(10)
-#particle_data1 = allocate_particles_as_sof(10)
-#my_array = [particle_data0, particle_data1]
-#print_first_particle_system(tuple(my_array))
+particle_data0 = allocate_particles_as_sof(['x', 'v', 'f'], 10, 0.0)
+particle_data1 = allocate_particles_as_sof(['x', 'v', 'f'], 10, 1.0)
+particle_data2 = allocate_particles_as_sof(['x', 'v', 'f', 'id'], 10, 2.0)
+objects = (particle_data0, particle_data1)
+
+print_first_particle_system([0, 1], objects)
+print_first_particle_system([0], (particle_data2,))
+
 
