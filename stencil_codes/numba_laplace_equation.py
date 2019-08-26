@@ -151,14 +151,13 @@ def dispatch_gpu_algo(x, algo = cuda_kernel_jacobi_solver, num_iterations = 500)
     # Create array on gpu
     device_array = cuda.to_device(x)
     device_next_array = cuda.to_device(np.copy(x))
-    buffer_id = 0
     buffers = [device_array, device_next_array]
 
     # Run kernel
     start_time = time.time()
     for iteration in range(num_iterations):
-        algo[blocksPerGrid, threadsPerBlock](buffers[buffer_id], buffers[(buffer_id+1)%2])
-        buffer_id = (buffer_id+1)%2
+        algo[blocksPerGrid, threadsPerBlock](buffers[0], buffers[1])
+        buffers[0], buffers[1] = buffers[1], buffers[0] # swap buffers
 
     end_time = time.time()
     print('cuda kernels - %f sec' % (end_time - start_time))
@@ -168,15 +167,14 @@ def dispatch_gpu_algo(x, algo = cuda_kernel_jacobi_solver, num_iterations = 500)
 
 def dispatch_cpu_algo(x, algo, num_iterations, mask_indices = None):
     next_x = np.copy(x)
-    buffer_id = 0
     buffers = [x, next_x]
     for iteration in range(num_iterations):
         if mask_indices is None:
-            algo(buffers[buffer_id], buffers[(buffer_id+1)%2])
+            algo(buffers[0], buffers[1])
         else:
-            algo(buffers[buffer_id], buffers[(buffer_id+1)%2], mask_indices)
+            algo(buffers[0], buffers[1], mask_indices)
 
-        buffer_id = (buffer_id+1)%2
+        buffers[0], buffers[1] = buffers[1], buffers[0] # swap buffers
 
 def dummy_call_to_compile_jit_function():
     '''
