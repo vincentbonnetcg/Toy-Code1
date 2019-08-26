@@ -30,11 +30,11 @@ class Dynamic:
 
         # Set node data
         np.copyto(self.data.x, shape.vertex.position)
-        self.data.v.fill(0.0)
-        self.data.m.fill(node_mass)
-        self.data.im.fill(1.0 / node_mass)
-        self.data.f.fill(0.0)
-        self.data.node_id.fill(0.0)
+        self.data.fill('v', 0.0)
+        self.data.fill('m', node_mass)
+        self.data.fill('im', 1.0 / node_mass)
+        self.data.fill('f', 0.0)
+        self.data.fill('node_id', 0.0)
 
         # Reference datablock attributes on the object for easy access
         self.data.set_attribute_to_object(self)

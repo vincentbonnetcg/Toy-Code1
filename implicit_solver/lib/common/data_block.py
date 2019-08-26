@@ -108,6 +108,15 @@ class DataBlock:
         self.dtype_dict['formats'].append((data_type, data_shape))
         self.dtype_dict['defaults'].append(value)
 
+    def fill(self, field_name, value):
+        if not self.is_allocated():
+            return
+
+        # set data
+        self.data[field_name].fill(value)
+        # set blocks
+        for block in self.blocks:
+            block[field_name].fill(value)
 
     def initialize_from_array(self, array):
         '''
@@ -168,8 +177,8 @@ class DataBlock:
             self.data[field_index][:] = default_value
 
     def set_attribute_to_object(self, obj):
-        if self.is_allocated() is None:
-            return None
+        if not self.is_allocated():
+            return
 
         for field_index, field_name in enumerate(self.dtype_dict['names']):
             if hasattr(obj, field_name):
