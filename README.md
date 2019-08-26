@@ -66,7 +66,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 **Folder** [lattice_boltzmann](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/lattice_boltzmann)<br>
 **Description** Lattice Boltzmann Evaluation
 
-![LBM](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/lattice_boltzmann_placeholder.png)<br>
+![LBM](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/lattice_boltzmann_placeholder.png)<br>
 
 ## . Inverse Kinematics
 **File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/inverseKinematics_withJacobian.py)<br>
