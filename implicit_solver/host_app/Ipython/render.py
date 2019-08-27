@@ -96,7 +96,7 @@ class Render:
             if render_prefs is None:
                 continue
 
-            x, y = zip(*dynamic.x)
+            x, y = zip(*dynamic.data.x)
             self.ax.plot(x, y, '.', alpha=render_prefs['alpha'], color=render_prefs['color'], markersize = render_prefs['width'])
 
         # Draw kinematics

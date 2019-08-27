@@ -176,16 +176,6 @@ class DataBlock:
         for field_index, default_value in enumerate(self.dtype_dict['defaults']):
             self.data[field_index][:] = default_value
 
-    def set_attribute_to_object(self, obj):
-        if not self.is_allocated():
-            return
-
-        for field_index, field_name in enumerate(self.dtype_dict['names']):
-            if hasattr(obj, field_name):
-                raise ValueError("attribute already exists in the object : " + field_name)
-
-            setattr(obj, field_name, self.data[field_index])
-
     def __len__(self):
         return self.num_elements
 

@@ -119,7 +119,7 @@ class ImplicitSolver(BaseSolver):
     def prepare_system(self, scene, dt):
         # Reset forces
         for dynamic in scene.dynamics:
-            dynamic.f.fill(0.0)
+            dynamic.data.f.fill(0.0)
 
         # Prepare external forces
         for force in scene.forces:
@@ -157,10 +157,10 @@ class ImplicitSolver(BaseSolver):
 
         # Set mass matrix
         for dynamic in scene.dynamics:
-            node_id_ptr = dynamic.node_id
+            node_id_ptr = dynamic.data.node_id
             for i in range(dynamic.num_nodes):
                 mass_matrix = np.zeros((2,2))
-                np.fill_diagonal(mass_matrix, dynamic.m[i])
+                np.fill_diagonal(mass_matrix, dynamic.data.m[i])
                 idx = na.node_global_index(node_id_ptr[i])
                 A.add(idx, idx, mass_matrix)
 

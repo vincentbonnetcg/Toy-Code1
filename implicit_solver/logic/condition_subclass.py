@@ -32,11 +32,11 @@ class KinematicCollisionCondition(Condition):
         kinematic = scene.kinematics[self.kinematic_indices[0]]
         springs = []
 
-        for node_index, node_pos in enumerate(dynamic.x):
+        for node_index, node_pos in enumerate(dynamic.data.x):
             if (kinematic.is_inside(node_pos)):
                 attachment_point_params = kinematic.get_closest_parametric_point(node_pos)
                 kinematicNormal = kinematic.get_normal_from_parametric_point(attachment_point_params)
-                if (np.dot(kinematicNormal, dynamic.v[node_index]) < 0.0):
+                if (np.dot(kinematicNormal, dynamic.data.v[node_index]) < 0.0):
                     node_id = na.node_id(scene, dynamic.index, node_index)
 
                     # add spring
@@ -69,7 +69,7 @@ class KinematicAttachmentCondition(Condition):
 
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
-        for node_index, node_pos in enumerate(dynamic.x):
+        for node_index, node_pos in enumerate(dynamic.data.x):
             attachment_point_params = kinematic.get_closest_parametric_point(node_pos)
             attachment_point = kinematic.get_position_from_parametric_point(attachment_point_params)
             direction = (attachment_point - node_pos)
@@ -104,8 +104,8 @@ class DynamicAttachmentCondition(Condition):
         dynamic0 = scene.dynamics[self.dynamic_indices[0]]
         dynamic1 = scene.dynamics[self.dynamic_indices[1]]
         distance2 = self.distance * self.distance
-        for x0i, x0 in enumerate(dynamic0.x):
-            for x1i, x1 in enumerate(dynamic1.x):
+        for x0i, x0 in enumerate(dynamic0.data.x):
+            for x1i, x1 in enumerate(dynamic1.data.x):
                 direction = (x0 - x1)
                 dist2 = np.inner(direction, direction)
                 if dist2 < distance2:

@@ -36,9 +36,6 @@ class Dynamic:
         self.data.fill('f', 0.0)
         self.data.fill('node_id', 0.0)
 
-        # Reference datablock attributes on the object for easy access
-        self.data.set_attribute_to_object(self)
-
         # Initialize node connectivities
         self.edge_ids = np.copy(shape.edge.vertex_ids)
         self.face_ids = np.copy(shape.face.vertex_ids)
@@ -54,7 +51,7 @@ class Dynamic:
         '''
         for local_node_id in range(len(self.data)):
             global_node_id = node_global_offset + local_node_id
-            self.node_id[local_node_id] = [object_id, local_node_id, global_node_id]
+            self.data.node_id[local_node_id] = [object_id, local_node_id, global_node_id]
         self.index = object_id
 
 
