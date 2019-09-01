@@ -183,38 +183,56 @@ def dummy_call_to_compile_jit_function():
     values = create_domain(2)
     dispatch_cpu_algo(values, numba_jacobi_solver, 1)
 
-def main():
-    '''
-    Main
-    '''
-    #. pre-execute jit function to help the benchmark to capture only the execution time
-    dummy_call_to_compile_jit_function()
+'''
+Examples
+'''
+def laplace_equation_example():
+    # create domain
+    domain_values = create_domain(NUM_NODES)
 
-    #1a. Create 2D grid domain and mask
-    #domain_values = create_domain(NUM_NODES)
-    domain_values = create_domain_from_image(NUM_NODES)
-    mask_values = create_mask(NUM_NODES)
-
-    domain_values *= mask_values
-    mask_indices = np.argwhere(mask_values == 0)
-
-    #2. Run and benchmark algorithm
+    # run and benchmark algorithm
     start_time = time.time()
     #dispatch_cpu_algo(domain_values, jacobi_solver, JACOBI_ITERATIONS)
-    #dispatch_cpu_algo(domain_values, numba_jacobi_solver, JACOBI_ITERATIONS)
-    dispatch_cpu_algo(domain_values, numba_jacobi_solver_with_mask, JACOBI_ITERATIONS, mask_indices)
+    dispatch_cpu_algo(domain_values, numba_jacobi_solver, JACOBI_ITERATIONS)
     #dispatch_gpu_algo(domain_values, cuda_kernel_jacobi_solver, JACOBI_ITERATIONS)
     #dispatch_gpu_algo(domain_values, cuda_kernel_jacobi_solver_with_shared_memory, JACOBI_ITERATIONS)
     end_time = time.time()
     print('Timing - %f sec' % (end_time - start_time))
 
-    #3. Show result
+    # show result
+    fig, ax = plt.subplots()
+    domain_points = np.linspace(0, 10, num=NUM_NODES, endpoint=True)
+    im = ax.pcolormesh(domain_points, domain_points, domain_values, cmap="rainbow", antialiased=True, shading="gouraud")
+    fig.colorbar(im)
+    #fig.savefig("test.png")
+
+def image_restoration_example():
+    # create domain
+    domain_values = create_domain_from_image(NUM_NODES)
+    mask_values = create_mask(NUM_NODES)
+    domain_values *= mask_values
+    mask_indices = np.argwhere(mask_values == 0)
+
+    # run and benchmark algorithm
+    start_time = time.time()
+    dispatch_cpu_algo(domain_values, numba_jacobi_solver_with_mask, JACOBI_ITERATIONS, mask_indices)
+    end_time = time.time()
+    print('Timing - %f sec' % (end_time - start_time))
+
+    # show result
     fig, ax = plt.subplots()
     domain_points = np.linspace(0, 10, num=NUM_NODES, endpoint=True)
     im = ax.pcolormesh(domain_points, domain_points, domain_values, cmap="gist_gray", antialiased=True, shading="gouraud")
-    #im = ax.pcolormesh(domain_points, domain_points, domain_values, cmap="rainbow", antialiased=True, shading="gouraud")
     fig.colorbar(im)
     #fig.savefig("test.png")
+
+def main():
+    '''
+    Main
+    '''
+    laplace_equation_example()
+    #image_restoration_example()
+
 
 if __name__ == '__main__':
     main()
