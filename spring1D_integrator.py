@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from enum import IntEnum
+from dataclasses import dataclass
 
 '''
  Global Constants
@@ -26,33 +27,32 @@ N = round((TIME_END - TIME_START) / DT)
 '''
  Helper Classes (State, Derivate, Particle)
 '''
-class State: 
-    def __init__(self):
-        self.x = 0.0 # position in Meters
-        self.v = 0.0 # velocity in Metres per second
+@dataclass
+class State:
+    x : float = 0.0 # position in Meters
+    v : float = 0.0 # velocity in Metres per second
 
+@dataclass
 class Derivative:
-    def __init__(self):
-        self.dx = 0.0 # derivative of x - change in position
-        self.dv = 0.0 # derivative of v - change in velocity
-        
+    dx : float = 0.0 # derivative of x - change in position
+    dv : float = 0.0 # derivative of v - change in velocity
+
     def __add__(self, other):
         result = Derivative();
         result.dx = self.dx + other.dx
         result.dv = self.dv + other.dv
         return result
-    
+
     def __truediv__(self, other):
         result = Derivative();
         result.dx = self.dx / other
         result.dv = self.dv / other
         return result
-        
-    
-class Particle: 
-    def __init__(self):
-        self.state = State()
-        self.mass = 1.0 # Kilograms
+
+@dataclass
+class Particle:
+    mass : float = 1.0 # Kilograms
+    state = State()
 
 '''
  Helper Functions
@@ -78,12 +78,12 @@ def dv(state, mass):
 def integrate(state, derivative, dt):
     result_state = State()
     result_state.x = state.x + derivative.dx * dt
-    result_state.v = state.v + derivative.dv * dt  
+    result_state.v = state.v + derivative.dv * dt
     return result_state
 
 # compute derivate at the state
 def derivate(state, mass):
-    result_derivate = Derivative()  
+    result_derivate = Derivative()
     result_derivate.dx = dx(state)
     result_derivate.dv = dv(state, mass)
     return result_derivate
@@ -99,19 +99,19 @@ class Integrators(IntEnum):
     SEMI_IMPLICIT_EULER_V2 = 4
     LEAP_FROG = 5
     ANALYTIC = 6
-    
+
 '''
  Integration Functions
 '''
 def forwardEulerStep(particle, time, dt):
     k = derivate(particle.state, particle.mass)
     particle.state = integrate(particle.state, k, DT)
-    
+
 def RK2Step(particle, time, dt):
     s1 = particle.state
     k1 = derivate(s1, particle.mass)
     s2 = integrate(s1, k1, DT * 0.5)
-    k2 = derivate(s2, particle.mass)  
+    k2 = derivate(s2, particle.mass)
     particle.state = integrate(particle.state, k2, DT)
 
 def RK4Step(particle, time, dt):
@@ -126,19 +126,19 @@ def RK4Step(particle, time, dt):
     particle.state = integrate(particle.state, k1 / 6 + k2 / 3 + k3 / 3 + k4 / 6 , DT)
 
 def semiImplicitEulerV1(particle, time, dt):
-    particle.state.v = particle.state.v + (dv(particle.state, particle.mass) * DT)
-    particle.state.x = particle.state.x + (dx(particle.state) * DT)
+    particle.state.v += dv(particle.state, particle.mass) * DT
+    particle.state.x += dx(particle.state) * DT
 
 def semiImplicitEulerV2(particle, time, dt):
-    particle.state.x = particle.state.x + (dx(particle.state) * DT)
-    particle.state.v = particle.state.v + (dv(particle.state, particle.mass) * DT)
+    particle.state.x += dx(particle.state) * DT
+    particle.state.v += dv(particle.state, particle.mass) * DT
 
 def leapFrog(particle, time, dt):
     if (time == TIME_START):
         # compute the velocity at half step which will cause the velocity to be half-step ahead of position
-        particle.state.v = particle.state.v + (dv(particle.state, particle.mass) * DT * 0.5)
-    particle.state.x = particle.state.x + particle.state.v * DT
-    particle.state.v = particle.state.v + dv(particle.state, particle.mass) * DT
+        particle.state.v += dv(particle.state, particle.mass) * DT * 0.5
+    particle.state.x += particle.state.v * DT
+    particle.state.v += dv(particle.state, particle.mass) * DT
 
 def analyticSolution(particle, time, dt):
     if(SPRING_DAMPING==0.0):
@@ -189,55 +189,49 @@ integratorDisplay = [True, # EXPLICIT_EULER
                      True, # LEAP_FROG
                      True] # ANALYTIC
 
-'''
- Initialize Display
-'''                     
-font = {'family': 'serif',
-        'color':  'darkred',
-        'weight': 'normal',
-        'size': 16,
-        }
-mpl.style.use("seaborn")
-plt.title('Single Damped Harmonic Oscillator', fontdict=font)
-plt.xlabel('time(t)')
-plt.ylabel('position(x)')
+def main():
+        # Initialize Display
+    font = {'family': 'serif',
+            'color':  'darkred',
+            'weight': 'normal',
+            'size': 16,
+            }
+    mpl.style.use("seaborn")
+    plt.title('Single Damped Harmonic Oscillator', fontdict=font)
+    plt.xlabel('time(t)')
+    plt.ylabel('position(x)')
 
-'''
-    Integrators Loop
-'''
-for integrator in Integrators:
-    # initialize particle state
-    particle = Particle();
-    particle.mass = 1.0
-    particle.state.x = INITIAL_POSITION
-    particle.state.v = INITIAL_VELOCITY
+    # integrators Loop
+    for integrator in Integrators:
 
-    # time and positions samples    
-    time_samples = np.zeros(N)
-    position_samples = np.zeros(N)
-        
-    '''
-     Simulation Loop
-    '''
-    plot_colour = integratorColours[integrator]
-    time = TIME_START
-    
-    for i in range(0,N):
-        
-        time_samples[i] = time
-        position_samples[i] = particle.state.x
+        # initialize particle state
+        particle = Particle();
+        particle.mass = 1.0
+        particle.state = State(INITIAL_POSITION, INITIAL_VELOCITY)
 
-        function = integratorFunctions[integrator]
-        function(particle, time, DT)
-    
-        time += DT
-        
-    if (integratorDisplay[integrator]):
-        plt.plot(time_samples, position_samples, color=plot_colour, label=integratorNames[integrator])
-        
+        # initialize time and positions samples
+        time_samples = np.zeros(N)
+        position_samples = np.zeros(N)
 
-'''
- Display End
-'''
-plt.legend(bbox_to_anchor=(1, 1), loc=2)
-plt.show()
+        # simulation Loop
+        plot_colour = integratorColours[integrator]
+        time = TIME_START
+        for i in range(0,N):
+
+            time_samples[i] = time
+            position_samples[i] = particle.state.x
+
+            function = integratorFunctions[integrator]
+            function(particle, time, DT)
+
+            time += DT
+
+        if (integratorDisplay[integrator]):
+            plt.plot(time_samples, position_samples, color=plot_colour, label=integratorNames[integrator])
+
+    # display result
+    plt.legend(bbox_to_anchor=(1, 1), loc=2)
+    plt.show()
+
+if __name__ == '__main__':
+    main()
