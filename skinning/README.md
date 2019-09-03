@@ -18,3 +18,5 @@ SSD (Skeletal Subspace Deformation) Algorithms written in Python
 [4] Kavan, Ladislav, Steven Collins, Jiří Žára, and Carol O'Sullivan. "Skinning with dual quaternions." In Proceedings of the 2007 symposium on Interactive 3D graphics and games, pp. 39-46. ACM, 2007.
 
 [5] Bickel, Bernd, Manuel Lang, Mario Botsch, Miguel A. Otaduy, and Markus Gross. "Pose-space animation and transfer of facial details." In Proceedings of the 2008 ACM SIGGRAPH/Eurographics Symposium on Computer Animation, pp. 57-66. Eurographics Association, 2008.
+
+[6] MANCEWICZ, Joe, DERKSEN, Matt L., RIJPKEMA, Hans, et al. Delta Mush: smoothing deformations while preserving detail. In : Proceedings of the Fourth Symposium on Digital Production. ACM, 2014. p. 7-11.
