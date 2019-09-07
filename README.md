@@ -113,7 +113,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimisation_gradientDescent.png)
 
-## . PDE - Numerical Integration
+## . Time Integration
 
 **File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/spring1D_integrator.py)<br>
 **Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
