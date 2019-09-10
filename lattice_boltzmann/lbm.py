@@ -85,6 +85,7 @@ NUM_ITERATIONS = 10
 LATTICE_Vf = np.array([[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]], dtype=np.float64)
 LATTICE_Vi = np.array([[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]], dtype=np.int64)
 T = np.array([4/9, 1/9, 1/9, 1/9, 1/9, 1/36, 1/36, 1/36, 1/36], dtype=np.float64)
+OPPOSITE = [0,3,4,1,2,7,8,5,6] # see f_in or f_out
 
 @numba.njit
 def stream_step(f_in, f_out):
@@ -129,13 +130,6 @@ def lbm(f_in, solid_boundary):
 
     # compute velocities from incoming population (f_in)
     # for each cell sum LATTICE_VELOCITIES weighted with 'incoming population'
-    # Explicit Loop
-    #for i in range(NUM_CELL_X):
-    #    for j in range(NUM_CELL_Y):
-    #        for k in range(9):
-    #            u[i, j] += LATTICE_VELOCITIES[k] * f_in[i, j, k]
-    #        u[i, j] /= d[i, j]
-    # Numpy Vectorized
     for v_id in range(9):
         u[:,:,0] += LATTICE_Vf[v_id, 0] * f_in[:,:,v_id] # compute v.x
         u[:,:,1] += LATTICE_Vf[v_id, 1] * f_in[:,:,v_id] # compute v.y
@@ -153,8 +147,9 @@ def lbm(f_in, solid_boundary):
     # fi_out = fi_in - omega * (f_in - E(i, d, u))
     f_out = f_in - OMEGA * (f_in - e)
 
-    # enforce solid boundary
-    # TODO
+    # enforce solid boundary with bounce-back technique
+    for v_id in range(9):
+        f_out[solid_boundary, v_id] = f_in[solid_boundary, OPPOSITE[v_id]]
 
     # compute population after the stream step
     stream_step(f_in, f_out)
@@ -166,8 +161,9 @@ if __name__ == '__main__':
     np.set_printoptions(precision=2)
     np.random.seed(0)
 
-    f_in = np.random.rand(NUM_CELL_X, NUM_CELL_Y, 9) # incoming population
+    f_in = np.random.rand(NUM_CELL_X, NUM_CELL_Y, 9)# incoming population
     solid_boundary = np.fromfunction(solid_boundary_func, (NUM_CELL_X, NUM_CELL_Y)) # solid boundary
+
     #f_in = np.ones((NUM_CELL_X, NUM_CELL_Y, 9), dtype=np.float64) * EPSILON # incoming population
     for _ in range(NUM_ITERATIONS):
         u = lbm(f_in, solid_boundary)
