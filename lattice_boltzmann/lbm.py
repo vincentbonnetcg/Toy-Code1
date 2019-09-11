@@ -80,7 +80,7 @@ NUM_CELL_X = 64
 NUM_CELL_Y = 64
 EPSILON = 0.001 # prevent division by zero
 OMEGA = 1.0 # TODO - need to express from Reynold Number
-NUM_ITERATIONS = 10
+NUM_ITERATIONS = 1000
 
 LATTICE_Vf = np.array([[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]], dtype=np.float64)
 LATTICE_Vi = np.array([[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]], dtype=np.int64)
@@ -105,7 +105,7 @@ def stream_step(f_in, f_out):
                 elif next_j >= NUM_CELL_Y-1:
                     next_j = 0
                 # move out to incoming population
-                f_in[next_i, next_j, v_id] = f_out[i, j, v_id]
+                f_in[v_id, next_i, next_j] = f_out[v_id, i, j]
 
 def solid_boundary_func(x, y):
     '''
@@ -117,31 +117,30 @@ def solid_boundary_func(x, y):
 
 def lbm(f_in, solid_boundary):
     d = np.zeros((NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # density
-    u = np.zeros((NUM_CELL_X, NUM_CELL_Y, 2), dtype=np.float64) # velocity
-    e = np.zeros((NUM_CELL_X, NUM_CELL_Y, 9), dtype=np.float64) # equilibrium distribution
-    f_out = np.zeros((NUM_CELL_X, NUM_CELL_Y, 9), dtype=np.float64) # outgoing population
+    u = np.zeros((2, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # velocity
+    e = np.zeros((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # equilibrium distribution
+    f_out = np.zeros((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # outgoing population
 
     # add boundary flow condition
     # TODO
 
     # compute density from incoming population (f_in)
     # for each cell sum 'incoming population'
-    np.sum(f_in, axis=2, out = d)
+    np.sum(f_in, axis=0, out = d)
 
     # compute velocities from incoming population (f_in)
     # for each cell sum LATTICE_VELOCITIES weighted with 'incoming population'
     for v_id in range(9):
-        u[:,:,0] += LATTICE_Vf[v_id, 0] * f_in[:,:,v_id] # compute v.x
-        u[:,:,1] += LATTICE_Vf[v_id, 1] * f_in[:,:,v_id] # compute v.y
-    u[:,:,0] /= d
-    u[:,:,1] /= d
+        u[0,:,:] += LATTICE_Vf[v_id, 0] * f_in[v_id,:,:] # compute v.x
+        u[1,:,:] += LATTICE_Vf[v_id, 1] * f_in[v_id,:,:] # compute v.y
+    u /= d
 
     # compute equilibrium distribution from density and velocities
     # E(i,d,u) = d * T[i] * (1 + (3 * (vi.u)) + ( 0.5 * (3 * (vi.u))^2 ) + 3/2*|u|^2 )
-    dot_u = 3.0/2.0 * u[:,:,0]**2+u[:,:,1]**2 # 3/2*|u|^2
+    dot_u = 3.0/2.0 * u[0]**2+u[1]**2 # 3/2*|u|^2
     for v_id in range(9):
-        vu = 3.0 * (LATTICE_Vf[v_id, 0] * u[:,:,0] + LATTICE_Vf[v_id, 1] * u[:,:,1] )
-        e[:,:,v_id] = d * T[v_id] * (1.0 + vu + 0.5 * vu ** 2 - dot_u)
+        vu = 3.0 * (LATTICE_Vf[v_id, 0] * u[0,:,:] + LATTICE_Vf[v_id, 1] * u[1,:,:] )
+        e[v_id,:,:] = d * T[v_id] * (1.0 + vu + 0.5 * vu ** 2 - dot_u)
 
     # compute population after collision
     # fi_out = fi_in - omega * (f_in - E(i, d, u))
@@ -149,7 +148,7 @@ def lbm(f_in, solid_boundary):
 
     # enforce solid boundary with bounce-back technique
     for v_id in range(9):
-        f_out[solid_boundary, v_id] = f_in[solid_boundary, OPPOSITE[v_id]]
+        f_out[v_id, solid_boundary] = f_in[OPPOSITE[v_id], solid_boundary]
 
     # compute population after the stream step
     stream_step(f_in, f_out)
@@ -161,15 +160,15 @@ if __name__ == '__main__':
     np.set_printoptions(precision=2)
     np.random.seed(0)
 
-    f_in = np.random.rand(NUM_CELL_X, NUM_CELL_Y, 9)# incoming population
+    f_in = np.random.rand(9, NUM_CELL_X, NUM_CELL_Y)# incoming population
     solid_boundary = np.fromfunction(solid_boundary_func, (NUM_CELL_X, NUM_CELL_Y)) # solid boundary
 
-    #f_in = np.ones((NUM_CELL_X, NUM_CELL_Y, 9), dtype=np.float64) * EPSILON # incoming population
+    #f_in = np.ones((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) * EPSILON # incoming population
     for _ in range(NUM_ITERATIONS):
         u = lbm(f_in, solid_boundary)
 
         # show result with the velocity norm
-        u_norm = np.sqrt(u[:,:,0]**2+u[:,:,1]**2)
+        u_norm = np.sqrt(u[0]**2+u[1]**2)
         plt.imshow(u_norm.transpose(), cmap=cm.Blues)
         plt.show()
         #plt.imshow(solid_boundary.astype(np.float64), cmap=cm.Blues)
