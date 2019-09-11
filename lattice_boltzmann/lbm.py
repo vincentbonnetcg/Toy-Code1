@@ -78,9 +78,8 @@ from matplotlib import cm
 
 NUM_CELL_X = 64
 NUM_CELL_Y = 64
-EPSILON = 0.001 # prevent division by zero
 OMEGA = 1.0 # TODO - need to express from Reynold Number
-NUM_ITERATIONS = 1000
+NUM_ITERATIONS = 100
 
 LATTICE_Vf = np.array([[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]], dtype=np.float64)
 LATTICE_Vi = np.array([[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]], dtype=np.int64)
@@ -156,14 +155,8 @@ def lbm(f_in, solid_boundary):
     return u
 
 if __name__ == '__main__':
-    # configure numpy
-    np.set_printoptions(precision=2)
-    np.random.seed(0)
-
-    f_in = np.random.rand(9, NUM_CELL_X, NUM_CELL_Y)# incoming population
     solid_boundary = np.fromfunction(solid_boundary_func, (NUM_CELL_X, NUM_CELL_Y)) # solid boundary
-
-    #f_in = np.ones((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) * EPSILON # incoming population
+    f_in = np.ones((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) * 0.01 # incoming population
     for _ in range(NUM_ITERATIONS):
         u = lbm(f_in, solid_boundary)
 
