@@ -78,7 +78,7 @@ from matplotlib import cm
 
 NUM_CELL_X = 64
 NUM_CELL_Y = 64
-OMEGA = 1.0 # TODO - need to express from Reynold Number
+OMEGA = 1.1 # TODO - need to express from Reynold Number
 NUM_ITERATIONS = 100
 
 LATTICE_Vf = np.array([[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]], dtype=np.float64)
@@ -96,12 +96,12 @@ def stream_step(f_in, f_out):
                 # boundary condition in X axis (periodic boundary)
                 if next_i < 0:
                     next_i = NUM_CELL_X-1
-                elif next_i >= NUM_CELL_X-1:
+                elif next_i > NUM_CELL_X-1:
                     next_i = 0
                 # boundary condition in Y axis (periodic boundary)
                 if next_j < 0:
                     next_j = NUM_CELL_Y-1
-                elif next_j >= NUM_CELL_Y-1:
+                elif next_j > NUM_CELL_Y-1:
                     next_j = 0
                 # move out to incoming population
                 f_in[v_id, next_i, next_j] = f_out[v_id, i, j]
@@ -156,7 +156,9 @@ def lbm(f_in, solid_boundary):
 
 if __name__ == '__main__':
     solid_boundary = np.fromfunction(solid_boundary_func, (NUM_CELL_X, NUM_CELL_Y)) # solid boundary
-    f_in = np.ones((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) * 0.01 # incoming population
+    f_in = np.ones((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) * 0.001 # incoming population
+    f_in[1].fill(0.01)
+
     for _ in range(NUM_ITERATIONS):
         u = lbm(f_in, solid_boundary)
 
