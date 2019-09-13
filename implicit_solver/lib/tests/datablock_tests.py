@@ -54,14 +54,12 @@ class TestDataBlock(unittest.TestCase):
 
     def test_datablock_memory_value(self):
         datablock = create_datablock()
-        datablock.initialize(10)
         self.assertEqual(datablock.field_a[0], 0.0)
         self.assertEqual(datablock.field_0[0], 0.6)
         self.assertEqual(datablock.field_1[0][0][0], 0.5)
 
     def test_datablock_set_values(self):
         datablock = create_datablock()
-        datablock.initialize(10)
         set_datablock_values(datablock, 1.5, 2.5)
         self.assertEqual(datablock.field_0[0], 1.5)
         self.assertEqual(datablock.field_1[0][0][0], 2.5)
