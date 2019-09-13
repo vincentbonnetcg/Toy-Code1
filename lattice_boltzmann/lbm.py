@@ -78,16 +78,53 @@ from matplotlib import cm
 
 NUM_CELL_X = 64
 NUM_CELL_Y = 64
-OMEGA = 1.1 # TODO - need to express from Reynold Number
-NUM_ITERATIONS = 100
+OMEGA = 1.0 # TODO - need to express from Reynold Number
+NUM_ITERATIONS = 10
 
 LATTICE_Vf = np.array([[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]], dtype=np.float64)
 LATTICE_Vi = np.array([[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]], dtype=np.int64)
 T = np.array([4/9, 1/9, 1/9, 1/9, 1/9, 1/36, 1/36, 1/36, 1/36], dtype=np.float64)
 OPPOSITE = [0,3,4,1,2,7,8,5,6] # see f_in or f_out
 
+
+def macroscopic_variables(f_in):
+    '''
+    computes the density and momentum
+    '''
+    d = np.zeros((NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # density
+    u = np.zeros((2, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # velocity
+
+    # compute density from incoming population (f_in)
+    # for each cell sum 'incoming population'
+    np.sum(f_in, axis=0, out = d)
+
+    # compute velocities from incoming population (f_in)
+    # for each cell sum LATTICE_VELOCITIES weighted with 'incoming population'
+    for v_id in range(9):
+        u[0,:,:] += LATTICE_Vf[v_id, 0] * f_in[v_id,:,:] # compute v.x
+        u[1,:,:] += LATTICE_Vf[v_id, 1] * f_in[v_id,:,:] # compute v.y
+    u /= d
+
+    return d, u
+
+def equilibrium_distribution(d, u):
+    '''
+    compute equilibrium distribution from density and momentum
+    '''
+    e = np.zeros((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # equilibrium distribution
+    # E(i,d,u) = d * T[i] * (1 + (3 * (vi.u)) + ( 0.5 * (3 * (vi.u))^2 ) + 3/2*|u|^2 )
+    dot_u = 3.0/2.0 * u[0]**2+u[1]**2 # 3/2*|u|^2
+    for v_id in range(9):
+        vu = 3.0 * (LATTICE_Vf[v_id, 0] * u[0,:,:] + LATTICE_Vf[v_id, 1] * u[1,:,:] )
+        e[v_id,:,:] = d * T[v_id] * (1.0 + vu + 0.5 * vu ** 2 - dot_u)
+
+    return e
+
 @numba.njit
 def stream_step(f_in, f_out):
+    '''
+    stream operation
+    '''
     for i in range(NUM_CELL_X):
         for j in range(NUM_CELL_Y):
             for v_id in range(9):
@@ -115,31 +152,17 @@ def solid_boundary_func(x, y):
     return (x-cx)**2+(y-cy)**2<r**2
 
 def lbm(f_in, solid_boundary):
-    d = np.zeros((NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # density
-    u = np.zeros((2, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # velocity
-    e = np.zeros((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # equilibrium distribution
+
     f_out = np.zeros((9, NUM_CELL_X, NUM_CELL_Y), dtype=np.float64) # outgoing population
 
     # add boundary flow condition
     # TODO
 
-    # compute density from incoming population (f_in)
-    # for each cell sum 'incoming population'
-    np.sum(f_in, axis=0, out = d)
-
-    # compute velocities from incoming population (f_in)
-    # for each cell sum LATTICE_VELOCITIES weighted with 'incoming population'
-    for v_id in range(9):
-        u[0,:,:] += LATTICE_Vf[v_id, 0] * f_in[v_id,:,:] # compute v.x
-        u[1,:,:] += LATTICE_Vf[v_id, 1] * f_in[v_id,:,:] # compute v.y
-    u /= d
+    # compute density and momentum from incoming population (f_in)
+    d, u = macroscopic_variables(f_in)
 
     # compute equilibrium distribution from density and velocities
-    # E(i,d,u) = d * T[i] * (1 + (3 * (vi.u)) + ( 0.5 * (3 * (vi.u))^2 ) + 3/2*|u|^2 )
-    dot_u = 3.0/2.0 * u[0]**2+u[1]**2 # 3/2*|u|^2
-    for v_id in range(9):
-        vu = 3.0 * (LATTICE_Vf[v_id, 0] * u[0,:,:] + LATTICE_Vf[v_id, 1] * u[1,:,:] )
-        e[v_id,:,:] = d * T[v_id] * (1.0 + vu + 0.5 * vu ** 2 - dot_u)
+    e = equilibrium_distribution(d, u)
 
     # compute population after collision
     # fi_out = fi_in - omega * (f_in - E(i, d, u))
