@@ -119,9 +119,10 @@ class DataBlock:
         for block in self.blocks:
             block[field_name].fill(value)
 
-    def dtype(self, num_elements):
+    def dtype(self, num_elements, add_block_info):
         '''
         Returns the dtype of the datablock
+        add_block_info is only used for blocks
         '''
         # create a new dictionnary to create an 'array of structure of array'
         dtype_aosoa_dict = {}
@@ -154,6 +155,10 @@ class DataBlock:
 
             dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
 
+        if add_block_info:
+            dtype_aosoa_dict['names'].append('num_elements')
+            dtype_aosoa_dict['formats'].append(np.int64)
+
         return np.dtype(dtype_aosoa_dict, align=True)
 
     def initialize_from_array(self, array):
@@ -177,7 +182,7 @@ class DataBlock:
         self.num_elements = num_elements
 
         # allocate memory
-        aosoa_dtype = self.dtype(num_elements)
+        aosoa_dtype = self.dtype(num_elements, add_block_info=False)
         self.data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
 
         # Set default values
@@ -206,12 +211,11 @@ class DataBlock:
         '''
         num_fields = len(self.data)
         blocks = [] # list of numpy array
-        blocks_num_elements = [] # list of integer for number of elements in a block
         if num_fields > 0:
 
             n_elements = len(self.data[0])
             n_blocks = math.ceil(n_elements / block_size)
-            block_dtype = self.dtype(block_size)
+            block_dtype = self.dtype(block_size, add_block_info=True)
 
             for block_id in range(n_blocks):
                 # create and initialize a block
@@ -222,8 +226,8 @@ class DataBlock:
 
                 for field_id in range(num_fields):
                     np.copyto(block_data[field_id][0:block_n_elements], self.data[field_id][begin_index:end_index])
+                block_data['num_elements'] = block_n_elements
 
                 blocks.append(block_data)
-                blocks_num_elements.append(block_n_elements)
 
-        return blocks, blocks_num_elements
+        return blocks

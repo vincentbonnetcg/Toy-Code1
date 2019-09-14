@@ -67,8 +67,10 @@ class TestDataBlock(unittest.TestCase):
     def test_blocks(self):
         datablock = create_datablock(10)
         np.copyto(datablock.field_a, range(10))
-        blocks, blocks_num_elements = datablock.create_blocks(block_size=3)
+        blocks = datablock.create_blocks(block_size=3)
         self.assertEqual(len(blocks), 4)
+        self.assertEqual(blocks[0]['num_elements'], 3)
+        self.assertEqual(blocks[3]['num_elements'], 1)
         self.assertTrue((blocks[0]['field_a'] == [0.,1.,2.]).all())
         self.assertTrue((blocks[1]['field_a'] == [3.,4.,5.]).all())
         self.assertTrue((blocks[2]['field_a'] == [6.,7.,8.]).all())
