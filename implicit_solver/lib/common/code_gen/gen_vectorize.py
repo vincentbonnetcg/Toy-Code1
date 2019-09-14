@@ -61,6 +61,9 @@ def as_vectorized(function, use_njit = True):
 
     @functools.wraps(function)
     def execute(*args):
+        '''
+        Execute the function. At least one argument is expected
+        '''
         arg_list = list(args)
 
         # Fetch numpy array from common.DataBlock or a container of common.DataBlock
@@ -68,7 +71,7 @@ def as_vectorized(function, use_njit = True):
             arg_list[arg_id] = convert(arg)
 
         # Call function
-        if len(arg_list) > 0 and isinstance(arg_list[0], (list, tuple)):
+        if isinstance(arg_list[0], (list, tuple)):
             new_arg_list = list(arg_list)
             for element in new_arg_list[0]:
                 new_arg_list[0] = element
