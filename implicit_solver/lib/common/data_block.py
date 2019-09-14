@@ -10,6 +10,7 @@ print(data.field_a)
 print(data.field_b)
 """
 
+import math
 import numpy as np
 import keyword
 
@@ -118,25 +119,10 @@ class DataBlock:
         for block in self.blocks:
             block[field_name].fill(value)
 
-    def initialize_from_array(self, array):
+    def dtype(self, num_elements):
         '''
-        Allocate the fields from the array
-        SLOW but generic
+        Returns the dtype of the datablock
         '''
-        num_constraints = len(array)
-        self.initialize(num_constraints)
-        for index, element in enumerate(array):
-            for attribute_name, attribute_value in element.__dict__.items():
-                if attribute_name in self.dtype_dict['names']:
-                    field_index = self.dtype_dict['names'].index(attribute_name)
-                    self.data[field_index][index] =  getattr(element, attribute_name)
-
-    def initialize(self, num_elements):
-        '''
-        Allocate the fields
-        '''
-        self.clear()
-        self.num_elements = num_elements
         # create a new dictionnary to create an 'array of structure of array'
         dtype_aosoa_dict = {}
         dtype_aosoa_dict['names'] = []
@@ -158,18 +144,40 @@ class DataBlock:
                     # The coma after self.num_elements is essential
                     # In case field_shape == num_elements == 1,
                     # it guarantees an array will be produced and not a single value
-                    new_field_shape = (self.num_elements,)
+                    new_field_shape = (num_elements,)
                 else:
-                    new_field_shape = (self.num_elements, field_shape)
+                    new_field_shape = (num_elements, field_shape)
             else:
                 list_shape = list(field_shape)
-                list_shape.insert(0, self.num_elements)
+                list_shape.insert(0, num_elements)
                 new_field_shape = tuple(list_shape)
 
             dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
 
+        return np.dtype(dtype_aosoa_dict, align=True)
+
+    def initialize_from_array(self, array):
+        '''
+        Allocate the fields from the array
+        SLOW but generic
+        '''
+        num_constraints = len(array)
+        self.initialize(num_constraints)
+        for index, element in enumerate(array):
+            for attribute_name, attribute_value in element.__dict__.items():
+                if attribute_name in self.dtype_dict['names']:
+                    field_index = self.dtype_dict['names'].index(attribute_name)
+                    self.data[field_index][index] =  getattr(element, attribute_name)
+
+    def initialize(self, num_elements):
+        '''
+        Allocate the fields
+        '''
+        self.clear()
+        self.num_elements = num_elements
+
         # allocate memory
-        aosoa_dtype = np.dtype(dtype_aosoa_dict, align=True)
+        aosoa_dtype = self.dtype(num_elements)
         self.data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
 
         # Set default values
@@ -191,3 +199,29 @@ class DataBlock:
             return self.data[field_index]
 
         raise AttributeError
+
+    def create_blocks(self, block_size):
+        '''
+        numpy.array_split doesn't support structured array
+        '''
+        num_fields = len(self.data)
+        blocks = []
+        if num_fields > 0:
+
+            n_elements = len(self.data[0])
+            n_blocks = math.ceil(n_elements / block_size)
+            block_dtype = self.dtype(block_size)
+
+            for block_id in range(n_blocks):
+                # create and initialize a block
+                block_data = np.zeros(1, dtype=block_dtype)[0] # a scalar
+                begin_index = block_id * block_size
+                end_index = min(begin_index+block_size, n_elements)
+                block_n_elements = end_index - begin_index
+
+                for field_id in range(num_fields):
+                    np.copyto(block_data[field_id][0:block_n_elements], self.data[field_id][begin_index:end_index])
+
+                blocks.append(block_data)
+
+        return blocks
