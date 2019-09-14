@@ -205,7 +205,8 @@ class DataBlock:
         numpy.array_split doesn't support structured array
         '''
         num_fields = len(self.data)
-        blocks = []
+        blocks = [] # list of numpy array
+        blocks_num_elements = [] # list of integer for number of elements in a block
         if num_fields > 0:
 
             n_elements = len(self.data[0])
@@ -223,5 +224,6 @@ class DataBlock:
                     np.copyto(block_data[field_id][0:block_n_elements], self.data[field_id][begin_index:end_index])
 
                 blocks.append(block_data)
+                blocks_num_elements.append(block_n_elements)
 
-        return blocks
+        return blocks, blocks_num_elements
