@@ -74,7 +74,7 @@ import numpy as np
 import time
 import numba
 import matplotlib.pyplot as plt
-from matplotlib import cm
+from matplotlib import cm, gridspec
 
 NUM_CELL_X = 64
 NUM_CELL_Y = 64
@@ -184,10 +184,29 @@ if __name__ == '__main__':
 
     for _ in range(NUM_ITERATIONS):
         u = lbm(f_in, solid_boundary)
+        u[:,solid_boundary] = 0.0 # simple cleanup, to remove velocity from boundary
 
         # show result with the velocity norm
         u_norm = np.sqrt(u[0]**2+u[1]**2)
         plt.imshow(u_norm.transpose(), cmap=cm.Blues)
         plt.show()
+
+        # show solid boundary
         #plt.imshow(solid_boundary.astype(np.float64), cmap=cm.Blues)
         #plt.show()
+
+        # show
+        # BUG : for viz NUM_CELL_X == NUM_CELL_Y
+        #fig = plt.figure(figsize=(7, 9))
+        #X = np.linspace(0, NUM_CELL_X, num=NUM_CELL_X, endpoint=True)
+        #Y = np.linspace(0, NUM_CELL_Y, num=NUM_CELL_Y, endpoint=True)
+        #U = u[0]
+        #V = u[1]
+        #u_norm = np.sqrt(u[0]**2+u[1]**2)
+        #gs = gridspec.GridSpec(nrows=3, ncols=2)
+        #ax = fig.add_subplot(gs[0, 0])
+        #ax.imshow(u_norm.transpose(), cmap=cm.Blues)
+        #ax.streamplot(X, Y, U, V, color=u_norm, linewidth=2, cmap='autumn')
+        #plt.tight_layout()
+        #plt.show()
+
