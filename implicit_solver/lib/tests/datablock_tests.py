@@ -41,7 +41,7 @@ Datablock Tests
 '''
 class TestDataBlock(unittest.TestCase):
 
-    def test_datablock_memory_datatype(self):
+    def test_datablock_datatype(self):
         datablock = create_datablock(num_elements=10)
         datablock_type = np.dtype(datablock.data)
         self.assertEqual('field_a' in datablock_type.names, True)
@@ -52,7 +52,7 @@ class TestDataBlock(unittest.TestCase):
         self.assertEqual(datablock_type.isalignedstruct, True)
         self.assertEqual(datablock_type.itemsize, 800)
 
-    def test_datablock_memory_value(self):
+    def test_datablock_default_values(self):
         datablock = create_datablock(num_elements=10)
         self.assertEqual(datablock.field_a[0], 0.0)
         self.assertEqual(datablock.field_0[0], 0.6)
@@ -77,6 +77,14 @@ class TestDataBlock(unittest.TestCase):
         self.assertTrue((datablock.blocks[1]['field_a'] == [3.,4.,5.]).all())
         self.assertTrue((datablock.blocks[2]['field_a'] == [6.,7.,8.]).all())
         self.assertTrue((datablock.blocks[3]['field_a'] == [9.,0.,0.]).all())
+
+    def test_blocks_default_values(self):
+        num_elements = 10
+        datablock = create_datablock(num_elements, block_size=3)
+        block0 = datablock.blocks[0]
+        self.assertEqual(block0['field_a'][0], 0.0)
+        self.assertEqual(block0['field_0'][0], 0.6)
+        self.assertEqual(block0['field_1'][0][0][0], 0.5)
 
     def setUp(self):
         print(" TestDataBlock:", self._testMethodName)
