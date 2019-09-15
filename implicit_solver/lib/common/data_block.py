@@ -16,8 +16,9 @@ import keyword
 
 class DataBlock:
 
-    def __init__(self):
+    def __init__(self, block_size = 1000):
         self.reset()
+        self.block_size = block_size
 
     def reset(self):
         '''
@@ -156,7 +157,7 @@ class DataBlock:
             dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
 
         if add_block_info:
-            dtype_aosoa_dict['names'].append('num_elements')
+            dtype_aosoa_dict['names'].append('blockInfo_numElements')
             dtype_aosoa_dict['formats'].append(np.int64)
 
         return np.dtype(dtype_aosoa_dict, align=True)
@@ -168,11 +169,15 @@ class DataBlock:
         '''
         num_constraints = len(array)
         self.initialize(num_constraints)
+        self.initialize_blocks(num_constraints)
+
         for index, element in enumerate(array):
             for attribute_name, attribute_value in element.__dict__.items():
                 if attribute_name in self.dtype_dict['names']:
                     field_index = self.dtype_dict['names'].index(attribute_name)
                     self.data[field_index][index] =  getattr(element, attribute_name)
+
+        self.update_blocks_from_data()
 
     def initialize(self, num_elements):
         '''
@@ -185,9 +190,12 @@ class DataBlock:
         aosoa_dtype = self.dtype(num_elements, add_block_info=False)
         self.data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
 
-        # Set default values
+        # set default values
         for field_index, default_value in enumerate(self.dtype_dict['defaults']):
             self.data[field_index][:] = default_value
+
+        # allocate blocks
+        self.initialize_blocks(num_elements)
 
     def __len__(self):
         return self.num_elements
@@ -205,29 +213,51 @@ class DataBlock:
 
         raise AttributeError
 
-    def create_blocks(self, block_size):
+    def initialize_blocks(self, num_elements):
         '''
+        Allocate fields inside blocks
         numpy.array_split doesn't support structured array
         '''
-        num_fields = len(self.data)
-        blocks = [] # list of numpy array
-        if num_fields > 0:
+        self.blocks.clear()
+        self.num_elements = num_elements
 
-            n_elements = len(self.data[0])
-            n_blocks = math.ceil(n_elements / block_size)
-            block_dtype = self.dtype(block_size, add_block_info=True)
+        data_type = self.dtype(self.block_size, add_block_info=False)
+        block_dtype = self.dtype(self.block_size, add_block_info=True)
 
-            for block_id in range(n_blocks):
-                # create and initialize a block
-                block_data = np.zeros(1, dtype=block_dtype)[0] # a scalar
-                begin_index = block_id * block_size
-                end_index = min(begin_index+block_size, n_elements)
-                block_n_elements = end_index - begin_index
+        num_fields = len(data_type.names)
+        if num_fields == 0:
+            return
 
-                for field_id in range(num_fields):
-                    np.copyto(block_data[field_id][0:block_n_elements], self.data[field_id][begin_index:end_index])
-                block_data['num_elements'] = block_n_elements
+        n_blocks = math.ceil(num_elements / self.block_size)
+        for block_id in range(n_blocks):
 
-                blocks.append(block_data)
+            # allocate memory and blockInfo
+            block_data = np.zeros(1, dtype=block_dtype)[0] # a scalar
 
-        return blocks
+            begin_index = block_id * self.block_size
+            block_n_elements = min(self.block_size, num_elements-begin_index)
+            block_data['blockInfo_numElements'] = block_n_elements
+
+            # set default values
+            for field_id, default_value in enumerate(self.dtype_dict['defaults']):
+                block_data[field_id][:] = default_value
+
+            self.blocks.append(block_data)
+
+    def update_blocks_from_data(self):
+        '''
+        Set blocks from self.data
+        Assume the blocks have been initialized (see initialize_blocks(...))
+        '''
+        data_type = self.dtype(self.block_size, add_block_info=False)
+        num_fields = len(data_type.names)
+
+        for block_id, block_data in enumerate(self.blocks):
+
+            begin_index = block_id * self.block_size
+            block_n_elements = block_data['blockInfo_numElements']
+            end_index = begin_index + block_n_elements
+
+            for field_id in range(num_fields):
+                np.copyto(block_data[field_id][0:block_n_elements], self.data[field_id][begin_index:end_index])
+

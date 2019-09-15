@@ -6,7 +6,7 @@
 import unittest
 import lib.common as common
 import numpy as np
-from numba import njit, vectorize
+from numba import njit
 from numba_helper import numba_friendly
 
 '''
@@ -18,8 +18,8 @@ class ComponentTest:
         self.field_0 = np.float64(0.6)
         self.field_1 = np.ones((2, 2), dtype = np.int64) * 0.5
 
-def create_datablock(num_elements):
-    datablock = common.DataBlock()
+def create_datablock(num_elements, block_size = 1000):
+    datablock = common.DataBlock(block_size)
     datablock.add_field('field_a', np.float64, 1)
     datablock.add_field('field_b', np.float64, (2, 2))
     datablock.add_field_from_class(ComponentTest)
@@ -42,7 +42,7 @@ Datablock Tests
 class TestDataBlock(unittest.TestCase):
 
     def test_datablock_memory_datatype(self):
-        datablock = create_datablock(10)
+        datablock = create_datablock(num_elements=10)
         datablock_type = np.dtype(datablock.data)
         self.assertEqual('field_a' in datablock_type.names, True)
         self.assertEqual('field_b' in datablock_type.names, True)
@@ -53,28 +53,30 @@ class TestDataBlock(unittest.TestCase):
         self.assertEqual(datablock_type.itemsize, 800)
 
     def test_datablock_memory_value(self):
-        datablock = create_datablock(10)
+        datablock = create_datablock(num_elements=10)
         self.assertEqual(datablock.field_a[0], 0.0)
         self.assertEqual(datablock.field_0[0], 0.6)
         self.assertEqual(datablock.field_1[0][0][0], 0.5)
 
     def test_datablock_set_values(self):
-        datablock = create_datablock(10)
+        datablock = create_datablock(num_elements=10)
         set_datablock_values(datablock, 1.5, 2.5)
         self.assertEqual(datablock.field_0[0], 1.5)
         self.assertEqual(datablock.field_1[0][0][0], 2.5)
 
     def test_blocks(self):
-        datablock = create_datablock(10)
-        np.copyto(datablock.field_a, range(10))
-        blocks = datablock.create_blocks(block_size=3)
-        self.assertEqual(len(blocks), 4)
-        self.assertEqual(blocks[0]['num_elements'], 3)
-        self.assertEqual(blocks[3]['num_elements'], 1)
-        self.assertTrue((blocks[0]['field_a'] == [0.,1.,2.]).all())
-        self.assertTrue((blocks[1]['field_a'] == [3.,4.,5.]).all())
-        self.assertTrue((blocks[2]['field_a'] == [6.,7.,8.]).all())
-        self.assertTrue((blocks[3]['field_a'] == [9.,0.,0.]).all())
+        num_elements = 10
+        datablock = create_datablock(num_elements, block_size=3)
+        np.copyto(datablock.field_a, range(num_elements))
+        datablock.update_blocks_from_data()
+
+        self.assertEqual(len(datablock.blocks), 4)
+        self.assertEqual(datablock.blocks[0]['blockInfo_numElements'], 3)
+        self.assertEqual(datablock.blocks[3]['blockInfo_numElements'], 1)
+        self.assertTrue((datablock.blocks[0]['field_a'] == [0.,1.,2.]).all())
+        self.assertTrue((datablock.blocks[1]['field_a'] == [3.,4.,5.]).all())
+        self.assertTrue((datablock.blocks[2]['field_a'] == [6.,7.,8.]).all())
+        self.assertTrue((datablock.blocks[3]['field_a'] == [9.,0.,0.]).all())
 
     def setUp(self):
         print(" TestDataBlock:", self._testMethodName)
