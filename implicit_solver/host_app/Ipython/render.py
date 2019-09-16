@@ -71,7 +71,7 @@ class Render:
                 continue
 
             segs = []
-            node_ids = condition.data.node_ids
+            node_ids = condition.data.flatten('node_ids')
             for ct_index in range(num_constraints):
                 num_nodes = len(node_ids[ct_index])
                 if num_nodes == 2:
@@ -96,7 +96,7 @@ class Render:
             if render_prefs is None:
                 continue
 
-            x, y = zip(*dynamic.data.x)
+            x, y = zip(*dynamic.data.flatten('x'))
             self.ax.plot(x, y, '.', alpha=render_prefs['alpha'], color=render_prefs['color'], markersize = render_prefs['width'])
 
         # Draw kinematics

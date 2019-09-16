@@ -261,3 +261,28 @@ class DataBlock:
             for field_id in range(num_fields):
                 np.copyto(block_data[field_id][0:block_n_elements], self.data[field_id][begin_index:end_index])
 
+    def flatten(self, field_name):
+        '''
+        Convert block of array into a single array
+        '''
+        self.update_blocks_from_data() # force data to be copied in blocks (temporary)
+        field_id = self.dtype_dict['names'].index(field_name)
+        field_dtype = self.dtype_dict['formats'][field_id]
+
+        num_elements = 0
+        for block_data in self.blocks:
+            num_elements += block_data['blockInfo_numElements']
+
+        result = np.empty(num_elements, field_dtype)
+
+        for block_id, block_data in enumerate(self.blocks):
+
+            begin_index = block_id * self.block_size
+            block_n_elements = block_data['blockInfo_numElements']
+            end_index = begin_index + block_n_elements
+
+            np.copyto(result[begin_index:end_index], block_data[field_id][0:block_n_elements])
+
+        return result
+
+
