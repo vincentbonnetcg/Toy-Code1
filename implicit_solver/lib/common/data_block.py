@@ -110,16 +110,6 @@ class DataBlock:
         self.dtype_dict['formats'].append((data_type, data_shape))
         self.dtype_dict['defaults'].append(value)
 
-    def fill(self, field_name, value):
-        if not self.is_allocated():
-            return
-
-        # set data
-        self.data[field_name].fill(value)
-        # set blocks
-        for block in self.blocks:
-            block[field_name].fill(value)
-
     def dtype(self, num_elements, add_block_info):
         '''
         Returns the dtype of the datablock
@@ -260,6 +250,20 @@ class DataBlock:
 
             for field_id in range(num_fields):
                 np.copyto(block_data[field_id][0:block_n_elements], self.data[field_id][begin_index:end_index])
+
+    '''
+    Vectorize Functions
+    '''
+
+    def fill(self, field_name, value):
+        if not self.is_allocated():
+            return
+
+        # set data
+        self.data[field_name].fill(value)
+        # set blocks
+        for block in self.blocks:
+            block[field_name].fill(value)
 
     def flatten(self, field_name):
         '''
