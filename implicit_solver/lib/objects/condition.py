@@ -52,7 +52,7 @@ class Condition:
             node_ids = node_ids_ptr[ct_index]
             forces = force_ptr[ct_index]
             for node_id in range(len(node_ids)):
-                na.node_add_f(scene, node_ids[node_id], forces[node_id])
+                na.node_add_f(scene.dynamics, node_ids[node_id], forces[node_id])
 
     def init_constraints(self, scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")

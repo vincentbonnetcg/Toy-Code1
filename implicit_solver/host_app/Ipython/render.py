@@ -77,7 +77,7 @@ class Render:
                 if num_nodes == 2:
                     points = []
                     for node_index in range (num_nodes):
-                        x, v = na.node_state(scene, node_ids[ct_index][node_index])
+                        x, v = na.node_state(scene.dynamics, node_ids[ct_index][node_index])
                         points.append(x)
                     segs.append(points)
 
