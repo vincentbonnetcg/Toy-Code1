@@ -270,6 +270,12 @@ class DataBlock:
     '''
     Vectorize Functions on blocks
     '''
+    def get_num_elements(self):
+        result = 0
+        for block_data in self.blocks:
+            result += block_data['blockInfo_numElements']
+        return result
+
     def set_indexing(self, object_id, node_global_offset):
         local_node_id = 0
         for block_id, block_data in enumerate(self.blocks):
