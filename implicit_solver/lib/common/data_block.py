@@ -236,7 +236,7 @@ class DataBlock:
 
     def update_blocks_from_data(self):
         '''
-        Set blocks from self.data
+        Set self.blocks from self.data
         Assume the blocks have been initialized (see initialize_blocks(...))
         '''
         data_type = self.dtype(self.block_size, add_block_info=False)
@@ -251,17 +251,34 @@ class DataBlock:
             for field_id in range(num_fields):
                 np.copyto(block_data[field_id][0:block_n_elements], self.data[field_id][begin_index:end_index])
 
+    def update_data_from_blocks(self):
+        '''
+        Set self.data from self.blocks
+        '''
+        data_type = self.dtype(self.block_size, add_block_info=False)
+        num_fields = len(data_type.names)
+
+        for block_id, block_data in enumerate(self.blocks):
+
+            begin_index = block_id * self.block_size
+            block_n_elements = block_data['blockInfo_numElements']
+            end_index = begin_index + block_n_elements
+
+            for field_id in range(num_fields):
+                np.copyto(self.data[field_id][begin_index:end_index], block_data[field_id][0:block_n_elements])
+
+
     '''
-    Vectorize Functions
+    Vectorize Functions on blocks
     '''
+    def copyto(self, field_name, values):
+        for block_id, block_data in enumerate(self.blocks):
+            begin_index = block_id * self.block_size
+            block_n_elements = block_data['blockInfo_numElements']
+            end_index = begin_index + block_n_elements
+            np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
 
     def fill(self, field_name, value):
-        if not self.is_allocated():
-            return
-
-        # set data
-        self.data[field_name].fill(value)
-        # set blocks
         for block in self.blocks:
             block[field_name].fill(value)
 
@@ -288,5 +305,3 @@ class DataBlock:
             np.copyto(result[begin_index:end_index], block_data[field_id][0:block_n_elements])
 
         return result
-
-

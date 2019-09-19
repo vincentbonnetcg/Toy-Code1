@@ -10,15 +10,6 @@ from lib.objects.components.node import Node
 class Dynamic:
     '''
     Dynamic describes a simulated object
-    It contains:
-    Object data:
-        - num_nodes
-        - position: x
-        - velocity: v
-        - mass: m
-        - inverse mass: im
-        - external forces: f
-        - node id : [object_id, local_node_id, global_node_id]
     '''
     def __init__(self, shape, node_mass):
         self.num_nodes = shape.num_vertices()
@@ -29,12 +20,13 @@ class Dynamic:
         self.data.initialize(self.num_nodes)
 
         # Set node data
-        np.copyto(self.data.x, shape.vertex.position)
+        self.data.copyto('x', shape.vertex.position)
         self.data.fill('v', 0.0)
         self.data.fill('m', node_mass)
         self.data.fill('im', 1.0 / node_mass)
         self.data.fill('f', 0.0)
         self.data.fill('node_id', 0.0)
+        self.data.update_data_from_blocks()
 
         # Initialize node connectivities
         self.edge_ids = np.copy(shape.edge.vertex_ids)
