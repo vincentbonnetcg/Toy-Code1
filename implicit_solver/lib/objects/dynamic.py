@@ -41,9 +41,8 @@ class Dynamic:
         Sets the global indices (object index and node global offset)
         Those indices are set after the object has been added to the scene
         '''
-        for local_node_id in range(len(self.data)):
-            global_node_id = node_global_offset + local_node_id
-            self.data.node_id[local_node_id] = [object_id, local_node_id, global_node_id]
+        self.data.set_indexing(object_id, node_global_offset)
+        self.data.update_data_from_blocks()
         self.index = object_id
 
     def convert_to_shape(self):

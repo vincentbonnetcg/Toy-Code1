@@ -267,10 +267,19 @@ class DataBlock:
             for field_id in range(num_fields):
                 np.copyto(self.data[field_id][begin_index:end_index], block_data[field_id][0:block_n_elements])
 
-
     '''
     Vectorize Functions on blocks
     '''
+    def set_indexing(self, object_id, node_global_offset):
+        local_node_id = 0
+        for block_id, block_data in enumerate(self.blocks):
+            block_n_elements = block_data['blockInfo_numElements']
+            node_ids = block_data['node_id']
+            for i in range(block_n_elements):
+                global_node_id = node_global_offset + local_node_id
+                node_ids[i] = [object_id, local_node_id, global_node_id]
+                local_node_id += 1
+
     def copyto(self, field_name, values):
         for block_id, block_data in enumerate(self.blocks):
             begin_index = block_id * self.block_size
