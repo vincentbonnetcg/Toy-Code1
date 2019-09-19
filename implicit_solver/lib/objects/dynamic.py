@@ -46,7 +46,6 @@ class Dynamic:
             self.data.node_id[local_node_id] = [object_id, local_node_id, global_node_id]
         self.index = object_id
 
-
     def convert_to_shape(self):
         '''
         Create a simple shape from the dynamic datablock and
@@ -56,10 +55,7 @@ class Dynamic:
         num_edges = len(self.edge_ids)
         num_faces = len(self.face_ids)
         shape = common.Shape(num_vertices, num_edges, num_faces)
-
-        for i in range(num_vertices):
-            shape.vertex.position[i] = self.x[i]
-
+        shape.vertex.position = self.data.flatten('x')
         shape.edge.vertex_ids = np.copy(self.edge_ids)
         shape.face.vertex_ids = np.copy(self.face_ids)
 
