@@ -27,7 +27,7 @@ class DataBlock:
         # Data
         self.num_elements = 0
         self.data = None
-        self.blocks = [] # TODO - replace data
+        self.blocks = []
         # Datatype
         self.dtype_dict = {}
         self.dtype_dict['names'] = [] # list of names
