@@ -158,7 +158,7 @@ class ImplicitSolver(BaseSolver):
         # Set mass matrix
         for dynamic in scene.dynamics:
             node_id_ptr = dynamic.data.node_id
-            for i in range(dynamic.num_nodes):
+            for i in range(dynamic.num_nodes()):
                 mass_matrix = np.zeros((2,2))
                 np.fill_diagonal(mass_matrix, dynamic.data.m[i])
                 idx = na.node_global_index(node_id_ptr[i])
@@ -260,6 +260,6 @@ class SemiImplicitSolver(BaseSolver):
     def solve_system(self, scene, dt):
         # Integrator
         for dynamic in scene.dynamics:
-            for i in range(dynamic.num_nodes):
+            for i in range(dynamic.num_nodes()):
                 dynamic.v[i] += dynamic.f[i] * dynamic.im[i] * dt
                 dynamic.x[i] += dynamic.v[i] * dt

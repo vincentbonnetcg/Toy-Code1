@@ -17,7 +17,7 @@ class Scene:
         index = (len(self.dynamics))
         offset = 0
         for i in range(index):
-            offset += self.dynamics[i].num_nodes
+            offset += self.dynamics[i].num_nodes()
 
         dynamic.set_indexing(index, offset)
         self.dynamics.append(dynamic)
@@ -40,7 +40,7 @@ class Scene:
     def num_nodes(self):
         num_nodes = 0
         for dynamic in self.dynamics:
-            num_nodes += dynamic.num_nodes
+            num_nodes += dynamic.num_nodes()
         return num_nodes
 
     # Constraint Functions #

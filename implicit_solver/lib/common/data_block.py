@@ -270,7 +270,7 @@ class DataBlock:
     '''
     Vectorize Functions on blocks
     '''
-    def get_num_elements(self):
+    def compute_num_elements(self):
         result = 0
         for block_data in self.blocks:
             result += block_data['blockInfo_numElements']

@@ -25,7 +25,7 @@ class Condition:
         self.meta_data = {}
 
     def num_constraints(self) -> int:
-        return self.data.get_num_elements()
+        return self.data.num_elements
 
     def is_static(self) -> bool:
         '''

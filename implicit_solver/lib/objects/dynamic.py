@@ -12,12 +12,12 @@ class Dynamic:
     Dynamic describes a simulated object
     '''
     def __init__(self, shape, node_mass):
-        self.num_nodes = shape.num_vertices()
+        num_nodes = shape.num_vertices()
 
         # Allocate node data
         self.data = common.DataBlock()
         self.data.add_field_from_class(Node)
-        self.data.initialize(self.num_nodes)
+        self.data.initialize(num_nodes)
 
         # Set node data
         self.data.copyto('x', shape.vertex.position)
@@ -36,6 +36,9 @@ class Dynamic:
         # Metadata
         self.meta_data = {}
 
+    def num_nodes(self) -> int:
+        return self.data.num_elements
+
     def set_indexing(self, object_id, node_global_offset):
         '''
         Sets the global indices (object index and node global offset)
@@ -50,7 +53,7 @@ class Dynamic:
         Create a simple shape from the dynamic datablock and
         node connectivities
         '''
-        num_vertices = self.num_nodes
+        num_vertices = self.num_nodes()
         num_edges = len(self.edge_ids)
         num_faces = len(self.face_ids)
         shape = common.Shape(num_vertices, num_edges, num_faces)
