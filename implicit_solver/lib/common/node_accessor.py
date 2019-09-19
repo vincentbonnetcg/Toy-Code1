@@ -4,6 +4,11 @@
 """
 
 import numba
+import numpy as np
+
+@numba.njit
+def init_node_id():
+    return np.zeros(3, dtype=np.uint32)
 
 @numba.njit
 def node_global_index(node_id):

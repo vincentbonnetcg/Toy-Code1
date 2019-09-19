@@ -4,6 +4,7 @@
 """
 
 import numpy as np
+import lib.common.node_accessor as na
 
 class Node:
     '''
@@ -15,5 +16,4 @@ class Node:
         self.f = np.zeros(2, dtype = np.float64)
         self.m = np.float64(0.0)
         self.im = np.float64(0.0)
-        # Node id and match result size of node_accessor.node_id() (three unsigned)
-        self.node_id = np.zeros(3, dtype=np.uint32)
+        self.node_id = na.init_node_id()
