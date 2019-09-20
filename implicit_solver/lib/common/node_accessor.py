@@ -1,14 +1,26 @@
 """
 @author: Vincent Bonnet
-@description : This class provides a mapping between node identifiers and data
+@description : This class provides a mapping between node identifiers and datablock layout
+Format : [object_id, local_node_id, global_node_id, block_id] #
 """
 
 import numba
 import numpy as np
 
 @numba.njit
-def init_node_id():
-    return np.zeros(3, dtype=np.uint32)
+def empty_node_ids(num_ids):
+    return np.empty((num_ids, 4), dtype=np.uint32)
+
+@numba.njit
+def emtpy_node_id():
+    return np.empty(4, dtype=np.uint32)
+
+@numba.njit
+def set_node_id(node_id, object_id = 0, local_node_id = 0, global_node_id = 0, block_id = 0):
+    node_id[0] = object_id
+    node_id[1] = local_node_id
+    node_id[2] = global_node_id
+    node_id[3] = block_id
 
 @numba.njit
 def node_global_index(node_id):

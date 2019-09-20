@@ -4,6 +4,7 @@
 """
 
 import numpy as np
+import lib.common.node_accessor as na
 
 class ConstraintBase:
     '''
@@ -16,8 +17,7 @@ class ConstraintBase:
         self.damping = np.float64(0.0)
 
         # Node ids involved in the constraint
-        # Should match result size of node_accessor.node_id() (three unsigned)
-        self.node_ids = np.zeros((num_nodes, 3), dtype=np.uint32)
+        self.node_ids = na.empty_node_ids(num_nodes)
 
         # Precomputed forces/jacobians.
         self.f = np.zeros((num_nodes, 2), dtype = np.float64)

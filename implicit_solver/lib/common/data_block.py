@@ -13,6 +13,7 @@ print(data.field_b)
 import math
 import numpy as np
 import keyword
+import lib.common.node_accessor as na
 
 class DataBlock:
 
@@ -283,7 +284,7 @@ class DataBlock:
             node_ids = block_data['node_id']
             for i in range(block_n_elements):
                 global_node_id = node_global_offset + local_node_id
-                node_ids[i] = [object_id, local_node_id, global_node_id]
+                na.set_node_id(node_ids[i], object_id, local_node_id, global_node_id, block_id)
                 local_node_id += 1
 
     def copyto(self, field_name, values):
