@@ -10,7 +10,7 @@ class Force:
     def __init__(self):
         pass
 
-    def apply_forces(self, scene):
+    def apply_forces(self, dynamics):
         pass
 
 
