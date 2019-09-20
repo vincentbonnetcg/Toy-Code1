@@ -7,7 +7,6 @@ import numpy as np
 import scipy
 import scipy.sparse
 import scipy.sparse.linalg
-import numba
 
 import lib.common.node_accessor as na
 from lib.common import profiler
@@ -87,15 +86,15 @@ def assemble_b__fo_h(node : cpn.Node, b, dt):
     offset = na.node_global_index(node.node_id) * 2
     b[offset:offset+2] += node.f * dt
 
-@generate.as_vectorized
-def dfdx_v0_h2(cnt : cpn.ConstraintBase, dynamics, b, dt):
-    num_nodes = len(cnt.node_ids)
-    for fi in range(num_nodes):
-        for xi in range(num_nodes):
-            Jx = cnt.dfdx[fi][xi]
-            x, v = na.node_xv(dynamics, cnt.node_ids[xi])
-            b_offset = na.node_global_index(cnt.node_ids[fi]) * 2
-            b[b_offset:b_offset+2] += np.dot(v, Jx) * dt * dt
+#@generate.as_vectorized
+#def dfdx_v0_h2(cnt : cpn.ConstraintBase, dynamics, b, dt):
+#    num_nodes = len(cnt.node_ids)
+#    for fi in range(num_nodes):
+#        for xi in range(num_nodes):
+#            Jx = cnt.dfdx[fi][xi]
+#            x, v = na.node_xv(dynamics, cnt.node_ids[xi])
+#            b_offset = na.node_global_index(cnt.node_ids[fi]) * 2
+#            b[b_offset:b_offset+2] += np.dot(v, Jx) * dt * dt
 
 class ImplicitSolver(BaseSolver):
     '''
@@ -197,7 +196,9 @@ class ImplicitSolver(BaseSolver):
         self.b = np.zeros(total_nodes * 2)
 
         # set (f0 * h)
+        #scene.update_blocks_from_data()
         assemble_b__fo_h(scene.dynamics, self.b, dt)
+        #scene.update_data_from_blocks()
 
         # add (df/dx * v0 * h * h)
         #dfdx_v0_h2(scene.conditions, scene.dynamics, self.b, dt)
@@ -229,7 +230,9 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def advect(self, scene, delta_v, dt):
+        #scene.update_blocks_from_data()
         advect(scene.dynamics, delta_v, dt)
+        #scene.update_data_from_blocks()
 
 
 class SemiImplicitSolver(BaseSolver):

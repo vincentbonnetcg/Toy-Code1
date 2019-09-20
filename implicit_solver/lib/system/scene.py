@@ -52,10 +52,8 @@ class Scene:
             condition.update_constraints(self)
 
     def update_conditions(self):
-        '''
-        Update only the dynamic conditions
-        '''
         for condition in self.conditions:
+            # Only update the dynamic condition
             if condition.is_static() is False:
                 condition.update_constraints(self)
 
@@ -63,4 +61,19 @@ class Scene:
     def add_force(self, force):
         self.forces.append(force)
 
+
+    # Temporary Functions #
+    def update_blocks_from_data(self):
+        for dynamic in self.dynamics:
+            dynamic.data.update_blocks_from_data()
+
+        for condition in self.conditions:
+            condition.data.update_blocks_from_data()
+
+    def update_data_from_blocks(self):
+        for dynamic in self.dynamics:
+            dynamic.data.update_data_from_blocks()
+
+        for condition in self.conditions:
+            condition.data.update_data_from_blocks()
 
