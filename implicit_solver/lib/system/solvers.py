@@ -121,8 +121,7 @@ class ImplicitSolver(BaseSolver):
         for dynamic in scene.dynamics:
             dynamic.data.update_blocks_from_data()
             dynamic.data.fill('f', 0.0)
-
-        dynamic.data.update_data_from_blocks()
+            dynamic.data.update_data_from_blocks()
 
         # Prepare external forces
         for force in scene.forces:
@@ -246,7 +245,7 @@ class SemiImplicitSolver(BaseSolver):
         for dynamic in scene.dynamics:
             dynamic.data.update_blocks_from_data()
             dynamic.data.fill('f', 0.0)
-        dynamic.data.update_data_from_blocks()
+            dynamic.data.update_data_from_blocks()
 
         # Apply external forces
         for force in scene.forces:
