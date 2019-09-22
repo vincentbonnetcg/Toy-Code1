@@ -34,13 +34,19 @@ class KinematicCollisionCondition(Condition):
         kinematic = scene.kinematics[self.kinematic_indices[0]]
         springs = []
 
-        for node_index, node_pos in enumerate(dynamic.data.x):
+        data_x = dynamic.data.flatten('x')
+        data_v = dynamic.data.flatten('v')
+        data_node_id = dynamic.data.flatten('node_id')
+
+        for i in range(dynamic.data.num_elements):
+            node_pos = data_x[i]
+            node_vel = data_v[i]
+            node_id = data_node_id[i]
+
             if (kinematic.is_inside(node_pos)):
                 attachment_point_params = kinematic.get_closest_parametric_point(node_pos)
                 kinematicNormal = kinematic.get_normal_from_parametric_point(attachment_point_params)
-                if (np.dot(kinematicNormal, dynamic.data.v[node_index]) < 0.0):
-                    node_id = na.node_id(dynamic, node_index)
-
+                if (np.dot(kinematicNormal, node_vel) < 0.0):
                     # add spring
                     spring = cn.AnchorSpring()
                     spring.set_object(scene, node_id, kinematic, attachment_point_params)
@@ -70,16 +76,20 @@ class KinematicAttachmentCondition(Condition):
         kinematic = scene.kinematics[self.kinematic_indices[0]]
         springs = []
 
+        data_x = dynamic.data.flatten('x')
+        data_node_id = dynamic.data.flatten('node_id')
+
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
-        for node_index, node_pos in enumerate(dynamic.data.x):
+        for i in range(dynamic.data.num_elements):
+            node_pos = data_x[i]
+            node_id = data_node_id[i]
+
             attachment_point_params = kinematic.get_closest_parametric_point(node_pos)
             attachment_point = kinematic.get_position_from_parametric_point(attachment_point_params)
             direction = (attachment_point - node_pos)
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
-                node_id = na.node_id(dynamic, node_index)
-
                 # add spring
                 spring = cn.AnchorSpring()
                 spring.set_object(scene, node_id, kinematic, attachment_point_params)
@@ -107,14 +117,22 @@ class DynamicAttachmentCondition(Condition):
         dynamic0 = scene.dynamics[self.dynamic_indices[0]]
         dynamic1 = scene.dynamics[self.dynamic_indices[1]]
         distance2 = self.distance * self.distance
-        for x0i, x0 in enumerate(dynamic0.data.x):
-            for x1i, x1 in enumerate(dynamic1.data.x):
+
+        data_x0 = dynamic0.data.flatten('x')
+        data_node_id0 = dynamic0.data.flatten('node_id')
+        data_x1 = dynamic1.data.flatten('x')
+        data_node_id1 = dynamic1.data.flatten('node_id')
+
+        for i in range(dynamic0.data.num_elements):
+            for j in range(dynamic1.data.num_elements):
+                x0 = data_x0[i]
+                x1 = data_x1[j]
                 direction = (x0 - x1)
                 dist2 = np.inner(direction, direction)
                 if dist2 < distance2:
-                    node_ids = [0, 0]
-                    node_ids[0] = na.node_id(dynamic0, x0i)
-                    node_ids[1] = na.node_id(dynamic1, x1i)
+                    node_id0 = data_node_id0[i]
+                    node_id1 = data_node_id1[j]
+                    node_ids = [node_id0, node_id1]
 
                     # add spring
                     spring = cn.Spring()
@@ -142,7 +160,7 @@ class EdgeCondition(Condition):
         for object_index in self.dynamic_indices:
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.edge_ids:
-                node_ids = [0, 0]
+                node_ids = [None, None]
                 node_ids[0] = na.node_id(dynamic, vertex_index[0])
                 node_ids[1] = na.node_id(dynamic, vertex_index[1])
 
@@ -171,7 +189,7 @@ class AreaCondition(Condition):
         for object_index in self.dynamic_indices:
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.face_ids:
-                node_ids = [0, 0, 0]
+                node_ids = [None, None, None]
                 node_ids[0] = na.node_id(dynamic, vertex_index[0])
                 node_ids[1] = na.node_id(dynamic, vertex_index[1])
                 node_ids[2] = na.node_id(dynamic, vertex_index[2])
@@ -203,7 +221,7 @@ class WireBendingCondition(Condition):
             if self.stiffness > 0.0:
                 for vertex_index, vertex_index_neighbour in vertex_edges_dict.items():
                     if (len(vertex_index_neighbour) == 2):
-                        node_ids = [0, 0, 0]
+                        node_ids = [None, None, None]
                         node_ids[0] = na.node_id(dynamic, vertex_index_neighbour[0])
                         node_ids[1] = na.node_id(dynamic, vertex_index)
                         node_ids[2] = na.node_id(dynamic, vertex_index_neighbour[1])
