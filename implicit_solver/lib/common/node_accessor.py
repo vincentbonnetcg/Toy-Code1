@@ -37,9 +37,16 @@ def node_xv(dynamics, node_id):
     v = dynamic.data.blocks[block_id]['v'][block_node_id]
     return (x, v)
 
-def node_id(dynamic, object_node_id):
-    return dynamic.data.node_id[object_node_id]
-
 def node_add_f(dynamics, node_id, force):
     dynamic = dynamics[node_id[0]]
     dynamic.data.f[node_id[1]] += force
+
+def get_node_id_from_vertex_id(dynamic, vertex_id):
+    '''
+    Temporary - slow method
+    Map node id and vertex id
+    '''
+    data_node_id = dynamic.data.flatten('node_id')
+    for node_id in data_node_id:
+        if node_id[1] == vertex_id:
+            return node_id

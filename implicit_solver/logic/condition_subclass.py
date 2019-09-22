@@ -156,13 +156,12 @@ class EdgeCondition(Condition):
     def init_constraints(self, scene : Scene):
         scene.update_blocks_from_data()
         springs = []
-
         for object_index in self.dynamic_indices:
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.edge_ids:
                 node_ids = [None, None]
-                node_ids[0] = na.node_id(dynamic, vertex_index[0])
-                node_ids[1] = na.node_id(dynamic, vertex_index[1])
+                node_ids[0] = na.get_node_id_from_vertex_id(dynamic, vertex_index[0])
+                node_ids[1] = na.get_node_id_from_vertex_id(dynamic, vertex_index[1])
 
                 # add spring
                 spring = cn.Spring()
@@ -190,9 +189,9 @@ class AreaCondition(Condition):
             dynamic = scene.dynamics[object_index]
             for vertex_index in dynamic.face_ids:
                 node_ids = [None, None, None]
-                node_ids[0] = na.node_id(dynamic, vertex_index[0])
-                node_ids[1] = na.node_id(dynamic, vertex_index[1])
-                node_ids[2] = na.node_id(dynamic, vertex_index[2])
+                node_ids[0] = na.get_node_id_from_vertex_id(dynamic, vertex_index[0])
+                node_ids[1] = na.get_node_id_from_vertex_id(dynamic, vertex_index[1])
+                node_ids[2] = na.get_node_id_from_vertex_id(dynamic, vertex_index[2])
 
                 # add area constraint
                 constraint = cn.Area()
@@ -222,9 +221,9 @@ class WireBendingCondition(Condition):
                 for vertex_index, vertex_index_neighbour in vertex_edges_dict.items():
                     if (len(vertex_index_neighbour) == 2):
                         node_ids = [None, None, None]
-                        node_ids[0] = na.node_id(dynamic, vertex_index_neighbour[0])
-                        node_ids[1] = na.node_id(dynamic, vertex_index)
-                        node_ids[2] = na.node_id(dynamic, vertex_index_neighbour[1])
+                        node_ids[0] = na.get_node_id_from_vertex_id(dynamic, vertex_index_neighbour[0])
+                        node_ids[1] = na.get_node_id_from_vertex_id(dynamic, vertex_index)
+                        node_ids[2] = na.get_node_id_from_vertex_id(dynamic, vertex_index_neighbour[1])
 
                         # add bending constraint
                         constraint = cn.Bending()
