@@ -204,6 +204,7 @@ class ImplicitSolver(BaseSolver):
         #dfdx_v0_h2(scene.conditions, scene.dynamics, self.b, dt)
 
         # add (df/dx * v0 * h * h)
+        scene.update_blocks_from_data()
         for condition in scene.conditions:
             node_ids_ptr = condition.data.node_ids
             dfdx_ptr = condition.data.dfdx
@@ -212,7 +213,7 @@ class ImplicitSolver(BaseSolver):
                 for fi in range(len(ids)):
                     for xi in range(len(ids)):
                         Jx = dfdx_ptr[cid][fi][xi]
-                        x, v = na.node_state(scene.dynamics, ids[xi])
+                        x, v = na.node_xv(scene.dynamics, ids[xi])
                         vec = np.dot(v, Jx) * dt * dt
                         b_offset = na.node_global_index(ids[fi]) * 2
                         self.b[b_offset:b_offset+2] += vec

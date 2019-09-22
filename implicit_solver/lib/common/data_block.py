@@ -17,7 +17,7 @@ import lib.common.node_accessor as na
 
 class DataBlock:
 
-    def __init__(self, block_size = 1000):
+    def __init__(self, block_size = 100):
         self.reset()
         self.block_size = block_size
 
@@ -278,14 +278,14 @@ class DataBlock:
         return result
 
     def set_indexing(self, object_id, node_global_offset):
-        local_node_id = 0
+        object_node_id = 0
         for block_id, block_data in enumerate(self.blocks):
             block_n_elements = block_data['blockInfo_numElements']
             node_ids = block_data['node_id']
-            for i in range(block_n_elements):
-                global_node_id = node_global_offset + local_node_id
-                na.set_node_id(node_ids[i], object_id, local_node_id, global_node_id, block_id)
-                local_node_id += 1
+            for block_node_id in range(block_n_elements):
+                global_node_id = node_global_offset + object_node_id
+                na.set_node_id(node_ids[block_node_id], object_id, object_node_id, global_node_id, block_id, block_node_id)
+                object_node_id += 1
 
     def copyto(self, field_name, values):
         for block_id, block_data in enumerate(self.blocks):
