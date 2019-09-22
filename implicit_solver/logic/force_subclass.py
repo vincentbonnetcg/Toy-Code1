@@ -23,7 +23,5 @@ class Gravity(Force):
 
     def apply_forces(self, dynamics):
         for dynamic in dynamics:
-            dynamic.data.update_blocks_from_data()
             apply_gravity(dynamic.data.blocks, self.gravity)
-            dynamic.data.update_data_from_blocks()
 

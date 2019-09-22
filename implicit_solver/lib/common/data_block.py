@@ -35,6 +35,9 @@ class DataBlock:
         self.dtype_dict['formats'] = [] # list of tuples (data_type, data_shape)
         self.dtype_dict['defaults'] = [] # list of default values (should match formats)
 
+    def num_blocks(self):
+        return len(self.blocks)
+
     def is_allocated(self):
         '''
         Return whether the datablock is allocated
