@@ -37,6 +37,11 @@ class CodeGenHelper:
         indents = ' ' * 4
         two_indents = ' ' * 8
         for code in code_lines:
+
+            if not code:
+                gen_code_lines.append('')
+                continue
+
             # remove any decorators from the function
             if code[0] == '@':
                 continue
