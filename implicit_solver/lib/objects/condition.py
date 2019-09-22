@@ -5,6 +5,7 @@
 
 import lib.common as common
 import lib.common.node_accessor as na
+from lib.system.scene import Scene
 
 def apply_constraint_forces(constraint_blocks, dynamics):
     for constraint_data in constraint_blocks:
@@ -46,13 +47,13 @@ class Condition:
         '''
         return True
 
-    def update_constraints(self, scene):
+    def update_constraints(self, scene : Scene):
         self.init_constraints(scene)
 
-    def compute_forces(self, scene):
+    def compute_forces(self, scene : Scene):
         self.force_func(self.data, scene)
 
-    def compute_jacobians(self, scene):
+    def compute_jacobians(self, scene : Scene):
         self.jacobian_func(self.data, scene)
 
     def apply_forces(self, dynamics):
@@ -60,6 +61,6 @@ class Condition:
         apply_constraint_forces(self.data.blocks, dynamics)
         self.data.update_data_from_blocks()
 
-    def init_constraints(self, scene):
+    def init_constraints(self, scene : Scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
 

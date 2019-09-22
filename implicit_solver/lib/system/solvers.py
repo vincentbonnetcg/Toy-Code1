@@ -127,6 +127,7 @@ class ImplicitSolver(BaseSolver):
             force.apply_forces(scene.dynamics)
 
         # Prepare constraints (forces and jacobians)
+        scene.update_blocks_from_data()
         for condition in scene.conditions:
             condition.compute_forces(scene)
             condition.compute_jacobians(scene)

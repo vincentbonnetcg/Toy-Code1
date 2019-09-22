@@ -9,6 +9,7 @@ from matplotlib.collections import LineCollection
 
 from lib.common import profiler
 import lib.common.node_accessor as na
+from lib.system.scene import Scene
 
 import numpy as np
 
@@ -42,10 +43,12 @@ class Render:
         '''
         self.render_folder_path = path
 
-    def render_scene(self, scene, frame_id):
+    def render_scene(self, scene : Scene, frame_id):
         '''
         Render the scene into a figue
         '''
+        scene.update_blocks_from_data()
+
         # Reset figure and create subplot
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
@@ -77,7 +80,7 @@ class Render:
                 if num_nodes == 2:
                     points = []
                     for node_index in range (num_nodes):
-                        x, v = na.node_state(scene.dynamics, node_ids[ct_index][node_index])
+                        x, v = na.node_xv(scene.dynamics, node_ids[ct_index][node_index])
                         points.append(x)
                     segs.append(points)
 

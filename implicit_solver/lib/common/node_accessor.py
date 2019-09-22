@@ -40,12 +40,6 @@ def node_xv(dynamics, node_id):
 def node_id(dynamic, object_node_id):
     return dynamic.data.node_id[object_node_id]
 
-def node_state(dynamics, node_id):
-    dynamic = dynamics[node_id[0]]
-    x = dynamic.data.x[node_id[1]]
-    v = dynamic.data.v[node_id[1]]
-    return (x, v)
-
 def node_add_f(dynamics, node_id, force):
     dynamic = dynamics[node_id[0]]
     dynamic.data.f[node_id[1]] += force

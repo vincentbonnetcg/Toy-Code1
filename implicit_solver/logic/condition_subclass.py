@@ -8,6 +8,7 @@ from lib.objects import Condition
 import numpy as np
 import lib.common as common
 import lib.common.node_accessor as na
+from lib.system.scene import Scene
 
 class KinematicCollisionCondition(Condition):
     '''
@@ -24,10 +25,11 @@ class KinematicCollisionCondition(Condition):
         '''
         return False
 
-    def init_constraints(self, scene):
+    def init_constraints(self, scene : Scene):
         '''
         Add zero-length springs into the dynamic constraints of the scene
         '''
+        scene.update_blocks_from_data()
         dynamic = scene.dynamics[self.dynamic_indices[0]]
         kinematic = scene.kinematics[self.kinematic_indices[0]]
         springs = []
@@ -59,10 +61,11 @@ class KinematicAttachmentCondition(Condition):
        self.dynamic_indices = [dynamic.index]
        self.kinematic_indices = [kinematic.index]
 
-    def init_constraints(self, scene):
+    def init_constraints(self, scene : Scene):
         '''
         Add springs into the static constraints of the scene
         '''
+        scene.update_blocks_from_data()
         dynamic = scene.dynamics[self.dynamic_indices[0]]
         kinematic = scene.kinematics[self.kinematic_indices[0]]
         springs = []
@@ -95,12 +98,12 @@ class DynamicAttachmentCondition(Condition):
        self.distance = distance
        self.dynamic_indices = [dynamic0.index, dynamic1.index]
 
-    def init_constraints(self, scene):
+    def init_constraints(self, scene : Scene):
         '''
         Add springs into the static constraints of the scene
         '''
+        scene.update_blocks_from_data()
         springs = []
-
         dynamic0 = scene.dynamics[self.dynamic_indices[0]]
         dynamic1 = scene.dynamics[self.dynamic_indices[1]]
         distance2 = self.distance * self.distance
@@ -132,7 +135,8 @@ class EdgeCondition(Condition):
        Condition.__init__(self, stiffness, damping, cn.Spring)
        self.dynamic_indices = [dynamic.index for dynamic in dynamics]
 
-    def init_constraints(self, scene):
+    def init_constraints(self, scene : Scene):
+        scene.update_blocks_from_data()
         springs = []
 
         for object_index in self.dynamic_indices:
@@ -160,7 +164,8 @@ class AreaCondition(Condition):
        Condition.__init__(self, stiffness, damping, cn.Area)
        self.dynamic_indices = [dynamic.index for dynamic in dynamics]
 
-    def init_constraints(self, scene):
+    def init_constraints(self, scene : Scene):
+        scene.update_blocks_from_data()
         constraints = []
 
         for object_index in self.dynamic_indices:
@@ -188,7 +193,8 @@ class WireBendingCondition(Condition):
        Condition.__init__(self, stiffness, damping, cn.Bending)
        self.dynamic_indices = [dynamic.index for dynamic in dynamics]
 
-    def init_constraints(self, scene):
+    def init_constraints(self, scene : Scene):
+        scene.update_blocks_from_data()
         constraints = []
 
         for object_index in self.dynamic_indices:
