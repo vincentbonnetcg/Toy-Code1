@@ -116,25 +116,26 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def prepare_system(self, scene, dt):
+        scene.update_blocks_from_data()
         # Reset forces
         for dynamic in scene.dynamics:
-            dynamic.data.update_blocks_from_data()
             dynamic.data.fill('f', 0.0)
-            dynamic.data.update_data_from_blocks()
+        scene.update_data_from_blocks()
 
         # Prepare external forces
         for force in scene.forces:
             force.apply_forces(scene.dynamics)
 
         # Prepare constraints (forces and jacobians)
-        scene.update_blocks_from_data()
         for condition in scene.conditions:
             condition.compute_forces(scene)
             condition.compute_jacobians(scene)
 
         # Add forces to object from constraints
+        scene.update_blocks_from_data()
         for condition in scene.conditions:
             condition.apply_forces(scene.dynamics)
+        scene.update_data_from_blocks()
 
     @profiler.timeit
     def assemble_system(self, scene, dt):

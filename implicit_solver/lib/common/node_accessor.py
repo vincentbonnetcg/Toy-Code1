@@ -38,8 +38,13 @@ def node_xv(dynamics, node_id):
     return (x, v)
 
 def node_add_f(dynamics, node_id, force):
-    dynamic = dynamics[node_id[0]]
-    dynamic.data.f[node_id[1]] += force
+    object_id = node_id[0]
+    block_id = node_id[3]
+    block_node_id = node_id[4]
+
+    dynamic = dynamics[object_id]
+    f = dynamic.data.blocks[block_id]['f'][block_node_id]
+    f += force
 
 def get_node_id_from_vertex_id(dynamic, vertex_id):
     '''

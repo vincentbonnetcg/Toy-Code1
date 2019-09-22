@@ -15,8 +15,8 @@ def apply_constraint_forces(constraint_blocks, dynamics):
         for ct_index in range(block_n_elements):
             node_ids = node_ids_ptr[ct_index]
             forces = force_ptr[ct_index]
-            for node_id in range(len(node_ids)):
-                na.node_add_f(dynamics, node_ids[node_id], forces[node_id])
+            for i in range(len(node_ids)):
+                na.node_add_f(dynamics, node_ids[i], forces[i])
 
 class Condition:
     '''
@@ -57,9 +57,7 @@ class Condition:
         self.jacobian_func(self.data, scene)
 
     def apply_forces(self, dynamics):
-        self.data.update_blocks_from_data()
         apply_constraint_forces(self.data.blocks, dynamics)
-        self.data.update_data_from_blocks()
 
     def init_constraints(self, scene : Scene):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
