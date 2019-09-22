@@ -159,24 +159,25 @@ class ImplicitSolver(BaseSolver):
 
         # Set mass matrix
         for dynamic in scene.dynamics:
-            node_id_ptr = dynamic.data.node_id
+            data_m = dynamic.data.flatten('m')
+            data_node_id = dynamic.data.flatten('node_id')
             for i in range(dynamic.num_nodes()):
                 mass_matrix = np.zeros((2,2))
-                np.fill_diagonal(mass_matrix, dynamic.data.m[i])
-                idx = na.node_global_index(node_id_ptr[i])
+                np.fill_diagonal(mass_matrix, data_m[i])
+                idx = na.node_global_index(data_node_id[i])
                 A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
         for condition in scene.conditions:
-            node_ids_ptr = condition.data.node_ids
-            dfdv_ptr = condition.data.dfdv
-            dfdx_ptr = condition.data.dfdx
+            data_node_ids = condition.data.flatten('node_ids')
+            data_dfdv = condition.data.flatten('dfdv')
+            data_dfdx = condition.data.flatten('dfdx')
             for cid in range(condition.num_constraints()):
-                ids = node_ids_ptr[cid]
+                ids = data_node_ids[cid]
                 for fi in range(len(ids)):
                     for j in range(len(ids)):
-                        Jv = dfdv_ptr[cid][fi][j]
-                        Jx = dfdx_ptr[cid][fi][j]
+                        Jv = data_dfdv[cid][fi][j]
+                        Jx = data_dfdx[cid][fi][j]
                         global_fi_id = na.node_global_index(ids[fi])
                         global_j_id = na.node_global_index(ids[j])
                         A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
@@ -207,13 +208,13 @@ class ImplicitSolver(BaseSolver):
         # add (df/dx * v0 * h * h)
         scene.update_blocks_from_data()
         for condition in scene.conditions:
-            node_ids_ptr = condition.data.node_ids
-            dfdx_ptr = condition.data.dfdx
+            data_node_ids = condition.data.flatten('node_ids')
+            data_dfdx = condition.data.flatten('dfdx')
             for cid in range(condition.num_constraints()):
-                ids = node_ids_ptr[cid]
+                ids = data_node_ids[cid]
                 for fi in range(len(ids)):
                     for xi in range(len(ids)):
-                        Jx = dfdx_ptr[cid][fi][xi]
+                        Jx = data_dfdx[cid][fi][xi]
                         x, v = na.node_xv(scene.dynamics, ids[xi])
                         vec = np.dot(v, Jx) * dt * dt
                         b_offset = na.node_global_index(ids[fi]) * 2
