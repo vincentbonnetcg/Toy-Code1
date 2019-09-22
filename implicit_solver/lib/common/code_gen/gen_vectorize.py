@@ -13,13 +13,6 @@ import numba
 import numpy as np
 import lib.common.node_accessor as na
 
-def generate_guvectorize_function(function, use_njit = True):
-    '''
-    Returns at tuple (source code, function object)
-    '''
-    # TODO
-    pass
-
 def generate_vectorize_function(function, use_njit = True):
     '''
     Returns a tuple (source code, function object)
@@ -44,8 +37,8 @@ def as_vectorized(function, use_njit = True):
         Convert function argument into a type reconizable by numba
         Convert with the following rules
         List/Tuple => Tuple
-        DataBlock => DataBlock.data
-        Object => Object.DataBlock.data
+        DataBlock => DataBlock.blocks
+        Object => Object.DataBlock.blocks
         '''
         if isinstance(arg, (list, tuple)):
             new_arg = [None] * len(arg)
@@ -53,9 +46,9 @@ def as_vectorized(function, use_njit = True):
                 new_arg[index] = convert(element)
             return tuple(new_arg)
         elif isinstance(arg, common.DataBlock):
-            return arg.data
+            return tuple(arg.blocks)
         elif hasattr(arg, 'data') and isinstance(arg.data, common.DataBlock):
-            return arg.data.data
+            return tuple(arg.data.blocks)
 
         return arg
 
@@ -71,7 +64,7 @@ def as_vectorized(function, use_njit = True):
             arg_list[arg_id] = convert(arg)
 
         # Call function
-        if isinstance(arg_list[0], (list, tuple)):
+        if isinstance(args[0], (list, tuple)):
             new_arg_list = list(arg_list)
             for element in new_arg_list[0]:
                 new_arg_list[0] = element

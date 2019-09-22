@@ -46,31 +46,31 @@ class TestCodeGeneration(unittest.TestCase):
     def test_generated_function_with_numpy_input(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
-        add_values(datablock0.data, datablock1.data, 1.0)
-        self.assertEqual(datablock0.data['x'][0][0][0], 5.2)
-        self.assertEqual(datablock0.data['y'][0], 4.0)
+        add_values(datablock0, datablock1, 1.0)
+        self.assertEqual(datablock0.blocks[0]['x'][0][0][0], 5.2)
+        self.assertEqual(datablock0.blocks[0]['y'][0], 4.0)
 
     def test_generated_function_with_datablock_input(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
         add_values(datablock0, datablock1, 1.0)
-        self.assertEqual(datablock0.data['x'][0][0][0], 5.2)
-        self.assertEqual(datablock0.data['y'][0], 4.0)
+        self.assertEqual(datablock0.blocks[0]['x'][0][0][0], 5.2)
+        self.assertEqual(datablock0.blocks[0]['y'][0], 4.0)
 
     def test_generated_function_with_container_input(self):
         container0 = create_container()
         container1 = create_container()
         add_values(container0, container1, 1.0)
-        self.assertEqual(container0.data.data['x'][0][0][0], 5.2)
-        self.assertEqual(container0.data.data['y'][0], 4.0)
+        self.assertEqual(container0.data.blocks[0]['x'][0][0][0], 5.2)
+        self.assertEqual(container0.data.blocks[0]['y'][0], 4.0)
 
     def test_function_generated_once(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
-        add_values(datablock0.data, datablock1.data, 1.0)
+        add_values(datablock0, datablock1, 1.0)
         function0 = add_values.generated_function
         source0 = add_values.generated_source
-        add_values(datablock0.data, datablock1.data, 1.0)
+        add_values(datablock0, datablock1, 1.0)
         function1 = add_values.generated_function
         source1 = add_values.generated_source
         self.assertEqual(function0, function1)

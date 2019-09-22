@@ -196,9 +196,9 @@ class ImplicitSolver(BaseSolver):
         self.b = np.zeros(total_nodes * 2)
 
         # set (f0 * h)
-        #scene.update_blocks_from_data()
+        scene.update_blocks_from_data()
         assemble_b__fo_h(scene.dynamics, self.b, dt)
-        #scene.update_data_from_blocks()
+        scene.update_data_from_blocks()
 
         # add (df/dx * v0 * h * h)
         #dfdx_v0_h2(scene.conditions, scene.dynamics, self.b, dt)
@@ -230,9 +230,9 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def advect(self, scene, delta_v, dt):
-        #scene.update_blocks_from_data()
+        scene.update_blocks_from_data()
         advect(scene.dynamics, delta_v, dt)
-        #scene.update_data_from_blocks()
+        scene.update_data_from_blocks()
 
 
 class SemiImplicitSolver(BaseSolver):
