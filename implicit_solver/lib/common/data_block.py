@@ -39,7 +39,7 @@ class DataBlock:
         '''
         Return whether the datablock is allocated
         '''
-        if self.data:
+        if len(self.blocks) > 0:
             return True
         return False
 
