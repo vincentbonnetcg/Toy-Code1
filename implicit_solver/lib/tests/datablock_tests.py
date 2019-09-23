@@ -17,7 +17,7 @@ class ComponentTest:
         self.field_0 = np.float64(0.6)
         self.field_1 = np.ones((2, 2), dtype = np.int64) * 0.5
 
-def create_datablock(num_elements, block_size = 1000):
+def create_datablock(num_elements, block_size = 100):
     datablock = common.DataBlock(block_size)
     datablock.add_field('field_a', np.float64, 1)
     datablock.add_field('field_b', np.float64, (2, 2))
@@ -32,14 +32,14 @@ class TestDataBlock(unittest.TestCase):
 
     def test_datablock_datatype(self):
         datablock = create_datablock(num_elements=10)
-        datablock_type = np.dtype(datablock.data)
+        datablock_type = np.dtype(datablock.blocks[0])
         self.assertEqual('field_a' in datablock_type.names, True)
         self.assertEqual('field_b' in datablock_type.names, True)
         self.assertEqual('field_0' in datablock_type.names, True)
         self.assertEqual('field_1' in datablock_type.names, True)
         self.assertEqual('field_c' in datablock_type.names, False)
         self.assertEqual(datablock_type.isalignedstruct, True)
-        self.assertEqual(datablock_type.itemsize, 800)
+        self.assertEqual(datablock_type.itemsize, 8008)
 
     def test_datablock_default_values(self):
         datablock = create_datablock(num_elements=10)
