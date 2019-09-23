@@ -47,8 +47,9 @@ class AnchorSpring(ConstraintBase):
             k_c_index_ptr = ct_block['kinematic_component_index']
             k_c_param_ptr = ct_block['kinematic_component_param']
             force_ptr = ct_block['f']
+            block_n_elements = ct_block['blockInfo_numElements']
 
-            for ct_index in range(len(datablock_cts)):
+            for ct_index in range(block_n_elements):
                 node_ids = node_ids_ptr[ct_index]
                 x, v = na.node_xv(scene.dynamics, node_ids[0])
                 kinematic = scene.kinematics[k_index_ptr[ct_index]]
@@ -71,8 +72,9 @@ class AnchorSpring(ConstraintBase):
             k_c_param_ptr = ct_block['kinematic_component_param']
             dfdx_ptr = ct_block['dfdx']
             dfdv_ptr = ct_block['dfdv']
+            block_n_elements = ct_block['blockInfo_numElements']
 
-            for ct_index in range(len(datablock_cts)):
+            for ct_index in range(block_n_elements):
                 node_ids = node_ids_ptr[ct_index]
                 x, v = na.node_xv(scene.dynamics, node_ids[0])
                 kinematic = scene.kinematics[k_index_ptr[ct_index]]
@@ -111,8 +113,9 @@ class Spring(ConstraintBase):
             stiffness_ptr = ct_block['stiffness']
             damping_ptr = ct_block['damping']
             force_ptr = ct_block['f']
+            block_n_elements = ct_block['blockInfo_numElements']
 
-            for ct_index in range(len(datablock_cts)):
+            for ct_index in range(block_n_elements):
                 node_ids = node_ids_ptr[ct_index]
                 x0, v0 = na.node_xv(scene.dynamics, node_ids[0])
                 x1, v1 = na.node_xv(scene.dynamics, node_ids[1])
@@ -133,8 +136,9 @@ class Spring(ConstraintBase):
             damping_ptr = ct_block['damping']
             dfdx_ptr = ct_block['dfdx']
             dfdv_ptr = ct_block['dfdv']
+            block_n_elements = ct_block['blockInfo_numElements']
 
-            for ct_index in range(len(datablock_cts)):
+            for ct_index in range(block_n_elements):
                 x0, v0 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][0])
                 x1, v1 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][1])
                 dfdx = spring_stretch_jacobian(x0, x1, rest_length_ptr[ct_index], stiffness_ptr[ct_index])

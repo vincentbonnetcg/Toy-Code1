@@ -40,8 +40,9 @@ class Area(ConstraintBase):
             rest_area_ptr = ct_block['rest_area']
             stiffness_ptr = ct_block['stiffness']
             force_ptr = ct_block['f']
+            block_n_elements = ct_block['blockInfo_numElements']
 
-            for ct_index in range(len(datablock_cts)):
+            for ct_index in range(block_n_elements):
                 x0, v0 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][0])
                 x1, v1 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][1])
                 x2, v2 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][2])
@@ -60,8 +61,9 @@ class Area(ConstraintBase):
             rest_area_ptr = ct_block['rest_area']
             stiffness_ptr = ct_block['stiffness']
             dfdx_ptr = ct_block['dfdx']
+            block_n_elements = ct_block['blockInfo_numElements']
 
-            for ct_index in range(len(datablock_cts)):
+            for ct_index in range(block_n_elements):
                 x0, v0 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][0])
                 x1, v1 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][1])
                 x2, v2 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][2])
