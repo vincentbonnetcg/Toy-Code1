@@ -54,11 +54,9 @@ class BaseSolver:
 
     @profiler.timeit
     def step(self, scene, context):
-        scene.update_blocks_from_data()
         self.prepare_system(scene, context.dt)
         self.assemble_system(scene, context.dt)
         self.solve_system(scene, context.dt)
-        scene.update_data_from_blocks()
 
     @profiler.timeit
     def post_step(self, scene, context):
@@ -118,7 +116,6 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def prepare_system(self, scene, dt):
-        scene.update_blocks_from_data()
         # Reset forces
         for dynamic in scene.dynamics:
             dynamic.data.fill('f', 0.0)
@@ -135,7 +132,6 @@ class ImplicitSolver(BaseSolver):
         # Add forces to object from constraints
         for condition in scene.conditions:
             condition.apply_forces(scene.dynamics)
-        scene.update_data_from_blocks()
 
     @profiler.timeit
     def assemble_system(self, scene, dt):

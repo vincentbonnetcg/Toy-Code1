@@ -26,7 +26,6 @@ class Dynamic:
         self.data.fill('im', 1.0 / node_mass)
         self.data.fill('f', 0.0)
         self.data.fill('node_id', 0)
-        self.data.update_data_from_blocks()
 
         # Initialize node connectivities
         self.edge_ids = np.copy(shape.edge.vertex_ids)
@@ -45,7 +44,6 @@ class Dynamic:
         Those indices are set after the object has been added to the scene
         '''
         self.data.set_indexing(object_id, node_global_offset)
-        self.data.update_data_from_blocks()
         self.index = object_id
 
     def convert_to_shape(self):

@@ -60,20 +60,3 @@ class Scene:
     # Force Functions #
     def add_force(self, force):
         self.forces.append(force)
-
-
-    # Temporary Functions #
-    def update_blocks_from_data(self):
-        for dynamic in self.dynamics:
-            dynamic.data.update_blocks_from_data()
-
-        for condition in self.conditions:
-            condition.data.update_blocks_from_data()
-
-    def update_data_from_blocks(self):
-        for dynamic in self.dynamics:
-            dynamic.data.update_data_from_blocks()
-
-        for condition in self.conditions:
-            condition.data.update_data_from_blocks()
-
