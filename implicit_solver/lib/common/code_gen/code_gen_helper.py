@@ -103,15 +103,14 @@ class CodeGenHelper:
                 for obj, attrs in self.obj_attrs_map.items():
                     for attr in attrs:
                         variable_name = obj + '_' + attr
-                        variable_accessor = obj +'_blocks' + '[_j][\'' + attr + '\']'
+                        variable_accessor = obj +'_blocks[_j][\'' + attr + '\']'
                         variable_code = two_indents + variable_name + ' = ' + variable_accessor
                         gen_code_lines.append(variable_code)
 
                 # loop over the elements (numpy array)
                 master_argument = self.functions_args[0]
-                master_attr = self.obj_attrs_map.get(master_argument, ['unknown'])[0]
-                master_variable_name = master_argument + '_' + master_attr
-                gen_code_lines.append(two_indents + '_num_elements = ' + master_variable_name + '.shape[0]')
+                master_variable_name = master_argument + '_blocks[_j][\'blockInfo_numElements\']'
+                gen_code_lines.append(two_indents + '_num_elements = ' + master_variable_name)
                 gen_code_lines.append(two_indents + 'for _i in range(_num_elements):')
 
                 # generate the variable remap
