@@ -194,18 +194,20 @@ class DataBlock:
     def __len__(self):
         return self.num_elements
 
-    def __getattr__(self, item):
-        '''
-        Access a specific field from data
-        '''
-        if item == "data" or self.is_allocated() is None:
-           raise AttributeError
-
-        if item in self.dtype_dict['names']:
-            field_index = self.dtype_dict['names'].index(item)
-            return self.data[field_index]
-
-        raise AttributeError
+    # Keep this around for now, it might be re-used for another purpose
+    # Such as getting block infos or flatten fields
+    #def __getattr__(self, item):
+    #    '''
+    #    Access a specific field from data
+    #    '''
+    #    if item == "data" or self.is_allocated() is None:
+    #       raise AttributeError
+    #
+    #    if item in self.dtype_dict['names']:
+    #        field_index = self.dtype_dict['names'].index(item)
+    #        return self.data[field_index]
+    #
+    #    raise AttributeError
 
     def initialize_blocks(self, num_elements):
         '''

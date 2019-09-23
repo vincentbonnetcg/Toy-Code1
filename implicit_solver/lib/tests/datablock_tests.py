@@ -7,7 +7,6 @@ import unittest
 import lib.common as common
 import numpy as np
 from numba import njit
-from numba_helper import numba_friendly
 
 '''
 Datablock Functions
@@ -25,16 +24,6 @@ def create_datablock(num_elements, block_size = 1000):
     datablock.add_field_from_class(ComponentTest)
     datablock.initialize(num_elements)
     return datablock
-
-@numba_friendly
-@njit
-def set_datablock_values(datablock, value0, value1):
-    datablock_field_0 = datablock.field_0
-    datablock_field_1 = datablock.field_1
-
-    for i in range(len(datablock_field_0)):
-        datablock_field_0[i] = value0
-        datablock_field_1[i] = value1
 
 '''
 Datablock Tests
@@ -54,21 +43,23 @@ class TestDataBlock(unittest.TestCase):
 
     def test_datablock_default_values(self):
         datablock = create_datablock(num_elements=10)
-        self.assertEqual(datablock.field_a[0], 0.0)
-        self.assertEqual(datablock.field_0[0], 0.6)
-        self.assertEqual(datablock.field_1[0][0][0], 0.5)
+        block0 = datablock.blocks[0]
+        self.assertEqual(block0['field_a'][0], 0.0)
+        self.assertEqual(block0['field_0'][0], 0.6)
+        self.assertTrue((block0['field_1'][0] == [[0.5, 0.5], [0.5, 0.5]]).all())
 
     def test_datablock_set_values(self):
         datablock = create_datablock(num_elements=10)
-        set_datablock_values(datablock, 1.5, 2.5)
-        self.assertEqual(datablock.field_0[0], 1.5)
-        self.assertEqual(datablock.field_1[0][0][0], 2.5)
+        datablock.fill('field_0', 1.5)
+        datablock.fill('field_1', 2.5)
+        block0 = datablock.blocks[0]
+        self.assertEqual(block0['field_0'][0], 1.5)
+        self.assertTrue((block0['field_1'][0] == [[2.5, 2.5], [2.5, 2.5]]).all())
 
     def test_blocks(self):
         num_elements = 10
         datablock = create_datablock(num_elements, block_size=3)
-        np.copyto(datablock.field_a, range(num_elements))
-        datablock.update_blocks_from_data()
+        datablock.copyto('field_a', range(num_elements))
 
         self.assertEqual(len(datablock.blocks), 4)
         self.assertEqual(datablock.blocks[0]['blockInfo_numElements'], 3)
