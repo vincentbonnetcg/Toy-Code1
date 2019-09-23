@@ -240,10 +240,10 @@ class DataBlock:
     Vectorize Functions on blocks
     '''
     def compute_num_elements(self):
-        result = 0
+        self.num_elements = 0
         for block_data in self.blocks:
-            result += block_data['blockInfo_numElements']
-        return result
+            self.num_elements += block_data['blockInfo_numElements']
+        return self.num_elements
 
     def set_indexing(self, object_id, node_global_offset):
         object_node_id = 0
