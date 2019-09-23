@@ -115,43 +115,53 @@ class Spring(ConstraintBase):
         '''
         Add the force to the datablock
         '''
-        node_ids_ptr = datablock_cts.node_ids
-        rest_length_ptr = datablock_cts.rest_length
-        stiffness_ptr = datablock_cts.stiffness
-        damping_ptr = datablock_cts.damping
-        force_ptr = datablock_cts.f
+        scene.update_blocks_from_data()
 
-        for ct_index in range(len(datablock_cts)):
-            node_ids = node_ids_ptr[ct_index]
-            x0, v0 = na.node_xv(scene.dynamics, node_ids[0])
-            x1, v1 = na.node_xv(scene.dynamics, node_ids[1])
-            force = spring_stretch_force(x0, x1, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
-            force += spring_damping_force(x0, x1, v0, v1, damping_ptr[ct_index])
-            force_ptr[ct_index][0] = force
-            force_ptr[ct_index][1] = force * -1.0
+        for ct_block in datablock_cts.blocks:
+            node_ids_ptr = ct_block['node_ids']
+            rest_length_ptr = ct_block['rest_length']
+            stiffness_ptr = ct_block['stiffness']
+            damping_ptr = ct_block['damping']
+            force_ptr = ct_block['f']
+
+            for ct_index in range(len(datablock_cts)):
+                node_ids = node_ids_ptr[ct_index]
+                x0, v0 = na.node_xv(scene.dynamics, node_ids[0])
+                x1, v1 = na.node_xv(scene.dynamics, node_ids[1])
+                force = spring_stretch_force(x0, x1, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
+                force += spring_damping_force(x0, x1, v0, v1, damping_ptr[ct_index])
+                force_ptr[ct_index][0] = force
+                force_ptr[ct_index][1] = force * -1.0
+
+        scene.update_data_from_blocks()
 
     @classmethod
     def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         '''
         Add the force jacobian functions to the datablock
         '''
-        node_ids_ptr = datablock_cts.node_ids
-        rest_length_ptr = datablock_cts.rest_length
-        stiffness_ptr = datablock_cts.stiffness
-        damping_ptr = datablock_cts.damping
-        dfdx_ptr = datablock_cts.dfdx
-        dfdv_ptr = datablock_cts.dfdv
+        scene.update_blocks_from_data()
 
-        for ct_index in range(len(datablock_cts)):
-            x0, v0 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][0])
-            x1, v1 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][1])
-            dfdx = spring_stretch_jacobian(x0, x1, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
-            dfdv = spring_damping_jacobian(x0, x1, v0, v1, damping_ptr[ct_index])
-            # Set jacobians
-            dfdx_ptr[ct_index][0][0] = dfdx_ptr[ct_index][1][1] = dfdx
-            dfdx_ptr[ct_index][0][1] = dfdx_ptr[ct_index][1][0] = dfdx * -1
-            dfdv_ptr[ct_index][0][0] = dfdv_ptr[ct_index][1][1] = dfdv
-            dfdv_ptr[ct_index][0][1] = dfdv_ptr[ct_index][1][0] = dfdv * -1
+        for ct_block in datablock_cts.blocks:
+            node_ids_ptr = ct_block['node_ids']
+            rest_length_ptr = ct_block['rest_length']
+            stiffness_ptr = ct_block['stiffness']
+            damping_ptr = ct_block['damping']
+            dfdx_ptr = ct_block['dfdx']
+            dfdv_ptr = ct_block['dfdv']
+
+            for ct_index in range(len(datablock_cts)):
+                x0, v0 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][0])
+                x1, v1 = na.node_xv(scene.dynamics, node_ids_ptr[ct_index][1])
+                dfdx = spring_stretch_jacobian(x0, x1, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
+                dfdv = spring_damping_jacobian(x0, x1, v0, v1, damping_ptr[ct_index])
+                # Set jacobians
+                dfdx_ptr[ct_index][0][0] = dfdx_ptr[ct_index][1][1] = dfdx
+                dfdx_ptr[ct_index][0][1] = dfdx_ptr[ct_index][1][0] = dfdx * -1
+                dfdv_ptr[ct_index][0][0] = dfdv_ptr[ct_index][1][1] = dfdv
+                dfdv_ptr[ct_index][0][1] = dfdv_ptr[ct_index][1][0] = dfdv * -1
+
+        scene.update_data_from_blocks()
 
 '''
 Utility Functions
