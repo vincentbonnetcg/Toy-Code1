@@ -37,49 +37,61 @@ class AnchorSpring(ConstraintBase):
 
     @classmethod
     def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
-        kinematic_vel = np.zeros(2)
-        node_ids_ptr = datablock_cts.node_ids
-        stiffness_ptr = datablock_cts.stiffness
-        damping_ptr = datablock_cts.damping
-        rest_length_ptr = datablock_cts.rest_length
-        k_index_ptr = datablock_cts.kinematic_index
-        k_c_index_ptr = datablock_cts.kinematic_component_index
-        k_c_param_ptr = datablock_cts.kinematic_component_param
-        force_ptr = datablock_cts.f
 
-        for ct_index in range(len(datablock_cts)):
-            node_ids = node_ids_ptr[ct_index]
-            x, v = na.node_xv(scene.dynamics, node_ids[0])
-            kinematic = scene.kinematics[k_index_ptr[ct_index]]
-            point_params = ConvexHull.ParametricPoint(k_c_index_ptr[ct_index], k_c_param_ptr[ct_index])
-            target_pos = kinematic.get_position_from_parametric_point(point_params)
-            force = spring_stretch_force(x, target_pos, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
-            force += spring_damping_force(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
-            force_ptr[ct_index] = force
+        scene.update_blocks_from_data()
+
+        for ct_block in datablock_cts.blocks:
+            kinematic_vel = np.zeros(2)
+            node_ids_ptr = ct_block['node_ids']
+            stiffness_ptr = ct_block['stiffness']
+            damping_ptr = ct_block['damping']
+            rest_length_ptr = ct_block['rest_length']
+            k_index_ptr = ct_block['kinematic_index']
+            k_c_index_ptr = ct_block['kinematic_component_index']
+            k_c_param_ptr = ct_block['kinematic_component_param']
+            force_ptr = ct_block['f']
+
+            for ct_index in range(len(datablock_cts)):
+                node_ids = node_ids_ptr[ct_index]
+                x, v = na.node_xv(scene.dynamics, node_ids[0])
+                kinematic = scene.kinematics[k_index_ptr[ct_index]]
+                point_params = ConvexHull.ParametricPoint(k_c_index_ptr[ct_index], k_c_param_ptr[ct_index])
+                target_pos = kinematic.get_position_from_parametric_point(point_params)
+                force = spring_stretch_force(x, target_pos, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
+                force += spring_damping_force(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
+                force_ptr[ct_index] = force
+
+        scene.update_data_from_blocks()
 
     @classmethod
     def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
-        kinematic_vel = np.zeros(2)
-        node_ids_ptr = datablock_cts.node_ids
-        stiffness_ptr = datablock_cts.stiffness
-        damping_ptr = datablock_cts.damping
-        rest_length_ptr = datablock_cts.rest_length
-        k_index_ptr = datablock_cts.kinematic_index
-        k_c_index_ptr = datablock_cts.kinematic_component_index
-        k_c_param_ptr = datablock_cts.kinematic_component_param
-        dfdx_ptr = datablock_cts.dfdx
-        dfdv_ptr = datablock_cts.dfdv
 
-        for ct_index in range(len(datablock_cts)):
-            node_ids = node_ids_ptr[ct_index]
-            x, v = na.node_xv(scene.dynamics, node_ids[0])
-            kinematic = scene.kinematics[k_index_ptr[ct_index]]
-            point_params = ConvexHull.ParametricPoint(k_c_index_ptr[ct_index], k_c_param_ptr[ct_index])
-            target_pos = kinematic.get_position_from_parametric_point(point_params)
-            dfdx = spring_stretch_jacobian(x, target_pos, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
-            dfdv = spring_damping_jacobian(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
-            dfdx_ptr[ct_index][0][0] = dfdx
-            dfdv_ptr[ct_index][0][0] = dfdv
+        scene.update_blocks_from_data()
+
+        for ct_block in datablock_cts.blocks:
+            kinematic_vel = np.zeros(2)
+            node_ids_ptr = ct_block['node_ids']
+            stiffness_ptr = ct_block['stiffness']
+            damping_ptr = ct_block['damping']
+            rest_length_ptr = ct_block['rest_length']
+            k_index_ptr = ct_block['kinematic_index']
+            k_c_index_ptr = ct_block['kinematic_component_index']
+            k_c_param_ptr = ct_block['kinematic_component_param']
+            dfdx_ptr = ct_block['dfdx']
+            dfdv_ptr = ct_block['dfdv']
+
+            for ct_index in range(len(datablock_cts)):
+                node_ids = node_ids_ptr[ct_index]
+                x, v = na.node_xv(scene.dynamics, node_ids[0])
+                kinematic = scene.kinematics[k_index_ptr[ct_index]]
+                point_params = ConvexHull.ParametricPoint(k_c_index_ptr[ct_index], k_c_param_ptr[ct_index])
+                target_pos = kinematic.get_position_from_parametric_point(point_params)
+                dfdx = spring_stretch_jacobian(x, target_pos, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
+                dfdv = spring_damping_jacobian(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
+                dfdx_ptr[ct_index][0][0] = dfdx
+                dfdv_ptr[ct_index][0][0] = dfdv
+
+        scene.update_data_from_blocks()
 
 class Spring(ConstraintBase):
     '''
