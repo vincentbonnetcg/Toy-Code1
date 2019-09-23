@@ -57,6 +57,8 @@ class Render:
         # Statistics for legend
         stats_total_constraints = 0
         stats_total_nodes = 0
+        stats_avg_block_per_objects = 0
+        stats_avg_block_per_constraints = 0
 
         # Set label
         plt.title('Implicit Solver - frame ' + str(frame_id), fontdict = self.font)
@@ -67,6 +69,7 @@ class Render:
         for condition in scene.conditions:
             num_constraints = condition.num_constraints()
             stats_total_constraints += num_constraints
+            stats_avg_block_per_constraints += condition.data.num_blocks()
             render_prefs = condition.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
@@ -90,15 +93,22 @@ class Render:
 
             self.ax.add_collection(line_segments)
 
+        stats_avg_block_per_constraints /= len(scene.conditions)
+        stats_avg_block_per_constraints = round(stats_avg_block_per_constraints, 2)
+
         # Draw nodes
         for dynamic in scene.dynamics:
             stats_total_nodes += len(dynamic.data)
+            stats_avg_block_per_objects += dynamic.data.num_blocks()
             render_prefs = dynamic.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
 
             x, y = zip(*dynamic.data.flatten('x'))
             self.ax.plot(x, y, '.', alpha=render_prefs['alpha'], color=render_prefs['color'], markersize = render_prefs['width'])
+
+        stats_avg_block_per_objects /= len(scene.dynamics)
+        stats_avg_block_per_objects = round(stats_avg_block_per_objects, 2)
 
         # Draw kinematics
         for kinematic in scene.kinematics:
@@ -113,7 +123,9 @@ class Render:
         # Add Legend
         red_patch = patches.Patch(color='red', label=str(stats_total_nodes) + ' nodes')
         blue_patch = patches.Patch(color='blue', label=str(stats_total_constraints) + ' constraints')
-        plt.legend(handles=[red_patch, blue_patch], loc='lower left')
+        green_patch = patches.Patch(color='green', label=str(stats_avg_block_per_objects) + ' avg block/obj')
+        lgreen_patch = patches.Patch(color='lightgreen', label=str(stats_avg_block_per_constraints) + ' avg block/cts')
+        plt.legend(handles=[red_patch, blue_patch, green_patch, lgreen_patch], loc='lower left')
         plt.show()
 
     def render_sparse_matrix(self, solver, frameId):
