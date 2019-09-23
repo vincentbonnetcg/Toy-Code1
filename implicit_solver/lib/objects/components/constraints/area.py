@@ -35,8 +35,6 @@ class Area(ConstraintBase):
         '''
         Add the force to the datablock
         '''
-        scene.update_blocks_from_data()
-
         for ct_block in datablock_cts.blocks:
             node_ids_ptr = ct_block['node_ids']
             rest_area_ptr = ct_block['rest_area']
@@ -52,15 +50,11 @@ class Area(ConstraintBase):
                 force_ptr[ct_index][1] = f1
                 force_ptr[ct_index][2] = f2
 
-        scene.update_data_from_blocks()
-
     @classmethod
     def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         '''
         Add the force jacobian functions to the datablock
         '''
-        scene.update_blocks_from_data()
-
         for ct_block in datablock_cts.blocks:
             node_ids_ptr = ct_block['node_ids']
             rest_area_ptr = ct_block['rest_area']
@@ -78,8 +72,6 @@ class Area(ConstraintBase):
                 dfdx_ptr[ct_index][0][1] = dfdx_ptr[ct_index][1][0] = dfdx[3]
                 dfdx_ptr[ct_index][0][2] = dfdx_ptr[ct_index][2][0] = dfdx[4]
                 dfdx_ptr[ct_index][1][2] = dfdx_ptr[ct_index][2][1] = dfdx[5]
-
-        scene.update_data_from_blocks()
 
 '''
  Utility Functions

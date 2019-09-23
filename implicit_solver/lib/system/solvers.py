@@ -120,13 +120,10 @@ class ImplicitSolver(BaseSolver):
         # Reset forces
         for dynamic in scene.dynamics:
             dynamic.data.fill('f', 0.0)
-        scene.update_data_from_blocks()
 
         # Prepare external forces
-        scene.update_blocks_from_data()
         for force in scene.forces:
             force.apply_forces(scene.dynamics)
-        scene.update_data_from_blocks()
 
         # Prepare constraints (forces and jacobians)
         for condition in scene.conditions:
@@ -134,7 +131,6 @@ class ImplicitSolver(BaseSolver):
             condition.compute_jacobians(scene)
 
         # Add forces to object from constraints
-        scene.update_blocks_from_data()
         for condition in scene.conditions:
             condition.apply_forces(scene.dynamics)
         scene.update_data_from_blocks()
@@ -252,9 +248,7 @@ class SemiImplicitSolver(BaseSolver):
     def prepare_system(self, scene, dt):
         # Reset forces
         for dynamic in scene.dynamics:
-            dynamic.data.update_blocks_from_data()
             dynamic.data.fill('f', 0.0)
-            dynamic.data.update_data_from_blocks()
 
         # Apply external forces
         for force in scene.forces:

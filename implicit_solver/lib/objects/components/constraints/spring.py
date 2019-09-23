@@ -37,9 +37,6 @@ class AnchorSpring(ConstraintBase):
 
     @classmethod
     def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
-
-        scene.update_blocks_from_data()
-
         for ct_block in datablock_cts.blocks:
             kinematic_vel = np.zeros(2)
             node_ids_ptr = ct_block['node_ids']
@@ -61,13 +58,8 @@ class AnchorSpring(ConstraintBase):
                 force += spring_damping_force(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
                 force_ptr[ct_index] = force
 
-        scene.update_data_from_blocks()
-
     @classmethod
     def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
-
-        scene.update_blocks_from_data()
-
         for ct_block in datablock_cts.blocks:
             kinematic_vel = np.zeros(2)
             node_ids_ptr = ct_block['node_ids']
@@ -91,8 +83,6 @@ class AnchorSpring(ConstraintBase):
                 dfdx_ptr[ct_index][0][0] = dfdx
                 dfdv_ptr[ct_index][0][0] = dfdv
 
-        scene.update_data_from_blocks()
-
 class Spring(ConstraintBase):
     '''
     Describes a 2D spring constraint between two nodes
@@ -115,8 +105,6 @@ class Spring(ConstraintBase):
         '''
         Add the force to the datablock
         '''
-        scene.update_blocks_from_data()
-
         for ct_block in datablock_cts.blocks:
             node_ids_ptr = ct_block['node_ids']
             rest_length_ptr = ct_block['rest_length']
@@ -133,15 +121,11 @@ class Spring(ConstraintBase):
                 force_ptr[ct_index][0] = force
                 force_ptr[ct_index][1] = force * -1.0
 
-        scene.update_data_from_blocks()
-
     @classmethod
     def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         '''
         Add the force jacobian functions to the datablock
         '''
-        scene.update_blocks_from_data()
-
         for ct_block in datablock_cts.blocks:
             node_ids_ptr = ct_block['node_ids']
             rest_length_ptr = ct_block['rest_length']
@@ -160,8 +144,6 @@ class Spring(ConstraintBase):
                 dfdx_ptr[ct_index][0][1] = dfdx_ptr[ct_index][1][0] = dfdx * -1
                 dfdv_ptr[ct_index][0][0] = dfdv_ptr[ct_index][1][1] = dfdv
                 dfdv_ptr[ct_index][0][1] = dfdv_ptr[ct_index][1][0] = dfdv * -1
-
-        scene.update_data_from_blocks()
 
 '''
 Utility Functions
