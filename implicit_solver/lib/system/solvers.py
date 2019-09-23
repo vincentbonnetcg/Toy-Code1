@@ -54,9 +54,11 @@ class BaseSolver:
 
     @profiler.timeit
     def step(self, scene, context):
+        scene.update_blocks_from_data()
         self.prepare_system(scene, context.dt)
         self.assemble_system(scene, context.dt)
         self.solve_system(scene, context.dt)
+        scene.update_data_from_blocks()
 
     @profiler.timeit
     def post_step(self, scene, context):
@@ -197,15 +199,12 @@ class ImplicitSolver(BaseSolver):
         self.b = np.zeros(total_nodes * 2)
 
         # set (f0 * h)
-        scene.update_blocks_from_data()
         assemble_b__fo_h(scene.dynamics, self.b, dt)
-        scene.update_data_from_blocks()
 
         # add (df/dx * v0 * h * h)
         #dfdx_v0_h2(scene.conditions, scene.dynamics, self.b, dt)
 
         # add (df/dx * v0 * h * h)
-        scene.update_blocks_from_data()
         for condition in scene.conditions:
             data_node_ids = condition.data.flatten('node_ids')
             data_dfdx = condition.data.flatten('dfdx')
@@ -232,15 +231,11 @@ class ImplicitSolver(BaseSolver):
 
     @profiler.timeit
     def advect(self, scene, delta_v, dt):
-        scene.update_blocks_from_data()
         advect(scene.dynamics, delta_v, dt)
-        scene.update_data_from_blocks()
 
-
+'''
+DEPRECATED
 class SemiImplicitSolver(BaseSolver):
-    '''
-     Semi Implicit Step
-    '''
     def __init__(self):
         BaseSolver.__init__(self)
 
@@ -270,3 +265,4 @@ class SemiImplicitSolver(BaseSolver):
             for i in range(dynamic.num_nodes()):
                 dynamic.v[i] += dynamic.f[i] * dynamic.im[i] * dt
                 dynamic.x[i] += dynamic.v[i] * dt
+'''

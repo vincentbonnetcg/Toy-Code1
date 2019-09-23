@@ -47,8 +47,6 @@ class Render:
         '''
         Render the scene into a figue
         '''
-        scene.update_blocks_from_data()
-
         # Reset figure and create subplot
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
