@@ -20,8 +20,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Teschner, Matthias, Bruno Heidelberger, Matthias Muller, and Markus Gross. "A versatile and robust model for geometrically complex deformable solids." In Computer Graphics International, 2004. Proceedings, pp. 312-319. IEEE, 2004.
 
-[3] Martin, Sebastian, Bernhard Thomaszewski, Eitan Grinspun, and Markus Gross. "Example-based elastic materials." In ACM Transactions on Graphics (TOG), vol. 30, no. 4, p. 72. ACM, 2011. 
-
 ## . Skeletal Subspace Deformation
 **Folder** [skinning](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/skinning)<br>
 **Description** Skeletal Subspace Deformation
@@ -106,6 +104,12 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/distance_field.png)
 
+## . Load Balancing (placeholder)
+**File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/load_balancing/graphColouring_greedyAlgorithm.py)<br>
+**Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
+
+![COLOURING](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/graphColouring_greedyAlgorithm.png)
+
 ## . Local Optimisations
 **File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimisation_gradientDescent.py)<br>
 **Description** Implementation of Gradient Descent for multivariable functions
@@ -124,13 +128,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 - Leap Frog
 
 ![Explicit Integrators](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/spring1D_integrator.png)
-
-## . Graph Colouring
-**File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graphColouring_greedyAlgorithm.py)<br>
-**Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
-
-![COLOURING](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/graphColouring_greedyAlgorithm.png)
-
 
 ## . Numba - Sandbox Test
 
