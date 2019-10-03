@@ -209,7 +209,7 @@ class ImplicitSolver(BaseSolver):
                 for fi in range(len(ids)):
                     for xi in range(len(ids)):
                         Jx = data_dfdx[cid][fi][xi]
-                        x, v = na.node_xv(scene.dynamics, ids[xi])
+                        v = na.node_v(scene.dynamics, ids[xi])
                         vec = np.dot(v, Jx) * dt * dt
                         b_offset = na.node_global_index(ids[fi]) * 2
                         self.b[b_offset:b_offset+2] += vec

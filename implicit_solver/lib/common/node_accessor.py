@@ -27,6 +27,18 @@ def set_node_id(node_id, object_id = 0, object_node_id = 0, global_node_id = 0, 
 def node_global_index(node_id):
     return node_id[2]
 
+def node_x(dynamics, node_id):
+    object_id = node_id[0]
+    block_id = node_id[3]
+    block_node_id = node_id[4]
+    return dynamics[object_id].data.blocks[block_id]['x'][block_node_id]
+
+def node_v(dynamics, node_id):
+    object_id = node_id[0]
+    block_id = node_id[3]
+    block_node_id = node_id[4]
+    return dynamics[object_id].data.blocks[block_id]['v'][block_node_id]
+
 def node_xv(dynamics, node_id):
     object_id = node_id[0]
     block_id = node_id[3]
