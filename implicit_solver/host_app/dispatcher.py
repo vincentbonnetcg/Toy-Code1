@@ -14,7 +14,7 @@ class CommandDispatcher:
     '''
     def __init__(self):
         self._scene = system.Scene()
-        self._solver = system.ImplicitSolver()
+        self._solver = system.Solver(system.ImplicitSolver())
         self._context = system.Context()
         self._object_dict = {} # map hash_value with object
 

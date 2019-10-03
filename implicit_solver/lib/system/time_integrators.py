@@ -8,60 +8,16 @@ import scipy
 import scipy.sparse
 import scipy.sparse.linalg
 
-import lib.common.node_accessor as na
 from lib.common import profiler
-from lib.common.sparse_matrix import BSRSparseMatrix
+import lib.common.node_accessor as na
 import lib.common.code_gen as generate
+from lib.common.sparse_matrix import BSRSparseMatrix
 import lib.objects.components as cpn
 
-class Context:
+class TimeIntegrator:
     '''
-    Context to store time, time stepping, etc.
+    Base class for time integrator
     '''
-    def __init__(self, time = 0.0, frame_dt = 1.0/24.0, num_substep = 4, num_frames = 1):
-        self.time = time # current time (in seconds)
-        self.start_time = time # start time (in seconds)
-        self.end_time = time + (num_frames * frame_dt) # end time (in seconds)
-        self.frame_dt = frame_dt # time step on a single frame (in seconds)
-        self.num_substep = num_substep # number of substep per frame
-        self.dt = frame_dt / num_substep # simulation substep (in seconds)
-        self.num_frames = num_frames # number of simulated frame (doesn't include initial frame)
-
-class BaseSolver:
-    '''
-    Base Solver
-    '''
-    def __init__(self):
-        pass
-
-    def initialize(self, scene, context):
-        '''
-        Initialize the solver and the data used by the solver
-        '''
-        scene.init_kinematics(context.start_time)
-        scene.init_conditions()
-
-    @profiler.timeit
-    def solve_step(self, scene, context):
-        self.pre_step(scene, context)
-        self.step(scene, context)
-        self.post_step(scene, context)
-
-    @profiler.timeit
-    def pre_step(self, scene, context):
-        scene.update_kinematics(context.time, context.dt)
-        scene.update_conditions()
-
-    @profiler.timeit
-    def step(self, scene, context):
-        self.prepare_system(scene, context.dt)
-        self.assemble_system(scene, context.dt)
-        self.solve_system(scene, context.dt)
-
-    @profiler.timeit
-    def post_step(self, scene, context):
-        pass
-
     def prepare_system(self, scene, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'prepare_system'")
 
@@ -70,6 +26,7 @@ class BaseSolver:
 
     def solve_system(self, scene, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solve_system'")
+
 
 '''
 Vectorized functions
@@ -96,7 +53,7 @@ def assemble_b__fo_h(node : cpn.Node, b, dt):
 #            b_offset = na.node_global_index(cnt.node_ids[fi]) * 2
 #            b[b_offset:b_offset+2] += np.dot(v, Jx) * dt * dt
 
-class ImplicitSolver(BaseSolver):
+class ImplicitSolver(TimeIntegrator):
     '''
      Implicit Step
      Solve :
@@ -109,7 +66,7 @@ class ImplicitSolver(BaseSolver):
          x = x + deltaX
     '''
     def __init__(self):
-        BaseSolver.__init__(self)
+        TimeIntegrator.__init__(self)
         # used to store system Ax=b
         self.A = None
         self.b = None
@@ -138,11 +95,22 @@ class ImplicitSolver(BaseSolver):
         '''
         Assemble the system (Ax=b) where x is the unknow change of velocity
         '''
-        self.assemble_A(scene, dt)
-        self.assemble_b(scene, dt)
+        self._assemble_A(scene, dt)
+        self._assemble_b(scene, dt)
 
     @profiler.timeit
-    def assemble_A(self, scene, dt):
+    def solve_system(self, scene, dt):
+        if (scene.num_nodes() == 0):
+            return
+        # Solve the system (Ax=b) and reshape the conjugate gradient result
+        # In this case, the reshape operation is not causing any reallocation
+        cg_result = scipy.sparse.linalg.cg(self.A, self.b)
+        delta_v = cg_result[0].reshape(scene.num_nodes(), 2)
+        # Advect
+        self._advect(scene, delta_v, dt)
+
+    @profiler.timeit
+    def _assemble_A(self, scene, dt):
         '''
         Assemble A = (M - (h * df/dv + h^2 * df/dx))
         '''
@@ -183,7 +151,7 @@ class ImplicitSolver(BaseSolver):
         self.A = A.sparse_matrix()
 
     @profiler.timeit
-    def assemble_b(self, scene, dt):
+    def _assemble_b(self, scene, dt):
         '''
         Assemble b = h *( f0 + h * df/dx * v0)
                  b = (f0 * h) + (h^2 * df/dx * v0)
@@ -215,25 +183,14 @@ class ImplicitSolver(BaseSolver):
                         self.b[b_offset:b_offset+2] += vec
 
     @profiler.timeit
-    def solve_system(self, scene, dt):
-        if (scene.num_nodes() == 0):
-            return
-        # Solve the system (Ax=b) and reshape the conjugate gradient result
-        # In this case, the reshape operation is not causing any reallocation
-        cg_result = scipy.sparse.linalg.cg(self.A, self.b)
-        delta_v = cg_result[0].reshape(scene.num_nodes(), 2)
-        # Advect
-        self.advect(scene, delta_v, dt)
-
-    @profiler.timeit
-    def advect(self, scene, delta_v, dt):
+    def _advect(self, scene, delta_v, dt):
         advect(scene.dynamics, delta_v, dt)
 
 '''
-DEPRECATED
-class SemiImplicitSolver(BaseSolver):
+NEED TO RE-IMPLEMENT
+class SemiImplicitSolver(TimeIntegrator):
     def __init__(self):
-        BaseSolver.__init__(self)
+        Solver.__init__(self)
 
     @profiler.timeit
     def prepare_system(self, scene, dt):
