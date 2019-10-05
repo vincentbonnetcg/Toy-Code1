@@ -50,5 +50,5 @@ out_file_path = 'file' + str(traning_ID)
 out_file_path =  training_path + out_file_path
 
 # export data
-np.savez(out_file_path, rot=bone_rotations, undeformed=deformed_point_data, offset=deformed_offset_data)
+np.savez(out_file_path, rot=bone_rotations, undeformed=undeformed_point_data, offset=deformed_offset_data)
 
