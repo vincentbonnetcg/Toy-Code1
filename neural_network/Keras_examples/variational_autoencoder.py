@@ -12,6 +12,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import keras_utils
 
+# TODO - save Keras into different file => to not override
+# TODO - rewrite prediction to predict multiple value at once
+
 DIGIT_SIZE = 28
 ORIGIN_DIM = DIGIT_SIZE**2
 LATENT_DIM = 2
@@ -80,7 +83,7 @@ def show_result(decoder):
     NUM_DIGIT_Y = 10
     grid_x = np.linspace(-5, 5, NUM_DIGIT_X)
     grid_y = np.linspace(-5, 5, NUM_DIGIT_Y)
-
+    
     # Predicted image
     figure = np.zeros((DIGIT_SIZE * NUM_DIGIT_X, DIGIT_SIZE * NUM_DIGIT_Y))
     for i, yi in enumerate(grid_y):
