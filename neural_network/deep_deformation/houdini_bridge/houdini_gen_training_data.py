@@ -2,14 +2,8 @@
 @author: Vincent Bonnet
 @description : Python code to export bone and point data into a training folder
 """
-
 import numpy as np
 import os
-
-# get geometry deformation
-# TODO
-node = hou.pwd()
-geo = node.geometry()
 
 # get bone rotation
 def get_bone_rotation_y():
@@ -22,6 +16,27 @@ def get_bone_rotation_y():
 
 bone_rotations = get_bone_rotation_y()
 
+# get undeformed and deformed point data
+def get_point_data(input_id):
+    node = hou.pwd()
+    inputs = node.inputs()
+    if input_id >= len(inputs):
+        raise Exception('input_id >= len(inputs)')
+
+    input_geo = inputs[input_id].geometry()
+    points = input_geo.points()
+    num_vertices = len(points)
+    pos_array = np.zeros((num_vertices, 3), dtype=float)
+    for i, point in enumerate(points):
+        point = point.position()
+        pos_array[i] = [point[0],point[1],point[2]]
+
+    return pos_array
+
+deformed_point_data = get_point_data(0)
+undeformed_point_data = get_point_data(1)
+deformed_offset_data = deformed_point_data - undeformed_point_data
+
 # create the training directory if necessary
 working_dir = os.path.dirname(hou.hipFile.path())
 training_path = working_dir + '/training/' # data+labels
@@ -29,12 +44,11 @@ training_dir = os.path.dirname(training_path)
 if not os.path.exists(training_dir):
     os.makedirs(training_dir)
 
-# generate identifier for this training sample (use frameId)
+# generate identifier for the current training sample (use frameId)
 traning_ID = hou.intFrame()
 out_file_path = 'file' + str(traning_ID)
 out_file_path =  training_path + out_file_path
 
 # export data
-print(out_file_path)
-np.savez(out_file_path, rot=bone_rotations)
+np.savez(out_file_path, rot=bone_rotations, undeformed=deformed_point_data, offset=deformed_offset_data)
 
