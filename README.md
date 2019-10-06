@@ -84,8 +84,11 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ![PCA](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation_covarianceMatrix.png)
 
 ## . Interpolation and Regression
-**File** [scatteredDataInterpolation_radialBasisFunction.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/interpolation_regression/scatteredDataInterpolation_radialBasisFunction.py)<br>
-**Description** Interpolation of a 1D function with Radial Basis Functions
+**Folder** [interpolation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/interpolation_regression)<br>
+**Description** Interpolation and regression algorithms
+
+- RBF Interpolation
+- Polynomial Regression
 
 ![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
 
@@ -93,13 +96,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Powell, Michael JD. "The theory of radial basis function approximation in 1990." Advances in numerical analysis (1992): 105-210.
 
-**File** [polynomialRegression.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/interpolation_regression/polynomialRegression.py)<br>
-**Description** Polynomial Linear Regression on 1D dataset
-
-![Regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/polynomial_regression.png)
-
 ## . Signed distance field (placeholder)
-**Folder** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/signed_distance_field.py)<br>
+**File** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/signed_distance_field.py)<br>
 **Description** Solve Eikonal Equation to compute signed distance field from 2D-polygon
 
 ![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/distance_field.png)
