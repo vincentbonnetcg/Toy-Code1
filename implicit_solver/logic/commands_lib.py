@@ -4,7 +4,7 @@
 """
 
 import lib.objects as objects
-from lib.common import profiler
+import lib.common as cm
 
 def set_render_prefs(obj, prefs):
     '''
@@ -28,7 +28,7 @@ def add_dynamic(scene, shape, node_mass):
     scene.add_dynamic(dynamic)
     return dynamic
 
-@profiler.timeit
+@cm.timeit
 def solve_to_next_frame(scene, solver, context):
     '''
     Solve the scene and move to the next frame

@@ -8,10 +8,9 @@ import scipy
 import scipy.sparse
 import scipy.sparse.linalg
 
-from lib.common import profiler
+import lib.common as cm
 import lib.common.node_accessor as na
 import lib.common.code_gen as generate
-from lib.common.sparse_matrix import BSRSparseMatrix
 import lib.objects.components as cpn
 
 class TimeIntegrator:
@@ -71,7 +70,7 @@ class ImplicitSolver(TimeIntegrator):
         self.A = None
         self.b = None
 
-    @profiler.timeit
+    @cm.timeit
     def prepare_system(self, scene, dt):
         # Reset forces
         for dynamic in scene.dynamics:
@@ -90,7 +89,7 @@ class ImplicitSolver(TimeIntegrator):
         for condition in scene.conditions:
             condition.apply_forces(scene.dynamics)
 
-    @profiler.timeit
+    @cm.timeit
     def assemble_system(self, scene, dt):
         '''
         Assemble the system (Ax=b) where x is the unknow change of velocity
@@ -98,7 +97,7 @@ class ImplicitSolver(TimeIntegrator):
         self._assemble_A(scene, dt)
         self._assemble_b(scene, dt)
 
-    @profiler.timeit
+    @cm.timeit
     def solve_system(self, scene, dt):
         if (scene.num_nodes() == 0):
             return
@@ -109,7 +108,7 @@ class ImplicitSolver(TimeIntegrator):
         # Advect
         self._advect(scene, delta_v, dt)
 
-    @profiler.timeit
+    @cm.timeit
     def _assemble_A(self, scene, dt):
         '''
         Assemble A = (M - (h * df/dv + h^2 * df/dx))
@@ -120,7 +119,7 @@ class ImplicitSolver(TimeIntegrator):
 
         num_rows = total_nodes
         num_columns = total_nodes
-        A = BSRSparseMatrix(num_rows, num_columns, 2)
+        A = cm.BSRSparseMatrix(num_rows, num_columns, 2)
 
         # Set mass matrix
         for dynamic in scene.dynamics:
@@ -150,7 +149,7 @@ class ImplicitSolver(TimeIntegrator):
         # convert sparse matrix
         self.A = A.sparse_matrix()
 
-    @profiler.timeit
+    @cm.timeit
     def _assemble_b(self, scene, dt):
         '''
         Assemble b = h *( f0 + h * df/dx * v0)
@@ -182,7 +181,7 @@ class ImplicitSolver(TimeIntegrator):
                         b_offset = na.node_global_index(ids[fi]) * 2
                         self.b[b_offset:b_offset+2] += vec
 
-    @profiler.timeit
+    @cm.timeit
     def _advect(self, scene, delta_v, dt):
         advect(scene.dynamics, delta_v, dt)
 
@@ -192,7 +191,7 @@ class SemiImplicitSolver(TimeIntegrator):
     def __init__(self):
         Solver.__init__(self)
 
-    @profiler.timeit
+    @cm.timeit
     def prepare_system(self, scene, dt):
         # Reset forces
         for dynamic in scene.dynamics:
@@ -207,11 +206,11 @@ class SemiImplicitSolver(TimeIntegrator):
             condition.compute_forces(scene)
             condition.apply_forces(scene.dynamics)
 
-    @profiler.timeit
+    @cm.timeit
     def assemble_system(self, scene, dt):
         pass
 
-    @profiler.timeit
+    @cm.timeit
     def solve_system(self, scene, dt):
         # Integrator
         for dynamic in scene.dynamics:

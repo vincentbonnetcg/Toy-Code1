@@ -5,11 +5,11 @@
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from matplotlib.collections import LineCollection
+import matplotlib.collections as collections
 
-from lib.common import profiler
+import lib.common as cm
 import lib.common.node_accessor as na
-from lib.system.scene import Scene
+import lib.system as system
 
 import numpy as np
 
@@ -43,7 +43,7 @@ class Render:
         '''
         self.render_folder_path = path
 
-    def render_scene(self, scene : Scene, frame_id):
+    def render_scene(self, scene : system.Scene, frame_id):
         '''
         Render the scene into a figue
         '''
@@ -85,7 +85,7 @@ class Render:
                         points.append(x)
                     segs.append(points)
 
-            line_segments = LineCollection(segs,
+            line_segments = collections.LineCollection(segs,
                                            linewidths=render_prefs['width'],
                                            colors=render_prefs['color'],
                                            linestyles=render_prefs['style'],
@@ -138,7 +138,7 @@ class Render:
             plt.colorbar()
         plt.show()
 
-    @profiler.timeit
+    @cm.timeit
     def show_current_frame(self, dispatcher, frame_id):
         '''
         Display the current frame
@@ -149,7 +149,7 @@ class Render:
         self.render_scene(scene, frame_id)
         #self.render_sparse_matrix(solver, frameId)
 
-    @profiler.timeit
+    @cm.timeit
     def export_current_frame(self, filename):
         '''
         Export current frame into an image file

@@ -4,8 +4,7 @@
 """
 
 
-
-from lib.common import profiler
+import lib.common as cm
 
 class Context:
     '''
@@ -19,6 +18,14 @@ class Context:
         self.num_substep = num_substep # number of substep per frame
         self.dt = frame_dt / num_substep # simulation substep (in seconds)
         self.num_frames = num_frames # number of simulated frame (doesn't include initial frame)
+
+class SolverDetails:
+    '''
+    List of datablocks - WIP
+    '''
+    def __init__(self):
+        self.dynamics_db = [] # dynamic objects
+        self.conditions_db = [] # dynamic objects
 
 class Solver:
     '''
@@ -34,7 +41,7 @@ class Solver:
         scene.init_kinematics(context.start_time)
         scene.init_conditions()
 
-    @profiler.timeit
+    @cm.timeit
     def solve_step(self, scene, context):
         '''
         Solve a single step (pre/step/post)
@@ -43,18 +50,19 @@ class Solver:
         self._step(scene, context)
         self._post_step(scene, context)
 
-    @profiler.timeit
+    @cm.timeit
     def _pre_step(self, scene, context):
         scene.update_kinematics(context.time, context.dt)
         scene.update_conditions()
 
-    @profiler.timeit
+    @cm.timeit
     def _step(self, scene, context):
+        # TODO : convert solver into solverDetails
         if self.time_integrator:
             self.time_integrator.prepare_system(scene, context.dt)
             self.time_integrator.assemble_system(scene, context.dt)
             self.time_integrator.solve_system(scene, context.dt)
 
-    @profiler.timeit
+    @cm.timeit
     def _post_step(self, scene, context):
         pass
