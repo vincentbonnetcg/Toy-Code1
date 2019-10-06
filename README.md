@@ -67,7 +67,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ![LBM](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/lattice_boltzmann_placeholder.png)<br>
 
 ## . Inverse Kinematics
-**File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/inverseKinematics_withJacobian.py)<br>
+**File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/inverseKinematics_withJacobian.py)<br>
 **Description** Implementation of inverse kinematics using pseudo-inverse of a jacobian matrix
 - Assemble Numerical/Analytic Jacobian matrix (using central difference)
 - Solve system with Pseudo-Inverse or Damped Least Squares method
@@ -77,7 +77,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 [1] Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
 
 ## . Dimensionality reduction
-**File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimalTransformation_covarianceMatrix.py)<br>
+**File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/optimalTransformation_covarianceMatrix.py)<br>
 **Description** Optimal rigid transformation by using Principal Component Analysis (Eigen Decomposition)
 - Compute Covariance Matrix from point cloud
 
@@ -97,7 +97,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 [2] Powell, Michael JD. "The theory of radial basis function approximation in 1990." Advances in numerical analysis (1992): 105-210.
 
 ## . Signed distance field (placeholder)
-**File** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/signed_distance_field.py)<br>
+**File** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/miscellaneous/signed_distance_field.py)<br>
 **Description** Solve Eikonal Equation to compute signed distance field from 2D-polygon
 
 ![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/distance_field.png)
@@ -109,7 +109,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ![COLOURING](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/graphColouring_greedyAlgorithm.png)
 
 ## . Local Optimisations
-**File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimisation_gradientDescent.py)<br>
+**File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/optimisation_gradientDescent.py)<br>
 **Description** Implementation of Gradient Descent for multivariable functions
 - with/without normalized step
 
@@ -117,7 +117,7 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ## . Time Integration
 
-**File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/spring1D_integrator.py)<br>
+**File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/spring1D_integrator.py)<br>
 **Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
 - Explicit Euler
 - RK2
