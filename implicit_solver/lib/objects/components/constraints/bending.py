@@ -35,7 +35,7 @@ class Bending(ConstraintBase):
         x1, v1 = na.node_xv(scene.dynamics, node_ids[1])
         x2, v2 = na.node_xv(scene.dynamics, node_ids[2])
         self.rest_angle = math2D.angle(x0, x1, x2)
-        self.node_ids = np.copy(node_ids)
+        self.node_IDs = np.copy(node_ids)
 
     @classmethod
     def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
@@ -43,7 +43,7 @@ class Bending(ConstraintBase):
         Add the force to the datablock
         '''
         for ct_block in datablock_cts.blocks:
-            node_ids_ptr = ct_block['node_ids']
+            node_ids_ptr = ct_block['node_IDs']
             rest_angle_ptr = ct_block['rest_angle']
             stiffness_ptr = ct_block['stiffness']
             force_ptr = ct_block['f']
@@ -64,7 +64,7 @@ class Bending(ConstraintBase):
         Add the force jacobian functions to the datablock
         '''
         for ct_block in datablock_cts.blocks:
-            node_ids_ptr = ct_block['node_ids']
+            node_ids_ptr = ct_block['node_IDs']
             rest_angle_ptr = ct_block['rest_angle']
             stiffness_ptr = ct_block['stiffness']
             dfdx_ptr = ct_block['dfdx']

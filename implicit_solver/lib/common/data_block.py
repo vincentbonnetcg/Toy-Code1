@@ -249,7 +249,7 @@ class DataBlock:
         object_node_id = 0
         for block_id, block_data in enumerate(self.blocks):
             block_n_elements = block_data['blockInfo_numElements']
-            node_ids = block_data['node_id']
+            node_ids = block_data['ID']
             for block_node_id in range(block_n_elements):
                 global_node_id = node_global_offset + object_node_id
                 na.set_node_id(node_ids[block_node_id], object_id, object_node_id, global_node_id, block_id, block_node_id)

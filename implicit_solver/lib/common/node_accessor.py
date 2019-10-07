@@ -63,7 +63,7 @@ def get_node_id_from_vertex_id(dynamic, vertex_id):
     Temporary - slow method
     Map node id and vertex id
     '''
-    data_node_id = dynamic.data.flatten('node_id')
+    data_node_id = dynamic.data.flatten('ID')
     for node_id in data_node_id:
         if node_id[1] == vertex_id:
             return node_id

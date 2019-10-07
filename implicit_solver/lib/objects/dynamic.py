@@ -25,7 +25,7 @@ class Dynamic:
         self.data.fill('m', node_mass)
         self.data.fill('im', 1.0 / node_mass)
         self.data.fill('f', 0.0)
-        self.data.fill('node_id', 0)
+        self.data.fill('ID', 0)
 
         # Initialize node connectivities
         self.edge_ids = np.copy(shape.edge.vertex_ids)

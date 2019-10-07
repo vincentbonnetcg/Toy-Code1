@@ -35,7 +35,7 @@ class KinematicCollisionCondition(Condition):
 
         data_x = dynamic.data.flatten('x')
         data_v = dynamic.data.flatten('v')
-        data_node_id = dynamic.data.flatten('node_id')
+        data_node_id = dynamic.data.flatten('ID')
 
         for i in range(dynamic.data.num_elements):
             node_pos = data_x[i]
@@ -75,7 +75,7 @@ class KinematicAttachmentCondition(Condition):
         springs = []
 
         data_x = dynamic.data.flatten('x')
-        data_node_id = dynamic.data.flatten('node_id')
+        data_node_id = dynamic.data.flatten('ID')
 
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
@@ -116,9 +116,9 @@ class DynamicAttachmentCondition(Condition):
         distance2 = self.distance * self.distance
 
         data_x0 = dynamic0.data.flatten('x')
-        data_node_id0 = dynamic0.data.flatten('node_id')
+        data_node_id0 = dynamic0.data.flatten('ID')
         data_x1 = dynamic1.data.flatten('x')
-        data_node_id1 = dynamic1.data.flatten('node_id')
+        data_node_id1 = dynamic1.data.flatten('ID')
 
         for i in range(dynamic0.data.num_elements):
             for j in range(dynamic1.data.num_elements):

@@ -9,7 +9,7 @@ from lib.system.scene import Scene
 
 def apply_constraint_forces(constraint_blocks, dynamics):
     for constraint_data in constraint_blocks:
-        node_ids_ptr = constraint_data['node_ids']
+        node_ids_ptr = constraint_data['node_IDs']
         force_ptr = constraint_data['f']
         block_n_elements = constraint_data['blockInfo_numElements']
         for ct_index in range(block_n_elements):

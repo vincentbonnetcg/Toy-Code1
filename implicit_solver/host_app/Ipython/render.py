@@ -75,7 +75,7 @@ class Render:
                 continue
 
             segs = []
-            node_ids = condition.data.flatten('node_ids')
+            node_ids = condition.data.flatten('node_IDs')
             for ct_index in range(num_constraints):
                 num_nodes = len(node_ids[ct_index])
                 if num_nodes == 2:

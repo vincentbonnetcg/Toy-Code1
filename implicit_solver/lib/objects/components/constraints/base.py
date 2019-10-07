@@ -17,7 +17,7 @@ class ConstraintBase:
         self.damping = np.float64(0.0)
 
         # Node ids involved in the constraint
-        self.node_ids = na.empty_node_ids(num_nodes)
+        self.node_IDs = na.empty_node_ids(num_nodes)
 
         # Precomputed forces/jacobians.
         self.f = np.zeros((num_nodes, 2), dtype = np.float64)

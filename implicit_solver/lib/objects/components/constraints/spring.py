@@ -33,13 +33,13 @@ class AnchorSpring(ConstraintBase):
         self.kinematic_index = kinematic.index
         self.kinematic_component_index =  kinematic_parametric_point.index
         self.kinematic_component_param = kinematic_parametric_point.t
-        self.node_ids = np.copy([node_id])
+        self.node_IDs = np.copy([node_id])
 
     @classmethod
     def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         for ct_block in datablock_cts.blocks:
             kinematic_vel = np.zeros(2)
-            node_ids_ptr = ct_block['node_ids']
+            node_ids_ptr = ct_block['node_IDs']
             stiffness_ptr = ct_block['stiffness']
             damping_ptr = ct_block['damping']
             rest_length_ptr = ct_block['rest_length']
@@ -63,7 +63,7 @@ class AnchorSpring(ConstraintBase):
     def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene) -> None:
         for ct_block in datablock_cts.blocks:
             kinematic_vel = np.zeros(2)
-            node_ids_ptr = ct_block['node_ids']
+            node_ids_ptr = ct_block['node_IDs']
             stiffness_ptr = ct_block['stiffness']
             damping_ptr = ct_block['damping']
             rest_length_ptr = ct_block['rest_length']
@@ -100,7 +100,7 @@ class Spring(ConstraintBase):
         x0, v0 = na.node_xv(scene.dynamics, node_ids[0])
         x1, v1 = na.node_xv(scene.dynamics, node_ids[1])
         self.rest_length = math2D.distance(x0, x1)
-        self.node_ids = np.copy(node_ids)
+        self.node_IDs = np.copy(node_ids)
 
     @classmethod
     def compute_forces(cls, datablock_cts : DataBlock, scene : Scene) -> None:
@@ -108,7 +108,7 @@ class Spring(ConstraintBase):
         Add the force to the datablock
         '''
         for ct_block in datablock_cts.blocks:
-            node_ids_ptr = ct_block['node_ids']
+            node_ids_ptr = ct_block['node_IDs']
             rest_length_ptr = ct_block['rest_length']
             stiffness_ptr = ct_block['stiffness']
             damping_ptr = ct_block['damping']
@@ -130,7 +130,7 @@ class Spring(ConstraintBase):
         Add the force jacobian functions to the datablock
         '''
         for ct_block in datablock_cts.blocks:
-            node_ids_ptr = ct_block['node_ids']
+            node_ids_ptr = ct_block['node_IDs']
             rest_length_ptr = ct_block['rest_length']
             stiffness_ptr = ct_block['stiffness']
             damping_ptr = ct_block['damping']

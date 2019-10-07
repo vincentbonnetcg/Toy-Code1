@@ -32,14 +32,14 @@ Vectorized functions
 '''
 @generate.as_vectorized
 def advect(node : cpn.Node, delta_vs, dt):
-    node_index = na.node_global_index(node.node_id)
+    node_index = na.node_global_index(node.ID)
     delta_v = delta_vs[node_index]
     node.x += (node.v + delta_v) * dt
     node.v += delta_v
 
 @generate.as_vectorized
 def assemble_b__fo_h(node : cpn.Node, b, dt):
-    offset = na.node_global_index(node.node_id) * 2
+    offset = na.node_global_index(node.ID) * 2
     b[offset:offset+2] += node.f * dt
 
 #@generate.as_vectorized
@@ -124,7 +124,7 @@ class ImplicitSolver(TimeIntegrator):
         # Set mass matrix
         for dynamic in scene.dynamics:
             data_m = dynamic.data.flatten('m')
-            data_node_id = dynamic.data.flatten('node_id')
+            data_node_id = dynamic.data.flatten('ID')
             for i in range(dynamic.num_nodes()):
                 mass_matrix = np.zeros((2,2))
                 np.fill_diagonal(mass_matrix, data_m[i])
@@ -133,7 +133,7 @@ class ImplicitSolver(TimeIntegrator):
 
         # Substract (h * df/dv + h^2 * df/dx)
         for condition in scene.conditions:
-            data_node_ids = condition.data.flatten('node_ids')
+            data_node_ids = condition.data.flatten('node_IDs')
             data_dfdv = condition.data.flatten('dfdv')
             data_dfdx = condition.data.flatten('dfdx')
             for cid in range(condition.num_constraints()):
@@ -169,7 +169,7 @@ class ImplicitSolver(TimeIntegrator):
 
         # add (df/dx * v0 * h * h)
         for condition in scene.conditions:
-            data_node_ids = condition.data.flatten('node_ids')
+            data_node_ids = condition.data.flatten('node_IDs')
             data_dfdx = condition.data.flatten('dfdx')
             for cid in range(condition.num_constraints()):
                 ids = data_node_ids[cid]
