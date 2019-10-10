@@ -31,39 +31,42 @@ class BSRSparseMatrix(BaseSparseMatrix):
     '''
     def __init__(self, num_rows, num_columns, block_size):
         BaseSparseMatrix.__init__(self, num_rows, num_columns, block_size)
-        self.num_entries_per_row = np.zeros(num_columns, dtype=int)
-        self.coordinates_indices = [None] * num_rows
-        for row_id in range(num_rows):
-            self.coordinates_indices[row_id] = {}
-        self.total_entries = 0
-        self.min_entry_index = num_rows * num_columns
+        self.dict_indices = [None] * self.num_rows
+        for i in range(self.num_rows):
+            self.dict_indices[i] = {}
 
     def add(self, i, j, data):
-        value = self.coordinates_indices[i].get(j, None)
+        value = self.dict_indices[i].get(j, None)
         if value is None:
-            self.coordinates_indices[i][j] = data
-            self.num_entries_per_row[i] += 1
-            self.total_entries += 1
+            self.dict_indices[i][j] = data
         else:
             value += data
 
-        index = i * self.num_columns + j
-        if index < self.min_entry_index:
-            self.min_entry_index = index
+    def get_num_entries_per_row(self):
+        num_entries_per_row = np.zeros(self.num_columns, dtype=int)
+        for row_id in range(self.num_rows):
+            num_entries_per_row[row_id] = len(self.dict_indices[row_id])
+
+        return num_entries_per_row
 
     def sparse_matrix(self):
-        column_indices = np.zeros(self.total_entries, dtype=int)
-        data = np.zeros((self.total_entries, self.block_size, self.block_size))
+        num_entries_per_row = self.get_num_entries_per_row()
+        total_entries = np.sum(num_entries_per_row)
+        min_entry_index = 0 # an entry exists in [0,0] due to mass matrix
+
+        # allocate the sparse matrix
+        column_indices = np.zeros(total_entries, dtype=int)
+        data = np.zeros((total_entries, self.block_size, self.block_size))
         idx = 0
         for row_id in range(self.num_rows):
-            for column_id, matrix in sorted(self.coordinates_indices[row_id].items()):
+            for column_id, matrix in sorted(self.dict_indices[row_id].items()):
                 column_indices[idx] = column_id
                 data[idx] = matrix
                 idx += 1
 
         row_indptr = np.zeros(self.num_rows+1, dtype=int)
-        row_indptr[0] = self.min_entry_index
-        np.add.accumulate(self.num_entries_per_row, out=row_indptr[1:self.num_rows+1])
+        row_indptr[0] = min_entry_index
+        np.add.accumulate(num_entries_per_row, out=row_indptr[1:self.num_rows+1])
 
         return sc.sparse.bsr_matrix((data, column_indices, row_indptr))
 
