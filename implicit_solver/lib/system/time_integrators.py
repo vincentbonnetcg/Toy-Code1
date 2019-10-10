@@ -94,6 +94,9 @@ class ImplicitSolver(TimeIntegrator):
         '''
         Assemble the system (Ax=b) where x is the unknow change of velocity
         '''
+        if (scene.num_nodes() == 0):
+            return
+
         self._assemble_A(scene, dt)
         self._assemble_b(scene, dt)
 
@@ -101,6 +104,7 @@ class ImplicitSolver(TimeIntegrator):
     def solve_system(self, scene, dt):
         if (scene.num_nodes() == 0):
             return
+
         # Solve the system (Ax=b) and reshape the conjugate gradient result
         # In this case, the reshape operation is not causing any reallocation
         cg_result = scipy.sparse.linalg.cg(self.A, self.b)
@@ -114,8 +118,6 @@ class ImplicitSolver(TimeIntegrator):
         Assemble A = (M - (h * df/dv + h^2 * df/dx))
         '''
         total_nodes = scene.num_nodes()
-        if (total_nodes == 0):
-            return
 
         num_rows = total_nodes
         num_columns = total_nodes
@@ -156,9 +158,6 @@ class ImplicitSolver(TimeIntegrator):
                  b = (f0 * h) + (h^2 * df/dx * v0)
         '''
         total_nodes = scene.num_nodes()
-        if (total_nodes == 0):
-            return
-
         self.b = np.zeros(total_nodes * 2)
 
         # set (f0 * h)
