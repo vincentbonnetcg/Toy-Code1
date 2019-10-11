@@ -3,13 +3,12 @@
 @description : main
 """
 
-
+import render as rn
 import lib.common as common
 import lib.system as system
-from render import Render
-from host_app.dispatcher import CommandDispatcher
-from host_app.client import Client
-from logic import scene_examples
+import logic.scene_examples as scene_examples
+import logic.commands_lib as sim_cmds
+import host_app.rpc as rpc
 
 '''
  Global Constants
@@ -24,15 +23,18 @@ USE_REMOTE_SERVER = False # run the program locally or connect to a server
 
 def get_command_dispatcher():
     if USE_REMOTE_SERVER:
-        cmd_dispatcher = Client("Spyder")
+        cmd_dispatcher = rpc.Client("Spyder")
         cmd_dispatcher.connect_to_server()
         return cmd_dispatcher
 
-    return CommandDispatcher()
+    cmd_dispatcher = rpc.CommandDispatcher()
+    cmd_dispatcher.register_cmd(sim_cmds.initialize)
+    cmd_dispatcher.register_cmd(sim_cmds.solve_to_next_frame)
+    return cmd_dispatcher
 
 def main():
     # Creates render and profiler
-    render = Render()
+    render = rn.Render()
     render.set_render_folder_path(RENDER_FOLDER_PATH)
     profiler = common.Profiler()
 

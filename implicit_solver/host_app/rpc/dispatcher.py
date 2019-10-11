@@ -28,6 +28,9 @@ class CommandDispatcher:
         self._object_dict[unique_id] = obj
         return unique_id
 
+    def register_cmd(self, cmd):
+        print('placeholder to register ', cmd)
+
     def run(self, command_name, **kwargs):
         '''
         Execute functions from system.commands
@@ -51,10 +54,11 @@ class CommandDispatcher:
                     'add_dynamic_attachment' : subclass_cmds.add_dynamic_attachment,
                     'add_gravity' : subclass_cmds.add_gravity,
                     'set_render_prefs' : sim_cmds.set_render_prefs}
+        # TODO : hardcoded - to be removed
         if (command_name == 'set_context'):
             self._context = kwargs['context']
             result = True
-        if (command_name == 'get_context'):
+        elif (command_name == 'get_context'):
             result = self._context
         elif (command_name == 'get_scene'):
             result = self._scene
@@ -108,6 +112,12 @@ class CommandDispatcher:
             obj = self._object_dict[kwargs['obj']]
             dispatch[command_name](obj, kwargs['prefs'])
         else:
+
+            # TODO - check if registered ?
+
+
+
+
             assert("The command  " + command_name + " is not recognized !")
 
         return result

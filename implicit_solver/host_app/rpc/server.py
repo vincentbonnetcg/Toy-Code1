@@ -10,11 +10,10 @@
 '''
 import os
 import sys
-parentdir = os.path.dirname(os.path.dirname(__file__))
+parentdir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(parentdir)
 
-
-from host_app.dispatcher import CommandDispatcher
+import host_app.rpc as rpc
 from multiprocessing.managers import SyncManager
 from multiprocessing import Queue
 
@@ -36,7 +35,7 @@ JobQueueManager.register('get_result_queue', callable=function_result_queue)
 '''
  Global Dispatcher
 '''
-global_dispatcher = CommandDispatcher();
+global_dispatcher = rpc.CommandDispatcher();
 
 def execute_server(print_log = True, port=8013, authkey='12345'):
     '''

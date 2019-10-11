@@ -1,6 +1,6 @@
 """
 @author: Vincent Bonnet
-@description : Run Client to be executed on another process
+@description : Client implementation to communicates with the server
 """
 
 from multiprocessing.managers import SyncManager
