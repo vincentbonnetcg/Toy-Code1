@@ -26,7 +26,7 @@ class Client:
     def is_connected(self):
         return self._manager is not None
 
-    def connect_to_server(self, ip="127.0.0.1", port=8080, authkey='12345'):
+    def connect_to_server(self, ip="127.0.0.1", port=8013, authkey='12345'):
         try:
             self._manager = ServerQueueManager(address=(ip, port), authkey=bytes(authkey,encoding='utf8'))
             self._manager.connect()

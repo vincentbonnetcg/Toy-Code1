@@ -38,7 +38,7 @@ JobQueueManager.register('get_result_queue', callable=function_result_queue)
 '''
 global_dispatcher = CommandDispatcher();
 
-def execute_server(print_log = True, port=8080, authkey='12345'):
+def execute_server(print_log = True, port=8013, authkey='12345'):
     '''
     Launch Server
     '''
