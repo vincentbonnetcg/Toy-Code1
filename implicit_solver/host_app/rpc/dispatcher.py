@@ -36,6 +36,19 @@ class CommandDispatcher:
     def register_cmd(self, cmd):
         self._commands[cmd.__name__] = cmd
 
+    def __convert_parameter(self, parameter_name):
+        if parameter_name == 'scene':
+            return self._scene
+        elif parameter_name == 'solver':
+            return self._solver
+        elif parameter_name == 'context':
+            return self._context
+
+        raise ValueError("The parameter  " + parameter_name + " is not recognized.'")
+
+        return None
+
+
     def run(self, command_name, **kwargs):
         '''
         Execute functions from system.commands
@@ -112,13 +125,18 @@ class CommandDispatcher:
             obj = self._object_dict[kwargs['obj']]
             dispatch[command_name](obj, kwargs['prefs'])
         else:
-            # registered command
+            # use registered command
             # TODO : for now only support (scene, solver, context)
             if command_name in self._commands:
                 function = self._commands[command_name]
-                #function_signature = inspect.signature(function)
-                function_args = (self._scene, self._solver, self._context)
-                function(*function_args)
+                function_signature = inspect.signature(function)
+                function_args = {}
+                for param_name in function_signature.parameters:
+                    #param_obj = function_signature.parameters[param_name]
+                    param_value = self.__convert_parameter(param_name)
+                    function_args[param_name] = param_value
+
+                function(**function_args)
             else:
                 raise ValueError("The command  " + command_name + " is not recognized.'")
 
