@@ -7,16 +7,21 @@ import lib.system as system
 import logic.commands_lib as sim_cmds
 import logic.commands_subclass as subclass_cmds
 import uuid
+import inspect
 
 class CommandDispatcher:
     '''
     Dispatch commands to manage objects (animators, conditions, dynamics, kinematics, forces)
     '''
     def __init__(self):
+        # data
         self._scene = system.Scene()
         self._solver = system.Solver(system.ImplicitSolver())
         self._context = system.Context()
-        self._object_dict = {} # map hash_value with object
+        # map hash_value with object
+        self._object_dict = {}
+        # list of registered commands
+        self._commands = {}
 
     def is_defined(self):
         if self._scene and self._solver and self._context:
@@ -29,7 +34,7 @@ class CommandDispatcher:
         return unique_id
 
     def register_cmd(self, cmd):
-        print('placeholder to register ', cmd)
+        self._commands[cmd.__name__] = cmd
 
     def run(self, command_name, **kwargs):
         '''
@@ -41,9 +46,7 @@ class CommandDispatcher:
                     'get_context' : None,
                     'get_scene' : None,
                     'get_dynamic_handles' : None,
-                    'initialize' : sim_cmds.initialize,
                     'reset_scene' : None,
-                    'solve_to_next_frame' : sim_cmds.solve_to_next_frame,
                     'add_dynamic' : sim_cmds.add_dynamic,
                     'add_kinematic' : sim_cmds.add_kinematic,
                     'add_edge_constraint' : subclass_cmds.add_edge_constraint,
@@ -70,9 +73,6 @@ class CommandDispatcher:
                         result.append(k)
         elif (command_name == 'reset_scene'):
             self._scene = system.Scene()
-        elif (command_name == 'initialize' or
-              command_name == 'solve_to_next_frame'):
-            dispatch[command_name](self._scene, self._solver, self._context)
         elif (command_name == 'add_dynamic' or
               command_name == 'add_kinematic'):
             new_obj = dispatch[command_name](self._scene, **kwargs)
@@ -112,12 +112,14 @@ class CommandDispatcher:
             obj = self._object_dict[kwargs['obj']]
             dispatch[command_name](obj, kwargs['prefs'])
         else:
-
-            # TODO - check if registered ?
-
-
-
-
-            assert("The command  " + command_name + " is not recognized !")
+            # registered command
+            # TODO : for now only support (scene, solver, context)
+            if command_name in self._commands:
+                function = self._commands[command_name]
+                #function_signature = inspect.signature(function)
+                function_args = (self._scene, self._solver, self._context)
+                function(*function_args)
+            else:
+                raise ValueError("The command  " + command_name + " is not recognized.'")
 
         return result

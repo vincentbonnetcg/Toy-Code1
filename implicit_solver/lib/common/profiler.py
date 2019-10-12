@@ -3,6 +3,7 @@
 @description : Simple profiler to benchmark code
 """
 
+import functools
 import time
 
 class Profiler(object):
@@ -57,6 +58,7 @@ def timeit(method):
     '''
     timeit decorator
     '''
+    @functools.wraps(method)
     def execute(*args, **kwargs):
         profiler = Profiler()
         log = profiler.push_log(method.__name__)
