@@ -8,6 +8,7 @@ import lib.common as common
 import lib.system as system
 import logic.scene_examples as scene_examples
 import logic.commands_lib as sim_cmds
+import logic.commands_subclass as subclass_cmds
 import host_app.rpc as rpc
 
 '''
@@ -29,7 +30,11 @@ def get_command_dispatcher():
 
     cmd_dispatcher = rpc.CommandDispatcher()
     cmd_dispatcher.register_cmd(sim_cmds.initialize)
+    cmd_dispatcher.register_cmd(sim_cmds.add_dynamic)
+    cmd_dispatcher.register_cmd(sim_cmds.add_kinematic)
     cmd_dispatcher.register_cmd(sim_cmds.solve_to_next_frame)
+    cmd_dispatcher.register_cmd(subclass_cmds.add_gravity)
+
     return cmd_dispatcher
 
 def main():
@@ -47,8 +52,8 @@ def main():
 
     cmd_dispatcher.run("set_context", context = context)
     #scene_examples.init_cat_scene(cmd_dispatcher, render)
-    #scene_examples.init_beam_example(cmd_dispatcher, render)
-    scene_examples.init_wire_example(cmd_dispatcher, render)
+    scene_examples.init_beam_example(cmd_dispatcher, render)
+    #scene_examples.init_wire_example(cmd_dispatcher, render)
 
     # Simulate frames
     for frame_id in range(context.num_frames+1):
