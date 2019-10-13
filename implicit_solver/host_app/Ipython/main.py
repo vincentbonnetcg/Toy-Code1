@@ -37,6 +37,9 @@ def get_command_dispatcher():
     cmd_dispatcher.register_cmd(subclass_cmds.add_edge_constraint)
     cmd_dispatcher.register_cmd(subclass_cmds.add_wire_bending_constraint)
     cmd_dispatcher.register_cmd(subclass_cmds.add_face_constraint)
+    cmd_dispatcher.register_cmd(subclass_cmds.add_kinematic_attachment)
+    cmd_dispatcher.register_cmd(subclass_cmds.add_kinematic_collision)
+    cmd_dispatcher.register_cmd(subclass_cmds.add_dynamic_attachment)
 
     return cmd_dispatcher
 

@@ -8,7 +8,6 @@
 import lib.system as system
 import lib.objects as lib_objects
 import logic.commands_lib as sim_cmds # TODO - remove
-import logic.commands_subclass as subclass_cmds # TODO - remove
 import uuid
 import inspect
 
@@ -43,9 +42,9 @@ class CommandDispatcher:
         # parameter provided by user
         if parameter_name in kwargs:
             if parameter_name.startswith('dynamic'):
-                return self._object_dict[kwargs['dynamic']]
+                return self._object_dict[kwargs[parameter_name]]
             elif parameter_name.startswith('kinematic'):
-                return self._object_dict[kwargs['kinematic']]
+                return self._object_dict[kwargs[parameter_name]]
 
             return kwargs[parameter_name]
 
@@ -82,9 +81,6 @@ class CommandDispatcher:
                     'get_scene' : None,
                     'get_dynamic_handles' : None,
                     'reset_scene' : None,
-                    'add_kinematic_attachment' : subclass_cmds.add_kinematic_attachment,
-                    'add_kinematic_collision' : subclass_cmds.add_kinematic_collision,
-                    'add_dynamic_attachment' : subclass_cmds.add_dynamic_attachment,
                     'set_render_prefs' : sim_cmds.set_render_prefs}
         # TODO : hardcoded - to be removed
         if (command_name == 'set_context'):
@@ -102,29 +98,6 @@ class CommandDispatcher:
                         result.append(k)
         elif (command_name == 'reset_scene'):
             self._scene = system.Scene()
-        elif (command_name == 'add_kinematic_attachment'):
-            dyn_obj = self._object_dict[kwargs['dynamic']]
-            kin_obj = self._object_dict[kwargs['kinematic']]
-            new_obj = dispatch[command_name](self._scene, dyn_obj, kin_obj,
-                                                          kwargs['stiffness'],
-                                                          kwargs['damping'],
-                                                          kwargs['distance'])
-            result = self.__add_object(new_obj)
-        elif (command_name == 'add_dynamic_attachment'):
-            dyn0_obj = self._object_dict[kwargs['dynamic0']]
-            dyn1_obj = self._object_dict[kwargs['dynamic1']]
-            new_obj = dispatch[command_name](self._scene, dyn0_obj, dyn1_obj,
-                                                          kwargs['stiffness'],
-                                                          kwargs['damping'],
-                                                          kwargs['distance'])
-            result = self.__add_object(new_obj)
-        elif (command_name == 'add_kinematic_collision'):
-            dyn_obj = self._object_dict[kwargs['dynamic']]
-            kin_obj = self._object_dict[kwargs['kinematic']]
-            new_obj = dispatch[command_name](self._scene, dyn_obj, kin_obj,
-                                                          kwargs['stiffness'],
-                                                          kwargs['damping'])
-            result = self.__add_object(new_obj)
         elif (command_name == 'set_render_prefs'):
             obj = self._object_dict[kwargs['obj']]
             dispatch[command_name](obj, kwargs['prefs'])
