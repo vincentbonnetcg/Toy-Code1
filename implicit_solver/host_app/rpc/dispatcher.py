@@ -7,7 +7,6 @@
 # dispatcher should not be aware of the solver libraries (lib.*)
 import lib.system as system
 import lib.objects as lib_objects
-import logic.commands_lib as sim_cmds # TODO - remove
 import uuid
 import inspect
 
@@ -41,10 +40,9 @@ class CommandDispatcher:
     def __convert_parameter(self, parameter_name, kwargs):
         # parameter provided by user
         if parameter_name in kwargs:
-            if parameter_name.startswith('dynamic'):
-                return self._object_dict[kwargs[parameter_name]]
-            elif parameter_name.startswith('kinematic'):
-                return self._object_dict[kwargs[parameter_name]]
+            arg_object = kwargs[parameter_name]
+            if isinstance(arg_object, uuid.UUID):
+                return self._object_dict[arg_object]
 
             return kwargs[parameter_name]
 
@@ -74,15 +72,21 @@ class CommandDispatcher:
         '''
         Execute functions from system.commands
         '''
-        result = None
+        # use registered command
+        if command_name in self._commands:
+            function = self._commands[command_name]
+            function_signature = inspect.signature(function)
+            function_args = {}
+            for param_name in function_signature.parameters:
+                #param_obj = function_signature.parameters[param_name]
+                param_value = self.__convert_parameter(param_name, kwargs)
+                function_args[param_name] = param_value
 
-        dispatch = {'set_context' : None,
-                    'get_context' : None,
-                    'get_scene' : None,
-                    'get_dynamic_handles' : None,
-                    'reset_scene' : None,
-                    'set_render_prefs' : sim_cmds.set_render_prefs}
+            function_result = function(**function_args)
+            return self.__process_result(function_result)
+
         # TODO : hardcoded - to be removed
+        result = None
         if (command_name == 'set_context'):
             self._context = kwargs['context']
             result = True
@@ -98,24 +102,7 @@ class CommandDispatcher:
                         result.append(k)
         elif (command_name == 'reset_scene'):
             self._scene = system.Scene()
-        elif (command_name == 'set_render_prefs'):
-            obj = self._object_dict[kwargs['obj']]
-            dispatch[command_name](obj, kwargs['prefs'])
         else:
-            # use registered command
-            if command_name in self._commands:
-                function = self._commands[command_name]
-                function_signature = inspect.signature(function)
-                function_args = {}
-                for param_name in function_signature.parameters:
-                    #param_obj = function_signature.parameters[param_name]
-                    param_value = self.__convert_parameter(param_name, kwargs)
-                    function_args[param_name] = param_value
-
-                function_result = function(**function_args)
-                result = self.__process_result(function_result)
-                #print(command_name, result) # TODO - remove that
-            else:
-                raise ValueError("The command  " + command_name + " is not recognized.'")
+            raise ValueError("The command  " + command_name + " is not recognized.'")
 
         return result
