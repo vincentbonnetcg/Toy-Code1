@@ -34,6 +34,9 @@ def get_command_dispatcher():
     cmd_dispatcher.register_cmd(sim_cmds.add_kinematic)
     cmd_dispatcher.register_cmd(sim_cmds.solve_to_next_frame)
     cmd_dispatcher.register_cmd(subclass_cmds.add_gravity)
+    cmd_dispatcher.register_cmd(subclass_cmds.add_edge_constraint)
+    cmd_dispatcher.register_cmd(subclass_cmds.add_wire_bending_constraint)
+    cmd_dispatcher.register_cmd(subclass_cmds.add_face_constraint)
 
     return cmd_dispatcher
 
