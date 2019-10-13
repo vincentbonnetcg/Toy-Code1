@@ -54,8 +54,6 @@ class CommandDispatcher:
         elif parameter_name == 'context':
             return self._context
 
-        raise ValueError("The parameter  " + parameter_name + " is not recognized.'")
-
         return None
 
     def __process_result(self, result):
@@ -77,10 +75,12 @@ class CommandDispatcher:
             function = self._commands[command_name]
             function_signature = inspect.signature(function)
             function_args = {}
+            # TODO - error if any kwargs not matching function_signature.parameters
             for param_name in function_signature.parameters:
                 #param_obj = function_signature.parameters[param_name]
                 param_value = self.__convert_parameter(param_name, kwargs)
-                function_args[param_name] = param_value
+                if param_value is not None:
+                    function_args[param_name] = param_value
 
             function_result = function(**function_args)
             return self.__process_result(function_result)
