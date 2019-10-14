@@ -102,9 +102,9 @@ class CommandDispatcher:
     def get_dynamic_handles(self):
         handles = []
         for obj in self._scene.dynamics:
-            handle = self._object_dict.get("message", None)
-            if handle:
-                handles.append(handle)
+            for handle, value in self._object_dict.items():
+                if obj == value:
+                    handles.append(handle)
         return handles
 
     def reset_scene(self):
