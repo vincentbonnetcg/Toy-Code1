@@ -24,18 +24,20 @@ class CommandDispatcher:
         # list of registered commands
         self._commands = {}
 
-    def is_defined(self):
-        if self._scene and self._solver and self._context:
-            return True
-        return False
+        # register
+        self.register_cmd(self.set_context)
+        self.register_cmd(self.get_context)
+        self.register_cmd(self.get_scene)
+        self.register_cmd(self.get_dynamic_handles)
+        self.register_cmd(self.reset_scene)
+
+    def register_cmd(self, cmd):
+        self._commands[cmd.__name__] = cmd
 
     def __add_object(self, obj):
         unique_id = uuid.uuid4()
         self._object_dict[unique_id] = obj
         return unique_id
-
-    def register_cmd(self, cmd):
-        self._commands[cmd.__name__] = cmd
 
     def __convert_parameter(self, parameter_name, kwargs):
         # parameter provided by user
@@ -76,6 +78,7 @@ class CommandDispatcher:
             function_signature = inspect.signature(function)
             function_args = {}
             # TODO - error if any kwargs not matching function_signature.parameters
+            # TODO - raise ValueError("The kwargs doesn't  match function signature.'")
             for param_name in function_signature.parameters:
                 #param_obj = function_signature.parameters[param_name]
                 param_value = self.__convert_parameter(param_name, kwargs)
@@ -85,24 +88,25 @@ class CommandDispatcher:
             function_result = function(**function_args)
             return self.__process_result(function_result)
 
-        # TODO : hardcoded - to be removed
-        result = None
-        if (command_name == 'set_context'):
-            self._context = kwargs['context']
-            result = True
-        elif (command_name == 'get_context'):
-            result = self._context
-        elif (command_name == 'get_scene'):
-            result = self._scene
-        elif (command_name == 'get_dynamic_handles'):
-            result = []
-            for obj in self._scene.dynamics:
-                for k, v in self._object_dict.items():
-                    if obj == v:
-                        result.append(k)
-        elif (command_name == 'reset_scene'):
-            self._scene = system.Scene()
-        else:
-            raise ValueError("The command  " + command_name + " is not recognized.'")
+        raise ValueError("The command  " + command_name + " is not recognized.'")
 
-        return result
+    def set_context(self, context):
+        self._context = context
+
+    def get_context(self):
+        return self._context
+
+    def get_scene(self):
+        return self._scene
+
+    def get_dynamic_handles(self):
+        handles = []
+        for obj in self._scene.dynamics:
+            handle = self._object_dict.get("message", None)
+            if handle:
+                handles.append(handle)
+        return handles
+
+    def reset_scene(self):
+        self._scene = system.Scene()
+
