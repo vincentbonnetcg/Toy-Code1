@@ -7,8 +7,6 @@ import render as rn
 import lib.common as common
 import lib.system as system
 import logic.scene_examples as scene_examples
-import logic.commands_lib as sim_cmds
-import logic.commands_subclass as subclass_cmds
 import host_app.rpc as rpc
 
 '''
@@ -28,20 +26,7 @@ def get_command_dispatcher():
         cmd_dispatcher.connect_to_server()
         return cmd_dispatcher
 
-    cmd_dispatcher = rpc.CommandDispatcher()
-    cmd_dispatcher.register_cmd(sim_cmds.initialize)
-    cmd_dispatcher.register_cmd(sim_cmds.add_dynamic)
-    cmd_dispatcher.register_cmd(sim_cmds.add_kinematic)
-    cmd_dispatcher.register_cmd(sim_cmds.solve_to_next_frame)
-    cmd_dispatcher.register_cmd(sim_cmds.set_render_prefs)
-    cmd_dispatcher.register_cmd(subclass_cmds.add_gravity)
-    cmd_dispatcher.register_cmd(subclass_cmds.add_edge_constraint)
-    cmd_dispatcher.register_cmd(subclass_cmds.add_wire_bending_constraint)
-    cmd_dispatcher.register_cmd(subclass_cmds.add_face_constraint)
-    cmd_dispatcher.register_cmd(subclass_cmds.add_kinematic_attachment)
-    cmd_dispatcher.register_cmd(subclass_cmds.add_kinematic_collision)
-    cmd_dispatcher.register_cmd(subclass_cmds.add_dynamic_attachment)
-
+    cmd_dispatcher = rpc.CommandSolverDispatcher()
     return cmd_dispatcher
 
 def main():
