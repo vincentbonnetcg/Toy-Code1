@@ -35,7 +35,7 @@ JobQueueManager.register('get_result_queue', callable=function_result_queue)
 '''
  Global Dispatcher
 '''
-global_dispatcher = rpc.CommandDispatcher();
+global_dispatcher = rpc.CommandSolverDispatcher();
 
 def execute_server(print_log = True, port=8013, authkey='12345'):
     '''
