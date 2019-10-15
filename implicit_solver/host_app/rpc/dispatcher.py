@@ -3,14 +3,15 @@
 @description : Run command and bundle scene/solver/context together
 """
 
-# TODO - future work
-# dispatcher should not be aware of the solver libraries (lib.*)
+# import for CommandDispatcher
+import inspect
+
+# import for CommandSolverDispatcher
+import uuid
 import lib.system as system
 import lib.objects as lib_objects
 import logic.commands_lib as sim_cmds
 import logic.commands_subclass as subclass_cmds
-import uuid
-import inspect
 
 class CommandDispatcher:
     '''
