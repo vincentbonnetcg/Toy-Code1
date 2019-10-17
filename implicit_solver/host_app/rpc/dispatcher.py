@@ -29,15 +29,21 @@ class CommandDispatcher:
         if command_name in self._commands:
             function = self._commands[command_name]
             function_signature = inspect.signature(function)
+            # error if an argument is not matching the function signature
+            for args in kwargs:
+                if not args in function_signature.parameters:
+                    raise ValueError("The argument '" + args +
+                                     "' doesn't match the function signature from '"  + command_name + "'")
+
+            # prepare function arguments
             function_args = {}
-            # TODO - error if any kwargs not matching function_signature.parameters
-            # TODO - raise ValueError("The kwargs doesn't  match function signature.'")
             for param_name in function_signature.parameters:
                 #param_obj = function_signature.parameters[param_name]
                 param_value = self._convert_parameter(param_name, kwargs)
                 if param_value is not None:
                     function_args[param_name] = param_value
 
+            # call function
             function_result = function(**function_args)
             return self._process_result(function_result)
 
