@@ -3,10 +3,11 @@
 @description : example scenes for Unit Testing
 """
 import os
-import lib.objects as objects
 import math
-from logic import WireShape, RectangleShape, BeamShape
-import host_app.dcc_before_python3.shape_io_p2 as dcc_p2_utils
+
+import lib.objects as objects
+import logic
+import host_app.rpc.shape_io as io_utils
 
 '''
  Global Constants
@@ -39,25 +40,25 @@ def init_cat_scene(dispatcher, render):
     dispatcher.run('reset_scene')
 
     # Load Data from file
-    filename = get_resources_folder() + "cat.shape"
-    shape = dcc_p2_utils.create_shape_from_file(filename)
+    filename = get_resources_folder() + "cat.npz"
+    shape = io_utils.create_shape_from_npz_file(filename)
 
     # Create collider 0
-    anchor0_shape = RectangleShape(min_x=-5.0, min_y=4.0, max_x=4.5, max_y=5.0)
+    anchor0_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=4.5, max_y=5.0)
     anchor0_position, anchor_rotation = anchor0_shape.extract_transform_from_shape()
     anchor0_position[0] = -7
     anchor0_position[1] = -13
     anchor0_rotation = 30
 
     # Create collider 1
-    anchor1_shape = RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=4.5)
+    anchor1_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=4.5)
     anchor1_position, anchor_rotation = anchor1_shape.extract_transform_from_shape()
     anchor1_position[0] = 13
     anchor1_position[1] = -20
     anchor1_rotation = -45
 
     # Create collider 2
-    anchor2_shape = RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=4.5)
+    anchor2_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=4.5)
     anchor2_position, anchor_rotation = anchor2_shape.extract_transform_from_shape()
     anchor2_position[0] = 0
     anchor2_position[1] = -30
@@ -118,11 +119,11 @@ def init_multi_wire_example(dispatcher, render):
     wire_shapes = []
     for i in range(6):
         x = -2.0 + (i * 0.25)
-        wire_shape = WireShape([x, 1.5], [x, -1.5] , WIRE_NUM_SEGMENTS)
+        wire_shape = logic.WireShape([x, 1.5], [x, -1.5] , WIRE_NUM_SEGMENTS)
         wire_shapes.append(wire_shape)
 
     # anchor shape and animation
-    moving_anchor_shape = RectangleShape(min_x = -2.0, min_y = 1.5,
+    moving_anchor_shape = logic.RectangleShape(min_x = -2.0, min_y = 1.5,
                                               max_x = 0.0, max_y =2.0)
     moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[moving_anchor_position[0] + time,
@@ -131,7 +132,7 @@ def init_multi_wire_example(dispatcher, render):
     moving_anchor_animator = objects.Animator(func, context)
 
     # collider shape
-    collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
+    collider_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
                                        WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
     collider_position, collider_rotation = moving_anchor_shape.extract_transform_from_shape()
     collider_rotation = 45.0
@@ -184,14 +185,14 @@ def init_wire_example(dispatcher, render):
     dispatcher.run('reset_scene')
     context = dispatcher.run('get_context')
     # wire shape
-    wire_shape = WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
+    wire_shape = logic.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
 
     # collider shape
-    collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3.5,
+    collider_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3.5,
                                     WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
 
     # anchor shape and animation
-    moving_anchor_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
+    moving_anchor_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
                                               WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
 
     moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.extract_transform_from_shape()
@@ -239,22 +240,22 @@ def init_beam_example(dispatcher, render):
     dispatcher.run('reset_scene')
     context = dispatcher.run('get_context')
     # beam shape
-    beam_shape = BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
+    beam_shape = logic.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
 
     # wire shape
     wire_start_pos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
     wire_end_pos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
-    wire_shape = WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
+    wire_shape = logic.WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
 
     # left anchor shape and animation
-    left_anchor_shape = RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
+    left_anchor_shape = logic.RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
                                             BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     l_pos, l_rot = left_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], l_rot]
     l_animator = objects.Animator(func, context)
 
     # right anchor shape and animation
-    right_anchor_shape = RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
+    right_anchor_shape = logic.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
                                              BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
     r_pos, r_rot = right_anchor_shape.extract_transform_from_shape()
     func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], r_rot]

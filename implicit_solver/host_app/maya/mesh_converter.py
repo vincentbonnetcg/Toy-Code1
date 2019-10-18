@@ -2,21 +2,21 @@
 @author: Vincent Bonnet
 @description : Python code to bridge Maya Data to the solver
 This code should be run from Maya Python Script Editor
+DEPRECATED - custom file format no longer supported => use numpy directly for serialization
 """
 
 import maya.api.OpenMaya as om
+import numpy as np
 import pickle
 
 FILENAME = "" # ADD FILE
 
-# Function copied from host_app.dcc_before_python3.shape_exporter_p2
 def write_to_file(points, edge_ids, face_ids, filename):
     out_file = open(filename,'wb')
     out_dict = {'points' : points, 'edge_ids' : edge_ids, 'face_ids' : face_ids }
     pickle.dump(out_dict, out_file)
     out_file.close()
 
-# Function copied from host_app.dcc_before_python3.shape_exporter_p2
 def read_from_file(filename):
     in_file = open(filename,'rb')
     in_dict = pickle.load(in_file)
@@ -24,7 +24,10 @@ def read_from_file(filename):
     points = in_dict['points']
     edge_ids = in_dict['edge_ids']
     face_ids = in_dict['face_ids']
-    return points, edge_ids, face_ids
+    positions = np.array(points, copy=True, dtype=float)
+    edge_vertex_ids = np.array(edge_ids, copy=True, dtype=int)
+    face_vertex_ids = np.array(face_ids, copy=True, dtype=int)
+    return positions, edge_vertex_ids, face_vertex_ids
 
 def extract_tri_mesh_data(points, edge_ids, face_ids):
     # get selected mesh
@@ -67,10 +70,4 @@ face_ids = []
 extract_tri_mesh_data(points, edge_ids, face_ids)
 
 write_to_file(points, edge_ids, face_ids, FILENAME)
-
-# Test
-#points, edge_ids, face_ids = read_from_file(FILENAME)
-#print(points)
-#print(edge_ids)
-#print(face_ids)
 
