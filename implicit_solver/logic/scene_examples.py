@@ -33,6 +33,12 @@ def meta_data_render(width=1.0, color='grey', style='solid', alpha = 1.0):
     return {'width':width, 'color':color, 'style':style, 'alpha' : alpha}
 
 def init_cat_scene(dispatcher, render):
+    init_file_scene(dispatcher, render, 'cat.npz')
+
+def init_rabbit_scene(dispatcher, render):
+    init_file_scene(dispatcher, render, 'rabbit.npz')
+
+def init_file_scene(dispatcher, render, file_path):
     '''
     Initalizes a scene including a cat shape created by the Maya/mesh_converter.py
     Latest Maya/Houdini doesn't support Python 3.x hence cannot use client.py to send data
@@ -40,7 +46,7 @@ def init_cat_scene(dispatcher, render):
     dispatcher.run('reset_scene')
 
     # Load Data from file
-    filename = get_resources_folder() + "cat.npz"
+    filename = get_resources_folder() + file_path
     shape = io_utils.create_shape_from_npz_file(filename)
 
     # Create collider 0
@@ -51,14 +57,14 @@ def init_cat_scene(dispatcher, render):
     anchor0_rotation = 30
 
     # Create collider 1
-    anchor1_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=4.5)
+    anchor1_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
     anchor1_position, anchor_rotation = anchor1_shape.extract_transform_from_shape()
     anchor1_position[0] = 13
     anchor1_position[1] = -20
     anchor1_rotation = -45
 
     # Create collider 2
-    anchor2_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=4.5)
+    anchor2_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
     anchor2_position, anchor_rotation = anchor2_shape.extract_transform_from_shape()
     anchor2_position[0] = 0
     anchor2_position[1] = -30

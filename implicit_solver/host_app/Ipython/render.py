@@ -51,6 +51,9 @@ class Render:
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
         self.ax.axis('equal')
+        self.ax.margins(0.05)
+        #self.ax.set_aspect('equal')
+        self.ax.autoscale(enable=False)
         self.ax.set_xlim(self.min[0], self.max[0])
         self.ax.set_ylim(self.min[1], self.max[1])
 
