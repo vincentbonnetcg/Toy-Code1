@@ -11,26 +11,30 @@ def fetch_mesh_data(geo):
     edge_array = None
     triangle_array = None
 
-    # Collect Position
+    # get points and primitives
     points = geo.points()
+    edges = geo.globEdges("*")
+    primitives = geo.prims()
+
+    # allocate numpy arrays
     num_vertices = len(points)
-    pos_array = np.zeros((num_vertices, 3), dtype=float)
+    num_edges = len(edges)
+    num_triangles = len(primitives)
+    pos_array = np.zeros((num_vertices, 2), dtype=float)
+    edge_array = np.zeros((num_edges, 2), dtype=int)
+    triangle_array = np.zeros((num_triangles, 3), dtype=int)
+
+    # Collect Position
     for i, point in enumerate(points):
         point = point.position()
-        pos_array[i] = [point[0],point[1],point[2]]
+        pos_array[i] = [point[0],point[1]]
 
     # Collect Edges
-    edges = geo.globEdges("*")
-    num_edges = len(edges)
-    edge_array = np.zeros((num_edges, 2), dtype=int)
     for i, edge in enumerate(edges):
         points = edge.points()
         edge_array[i] = [points[0].number(), points[1].number()]
 
     # Collect Polygon (Triangles)
-    primitives = geo.prims()
-    num_triangles = len(primitives)
-    triangle_array = np.zeros((num_triangles, 3), dtype=int)
     for i, primitive in enumerate(primitives):
         points = primitive.points()
         if len(points) == 3:
@@ -38,29 +42,20 @@ def fetch_mesh_data(geo):
 
     return pos_array, edge_array, triangle_array
 
-def store_mesh_data(folder, pos_array, edge_array, tri_array):
-    if len(folder) > 0:
-        np.savetxt(folder+'/pos.txt', pos_array)
-        np.savetxt(folder+'/edge.txt', edge_array)
-        np.savetxt(folder+'/tri.txt', tri_array)
+# from host_app.rpc.shape_io
+def write_shape_to_npz_file(filename, pos, edge_vtx_ids, face_vtx_ids):
+    np.savez(filename, positions = pos, edge_vertex_ids = edge_vtx_ids, face_vertex_ids = face_vtx_ids)
 
-def set_position_from_folder(geo, folder):
-    if len(folder) > 0:
-        pos_array = np.loadtxt(folder+'/pos.txt')
-        for id, point in enumerate(geo.points()):
-            point.setPosition(pos_array[id])
 
 # Input Data
 time = hou.time()
 node = hou.pwd()
 geo = node.geometry()
-folder = '' # e.g c:/folder/folder2
+filename = '' # e.g c:/folder/folder2/file.npz
 
 # Export Geo
 pos_array, edge_array, tri_array = fetch_mesh_data(geo)
-#store_mesh_data(folder, pos_array, edge_array, tri_array)
+write_shape_to_npz_file(filename, pos_array, edge_array, tri_array)
 
-# Import Geo Position
-set_position_from_folder(geo, folder)
 
 
