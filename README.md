@@ -109,9 +109,11 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ![COLOURING](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/graphColouring_greedyAlgorithm.png)
 
 ## . Local Optimisations
-**File** [optimisation_gradientDescent.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/optimisation_gradientDescent.py)<br>
-**Description** Implementation of Gradient Descent for multivariable functions
-- with/without normalized step
+**File** [localOptimisation.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/localOptimisation.py)<br>
+**Description** Implementation of Gradient Descent and Newton-Raphson
+
+- Gradient Descent (with or without normalized step)
+- Newton-Raphson iteration
 
 ![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimisation_gradientDescent.png)
 
