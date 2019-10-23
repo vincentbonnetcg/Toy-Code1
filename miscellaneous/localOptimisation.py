@@ -10,16 +10,19 @@ from mpl_toolkits.mplot3d import Axes3D
 '''
  Global Constants
 '''
-MAX_ITERATIONS = 50
-NORMALIZED_STEP = True  # Used when line search is False
-SCALE_STEP = 0.1
+# Step parameter
+NORMALIZED_STEP = True  # Only Gradient Descent
+SCALE_STEP = 0.1 # Newton Method and Gradient Descent
+# Termination condition
+MAX_ITERATIONS = 100
+THRESHOLD = 0.001
 
 '''
  1D Function For Example
 '''
 class function1D():
     def guess():
-        return 2.0
+        return 3.0
 
     def value(X):
         return np.sin(X)
@@ -28,7 +31,7 @@ class function1D():
         return np.cos(X)
 
     def hessian(X):
-        return -1.0 * np.sin(X)
+        return np.sin(X) * -1.0
 
 '''
  2D Function For Example
@@ -51,28 +54,47 @@ class function2D():
 
 '''
  Gradient Descent
+ Minimize the function
 '''
 def gradientDescent(function):
     results = []
     guess = function.guess()
 
-    for i in range(MAX_ITERATIONS):
-        # store result
-        result = np.append(guess, function.value(guess))
-        results.append(result)
+    terminate = False
 
-        # gradient descent
+    previous_value = function.value(guess)
+    num_iterations = 0
+
+    # store first guess
+    result = np.append(guess, previous_value)
+    results.append(result)
+
+    while not terminate:
         step = function.gradient(guess)
         if NORMALIZED_STEP:
             step /= np.linalg.norm(step)
 
-        step *= -SCALE_STEP
-        guess += step
+        step *= SCALE_STEP
+        guess -= step
+
+        # test termination conditions
+        value = function.value(guess)
+        diff = np.linalg.norm(value - previous_value)
+        previous_value = value
+        num_iterations += 1
+
+        if diff < THRESHOLD or num_iterations > MAX_ITERATIONS:
+            terminate = True
+
+        # store first guess
+        result = np.append(guess, previous_value)
+        results.append(result)
 
     return results
 
 '''
  Newton Iteration with optimization
+ Newton's method for unconstrained optimization finds local extrema (minima or maxima)
 '''
 def NewtonRaphson(function):
     results = []
@@ -83,12 +105,9 @@ def NewtonRaphson(function):
         result = np.append(guess, function.value(guess))
         results.append(result)
 
-        # store result
-        result = np.append(guess, function.value(guess))
-        results.append(result)
-
         # Newton Raphson
-        guess -= function.value(guess) / function.gradient(guess)
+        step = (function.gradient(guess) / function.hessian(guess)) * SCALE_STEP
+        guess -= step
 
     return results
 
