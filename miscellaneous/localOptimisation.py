@@ -15,7 +15,7 @@ NORMALIZED_STEP = True  # Only Gradient Descent
 SCALE_STEP = 0.1 # Newton Method and Gradient Descent
 # Termination condition
 MAX_ITERATIONS = 100
-THRESHOLD = 0.001
+THRESHOLD = 0.00001
 
 '''
  1D Function For Example
@@ -86,7 +86,7 @@ def gradientDescent(function):
         if diff < THRESHOLD or num_iterations > MAX_ITERATIONS:
             terminate = True
 
-        # store first guess
+        # store result
         result = np.append(guess, previous_value)
         results.append(result)
 
@@ -100,16 +100,30 @@ def NewtonRaphson(function):
     results = []
     guess = function.guess()
 
-    for i in range(MAX_ITERATIONS):
+    terminate = False
+
+    num_iterations = 0
+
+    # store first guess
+    result = np.append(guess, function.value(guess))
+    results.append(result)
+
+    while not terminate:
+        step = (function.gradient(guess) / function.hessian(guess)) * SCALE_STEP
+        guess -= step
+
+        # test termination conditions
+        num_iterations += 1
+
+        if step < THRESHOLD or num_iterations > MAX_ITERATIONS:
+            terminate = True
+
         # store result
         result = np.append(guess, function.value(guess))
         results.append(result)
 
-        # Newton Raphson
-        step = (function.gradient(guess) / function.hessian(guess)) * SCALE_STEP
-        guess -= step
-
     return results
+
 
 '''
  Show Result
@@ -174,7 +188,7 @@ def draw2D(optimiser):
 def main():
     draw1D(gradientDescent)
     draw2D(gradientDescent)
-    #draw1D(NewtonRaphson)
+    draw1D(NewtonRaphson)
     #draw2D(NewtonRaphson)
 
 
