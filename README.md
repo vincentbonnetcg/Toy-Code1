@@ -13,8 +13,8 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 - Kinematic Collision
 - Server-Client (IPC) to communicate solver with other processes
 
-![Implicit Solver Beam](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/implicitSolver_beam.gif)
-![Implicit Solver Wire](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/implicitSolver_wire.gif)
+![Implicit Solver Beam](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/implicitSolver_beam.gif)
+![Implicit Solver Wire](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/implicitSolver_wire.gif)
 
 [1] Baraff, David, and Andrew Witkin. "Large steps in cloth simulation." Proceedings of the 25th annual conference on Computer graphics and interactive techniques. ACM, 1998.
 
