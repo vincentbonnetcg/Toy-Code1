@@ -7,13 +7,15 @@ Format : [object_id, object_node_id, global_node_id, block_id, block_node_id] #
 import numba
 import numpy as np
 
+ID_SIZE = 5
+
 @numba.njit
-def empty_node_ids(num_ids):
-    return np.empty((num_ids, 5), dtype=np.uint32)
+def empty_node_ids(num_nodes):
+    return np.empty((num_nodes, ID_SIZE), dtype=np.uint32)
 
 @numba.njit
 def emtpy_node_id():
-    return np.empty(5, dtype=np.uint32)
+    return np.empty(ID_SIZE, dtype=np.uint32)
 
 @numba.njit
 def set_node_id(node_id, object_id = 0, object_node_id = 0, global_node_id = 0, block_id = 0, block_node_id = 0):
