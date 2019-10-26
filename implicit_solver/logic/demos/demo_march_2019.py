@@ -14,7 +14,7 @@ import time
 '''
 START_TIME = 0
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
-NUM_SUBSTEP = 6 # number of substep per frame
+NUM_SUBSTEP = 10 # number of substep per frame
 NUM_FRAMES = 100 # number of simulated frame (doesn't include initial frame)
 
 g_render = Render()

@@ -69,8 +69,12 @@ class CommandSolverDispatcher(CommandDispatcher):
         self._scene = system.Scene()
         self._solver = system.Solver(system.ImplicitSolver())
         self._context = system.Context()
-        # map hash_value with object
+        # map hash_value with objects (dynamic, kinematic, condition, force)
         self._object_dict = {}
+        self._dynamic_handles = {}
+        self._kinematic_handles = {}
+        self._conditions_handles = {}
+        self._force_handles = {}
 
         # register
         self.register_cmd(self.set_context)
@@ -93,7 +97,22 @@ class CommandSolverDispatcher(CommandDispatcher):
 
     def _add_object(self, obj):
         unique_id = uuid.uuid4()
-        self._object_dict[unique_id] = obj
+
+        if isinstance(obj, lib_objects.Dynamic):
+            self._dynamic_handles[unique_id] = obj
+            self._object_dict[unique_id] = obj
+        elif isinstance(obj, lib_objects.Kinematic):
+            self._kinematic_handles[unique_id] = obj
+            self._object_dict[unique_id] = obj
+        elif isinstance(obj, lib_objects.Condition):
+            self._conditions_handles[unique_id] = obj
+            self._object_dict[unique_id] = obj
+        elif isinstance(obj, lib_objects.Force):
+            self._force_handles[unique_id] = obj
+            self._object_dict[unique_id] = obj
+        else:
+            assert False, '_add_object(..) only supports lib.Dynamic, lib.Kinematic, lib.Condition and lib.Force'
+
         return unique_id
 
     def _convert_parameter(self, parameter_name, kwargs):
@@ -117,10 +136,10 @@ class CommandSolverDispatcher(CommandDispatcher):
 
     def _process_result(self, result):
         # convert the result object
-        if isinstance(result, (lib_objects.Force,
-                               lib_objects.Dynamic,
+        if isinstance(result, (lib_objects.Dynamic,
                                lib_objects.Kinematic,
-                               lib_objects.Condition)):
+                               lib_objects.Condition,
+                               lib_objects.Force)):
             return self._add_object(result)
 
         return result
@@ -136,14 +155,9 @@ class CommandSolverDispatcher(CommandDispatcher):
 
     def get_dynamic_handles(self):
         handles = []
-        for obj in self._scene.dynamics:
-            for handle, value in self._object_dict.items():
-                if obj == value:
-                    handles.append(handle)
+        for handle in self._dynamic_handles:
+            handles.append(handle)
         return handles
 
     def reset_scene(self):
         self._scene = system.Scene()
-
-
-
