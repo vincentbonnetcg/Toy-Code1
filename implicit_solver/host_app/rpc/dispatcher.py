@@ -21,8 +21,11 @@ class CommandDispatcher:
         # list of registered commands
         self._commands = {}
 
-    def register_cmd(self, cmd):
-        self._commands[cmd.__name__] = cmd
+    def register_cmd(self, cmd, cmd_name = None):
+        if cmd_name:
+            self._commands[cmd_name] = cmd
+        else:
+            self._commands[cmd.__name__] = cmd
 
     def run(self, command_name, **kwargs):
         # use registered command
@@ -77,11 +80,11 @@ class CommandSolverDispatcher(CommandDispatcher):
         self._force_handles = {}
 
         # register
-        self.register_cmd(self.set_context)
-        self.register_cmd(self.get_context)
-        self.register_cmd(self.get_scene)
-        self.register_cmd(self.get_dynamic_handles)
-        self.register_cmd(self.reset_scene)
+        self.register_cmd(self._set_context, 'set_context')
+        self.register_cmd(self._get_context, 'get_context')
+        self.register_cmd(self._get_scene, 'get_scene')
+        self.register_cmd(self._get_dynamic_handles, 'get_dynamic_handles')
+        self.register_cmd(self._reset_scene, 'reset_scene')
         self.register_cmd(sim_cmds.initialize)
         self.register_cmd(sim_cmds.add_dynamic)
         self.register_cmd(sim_cmds.add_kinematic)
@@ -144,20 +147,20 @@ class CommandSolverDispatcher(CommandDispatcher):
 
         return result
 
-    def set_context(self, context):
+    def _set_context(self, context):
         self._context = context
 
-    def get_context(self):
+    def _get_context(self):
         return self._context
 
-    def get_scene(self):
+    def _get_scene(self):
         return self._scene
 
-    def get_dynamic_handles(self):
+    def _get_dynamic_handles(self):
         handles = []
         for handle in self._dynamic_handles:
             handles.append(handle)
         return handles
 
-    def reset_scene(self):
+    def _reset_scene(self):
         self._scene = system.Scene()
