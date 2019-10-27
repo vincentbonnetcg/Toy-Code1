@@ -66,6 +66,11 @@ class CommandSolverDispatcher(CommandDispatcher):
     '''
     Dispatch commands to manage objects (animators, conditions, dynamics, kinematics, forces)
     '''
+    # reserved argument names
+    SCENE_PARAMETER = 'scene'
+    SOLVER_PARAMETER = 'solver'
+    CONTEXT_PARAMETER = 'context'
+
     def __init__(self):
         CommandDispatcher.__init__(self)
         # data
@@ -119,6 +124,14 @@ class CommandSolverDispatcher(CommandDispatcher):
         return unique_id
 
     def _convert_parameter(self, parameter_name, kwargs):
+        # parameter provided by the dispatcher
+        if parameter_name == CommandSolverDispatcher.SCENE_PARAMETER:
+            return self._scene
+        elif parameter_name == CommandSolverDispatcher.SOLVER_PARAMETER:
+            return self._solver
+        elif parameter_name == CommandSolverDispatcher.CONTEXT_PARAMETER:
+            return self._context
+
         # parameter provided by user
         if parameter_name in kwargs:
             arg_object = kwargs[parameter_name]
@@ -126,14 +139,6 @@ class CommandSolverDispatcher(CommandDispatcher):
                 return self._object_dict[arg_object]
 
             return kwargs[parameter_name]
-
-        # parameter provided by the dispatcher
-        if parameter_name == 'scene':
-            return self._scene
-        elif parameter_name == 'solver':
-            return self._solver
-        elif parameter_name == 'context':
-            return self._context
 
         return None
 
