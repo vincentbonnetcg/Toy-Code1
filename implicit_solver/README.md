@@ -26,3 +26,4 @@ Implicit Solver written with Python and Numba
 
 [8] Liu, Tiantian, Sofien Bouaziz, and Ladislav Kavan. "Quasi-newton methods for real-time simulation of hyperelastic materials." ACM Transactions on Graphics (TOG) 36, no. 3 (2017): 23.
 
+[9] Schroeder, Craig. "Practical course on computing derivatives in code." In ACM SIGGRAPH 2019 Courses, p. 22. ACM, 2019.
