@@ -3,8 +3,6 @@
 @description : Array of Structures of Arrays (AoSoA)
 Example :
 data = DataBlock()
-data.add_field("field_a", np.float, 1)
-data.add_field("field_b", np.float, (2, 2))
 data.initialize(10)
 print(data.field_a)
 print(data.field_b)
@@ -53,14 +51,9 @@ class DataBlock:
         self.blocks.clear()
 
     def add_field_from_class(self, class_type):
-        self.add_field_from_instance(class_type())
-
-    def add_field_from_instance(self, inst):
+        inst = class_type()
         for name, value in inst.__dict__.items():
             self.__add_field_from_value(name, value)
-
-    def add_field(self, name, data_type=np.float, data_shape=1):
-        self.__add_field_from_type(name, data_type, data_shape)
 
     def __check_before_add(self, name):
         '''
@@ -74,23 +67,6 @@ class DataBlock:
 
         if name in self.dtype_dict['names']:
             raise ValueError("field name already used : " + name)
-
-    def __add_field_from_type(self, name, data_type=np.float, data_shape=1):
-        '''
-        Add a new field to the data block
-        '''
-        self.__check_before_add(name)
-
-        zero_value = None
-
-        if data_shape == 1:
-            zero_value = data_type(0.0)
-        else:
-            zero_value = np.zeros(data_shape, data_type)
-
-        self.dtype_dict['names'].append(name)
-        self.dtype_dict['formats'].append((data_type, data_shape))
-        self.dtype_dict['defaults'].append(zero_value)
 
     def __add_field_from_value(self, name, value):
         '''
