@@ -14,8 +14,8 @@ import host_app.rpc as rpc
 '''
 START_TIME = 0
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
-NUM_SUBSTEP = 10 # number of substep per frame
-NUM_FRAMES = 200 # number of simulated frame (doesn't include initial frame)
+NUM_SUBSTEP = 8 # number of substep per frame
+NUM_FRAMES = 100 # number of simulated frame (doesn't include initial frame)
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 USE_REMOTE_SERVER = False # run the program locally or connect to a server
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
@@ -39,17 +39,16 @@ def main():
     cmd_dispatcher= get_command_dispatcher()
 
     # Initialize dispatcher (context and scene)
-    context = system.Context(time = START_TIME, frame_dt = FRAME_TIMESTEP,
+    cmd_dispatcher.run("set_context", time = START_TIME, frame_dt = FRAME_TIMESTEP,
                          num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
 
-    cmd_dispatcher.run("set_context", context = context)
-    scene_examples.init_rabbit_scene(cmd_dispatcher, render)
+    #scene_examples.init_rabbit_scene(cmd_dispatcher, render)
     #scene_examples.init_cat_scene(cmd_dispatcher, render)
     #scene_examples.init_beam_example(cmd_dispatcher, render)
-    #scene_examples.init_wire_example(cmd_dispatcher, render)
+    scene_examples.init_wire_example(cmd_dispatcher, render)
 
     # Simulate frames
-    for frame_id in range(context.num_frames+1):
+    for frame_id in range(NUM_FRAMES+1):
         profiler.clear_logs()
 
         if frame_id == 0:

@@ -152,8 +152,8 @@ class CommandSolverDispatcher(CommandDispatcher):
 
         return result
 
-    def _set_context(self, context):
-        self._context = context
+    def _set_context(self, time : float, frame_dt : float, num_substep : int, num_frames : int):
+        self._context = system.Context(time, frame_dt, num_substep, num_frames)
 
     def _get_context(self):
         return self._context
