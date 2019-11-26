@@ -19,7 +19,7 @@ NUM_FRAMES = 100 # number of simulated frame (doesn't include initial frame)
 
 g_render = Render()
 g_frame_id = 0
-context = lib.system.Context(time = START_TIME, frame_dt = FRAME_TIMESTEP,
+context = lib.system.SolverContext(time = START_TIME, frame_dt = FRAME_TIMESTEP,
                      num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
 
 def get_dispatcher(name):

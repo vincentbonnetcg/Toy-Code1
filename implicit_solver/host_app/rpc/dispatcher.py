@@ -76,7 +76,7 @@ class CommandSolverDispatcher(CommandDispatcher):
         # data
         self._scene = system.Scene()
         self._solver = system.Solver(system.ImplicitSolver())
-        self._context = system.Context()
+        self._context = system.SolverContext()
         # map hash_value with objects (dynamic, kinematic, condition, force)
         self._object_dict = {}
         self._dynamic_handles = {}
@@ -153,7 +153,7 @@ class CommandSolverDispatcher(CommandDispatcher):
         return result
 
     def _set_context(self, time : float, frame_dt : float, num_substep : int, num_frames : int):
-        self._context = system.Context(time, frame_dt, num_substep, num_frames)
+        self._context = system.SolverContext(time, frame_dt, num_substep, num_frames)
 
     def _get_context(self):
         return self._context

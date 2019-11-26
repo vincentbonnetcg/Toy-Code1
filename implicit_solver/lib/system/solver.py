@@ -6,9 +6,9 @@
 
 import lib.common as cm
 
-class Context:
+class SolverContext:
     '''
-    Context to store time, time stepping, etc.
+    SolverContext to store time, time stepping, etc.
     '''
     def __init__(self, time = 0.0, frame_dt = 1.0/24.0, num_substep = 4, num_frames = 1):
         self.time = time # current time (in seconds)
@@ -21,11 +21,26 @@ class Context:
 
 class SolverDetails:
     '''
-    List of datablocks - WIP
+    List of datablocks
     '''
     def __init__(self):
-        self.dynamics_db = [] # dynamic objects
-        self.conditions_db = [] # dynamic objects
+        self.dynamic_db = [] # dynamic objects
+        self.area_db = [] # area constraints
+        self.bending_db = [] # bending constraints
+        self.spring_db = [] # spring constraints
+        self.anchorSpring_db = [] # anchor spring constraints
+
+    def to_datablock():
+        '''
+        From numpy array to datablock
+        '''
+        pass
+
+    def from_datablock(ids = []):
+        '''
+        From datablock to numpy array
+        '''
+        pass
 
 class Solver:
     '''
