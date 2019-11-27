@@ -20,7 +20,7 @@ class Dynamic:
         self.data.initialize(num_nodes)
 
         # Set node data
-        self.data.copyto('x', shape.vertex.position)
+        self.data.copyto('x', shape.vertex)
         self.data.fill('v', 0.0)
         self.data.fill('m', node_mass)
         self.data.fill('im', 1.0 / node_mass)
@@ -28,8 +28,8 @@ class Dynamic:
         self.data.fill('ID', 0)
 
         # Initialize node connectivities
-        self.edge_ids = np.copy(shape.edge.vertex_ids)
-        self.face_ids = np.copy(shape.face.vertex_ids)
+        self.edge_ids = np.copy(shape.edge)
+        self.face_ids = np.copy(shape.face)
         # Object index in the scene.dynamics[.]
         self.index = 0
         # Metadata
@@ -55,9 +55,9 @@ class Dynamic:
         num_edges = len(self.edge_ids)
         num_faces = len(self.face_ids)
         shape = common.Shape(num_vertices, num_edges, num_faces)
-        shape.vertex.position = self.data.flatten('x')
-        shape.edge.vertex_ids = np.copy(self.edge_ids)
-        shape.face.vertex_ids = np.copy(self.face_ids)
+        shape.vertex = self.data.flatten('x')
+        shape.edge = np.copy(self.edge_ids)
+        shape.face = np.copy(self.face_ids)
 
         return shape
 

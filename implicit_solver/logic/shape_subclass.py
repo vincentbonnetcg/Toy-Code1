@@ -17,14 +17,14 @@ class WireShape(Shape):
         axisy = np.linspace(startPoint[1], endPoint[1], num=num_edges+1, endpoint=True)
 
         for i in range(num_edges+1):
-            self.vertex.position[i] = (axisx[i], axisy[i])
+            self.vertex[i] = (axisx[i], axisy[i])
 
         # Set Edge Indices
         vertex_indices = []
         for i in range(num_edges):
             vertex_indices.append((i, i+1))
 
-        self.edge.vertex_ids = np.array(vertex_indices, dtype=int)
+        self.edge = np.array(vertex_indices, dtype=int)
 
 class RectangleShape(Shape):
     '''
@@ -32,20 +32,20 @@ class RectangleShape(Shape):
     '''
     def __init__(self, min_x, min_y, max_x, max_y):
         Shape.__init__(self, num_vertices=4, num_edges=5, num_faces=2)
-        # Set positions
-        self.vertex.position[0] = (min_x, min_y)
-        self.vertex.position[1] = (min_x, max_y)
-        self.vertex.position[2] = (max_x, max_y)
-        self.vertex.position[3] = (max_x, min_y)
+        # Set vertex positions
+        self.vertex[0] = (min_x, min_y)
+        self.vertex[1] = (min_x, max_y)
+        self.vertex[2] = (max_x, max_y)
+        self.vertex[3] = (max_x, min_y)
         # Set edges
-        self.edge.vertex_ids[0] = (0, 1)
-        self.edge.vertex_ids[1] = (1, 2)
-        self.edge.vertex_ids[2] = (2, 0)
-        self.edge.vertex_ids[3] = (2, 3)
-        self.edge.vertex_ids[4] = (3, 0)
+        self.edge[0] = (0, 1)
+        self.edge[1] = (1, 2)
+        self.edge[2] = (2, 0)
+        self.edge[3] = (2, 3)
+        self.edge[4] = (3, 0)
         # Set faces
-        self.face.vertex_ids[0] = (0, 1, 2)
-        self.face.vertex_ids[1] = (0, 2, 3)
+        self.face[0] = (0, 1, 2)
+        self.face[1] = (0, 2, 3)
 
 class BeamShape(Shape):
     '''
@@ -64,7 +64,7 @@ class BeamShape(Shape):
 
         for j in range(cell_y+1):
             for i in range(cell_x+1):
-                self.vertex.position[vertex_id] = (axisx[i], axisy[j])
+                self.vertex[vertex_id] = (axisx[i], axisy[j])
                 vertex_id += 1
 
         # Lambda function to get node indices from cell coordinates
@@ -88,7 +88,7 @@ class BeamShape(Shape):
                     vertex_indices.append((pids[0], pids[1]))
 
 
-        self.edge.vertex_ids = np.array(vertex_indices, dtype=int)
+        self.edge = np.array(vertex_indices, dtype=int)
 
         # Set Face Indices
         face_indices = []
@@ -99,4 +99,4 @@ class BeamShape(Shape):
                 face_indices.append((pids[0], pids[1], pids[2]))
                 face_indices.append((pids[1], pids[2], pids[3]))
 
-        self.face.vertex_ids = np.array(face_indices, dtype=int)
+        self.face = np.array(face_indices, dtype=int)

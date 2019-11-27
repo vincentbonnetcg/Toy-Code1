@@ -48,7 +48,7 @@ class Kinematic:
             self.inverse_rotation_matrix = np.array(((c, -s), (s, c)))
 
     def __init__(self, shape, position = (0., 0.), rotation = 0.):
-        self.convex_hull = ConvexHull(shape.vertex.position)
+        self.convex_hull = ConvexHull(shape.vertex)
         self.state = Kinematic.State(position = position, rotation = rotation)
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
         self.meta_data = {} # Metadata

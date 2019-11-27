@@ -20,8 +20,8 @@ def create_shape_from_npz_file(filename):
 
     shape = common.Shape(num_vertices, num_edges, num_faces)
 
-    np.copyto(shape.vertex.position, positions)
-    np.copyto(shape.edge.vertex_ids, edge_vertex_ids)
-    np.copyto(shape.face.vertex_ids, face_vertex_ids)
+    np.copyto(shape.vertex, positions)
+    np.copyto(shape.edge, edge_vertex_ids)
+    np.copyto(shape.face, face_vertex_ids)
 
     return shape
