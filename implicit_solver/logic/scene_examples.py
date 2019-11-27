@@ -51,21 +51,21 @@ def init_file_scene(dispatcher, render, file_path):
 
     # Create collider 0
     anchor0_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=4.5, max_y=5.0)
-    anchor0_position, anchor_rotation = anchor0_shape.extract_transform_from_shape()
+    anchor0_position, anchor_rotation = anchor0_shape.compute_best_transform()
     anchor0_position[0] = -7
     anchor0_position[1] = -13
     anchor0_rotation = 30
 
     # Create collider 1
     anchor1_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
-    anchor1_position, anchor_rotation = anchor1_shape.extract_transform_from_shape()
+    anchor1_position, anchor_rotation = anchor1_shape.compute_best_transform()
     anchor1_position[0] = 13
     anchor1_position[1] = -20
     anchor1_rotation = -45
 
     # Create collider 2
     anchor2_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
-    anchor2_position, anchor_rotation = anchor2_shape.extract_transform_from_shape()
+    anchor2_position, anchor_rotation = anchor2_shape.compute_best_transform()
     anchor2_position[0] = 0
     anchor2_position[1] = -30
     anchor2_rotation = 45
@@ -131,7 +131,7 @@ def init_multi_wire_example(dispatcher, render):
     # anchor shape and animation
     moving_anchor_shape = logic.RectangleShape(min_x = -2.0, min_y = 1.5,
                                               max_x = 0.0, max_y =2.0)
-    moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.extract_transform_from_shape()
+    moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.compute_best_transform()
     func = lambda time: [[moving_anchor_position[0] + time,
                           moving_anchor_position[1]], 0.0]
 
@@ -140,7 +140,7 @@ def init_multi_wire_example(dispatcher, render):
     # collider shape
     collider_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
                                        WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
-    collider_position, collider_rotation = moving_anchor_shape.extract_transform_from_shape()
+    collider_position, collider_rotation = moving_anchor_shape.compute_best_transform()
     collider_rotation = 45.0
 
     # Populate Scene with data and conditions
@@ -201,7 +201,7 @@ def init_wire_example(dispatcher, render):
     moving_anchor_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
                                               WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
 
-    moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.extract_transform_from_shape()
+    moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.compute_best_transform()
     decay_rate = 0.5
     func = lambda time: [[moving_anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
                           moving_anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
@@ -256,14 +256,14 @@ def init_beam_example(dispatcher, render):
     # left anchor shape and animation
     left_anchor_shape = logic.RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
                                             BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
-    l_pos, l_rot = left_anchor_shape.extract_transform_from_shape()
+    l_pos, l_rot = left_anchor_shape.compute_best_transform()
     func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], l_rot]
     l_animator = objects.Animator(func, context)
 
     # right anchor shape and animation
     right_anchor_shape = logic.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
                                              BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
-    r_pos, r_rot = right_anchor_shape.extract_transform_from_shape()
+    r_pos, r_rot = right_anchor_shape.compute_best_transform()
     func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], r_rot]
     r_animator = objects.Animator(func, context)
 

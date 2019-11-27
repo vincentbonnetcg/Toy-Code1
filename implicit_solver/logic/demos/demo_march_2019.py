@@ -56,7 +56,7 @@ def stage_add_collider(client_name):
 
     # anchor shape and animation
     rectangle_shape = RectangleShape(min_x = 0.2, min_y = 0.3, max_x = 1.5, max_y = 0.7)
-    rectangle_position, rectangle_rotation = rectangle_shape.extract_transform_from_shape()
+    rectangle_position, rectangle_rotation = rectangle_shape.compute_best_transform()
     func = lambda time: [[rectangle_position[0],
                           rectangle_position[1]], -5.0]
 
