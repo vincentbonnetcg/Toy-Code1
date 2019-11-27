@@ -16,21 +16,16 @@ import lib.common.node_accessor as na
 class DataBlock:
 
     def __init__(self, block_size = 100):
-        self.reset()
-        self.block_size = block_size
-
-    def reset(self):
-        '''
-        Reset the datablock (reset data and datatype)
-        '''
         # Data
         self.num_elements = 0
         self.blocks = []
-        # Datatype
+        # Data type
         self.dtype_dict = {}
         self.dtype_dict['names'] = [] # list of names
         self.dtype_dict['formats'] = [] # list of tuples (data_type, data_shape)
         self.dtype_dict['defaults'] = [] # list of default values (should match formats)
+        # Block size
+        self.block_size = block_size
 
     def num_blocks(self):
         return len(self.blocks)
