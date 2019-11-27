@@ -15,8 +15,7 @@ class Dynamic:
         num_nodes = shape.num_vertices()
 
         # Allocate node data
-        self.data = common.DataBlock()
-        self.data.add_field_from_class(Node)
+        self.data = common.DataBlock(Node)
         self.data.initialize(num_nodes)
 
         # Set node data

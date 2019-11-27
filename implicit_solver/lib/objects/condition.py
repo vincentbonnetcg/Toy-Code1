@@ -27,8 +27,7 @@ class Condition:
         self.stiffness = stiffness
         self.damping = damping
         # Data
-        self.data = common.DataBlock()
-        self.data.add_field_from_class(constraint_type)
+        self.data = common.DataBlock(constraint_type)
         # Energy / Force / Jacobian (Used by the optimiser)
         self.energy_func = None # Not used yet
         self.force_func =  constraint_type.compute_forces # derivative of the energy function

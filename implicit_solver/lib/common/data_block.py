@@ -15,7 +15,7 @@ import lib.common.node_accessor as na
 
 class DataBlock:
 
-    def __init__(self, block_size = 100):
+    def __init__(self, class_type, block_size = 100):
         # Data
         self.num_elements = 0
         self.blocks = []
@@ -26,6 +26,8 @@ class DataBlock:
         self.dtype_dict['defaults'] = [] # list of default values (should match formats)
         # Block size
         self.block_size = block_size
+        # Set class
+        self.__set_field_from_type(class_type)
 
     def num_blocks(self):
         return len(self.blocks)
@@ -45,11 +47,6 @@ class DataBlock:
         self.num_elements = 0
         self.blocks.clear()
 
-    def add_field_from_class(self, class_type):
-        inst = class_type()
-        for name, value in inst.__dict__.items():
-            self.__add_field_from_value(name, value)
-
     def __check_before_add(self, name):
         '''
         Raise exception if 'name' cannot be added
@@ -63,25 +60,27 @@ class DataBlock:
         if name in self.dtype_dict['names']:
             raise ValueError("field name already used : " + name)
 
-    def __add_field_from_value(self, name, value):
+    def __set_field_from_type(self, class_type):
         '''
-        Add a new field to the data block
+        Add fields
         '''
-        self.__check_before_add(name)
+        inst = class_type()
+        for name, value in inst.__dict__.items():
+            self.__check_before_add(name)
 
-        data_type = None
-        data_shape = None
+            data_type = None
+            data_shape = None
 
-        if np.isscalar(value):
-            data_type = type(value)
-            data_shape = 1
-        else:
-            data_type = value.dtype.type
-            data_shape = value.shape
+            if np.isscalar(value):
+                data_type = type(value)
+                data_shape = 1
+            else:
+                data_type = value.dtype.type
+                data_shape = value.shape
 
-        self.dtype_dict['names'].append(name)
-        self.dtype_dict['formats'].append((data_type, data_shape))
-        self.dtype_dict['defaults'].append(value)
+            self.dtype_dict['names'].append(name)
+            self.dtype_dict['formats'].append((data_type, data_shape))
+            self.dtype_dict['defaults'].append(value)
 
     def dtype(self, num_elements, add_block_info):
         '''
