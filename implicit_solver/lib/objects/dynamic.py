@@ -12,11 +12,10 @@ class Dynamic:
     Dynamic describes a simulated object
     '''
     def __init__(self, shape, node_mass):
-        num_nodes = shape.num_vertices()
-
         # Allocate node data
+        self.total_nodes = shape.num_vertices()
         self.data = common.DataBlock(Node)
-        self.data.initialize(num_nodes)
+        self.data.initialize(self.total_nodes)
 
         # Set node data
         self.data.copyto('x', shape.vertex)
@@ -35,7 +34,7 @@ class Dynamic:
         self.meta_data = {}
 
     def num_nodes(self) -> int:
-        return self.data.num_elements
+        return self.total_nodes
 
     def set_indexing(self, object_id, node_global_offset):
         '''

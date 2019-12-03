@@ -34,9 +34,10 @@ class Condition:
         self.jacobian_func = constraint_type.compute_jacobians # derivative of the force function
         # Metadata
         self.meta_data = {}
+        self.total_constraints = 0
 
     def num_constraints(self) -> int:
-        return self.data.num_elements
+        return self.total_constraints
 
     def is_static(self) -> bool:
         '''

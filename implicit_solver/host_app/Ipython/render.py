@@ -101,7 +101,7 @@ class Render:
 
         # Draw nodes
         for dynamic in scene.dynamics:
-            stats_total_nodes += len(dynamic.data)
+            stats_total_nodes += dynamic.num_nodes()
             stats_avg_block_per_objects += dynamic.data.num_blocks()
             render_prefs = dynamic.meta_data.get("render_prefs" , None)
             if render_prefs is None:

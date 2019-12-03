@@ -37,7 +37,7 @@ class KinematicCollisionCondition(Condition):
         data_v = dynamic.data.flatten('v')
         data_node_id = dynamic.data.flatten('ID')
 
-        for i in range(dynamic.data.num_elements):
+        for i in range(dynamic.num_nodes()):
             node_pos = data_x[i]
             node_vel = data_v[i]
             node_id = data_node_id[i]
@@ -54,6 +54,7 @@ class KinematicCollisionCondition(Condition):
                     springs.append(spring)
 
         self.data.initialize_from_array(springs)
+        self.total_constraints = len(springs)
 
 
 class KinematicAttachmentCondition(Condition):
@@ -79,7 +80,7 @@ class KinematicAttachmentCondition(Condition):
 
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
-        for i in range(dynamic.data.num_elements):
+        for i in range(dynamic.num_nodes()):
             node_pos = data_x[i]
             node_id = data_node_id[i]
 
@@ -96,6 +97,7 @@ class KinematicAttachmentCondition(Condition):
                 springs.append(spring)
 
         self.data.initialize_from_array(springs)
+        self.total_constraints = len(springs)
 
 class DynamicAttachmentCondition(Condition):
     '''
@@ -120,8 +122,8 @@ class DynamicAttachmentCondition(Condition):
         data_x1 = dynamic1.data.flatten('x')
         data_node_id1 = dynamic1.data.flatten('ID')
 
-        for i in range(dynamic0.data.num_elements):
-            for j in range(dynamic1.data.num_elements):
+        for i in range(dynamic0.num_nodes()):
+            for j in range(dynamic1.num_nodes()):
                 x0 = data_x0[i]
                 x1 = data_x1[j]
                 direction = (x0 - x1)
@@ -139,6 +141,7 @@ class DynamicAttachmentCondition(Condition):
                     springs.append(spring)
 
         self.data.initialize_from_array(springs)
+        self.total_constraints = len(springs)
 
 
 class EdgeCondition(Condition):
@@ -167,6 +170,7 @@ class EdgeCondition(Condition):
                 springs.append(spring)
 
         self.data.initialize_from_array(springs)
+        self.total_constraints = len(springs)
 
 class AreaCondition(Condition):
     '''
@@ -196,6 +200,7 @@ class AreaCondition(Condition):
                 constraints.append(constraint)
 
         self.data.initialize_from_array(constraints)
+        self.total_constraints = len(constraints)
 
 class WireBendingCondition(Condition):
     '''
@@ -227,3 +232,4 @@ class WireBendingCondition(Condition):
                         constraints.append(constraint)
 
         self.data.initialize_from_array(constraints)
+        self.total_constraints = len(constraints)

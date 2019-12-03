@@ -17,7 +17,6 @@ class DataBlock:
 
     def __init__(self, class_type, block_size = 100):
         # Data
-        self.num_elements = 0
         self.blocks = []
         # Data type
         self.dtype_dict = {}
@@ -32,28 +31,16 @@ class DataBlock:
     def num_blocks(self):
         return len(self.blocks)
 
-    def is_allocated(self):
-        '''
-        Return whether the datablock is allocated
-        '''
-        if len(self.blocks) > 0:
-            return True
-        return False
-
     def clear(self):
         '''
         Clear the data on the datablock (it doesn't reset the datatype)
         '''
-        self.num_elements = 0
         self.blocks.clear()
 
     def __check_before_add(self, name):
         '''
         Raise exception if 'name' cannot be added
         '''
-        if self.is_allocated():
-            raise ValueError("Cannot add fields after initialized DataBlock")
-
         if keyword.iskeyword(name):
             raise ValueError("field name cannot be a keyword: " + name)
 
@@ -105,7 +92,7 @@ class DataBlock:
             new_field_shape = tuple()
             if np.isscalar(field_shape):
                 if field_shape == 1:
-                    # The coma after self.num_elements is essential
+                    # The coma after num_elements is essential
                     # In case field_shape == num_elements == 1,
                     # it guarantees an array will be produced and not a single value
                     new_field_shape = (num_elements,)
@@ -163,7 +150,6 @@ class DataBlock:
         numpy.array_split doesn't support structured array
         '''
         self.blocks.clear()
-        self.num_elements = num_elements
 
         data_type = self.dtype(self.block_size, add_block_info=False)
         block_dtype = self.dtype(self.block_size, add_block_info=True)
@@ -188,32 +174,14 @@ class DataBlock:
 
             self.blocks.append(block_data)
 
-    def __len__(self):
-        return self.num_elements
-
-    # Keep this around for now, it might be re-used for another purpose
-    # Such as getting block infos or flatten fields
-    #def __getattr__(self, item):
-    #    '''
-    #    Access a specific field from data
-    #    '''
-    #    if item == "data" or self.is_allocated() is None:
-    #       raise AttributeError
-    #
-    #    if item in self.dtype_dict['names']:
-    #        field_index = self.dtype_dict['names'].index(item)
-    #        return self.data[field_index]
-    #
-    #    raise AttributeError
-
     '''
     Vectorize Functions on blocks
     '''
     def compute_num_elements(self):
-        self.num_elements = 0
+        num_elements = 0
         for block_data in self.blocks:
-            self.num_elements += block_data['blockInfo_numElements']
-        return self.num_elements
+            num_elements += block_data['blockInfo_numElements']
+        return num_elements
 
     def set_indexing(self, object_id, node_global_offset):
         object_node_id = 0

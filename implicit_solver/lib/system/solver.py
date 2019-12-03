@@ -5,6 +5,7 @@
 
 
 import lib.common as cm
+import lib.objects.components as cpn
 
 class SolverContext:
     '''
@@ -24,13 +25,14 @@ class SolverDetails:
     List of datablocks
     '''
     def __init__(self):
-        self.dynamic_db = [] # dynamic objects
-        self.area_db = [] # area constraints
-        self.bending_db = [] # bending constraints
-        self.spring_db = [] # spring constraints
-        self.anchorSpring_db = [] # anchor spring constraints
+        block_size = 100
+        self.dynamic_db = cm.DataBlock(cpn.Node, block_size) # dynamic objects
+        self.area_db = cm.DataBlock(cpn.Area, block_size) # area constraints
+        self.bending_db = cm.DataBlock(cpn.Bending, block_size) # bending constraints
+        self.spring_db = cm.DataBlock(cpn.Spring, block_size) # spring constraints
+        self.anchorSpring_db = cm.DataBlock(cpn.AnchorSpring, block_size) # anchor spring constraints
 
-    def to_datablock():
+    def to_datablock(array = []):
         '''
         From numpy array to datablock
         '''
