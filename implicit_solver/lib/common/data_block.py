@@ -89,19 +89,16 @@ class DataBlock:
             # modify the shape to store data as 'array of structure of array'
             # x becomes (num_elements, x)
             # (x, y, ...) becomes (num_elements, x, y, ...)
-            new_field_shape = tuple()
-            if np.isscalar(field_shape):
-                if field_shape == 1:
-                    # The coma after num_elements is essential
-                    # In case field_shape == num_elements == 1,
-                    # it guarantees an array will be produced and not a single value
-                    new_field_shape = (num_elements,)
-                else:
-                    new_field_shape = (num_elements, field_shape)
+            new_field_shape = None
+            if field_shape == 1:
+                # The coma after num_elements is essential
+                # In case field_shape == num_elements == 1,
+                # it guarantees an array will be produced and not a single value
+                new_field_shape = (num_elements,)
             else:
                 list_shape = list(field_shape)
                 list_shape.insert(0, num_elements)
-                new_field_shape = tuple(list_shape)
+                new_field_shape = (list_shape)
 
             dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
 
