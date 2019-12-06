@@ -10,6 +10,41 @@ import lib.common as common
 import lib.common.node_accessor as na
 from lib.system.scene import Scene
 
+def from_aos_to_arrays(array_of_struct):
+    '''
+    Conversion from array of structor to multiple arrays
+    Assume all elements have the same data
+    '''
+    class Container(object):
+        pass
+    container = Container()
+
+    # Allocate arrays
+    num_elements = len(array_of_struct)
+    for name, value in array_of_struct[0].__dict__.items():
+        data_type = None
+        data_shape = None
+        if np.isscalar(value):
+            # (num_elements, ) guarantees to be array and not single value
+            data_type = type(value)
+            data_shape = (num_elements,)
+        else:
+            data_type = value.dtype.type
+            list_shape = list(value.shape)
+            list_shape.insert(0, num_elements)
+            data_shape = tuple(list_shape)
+
+        new_array = np.zeros(shape=data_shape, dtype=data_type)
+        setattr(container, name, new_array)
+
+    # Set arrays
+    for field_name, field_value in container.__dict__.items():
+        for i, element in enumerate(array_of_struct):
+            field_value[i] = getattr(element, field_name)
+
+    return container
+
+
 class KinematicCollisionCondition(Condition):
     '''
     Creates collision constraint between one kinematic and one dynamic object
