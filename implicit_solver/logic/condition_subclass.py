@@ -10,18 +10,19 @@ import lib.common as common
 import lib.common.node_accessor as na
 from lib.system.scene import Scene
 
-def from_aos_to_arrays(array_of_struct):
-    '''
-    Conversion from array of structor to multiple arrays
-    Assume all elements have the same data
-    '''
-    class Container(object):
-        pass
-    container = Container()
+def initialize_condition_from_aos(condition, array_of_struct):
+    # initialize datablock
+    num_constraints = len(array_of_struct)
+    condition.data.initialize(num_constraints)
+    condition.total_constraints = num_constraints
 
-    # Allocate arrays
+    if (num_constraints == 0):
+        return
+
+    # copy to datablock
     num_elements = len(array_of_struct)
-    for name, value in array_of_struct[0].__dict__.items():
+    for field_name, value in array_of_struct[0].__dict__.items():
+        # create contiguous array
         data_type = None
         data_shape = None
         if np.isscalar(value):
@@ -35,28 +36,13 @@ def from_aos_to_arrays(array_of_struct):
             data_shape = tuple(list_shape)
 
         new_array = np.zeros(shape=data_shape, dtype=data_type)
-        setattr(container, name, new_array)
 
-    # Set arrays
-    for field_name, field_value in container.__dict__.items():
-        for i, element in enumerate(array_of_struct):
-            field_value[i] = getattr(element, field_name)
+        # set contiguous array
+        for element_id, element in enumerate(array_of_struct):
+            new_array[element_id] = getattr(element, field_name)
 
-    return container
-
-def initialize_condition_from_aos(condition, array_of_struct):
-    # initialize
-    num_constraints = len(array_of_struct)
-    condition.data.initialize(num_constraints)
-    condition.total_constraints = num_constraints
-
-    # copy data
-    if (num_constraints == 0):
-        return
-    container = from_aos_to_arrays(array_of_struct)
-    for name, array in container.__dict__.items():
-        condition.data.copyto(name, array)
-
+        # set datbablock
+        condition.data.copyto(field_name, new_array)
 
 
 class KinematicCollisionCondition(Condition):
