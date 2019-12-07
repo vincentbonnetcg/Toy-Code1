@@ -69,7 +69,7 @@ class DataBlock:
             self.dtype_dict['formats'].append((data_type, data_shape))
             self.dtype_dict['defaults'].append(value)
 
-    def dtype(self, num_elements, add_block_info):
+    def __dtype(self, num_elements, add_block_info):
         '''
         Returns the dtype of the datablock
         add_block_info is only used for blocks
@@ -115,8 +115,8 @@ class DataBlock:
         '''
         self.blocks.clear()
 
-        data_type = self.dtype(self.block_size, add_block_info=False)
-        block_dtype = self.dtype(self.block_size, add_block_info=True)
+        data_type = self.__dtype(self.block_size, add_block_info=False)
+        block_dtype = self.__dtype(self.block_size, add_block_info=True)
 
         num_fields = len(data_type.names)
         if num_fields == 0:
