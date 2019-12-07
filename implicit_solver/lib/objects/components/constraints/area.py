@@ -27,7 +27,7 @@ class Area(ConstraintBase):
         x0, v0 = na.node_xv(scene.dynamics, node_ids[0])
         x1, v1 = na.node_xv(scene.dynamics, node_ids[1])
         x2, v2 = na.node_xv(scene.dynamics, node_ids[2])
-        self.rest_area = math2D.area(x0, x1, x2)
+        self.rest_area = np.float64(math2D.area(x0, x1, x2))
         self.node_IDs = np.copy(node_ids)
 
     @classmethod

@@ -44,6 +44,20 @@ def from_aos_to_arrays(array_of_struct):
 
     return container
 
+def initialize_condition_from_aos(condition, array_of_struct):
+    # initialize
+    num_constraints = len(array_of_struct)
+    condition.data.initialize(num_constraints)
+    condition.total_constraints = num_constraints
+
+    # copy data
+    if (num_constraints == 0):
+        return
+    container = from_aos_to_arrays(array_of_struct)
+    for name, array in container.__dict__.items():
+        condition.data.copyto(name, array)
+
+
 
 class KinematicCollisionCondition(Condition):
     '''
@@ -88,8 +102,7 @@ class KinematicCollisionCondition(Condition):
                     spring.damping = self.damping
                     springs.append(spring)
 
-        self.data.initialize_from_array(springs)
-        self.total_constraints = len(springs)
+        initialize_condition_from_aos(self, springs)
 
 
 class KinematicAttachmentCondition(Condition):
@@ -131,8 +144,7 @@ class KinematicAttachmentCondition(Condition):
                 spring.damping = self.damping
                 springs.append(spring)
 
-        self.data.initialize_from_array(springs)
-        self.total_constraints = len(springs)
+        initialize_condition_from_aos(self, springs)
 
 class DynamicAttachmentCondition(Condition):
     '''
@@ -175,8 +187,7 @@ class DynamicAttachmentCondition(Condition):
                     spring.damping = self.damping
                     springs.append(spring)
 
-        self.data.initialize_from_array(springs)
-        self.total_constraints = len(springs)
+        initialize_condition_from_aos(self, springs)
 
 
 class EdgeCondition(Condition):
@@ -204,8 +215,8 @@ class EdgeCondition(Condition):
                 spring.damping = self.damping
                 springs.append(spring)
 
-        self.data.initialize_from_array(springs)
-        self.total_constraints = len(springs)
+        initialize_condition_from_aos(self, springs)
+
 
 class AreaCondition(Condition):
     '''
@@ -234,8 +245,7 @@ class AreaCondition(Condition):
                 constraint.damping = self.damping
                 constraints.append(constraint)
 
-        self.data.initialize_from_array(constraints)
-        self.total_constraints = len(constraints)
+        initialize_condition_from_aos(self, constraints)
 
 class WireBendingCondition(Condition):
     '''
@@ -266,5 +276,4 @@ class WireBendingCondition(Condition):
                         constraint.damping = self.damping
                         constraints.append(constraint)
 
-        self.data.initialize_from_array(constraints)
-        self.total_constraints = len(constraints)
+        initialize_condition_from_aos(self, constraints)

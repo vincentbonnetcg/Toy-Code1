@@ -108,39 +108,6 @@ class DataBlock:
 
         return np.dtype(dtype_aosoa_dict, align=True)
 
-    def initialize_from_array(self, array):
-        '''
-        Allocate the fields from the array
-        SLOW but generic - need more work
-        '''
-        # initialize local array
-        num_constraints = len(array)
-        aosoa_dtype = self.dtype(num_constraints, add_block_info=False)
-        data = np.zeros(1, dtype=aosoa_dtype)[0] # a scalar
-        for field_index, default_value in enumerate(self.dtype_dict['defaults']):
-            data[field_index][:] = default_value
-
-        for index, element in enumerate(array):
-            for attribute_name, attribute_value in element.__dict__.items():
-                if attribute_name in self.dtype_dict['names']:
-                    field_index = self.dtype_dict['names'].index(attribute_name)
-                    data[field_index][index] =  getattr(element, attribute_name)
-
-        # initialize and set block
-        self.initialize(num_constraints)
-
-        data_type = self.dtype(self.block_size, add_block_info=False)
-        num_fields = len(data_type.names)
-
-        for block_id, block_data in enumerate(self.blocks):
-
-            begin_index = block_id * self.block_size
-            block_n_elements = block_data['blockInfo_numElements']
-            end_index = begin_index + block_n_elements
-
-            for field_id in range(num_fields):
-                np.copyto(block_data[field_id][0:block_n_elements], data[field_id][begin_index:end_index])
-
     def initialize(self, num_elements):
         '''
         Allocate fields inside blocks

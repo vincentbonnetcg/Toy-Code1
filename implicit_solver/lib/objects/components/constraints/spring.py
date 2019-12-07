@@ -29,10 +29,10 @@ class AnchorSpring(ConstraintBase):
         '''
         target_pos = kinematic.get_position_from_parametric_point(kinematic_parametric_point)
         x, v = na.node_xv(scene.dynamics, node_id)
-        self.rest_length = math2D.distance(target_pos, x)
-        self.kinematic_index = kinematic.index
-        self.kinematic_component_index =  kinematic_parametric_point.index
-        self.kinematic_component_param = kinematic_parametric_point.t
+        self.rest_length = np.float64(math2D.distance(target_pos, x))
+        self.kinematic_index = np.uint32(kinematic.index)
+        self.kinematic_component_index =  np.uint32(kinematic_parametric_point.index)
+        self.kinematic_component_param = np.float64(kinematic_parametric_point.t)
         self.node_IDs = np.copy([node_id])
 
     @classmethod
