@@ -15,7 +15,7 @@ class Dynamic:
         # Allocate node data
         self.total_nodes = shape.num_vertices()
         self.data = common.DataBlock(Node)
-        self.data.initialize(self.total_nodes)
+        self.node_ids = self.data.initialize(self.total_nodes)
 
         # Set node data
         self.data.copyto('x', shape.vertex)
@@ -23,7 +23,6 @@ class Dynamic:
         self.data.fill('m', node_mass)
         self.data.fill('im', 1.0 / node_mass)
         self.data.fill('f', 0.0)
-        self.data.fill('ID', 0)
 
         # Initialize node connectivities
         self.edge_ids = np.copy(shape.edge)

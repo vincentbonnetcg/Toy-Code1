@@ -41,6 +41,9 @@ class DataBlock:
         '''
         Raise exception if 'name' cannot be added
         '''
+        if name in ['blockInfo_numElements']:
+            raise ValueError("field name " + name + " is reserved ")
+
         if keyword.iskeyword(name):
             raise ValueError("field name cannot be a keyword: " + name)
 
@@ -110,24 +113,32 @@ class DataBlock:
 
     def initialize(self, num_elements):
         '''
-        Allocate fields inside blocks
-        numpy.array_split doesn't support structured array
+        Initialize blocks and return new block ids
         '''
         self.blocks.clear()
+        return self.append(num_elements)
 
+    def append(self, num_elements):
+        '''
+        Initialize blocks and return new element ids
+        '''
+        element_ids = []
         block_dtype = self.__dtype(self.block_size)
 
         num_fields = len(self.dtype_dict['names'])
         if num_fields == 0:
             return
 
+        block_id = len(self.blocks)
+        global_element_id = self.compute_num_elements()
+
         n_blocks = math.ceil(num_elements / self.block_size)
-        for block_id in range(n_blocks):
+        for block_index in range(n_blocks):
 
             # allocate memory and blockInfo
             block_data = np.zeros(1, dtype=block_dtype)[0] # a scalar
 
-            begin_index = block_id * self.block_size
+            begin_index = block_index * self.block_size
             block_n_elements = min(self.block_size, num_elements-begin_index)
             block_data['blockInfo_numElements'] = block_n_elements
 
@@ -135,7 +146,23 @@ class DataBlock:
             for field_id, default_value in enumerate(self.dtype_dict['defaults']):
                 block_data[field_id][:] = default_value
 
+            # set ID if available
+            if 'ID' in block_data.dtype.names:
+                block_data_ID = block_data['ID']
+                for block_node_id in range(block_n_elements):
+                    object_id = 0 # will be deprecated
+                    object_node_id = 0 # will be deprecated
+                    na.set_node_id(block_data_ID[block_node_id], object_id, object_node_id, global_element_id, block_id, block_node_id)
+                    element_ids.append(block_data_ID[block_node_id])
+
+                    global_element_id += 1
+
+                block_id += 1
+
             self.blocks.append(block_data)
+
+        return element_ids
+
 
     '''
     Vectorize Functions on blocks
