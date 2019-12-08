@@ -43,7 +43,7 @@ def init_file_scene(dispatcher, render, file_path):
     Initalizes a scene including a cat shape created by the Maya/mesh_converter.py
     Latest Maya/Houdini doesn't support Python 3.x hence cannot use client.py to send data
     '''
-    dispatcher.run('reset_scene')
+    dispatcher.run('reset')
 
     # Load Data from file
     filename = get_resources_folder() + file_path
@@ -119,7 +119,7 @@ def init_multi_wire_example(dispatcher, render):
     '''
     Initalizes a scene with multiple wire attached to a kinematic object
     '''
-    dispatcher.run('reset_scene')
+    dispatcher.run('reset')
     context = dispatcher.run('get_context')
     # wire shape
     wire_shapes = []
@@ -188,7 +188,7 @@ def init_wire_example(dispatcher, render):
     '''
     Initalizes a scene with a wire attached to a kinematic object
     '''
-    dispatcher.run('reset_scene')
+    dispatcher.run('reset')
     context = dispatcher.run('get_context')
     # wire shape
     wire_shape = logic.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
@@ -243,7 +243,7 @@ def init_beam_example(dispatcher, render):
     '''
     Initalizes a scene with a beam and a wire
     '''
-    dispatcher.run('reset_scene')
+    dispatcher.run('reset')
     context = dispatcher.run('get_context')
     # beam shape
     beam_shape = logic.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)

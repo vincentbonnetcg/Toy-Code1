@@ -91,7 +91,7 @@ class CommandSolverDispatcher(CommandDispatcher):
         self.register_cmd(self._get_context, 'get_context')
         self.register_cmd(self._get_scene, 'get_scene')
         self.register_cmd(self._get_dynamic_handles, 'get_dynamic_handles')
-        self.register_cmd(self._reset_scene, 'reset_scene')
+        self.register_cmd(self._reset, 'reset')
         self.register_cmd(sim_cmds.initialize)
         self.register_cmd(sim_cmds.add_dynamic)
         self.register_cmd(sim_cmds.add_kinematic)
@@ -171,5 +171,6 @@ class CommandSolverDispatcher(CommandDispatcher):
             handles.append(handle)
         return handles
 
-    def _reset_scene(self):
+    def _reset(self):
         self._scene = system.Scene()
+        self._details = system.SolverDetails()
