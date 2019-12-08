@@ -6,6 +6,7 @@
 import numpy as np
 import lib.common as common
 from lib.objects.components.node import Node
+import lib.common.node_accessor as na
 
 class Dynamic:
     '''
@@ -42,6 +43,11 @@ class Dynamic:
         '''
         self.data.set_indexing(object_id, node_global_offset)
         self.index = object_id
+
+    def get_node_id(self, vertex_id):
+        node_id = self.node_ids[vertex_id]
+        na.set_object_id(node_id, self.index)
+        return node_id
 
     def convert_to_shape(self):
         '''

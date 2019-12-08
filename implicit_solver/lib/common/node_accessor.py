@@ -26,6 +26,10 @@ def set_node_id(node_id, object_id = 0, object_node_id = 0, global_node_id = 0, 
     node_id[4] = block_node_id
 
 @numba.njit
+def set_object_id(node_id, object_id):
+    node_id[0] = object_id
+
+@numba.njit
 def node_global_index(node_id):
     return node_id[2]
 
