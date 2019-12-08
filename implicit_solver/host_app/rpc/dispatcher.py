@@ -70,12 +70,14 @@ class CommandSolverDispatcher(CommandDispatcher):
     SCENE_PARAMETER = 'scene'
     SOLVER_PARAMETER = 'solver'
     CONTEXT_PARAMETER = 'context'
+    DETAILS_PARAMETER = 'details'
 
     def __init__(self):
         CommandDispatcher.__init__(self)
         # data
         self._scene = system.Scene()
         self._solver = system.Solver(system.ImplicitSolver())
+        self._details = system.SolverDetails()
         self._context = system.SolverContext()
         # map hash_value with objects (dynamic, kinematic, condition, force)
         self._object_dict = {}
@@ -131,6 +133,8 @@ class CommandSolverDispatcher(CommandDispatcher):
             return self._solver
         elif parameter_name == CommandSolverDispatcher.CONTEXT_PARAMETER:
             return self._context
+        elif parameter_name == CommandSolverDispatcher.DETAILS_PARAMETER:
+            return self._details
 
         # parameter provided by user
         if parameter_name in kwargs:
