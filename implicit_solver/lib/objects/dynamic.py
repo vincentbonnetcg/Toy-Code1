@@ -12,11 +12,15 @@ class Dynamic:
     '''
     Dynamic describes a simulated object
     '''
-    def __init__(self, shape, node_mass):
+    def __init__(self, details, shape, node_mass):
         # Allocate node data
         self.total_nodes = shape.num_vertices()
-        self.data = common.DataBlock(Node)
+
+        self.data = common.DataBlock(Node) # Old
         self.node_ids = self.data.initialize(self.total_nodes)
+
+        # TODO - replace local datablock with details
+        #self.node_ids = details.node.initialize(self.total_nodes)
 
         # Set node data
         self.data.copyto('x', shape.vertex)
@@ -30,6 +34,8 @@ class Dynamic:
         self.face_ids = np.copy(shape.face)
         # Object index in the scene.dynamics[.]
         self.index = 0
+        # Node global offset (remove when using details)
+        self.node_global_offset = 0
         # Metadata
         self.meta_data = {}
 
@@ -41,12 +47,12 @@ class Dynamic:
         Sets the global indices (object index and node global offset)
         Those indices are set after the object has been added to the scene
         '''
-        self.data.set_indexing(object_id, node_global_offset)
         self.index = object_id
+        self.node_global_offset = node_global_offset
 
     def get_node_id(self, vertex_index):
         node_id = self.node_ids[vertex_index]
-        na.set_object_id(node_id, self.index)
+        na.set_object_id(node_id, self.index, self.node_global_offset+vertex_index)
         return node_id
 
     def convert_to_shape(self):

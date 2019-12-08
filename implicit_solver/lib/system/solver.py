@@ -26,11 +26,11 @@ class SolverDetails:
     '''
     def __init__(self):
         block_size = 100
-        self.dynamic_db = cm.DataBlock(cpn.Node, block_size) # dynamic objects
-        self.area_db = cm.DataBlock(cpn.Area, block_size) # area constraints
-        self.bending_db = cm.DataBlock(cpn.Bending, block_size) # bending constraints
-        self.spring_db = cm.DataBlock(cpn.Spring, block_size) # spring constraints
-        self.anchorSpring_db = cm.DataBlock(cpn.AnchorSpring, block_size) # anchor spring constraints
+        self.node = cm.DataBlock(cpn.Node, block_size) # dynamic objects
+        self.area = cm.DataBlock(cpn.Area, block_size) # area constraints
+        self.bendingb = cm.DataBlock(cpn.Bending, block_size) # bending constraints
+        self.spring = cm.DataBlock(cpn.Spring, block_size) # spring constraints
+        self.anchorSpring = cm.DataBlock(cpn.AnchorSpring, block_size) # anchor spring constraints
 
     def to_datablock(array = []):
         '''

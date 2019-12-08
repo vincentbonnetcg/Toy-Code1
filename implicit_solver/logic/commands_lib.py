@@ -24,7 +24,7 @@ def add_dynamic(scene, details, shape, node_mass):
     '''
     Add a Dynamic object
     '''
-    dynamic = objects.Dynamic(shape, node_mass)
+    dynamic = objects.Dynamic(details, shape, node_mass)
     scene.add_dynamic(dynamic)
     return dynamic
 
