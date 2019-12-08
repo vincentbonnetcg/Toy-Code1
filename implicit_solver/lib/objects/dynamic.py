@@ -44,8 +44,8 @@ class Dynamic:
         self.data.set_indexing(object_id, node_global_offset)
         self.index = object_id
 
-    def get_node_id(self, vertex_id):
-        node_id = self.node_ids[vertex_id]
+    def get_node_id(self, vertex_index):
+        node_id = self.node_ids[vertex_index]
         na.set_object_id(node_id, self.index)
         return node_id
 

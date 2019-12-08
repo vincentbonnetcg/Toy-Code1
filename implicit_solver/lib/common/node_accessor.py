@@ -63,13 +63,3 @@ def node_add_f(dynamics, node_id, force):
     dynamic = dynamics[object_id]
     f = dynamic.data.blocks[block_id]['f'][block_node_id]
     f += force
-
-def get_node_id_from_vertex_id(dynamic, vertex_id):
-    '''
-    Temporary - slow method
-    Map node id and vertex id
-    '''
-    data_node_id = dynamic.data.flatten('ID')
-    for node_id in data_node_id:
-        if node_id[1] == vertex_id:
-            return node_id
