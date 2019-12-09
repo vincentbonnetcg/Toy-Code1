@@ -28,7 +28,7 @@ class SolverDetails:
         block_size = 100
         self.node = cm.DataBlock(cpn.Node, block_size) # dynamic objects
         self.area = cm.DataBlock(cpn.Area, block_size) # area constraints
-        self.bendingb = cm.DataBlock(cpn.Bending, block_size) # bending constraints
+        self.bending = cm.DataBlock(cpn.Bending, block_size) # bending constraints
         self.spring = cm.DataBlock(cpn.Spring, block_size) # spring constraints
         self.anchorSpring = cm.DataBlock(cpn.AnchorSpring, block_size) # anchor spring constraints
 
