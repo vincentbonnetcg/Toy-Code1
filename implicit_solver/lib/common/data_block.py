@@ -173,10 +173,12 @@ class DataBlock:
         return num_elements
 
     def copyto(self, field_name, values):
-        for block_id, block_data in enumerate(self.blocks):
-            begin_index = block_id * self.block_size
+        num_elements = 0
+        for block_data in self.blocks:
+            begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
-            end_index = begin_index + block_n_elements
+            num_elements += block_n_elements
+            end_index = num_elements
             np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
 
     def fill(self, field_name, value):
@@ -196,12 +198,12 @@ class DataBlock:
 
         result = np.empty(num_elements, field_dtype)
 
-        for block_id, block_data in enumerate(self.blocks):
-
-            begin_index = block_id * self.block_size
+        num_elements = 0
+        for block_data in self.blocks:
+            begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
-            end_index = begin_index + block_n_elements
-
+            num_elements += block_n_elements
+            end_index = num_elements
             np.copyto(result[begin_index:end_index], block_data[field_id][0:block_n_elements])
 
         return result
