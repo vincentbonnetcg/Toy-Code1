@@ -166,26 +166,31 @@ class DataBlock:
     '''
     Vectorize Functions on blocks
     '''
-    def compute_num_elements(self):
+    def __get_blocks(self, node_ids = []):
+        # TODO : use nodes_ids
+        return self.blocks
+
+    def compute_num_elements(self, node_ids = []):
         num_elements = 0
         for block_data in self.blocks:
             num_elements += block_data['blockInfo_numElements']
         return num_elements
 
-    def copyto(self, field_name, values):
+    def copyto(self, field_name, values, node_ids = []):
         num_elements = 0
-        for block_data in self.blocks:
+
+        for block_data in self.__get_blocks():
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
             end_index = num_elements
             np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
 
-    def fill(self, field_name, value):
+    def fill(self, field_name, value, node_ids = []):
         for block in self.blocks:
             block[field_name].fill(value)
 
-    def flatten(self, field_name):
+    def flatten(self, field_name, node_ids = []):
         '''
         Convert block of array into a single array
         '''
