@@ -166,45 +166,49 @@ class DataBlock:
     '''
     Vectorize Functions on blocks
     '''
-    def __get_blocks(self, node_ids = []):
-        # TODO : use nodes_ids
+    @staticmethod
+    def __take_from_id(iterable, ids=[]):
+        for i in ids:
+            yield iterable[i]
+
+    def __get_blocks(self, ids = []):
+        if ids:
+            return DataBlock.__take_from_id(self.blocks, ids)
+
         return self.blocks
 
-    def compute_num_elements(self, node_ids = []):
+    def compute_num_elements(self, block_ids = []):
         num_elements = 0
-        for block_data in self.blocks:
+        for block_data in self.__get_blocks(block_ids):
             num_elements += block_data['blockInfo_numElements']
         return num_elements
 
-    def copyto(self, field_name, values, node_ids = []):
+    def copyto(self, field_name, values, block_ids = []):
         num_elements = 0
 
-        for block_data in self.__get_blocks():
+        for block_data in self.__get_blocks(block_ids):
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
             end_index = num_elements
             np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
 
-    def fill(self, field_name, value, node_ids = []):
-        for block in self.blocks:
+    def fill(self, field_name, value, block_ids = []):
+        for block in self.__get_blocks(block_ids):
             block[field_name].fill(value)
 
-    def flatten(self, field_name, node_ids = []):
+    def flatten(self, field_name, block_ids = []):
         '''
         Convert block of array into a single array
         '''
         field_id = self.dtype_dict['names'].index(field_name)
         field_dtype = self.dtype_dict['formats'][field_id]
 
-        num_elements = 0
-        for block_data in self.blocks:
-            num_elements += block_data['blockInfo_numElements']
-
+        num_elements = self.compute_num_elements(block_ids)
         result = np.empty(num_elements, field_dtype)
 
         num_elements = 0
-        for block_data in self.blocks:
+        for block_data in self.__get_blocks(block_ids):
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
