@@ -156,8 +156,7 @@ class DataBlock:
 
                     global_element_id += 1
 
-                block_id += 1
-
+            block_id += 1
             self.blocks.append(block_data)
 
         return element_ids
