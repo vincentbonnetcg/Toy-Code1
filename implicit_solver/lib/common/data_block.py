@@ -118,11 +118,11 @@ class DataBlock:
         self.blocks.clear()
         return self.append(num_elements)
 
-    def append(self, num_elements):
+    def append(self, num_elements : int):
         '''
         Initialize blocks and return new element ids
         '''
-        element_ids = []
+        blocks_ids = []
         block_dtype = self.__dtype(self.block_size)
 
         num_fields = len(self.dtype_dict['names'])
@@ -152,14 +152,14 @@ class DataBlock:
                 for block_node_id in range(block_n_elements):
                     object_id = 0 # will be deprecated
                     na.set_node_id(block_data_ID[block_node_id], object_id, global_element_id, block_id, block_node_id)
-                    element_ids.append(block_data_ID[block_node_id])
 
                     global_element_id += 1
 
+            blocks_ids.append(block_id)
             block_id += 1
             self.blocks.append(block_data)
 
-        return element_ids
+        return blocks_ids
 
 
     '''

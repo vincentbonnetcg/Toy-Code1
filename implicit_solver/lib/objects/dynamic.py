@@ -17,7 +17,8 @@ class Dynamic:
         self.total_nodes = shape.num_vertices()
 
         self.data = common.DataBlock(Node) # Old
-        self.node_ids = self.data.initialize(self.total_nodes)
+        self.blocks_ids = self.data.initialize(self.total_nodes)
+        self.node_ids = None
 
         # TODO - replace local datablock with details
         #self.node_ids = details.node.initialize(self.total_nodes)
@@ -34,8 +35,6 @@ class Dynamic:
         self.face_ids = np.copy(shape.face)
         # Object index in the scene.dynamics[.]
         self.index = 0
-        # Node global offset (remove when using details)
-        self.node_global_offset = 0
         # Metadata
         self.meta_data = {}
 
@@ -48,12 +47,13 @@ class Dynamic:
         Those indices are set after the object has been added to the scene
         '''
         self.index = object_id
-        self.node_global_offset = node_global_offset
+        self.node_ids  = self.data.flatten('ID', self.blocks_ids)
+        for vertex_index, node_id in enumerate(self.node_ids):
+            na.set_object_id(node_id, self.index, node_global_offset+vertex_index)
+        self.data.copyto('ID', self.node_ids, self.blocks_ids)
 
     def get_node_id(self, vertex_index):
-        node_id = self.node_ids[vertex_index]
-        na.set_object_id(node_id, self.index, self.node_global_offset+vertex_index)
-        return node_id
+        return self.node_ids[vertex_index]
 
     def convert_to_shape(self):
         '''
