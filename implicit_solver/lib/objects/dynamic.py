@@ -17,18 +17,18 @@ class Dynamic:
         self.total_nodes = shape.num_vertices()
 
         self.data = common.DataBlock(Node) # Old
-        self.blocks_ids = self.data.initialize(self.total_nodes)
+        self.blocks_ids = self.data.append(self.total_nodes)
         self.node_ids = None
 
         # TODO - replace local datablock with details
-        #self.node_ids = details.node.initialize(self.total_nodes)
+        #self.node_ids = details.node.append(self.total_nodes)
 
         # Set node data
-        self.data.copyto('x', shape.vertex)
-        self.data.fill('v', 0.0)
-        self.data.fill('m', node_mass)
-        self.data.fill('im', 1.0 / node_mass)
-        self.data.fill('f', 0.0)
+        self.data.copyto('x', shape.vertex, self.blocks_ids)
+        self.data.fill('v', 0.0, self.blocks_ids)
+        self.data.fill('m', node_mass, self.blocks_ids)
+        self.data.fill('im', 1.0 / node_mass, self.blocks_ids)
+        self.data.fill('f', 0.0, self.blocks_ids)
 
         # Initialize node connectivities
         self.edge_ids = np.copy(shape.edge)
@@ -64,7 +64,7 @@ class Dynamic:
         num_edges = len(self.edge_ids)
         num_faces = len(self.face_ids)
         shape = common.Shape(num_vertices, num_edges, num_faces)
-        shape.vertex = self.data.flatten('x')
+        shape.vertex = self.data.flatten('x', self.blocks_ids)
         shape.edge = np.copy(self.edge_ids)
         shape.face = np.copy(self.face_ids)
 
