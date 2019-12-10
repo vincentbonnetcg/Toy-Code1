@@ -166,13 +166,13 @@ class DataBlock:
     Vectorize Functions on blocks
     '''
     @staticmethod
-    def __take_from_id(iterable, ids=[]):
-        for i in ids:
-            yield iterable[i]
+    def __take_from_id(iterable, block_ids=[]):
+        for block_id in block_ids:
+            yield iterable[block_id]
 
-    def __get_blocks(self, ids = []):
-        if ids:
-            return DataBlock.__take_from_id(self.blocks, ids)
+    def __get_blocks(self, block_ids = []):
+        if block_ids:
+            return DataBlock.__take_from_id(self.blocks, block_ids)
 
         return self.blocks
 
