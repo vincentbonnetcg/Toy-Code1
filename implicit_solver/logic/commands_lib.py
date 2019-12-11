@@ -29,16 +29,16 @@ def add_dynamic(scene, details, shape, node_mass):
     return dynamic
 
 @cm.timeit
-def solve_to_next_frame(scene, solver, context):
+def solve_to_next_frame(scene, solver, details, context):
     '''
     Solve the scene and move to the next frame
     '''
     for _ in range(context.num_substep):
         context.time += context.dt
-        solver.solve_step(scene, context)
+        solver.solve_step(scene, details, context)
 
-def initialize(scene, solver, context):
+def initialize(scene, solver, details, context):
     '''
     Initialize the solver
     '''
-    solver.initialize(scene, context)
+    solver.initialize(scene, details, context)

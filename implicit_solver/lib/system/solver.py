@@ -3,9 +3,9 @@
 @description : Solver to orchestrate the step of a solver
 """
 
-
 import lib.common as cm
 import lib.objects.components as cpn
+from lib.system import Scene
 
 class SolverContext:
     '''
@@ -51,7 +51,7 @@ class Solver:
     def __init__(self, time_integrator = None):
         self.time_integrator = time_integrator
 
-    def initialize(self, scene, context):
+    def initialize(self, scene : Scene, details : SolverDetails, context : SolverContext):
         '''
         Initialize the scene
         '''
@@ -59,27 +59,26 @@ class Solver:
         scene.init_conditions()
 
     @cm.timeit
-    def solve_step(self, scene, context):
+    def solve_step(self, scene : Scene, details : SolverDetails, context : SolverContext):
         '''
         Solve a single step (pre/step/post)
         '''
-        self._pre_step(scene, context)
-        self._step(scene, context)
-        self._post_step(scene, context)
+        self._pre_step(scene, details, context)
+        self._step(scene, details, context)
+        self._post_step(scene, details, context)
 
     @cm.timeit
-    def _pre_step(self, scene, context):
+    def _pre_step(self, scene : Scene, details : SolverDetails, context : SolverContext):
         scene.update_kinematics(context.time, context.dt)
         scene.update_conditions()
 
     @cm.timeit
-    def _step(self, scene, context):
-        # TODO : convert solver into solverDetails
+    def _step(self, scene : Scene, details : SolverDetails, context : SolverContext):
         if self.time_integrator:
-            self.time_integrator.prepare_system(scene, context.dt)
-            self.time_integrator.assemble_system(scene, context.dt)
-            self.time_integrator.solve_system(scene, context.dt)
+            self.time_integrator.prepare_system(scene, details, context.dt)
+            self.time_integrator.assemble_system(scene, details, context.dt)
+            self.time_integrator.solve_system(scene, details, context.dt)
 
     @cm.timeit
-    def _post_step(self, scene, context):
+    def _post_step(self, scene, details, context):
         pass

@@ -17,13 +17,13 @@ class TimeIntegrator:
     '''
     Base class for time integrator
     '''
-    def prepare_system(self, scene, dt):
+    def prepare_system(self, scene, details, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'prepare_system'")
 
-    def assemble_system(self, scene, dt):
+    def assemble_system(self, scene, details, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'assemble_system'")
 
-    def solve_system(self, scene, dt):
+    def solve_system(self, scene, details, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solve_system'")
 
 
@@ -71,7 +71,7 @@ class ImplicitSolver(TimeIntegrator):
         self.b = None
 
     @cm.timeit
-    def prepare_system(self, scene, dt):
+    def prepare_system(self, scene, details, dt):
         # Reset forces
         for dynamic in scene.dynamics:
             dynamic.data.fill('f', 0.0)
@@ -90,7 +90,7 @@ class ImplicitSolver(TimeIntegrator):
             condition.apply_forces(scene.dynamics)
 
     @cm.timeit
-    def assemble_system(self, scene, dt):
+    def assemble_system(self, scene, details, dt):
         '''
         Assemble the system (Ax=b) where x is the unknow change of velocity
         '''
@@ -101,7 +101,7 @@ class ImplicitSolver(TimeIntegrator):
         self._assemble_b(scene, dt)
 
     @cm.timeit
-    def solve_system(self, scene, dt):
+    def solve_system(self, scene, details, dt):
         if (scene.num_nodes() == 0):
             return
 
@@ -191,7 +191,7 @@ class SemiImplicitSolver(TimeIntegrator):
         Solver.__init__(self)
 
     @cm.timeit
-    def prepare_system(self, scene, dt):
+    def prepare_system(self, scene, details, dt):
         # Reset forces
         for dynamic in scene.dynamics:
             dynamic.data.fill('f', 0.0)
@@ -206,11 +206,11 @@ class SemiImplicitSolver(TimeIntegrator):
             condition.apply_forces(scene.dynamics)
 
     @cm.timeit
-    def assemble_system(self, scene, dt):
+    def assemble_system(self, scene, details, dt):
         pass
 
     @cm.timeit
-    def solve_system(self, scene, dt):
+    def solve_system(self, scene, details, dt):
         # Integrator
         for dynamic in scene.dynamics:
             for i in range(dynamic.num_nodes()):
