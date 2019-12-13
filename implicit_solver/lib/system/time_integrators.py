@@ -75,7 +75,7 @@ class ImplicitSolver(TimeIntegrator):
     def prepare_system(self, scene, details, dt):
         # Reset forces on all dynamic
         for dynamic in scene.dynamics:
-            details.node.fill('f', 0.0, dynamic.blocks_ids)
+            details.node.fill('f', 0.0, dynamic.block_ids)
 
         # Prepare external forces
         for force in scene.forces:
@@ -126,8 +126,8 @@ class ImplicitSolver(TimeIntegrator):
 
         # Set mass matrix
         for dynamic in scene.dynamics:
-            data_m = details.node.flatten('m',dynamic.blocks_ids)
-            data_node_id = details.node.flatten('ID',dynamic.blocks_ids)
+            data_m = details.node.flatten('m',dynamic.block_ids)
+            data_node_id = details.node.flatten('ID',dynamic.block_ids)
             for i in range(dynamic.num_nodes()):
                 mass_matrix = np.zeros((2,2))
                 np.fill_diagonal(mass_matrix, data_m[i])

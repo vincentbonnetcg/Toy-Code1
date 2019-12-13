@@ -70,9 +70,9 @@ class KinematicCollisionCondition(Condition):
         kinematic = scene.kinematics[self.kinematic_indices[0]]
         springs = []
 
-        data_x = details.node.flatten('x', dynamic.blocks_ids)
-        data_v = details.node.flatten('v', dynamic.blocks_ids)
-        data_node_id = details.node.flatten('ID', dynamic.blocks_ids)
+        data_x = details.node.flatten('x', dynamic.block_ids)
+        data_v = details.node.flatten('v', dynamic.block_ids)
+        data_node_id = details.node.flatten('ID', dynamic.block_ids)
 
         for i in range(dynamic.num_nodes()):
             node_pos = data_x[i]
@@ -111,8 +111,8 @@ class KinematicAttachmentCondition(Condition):
         kinematic = scene.kinematics[self.kinematic_indices[0]]
         springs = []
 
-        data_x = details.node.flatten('x', dynamic.blocks_ids)
-        data_node_id = details.node.flatten('ID', dynamic.blocks_ids)
+        data_x = details.node.flatten('x', dynamic.block_ids)
+        data_node_id = details.node.flatten('ID', dynamic.block_ids)
 
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
@@ -152,10 +152,10 @@ class DynamicAttachmentCondition(Condition):
         dynamic1 = scene.dynamics[self.dynamic_indices[1]]
         distance2 = self.distance * self.distance
 
-        data_x0 = details.node.flatten('x', dynamic0.blocks_ids)
-        data_node_id0 = details.node.flatten('ID', dynamic0.blocks_ids)
-        data_x1 = details.node.flatten('x', dynamic1.blocks_ids)
-        data_node_id1 = details.node.flatten('ID', dynamic1.blocks_ids)
+        data_x0 = details.node.flatten('x', dynamic0.block_ids)
+        data_node_id0 = details.node.flatten('ID', dynamic0.block_ids)
+        data_x1 = details.node.flatten('x', dynamic1.block_ids)
+        data_node_id1 = details.node.flatten('ID', dynamic1.block_ids)
 
         for i in range(dynamic0.num_nodes()):
             for j in range(dynamic1.num_nodes()):

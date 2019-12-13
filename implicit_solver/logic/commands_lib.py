@@ -49,7 +49,7 @@ def get_position_from_dynamic(scene, index, details):
     Get position from dynamic object
     '''
     dynamic = scene.dynamics[index]
-    return details.node.flatten('x', dynamic.blocks_ids)
+    return details.node.flatten('x', dynamic.block_ids)
 
 def get_segments_from_constraint(scene, index, details):
     '''

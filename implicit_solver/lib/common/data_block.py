@@ -122,7 +122,7 @@ class DataBlock:
         '''
         Initialize blocks and return new element ids
         '''
-        blocks_ids = []
+        block_ids = []
         block_dtype = self.__dtype(self.block_size)
 
         num_fields = len(self.dtype_dict['names'])
@@ -153,11 +153,11 @@ class DataBlock:
                     na.set_node_id(block_data_ID[block_node_id], global_element_id, block_id, block_node_id)
                     global_element_id += 1
 
-            blocks_ids.append(block_id)
+            block_ids.append(block_id)
             block_id += 1
             self.blocks.append(block_data)
 
-        return blocks_ids
+        return block_ids
 
 
     '''
