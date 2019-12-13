@@ -12,11 +12,13 @@ import lib.common.node_accessor as na
 from lib.system import Scene
 from lib.system import SolverDetails
 
-def initialize_condition_from_aos(condition, array_of_struct):
+def initialize_condition_from_aos(condition, array_of_struct, details_datablock):
     # initialize datablock
     num_constraints = len(array_of_struct)
-    condition.data.initialize(num_constraints)
     condition.total_constraints = num_constraints
+
+    details_datablock.remove(condition.block_ids)
+    condition.block_ids = details_datablock.append(num_constraints)
 
     if (num_constraints == 0):
         return
@@ -44,7 +46,7 @@ def initialize_condition_from_aos(condition, array_of_struct):
             new_array[element_id] = getattr(element, field_name)
 
         # set datbablock
-        condition.data.copyto(field_name, new_array)
+        details_datablock.copyto(field_name, new_array, condition.block_ids)
 
 
 class KinematicCollisionCondition(Condition):
@@ -90,7 +92,7 @@ class KinematicCollisionCondition(Condition):
                     spring.damping = self.damping
                     springs.append(spring)
 
-        initialize_condition_from_aos(self, springs)
+        initialize_condition_from_aos(self, springs, details.anchorSpring)
 
 
 class KinematicAttachmentCondition(Condition):
@@ -132,7 +134,7 @@ class KinematicAttachmentCondition(Condition):
                 spring.damping = self.damping
                 springs.append(spring)
 
-        initialize_condition_from_aos(self, springs)
+        initialize_condition_from_aos(self, springs, details.anchorSpring)
 
 class DynamicAttachmentCondition(Condition):
     '''
@@ -175,7 +177,7 @@ class DynamicAttachmentCondition(Condition):
                     spring.damping = self.damping
                     springs.append(spring)
 
-        initialize_condition_from_aos(self, springs)
+        initialize_condition_from_aos(self, springs, details.spring)
 
 
 class EdgeCondition(Condition):
@@ -203,7 +205,7 @@ class EdgeCondition(Condition):
                 spring.damping = self.damping
                 springs.append(spring)
 
-        initialize_condition_from_aos(self, springs)
+        initialize_condition_from_aos(self, springs, details.spring)
 
 
 class AreaCondition(Condition):
@@ -233,7 +235,7 @@ class AreaCondition(Condition):
                 constraint.damping = self.damping
                 constraints.append(constraint)
 
-        initialize_condition_from_aos(self, constraints)
+        initialize_condition_from_aos(self, constraints, details.area)
 
 class WireBendingCondition(Condition):
     '''
@@ -264,4 +266,4 @@ class WireBendingCondition(Condition):
                         constraint.damping = self.damping
                         constraints.append(constraint)
 
-        initialize_condition_from_aos(self, constraints)
+        initialize_condition_from_aos(self, constraints, details.bending)

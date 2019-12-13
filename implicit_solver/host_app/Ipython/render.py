@@ -72,7 +72,7 @@ class Render:
         for condition_id, condition in enumerate(scene.conditions):
             num_constraints = condition.num_constraints()
             stats_total_constraints += num_constraints
-            stats_avg_block_per_constraints += condition.data.num_blocks()
+            #stats_avg_block_per_constraints += condition.data.num_blocks() TODO
             render_prefs = condition.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue

@@ -23,6 +23,8 @@ class Condition:
     Base of a condition
     '''
     def __init__(self, stiffness, damping, constraint_type):
+        self.block_ids = []
+        self.constraint_type = constraint_type
         # Parameters
         self.stiffness = stiffness
         self.damping = damping

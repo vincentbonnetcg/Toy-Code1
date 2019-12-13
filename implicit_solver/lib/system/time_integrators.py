@@ -135,19 +135,21 @@ class ImplicitSolver(TimeIntegrator):
                 A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
-        for condition in scene.conditions:
-            data_node_ids = condition.data.flatten('node_IDs')
-            data_dfdv = condition.data.flatten('dfdv')
-            data_dfdx = condition.data.flatten('dfdx')
-            for cid in range(condition.num_constraints()):
-                ids = data_node_ids[cid]
-                for fi in range(len(ids)):
-                    for j in range(len(ids)):
-                        Jv = data_dfdv[cid][fi][j]
-                        Jx = data_dfdx[cid][fi][j]
-                        global_fi_id = na.node_global_index(ids[fi])
-                        global_j_id = na.node_global_index(ids[j])
-                        A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+        for condition in details.conditions():
+            for ct_block in condition.blocks:
+                node_ids_ptr = ct_block['node_IDs']
+                dfdv_ptr = ct_block['dfdv']
+                dfdx_ptr = ct_block['dfdx']
+                block_n_elements = ct_block['blockInfo_numElements']
+                for cid in range(block_n_elements):
+                    ids = node_ids_ptr[cid]
+                    for fi in range(len(ids)):
+                        for j in range(len(ids)):
+                            Jv = dfdv_ptr[cid][fi][j]
+                            Jx = dfdx_ptr[cid][fi][j]
+                            global_fi_id = na.node_global_index(ids[fi])
+                            global_j_id = na.node_global_index(ids[j])
+                            A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
         # convert sparse matrix
         self.A = A.sparse_matrix()
@@ -168,18 +170,20 @@ class ImplicitSolver(TimeIntegrator):
         #dfdx_v0_h2(scene.conditions, scene.dynamics, self.b, dt)
 
         # add (df/dx * v0 * h * h)
-        for condition in scene.conditions:
-            data_node_ids = condition.data.flatten('node_IDs')
-            data_dfdx = condition.data.flatten('dfdx')
-            for cid in range(condition.num_constraints()):
-                ids = data_node_ids[cid]
-                for fi in range(len(ids)):
-                    for xi in range(len(ids)):
-                        Jx = data_dfdx[cid][fi][xi]
-                        v = na.node_v(details.node, ids[xi])
-                        vec = np.dot(v, Jx) * dt * dt
-                        b_offset = na.node_global_index(ids[fi]) * 2
-                        self.b[b_offset:b_offset+2] += vec
+        for condition in details.conditions():
+            for ct_block in condition.blocks:
+                node_ids_ptr = ct_block['node_IDs']
+                dfdx_ptr = ct_block['dfdx']
+                block_n_elements = ct_block['blockInfo_numElements']
+                for cid in range(block_n_elements):
+                    ids = node_ids_ptr[cid]
+                    for fi in range(len(ids)):
+                        for xi in range(len(ids)):
+                            Jx = dfdx_ptr[cid][fi][xi]
+                            v = na.node_v(details.node, ids[xi])
+                            vec = np.dot(v, Jx) * dt * dt
+                            b_offset = na.node_global_index(ids[fi]) * 2
+                            self.b[b_offset:b_offset+2] += vec
 
     @cm.timeit
     def _advect(self, details, delta_v, dt):

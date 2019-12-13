@@ -32,17 +32,17 @@ class SolverDetails:
         self.spring = cm.DataBlock(cpn.Spring, block_size) # spring constraints
         self.anchorSpring = cm.DataBlock(cpn.AnchorSpring, block_size) # anchor spring constraints
 
-    def to_datablock(array = []):
-        '''
-        From numpy array to datablock
-        '''
-        pass
+    def block_from_datatype(self, datatype):
+        blocks = [self.node, self.area, self.bending, self.spring, self.anchorSpring]
+        datatypes = [cpn.Node, cpn.Area, cpn.Bending, cpn.Spring, cpn.AnchorSpring]
+        index = datatypes.index(datatype)
+        return blocks[index]
 
-    def from_datablock(ids = []):
-        '''
-        From datablock to numpy array
-        '''
-        pass
+    def dynamics(self):
+        return [self.node]
+
+    def conditions(self):
+        return [self.area, self.bending, self.spring, self.anchorSpring]
 
 class Solver:
     '''

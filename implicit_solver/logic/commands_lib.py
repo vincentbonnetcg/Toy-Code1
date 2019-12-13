@@ -55,10 +55,13 @@ def get_segments_from_constraint(scene, index, details):
     '''
     Get position from constraint object
     '''
-    condition = scene.conditions[index]
-    num_constraints = condition.num_constraints()
     segs = []
-    node_ids = condition.data.flatten('node_IDs')
+
+    condition = scene.conditions[index]
+    condition_data = details.block_from_datatype(condition.constraint_type)
+
+    node_ids = condition_data.flatten('node_IDs', condition.block_ids)
+    num_constraints = len(node_ids)
     for ct_index in range(num_constraints):
         num_nodes = len(node_ids[ct_index])
         if num_nodes == 2:
