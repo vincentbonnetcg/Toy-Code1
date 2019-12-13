@@ -69,7 +69,7 @@ class Render:
         plt.ylabel('y (m)')
 
         # Draw constraints
-        for condition in scene.conditions:
+        for condition_id, condition in enumerate(scene.conditions):
             num_constraints = condition.num_constraints()
             stats_total_constraints += num_constraints
             stats_avg_block_per_constraints += condition.data.num_blocks()
@@ -77,18 +77,7 @@ class Render:
             if render_prefs is None:
                 continue
 
-            segs = []
-            node_ids = condition.data.flatten('node_IDs')
-            for ct_index in range(num_constraints):
-                num_nodes = len(node_ids[ct_index])
-                # TODO 
-                #if num_nodes == 2:
-                #    points = []
-                #    for node_index in range (num_nodes):
-                #        x = na.node_x(scene.dynamics, node_ids[ct_index][node_index])
-                #        points.append(x)
-                #    segs.append(points)
-
+            segs = dispatcher.run('get_segments_from_constraint', index=condition_id)
             line_segments = collections.LineCollection(segs,
                                            linewidths=render_prefs['width'],
                                            colors=render_prefs['color'],
@@ -110,7 +99,7 @@ class Render:
             if render_prefs is None:
                 continue
 
-            dynamic_data = dispatcher.run('get_position_from_dynamic', index = dynamic_id)
+            dynamic_data = dispatcher.run('get_position_from_dynamic', index=dynamic_id)
             x, y = zip(*dynamic_data)
             self.ax.plot(x, y, '.', alpha=render_prefs['alpha'], color=render_prefs['color'], markersize = render_prefs['width'])
 
