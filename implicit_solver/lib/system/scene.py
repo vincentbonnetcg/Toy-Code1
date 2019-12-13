@@ -14,16 +14,11 @@ class Scene:
 
     # Data Functions #
     def add_dynamic(self, dynamic):
-        index = (len(self.dynamics))
-        offset = 0
-        for i in range(index):
-            offset += self.dynamics[i].num_nodes()
-
-        dynamic.set_indexing(index, offset)
+        dynamic.set_indexing(len(self.dynamics))
         self.dynamics.append(dynamic)
 
     def add_kinematic(self, kinematic, animator = None):
-        kinematic.set_indexing(index = (len(self.kinematics)))
+        kinematic.set_indexing(len(self.kinematics))
         self.kinematics.append(kinematic)
         self.animators.append(animator)
 
@@ -47,15 +42,15 @@ class Scene:
     def add_condition(self, condition):
         self.conditions.append(condition)
 
-    def init_conditions(self):
+    def init_conditions(self, details):
         for condition in self.conditions:
-            condition.update_constraints(self)
+            condition.update_constraints(self, details)
 
-    def update_conditions(self):
+    def update_conditions(self, details):
         for condition in self.conditions:
             # Only update the dynamic condition
             if condition.is_static() is False:
-                condition.update_constraints(self)
+                condition.update_constraints(self, details)
 
     # Force Functions #
     def add_force(self, force):

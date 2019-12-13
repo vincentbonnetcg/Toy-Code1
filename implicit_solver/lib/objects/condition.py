@@ -5,9 +5,9 @@
 
 import lib.common as common
 import lib.common.node_accessor as na
-from lib.system.scene import Scene
+from lib.system import Scene
 
-def apply_constraint_forces(constraint_blocks, dynamics):
+def apply_constraint_forces(constraint_blocks, details):
     for constraint_data in constraint_blocks:
         node_ids_ptr = constraint_data['node_IDs']
         force_ptr = constraint_data['f']
@@ -16,7 +16,7 @@ def apply_constraint_forces(constraint_blocks, dynamics):
             node_ids = node_ids_ptr[ct_index]
             forces = force_ptr[ct_index]
             for i in range(len(node_ids)):
-                na.node_add_f(dynamics, node_ids[i], forces[i])
+                na.node_add_f(details.node, node_ids[i], forces[i])
 
 class Condition:
     '''
@@ -47,18 +47,18 @@ class Condition:
         '''
         return True
 
-    def update_constraints(self, scene : Scene):
-        self.init_constraints(scene)
+    def update_constraints(self, scene : Scene, details):
+        self.init_constraints(scene, details)
 
-    def compute_forces(self, scene : Scene):
-        self.force_func(self.data, scene)
+    def compute_forces(self, scene : Scene, details):
+        self.force_func(self.data, scene, details)
 
-    def compute_jacobians(self, scene : Scene):
-        self.jacobian_func(self.data, scene)
+    def compute_jacobians(self, scene : Scene, details):
+        self.jacobian_func(self.data, scene, details)
 
-    def apply_forces(self, dynamics):
-        apply_constraint_forces(self.data.blocks, dynamics)
+    def apply_forces(self, details):
+        apply_constraint_forces(self.data.blocks, details)
 
-    def init_constraints(self, scene : Scene):
+    def init_constraints(self, scene : Scene, details):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
 

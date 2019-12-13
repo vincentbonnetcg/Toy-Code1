@@ -42,3 +42,10 @@ def initialize(scene, solver, details, context):
     Initialize the solver
     '''
     solver.initialize(scene, details, context)
+
+def get_position_from_dynamic(scene, index, details):
+    '''
+    Get channel from dynamic object
+    '''
+    dynamic = scene.dynamics[index]
+    return details.node.flatten('x', dynamic.blocks_ids)

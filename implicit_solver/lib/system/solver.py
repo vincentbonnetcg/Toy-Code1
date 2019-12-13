@@ -56,7 +56,7 @@ class Solver:
         Initialize the scene
         '''
         scene.init_kinematics(context.start_time)
-        scene.init_conditions()
+        scene.init_conditions(details)
 
     @cm.timeit
     def solve_step(self, scene : Scene, details : SolverDetails, context : SolverContext):
@@ -70,7 +70,7 @@ class Solver:
     @cm.timeit
     def _pre_step(self, scene : Scene, details : SolverDetails, context : SolverContext):
         scene.update_kinematics(context.time, context.dt)
-        scene.update_conditions()
+        scene.update_conditions(details)
 
     @cm.timeit
     def _step(self, scene : Scene, details : SolverDetails, context : SolverContext):

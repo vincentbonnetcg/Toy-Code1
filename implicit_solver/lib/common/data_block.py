@@ -152,7 +152,6 @@ class DataBlock:
                 for block_node_id in range(block_n_elements):
                     object_id = 0 # will be deprecated
                     na.set_node_id(block_data_ID[block_node_id], object_id, global_element_id, block_id, block_node_id)
-
                     global_element_id += 1
 
             blocks_ids.append(block_id)

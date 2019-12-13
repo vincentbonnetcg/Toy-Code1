@@ -42,13 +42,14 @@ def assemble_b__fo_h(node : cpn.Node, b, dt):
     offset = na.node_global_index(node.ID) * 2
     b[offset:offset+2] += node.f * dt
 
+
 #@generate.as_vectorized
-#def dfdx_v0_h2(cnt : cpn.ConstraintBase, dynamics, b, dt):
+#def dfdx_v0_h2(cnt : cpn.ConstraintBase, details, b, dt):
 #    num_nodes = len(cnt.node_ids)
 #    for fi in range(num_nodes):
 #        for xi in range(num_nodes):
 #            Jx = cnt.dfdx[fi][xi]
-#            x, v = na.node_xv(dynamics, cnt.node_ids[xi])
+#            x, v = na.node_xv(details.node, cnt.node_ids[xi])
 #            b_offset = na.node_global_index(cnt.node_ids[fi]) * 2
 #            b[b_offset:b_offset+2] += np.dot(v, Jx) * dt * dt
 
@@ -72,22 +73,22 @@ class ImplicitSolver(TimeIntegrator):
 
     @cm.timeit
     def prepare_system(self, scene, details, dt):
-        # Reset forces
+        # Reset forces on all dynamic
         for dynamic in scene.dynamics:
-            dynamic.data.fill('f', 0.0)
+            details.node.fill('f', 0.0, dynamic.blocks_ids)
 
         # Prepare external forces
         for force in scene.forces:
-            force.apply_forces(scene.dynamics)
+            force.apply_forces(details)
 
         # Prepare constraints (forces and jacobians)
         for condition in scene.conditions:
-            condition.compute_forces(scene)
-            condition.compute_jacobians(scene)
+            condition.compute_forces(scene, details)
+            condition.compute_jacobians(scene, details)
 
         # Add forces to object from constraints
         for condition in scene.conditions:
-            condition.apply_forces(scene.dynamics)
+            condition.apply_forces(details)
 
     @cm.timeit
     def assemble_system(self, scene, details, dt):
@@ -97,8 +98,8 @@ class ImplicitSolver(TimeIntegrator):
         if (scene.num_nodes() == 0):
             return
 
-        self._assemble_A(scene, dt)
-        self._assemble_b(scene, dt)
+        self._assemble_A(scene, details, dt)
+        self._assemble_b(scene, details, dt)
 
     @cm.timeit
     def solve_system(self, scene, details, dt):
@@ -110,10 +111,10 @@ class ImplicitSolver(TimeIntegrator):
         cg_result = scipy.sparse.linalg.cg(self.A, self.b)
         delta_v = cg_result[0].reshape(scene.num_nodes(), 2)
         # Advect
-        self._advect(scene, delta_v, dt)
+        self._advect(details, delta_v, dt)
 
     @cm.timeit
-    def _assemble_A(self, scene, dt):
+    def _assemble_A(self, scene, details, dt):
         '''
         Assemble A = (M - (h * df/dv + h^2 * df/dx))
         '''
@@ -125,8 +126,8 @@ class ImplicitSolver(TimeIntegrator):
 
         # Set mass matrix
         for dynamic in scene.dynamics:
-            data_m = dynamic.data.flatten('m')
-            data_node_id = dynamic.data.flatten('ID')
+            data_m = details.node.flatten('m',dynamic.blocks_ids)
+            data_node_id = details.node.flatten('ID',dynamic.blocks_ids)
             for i in range(dynamic.num_nodes()):
                 mass_matrix = np.zeros((2,2))
                 np.fill_diagonal(mass_matrix, data_m[i])
@@ -152,7 +153,7 @@ class ImplicitSolver(TimeIntegrator):
         self.A = A.sparse_matrix()
 
     @cm.timeit
-    def _assemble_b(self, scene, dt):
+    def _assemble_b(self, scene, details, dt):
         '''
         Assemble b = h *( f0 + h * df/dx * v0)
                  b = (f0 * h) + (h^2 * df/dx * v0)
@@ -161,7 +162,7 @@ class ImplicitSolver(TimeIntegrator):
         self.b = np.zeros(total_nodes * 2)
 
         # set (f0 * h)
-        assemble_b__fo_h(scene.dynamics, self.b, dt)
+        assemble_b__fo_h(details.node, self.b, dt)
 
         # add (df/dx * v0 * h * h)
         #dfdx_v0_h2(scene.conditions, scene.dynamics, self.b, dt)
@@ -175,14 +176,14 @@ class ImplicitSolver(TimeIntegrator):
                 for fi in range(len(ids)):
                     for xi in range(len(ids)):
                         Jx = data_dfdx[cid][fi][xi]
-                        v = na.node_v(scene.dynamics, ids[xi])
+                        v = na.node_v(details.node, ids[xi])
                         vec = np.dot(v, Jx) * dt * dt
                         b_offset = na.node_global_index(ids[fi]) * 2
                         self.b[b_offset:b_offset+2] += vec
 
     @cm.timeit
-    def _advect(self, scene, delta_v, dt):
-        advect(scene.dynamics, delta_v, dt)
+    def _advect(self, details, delta_v, dt):
+        advect(details.node, delta_v, dt)
 
 '''
 NEED TO RE-IMPLEMENT
