@@ -27,7 +27,7 @@ Datablock Tests
 '''
 class TestDataBlock(unittest.TestCase):
 
-    def test_datablock_datatype(self):
+    def test_datatype(self):
         datablock = create_datablock(num_elements=10)
         datablock_type = np.dtype(datablock.blocks[0])
         self.assertEqual('field_0' in datablock_type.names, True)
@@ -36,13 +36,14 @@ class TestDataBlock(unittest.TestCase):
         self.assertEqual(datablock_type.isalignedstruct, True)
         self.assertEqual(datablock_type.itemsize, 4008)
 
-    def test_datablock_default_values(self):
+    def test_default_values(self):
         datablock = create_datablock(num_elements=10)
         block0 = datablock.blocks[0]
         self.assertEqual(block0['field_0'][0], 0.6)
         self.assertTrue((block0['field_1'][0] == [[0.5, 0.5], [0.5, 0.5]]).all())
+        self.assertEqual(block0['field_1'][0][0][0], 0.5)
 
-    def test_datablock_set_values(self):
+    def test_fill(self):
         datablock = create_datablock(num_elements=10)
         datablock.fill('field_0', 1.5)
         datablock.fill('field_1', 2.5)
@@ -50,7 +51,7 @@ class TestDataBlock(unittest.TestCase):
         self.assertEqual(block0['field_0'][0], 1.5)
         self.assertTrue((block0['field_1'][0] == [[2.5, 2.5], [2.5, 2.5]]).all())
 
-    def test_blocks(self):
+    def test_create_blocks(self):
         num_elements = 10
         datablock = create_datablock(num_elements, block_size=3)
         datablock.copyto('field_0', range(num_elements))
@@ -63,12 +64,14 @@ class TestDataBlock(unittest.TestCase):
         self.assertTrue((datablock.blocks[2]['field_0'] == [6.,7.,8.]).all())
         self.assertTrue((datablock.blocks[3]['field_0'] == [9.,0.6,0.6]).all())
 
-    def test_blocks_default_values(self):
+    def test_remove_blocks(self):
         num_elements = 10
         datablock = create_datablock(num_elements, block_size=3)
-        block0 = datablock.blocks[0]
-        self.assertEqual(block0['field_0'][0], 0.6)
-        self.assertEqual(block0['field_1'][0][0][0], 0.5)
+        datablock.copyto('field_0', range(num_elements))
+
+        datablock.remove([1,2]) # remove block 1 and 2
+        flat_array = datablock.flatten('field_0')
+        self.assertTrue((flat_array == [0.0,1.0,2.0,9.0]).all())
 
     def setUp(self):
         print(" TestDataBlock:", self._testMethodName)

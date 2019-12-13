@@ -159,6 +159,15 @@ class DataBlock:
 
         return block_ids
 
+    def remove(self, block_ids = []):
+        if not block_ids:
+            return
+
+        if 'ID' in self.dtype_dict['names']:
+            raise ValueError("ID channel used by this datablock. Another datablock might references this one => cannot delete")
+
+        for block_id in sorted(block_ids, reverse=True):
+            del(self.blocks[block_id])
 
     '''
     Vectorize Functions on blocks
