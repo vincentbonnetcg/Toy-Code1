@@ -38,11 +38,11 @@ class Bending(ConstraintBase):
         self.node_IDs = np.copy(node_ids)
 
     @classmethod
-    def compute_forces(cls, datablock_cts : DataBlock, scene : Scene, details) -> None:
+    def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:
         '''
         Add the force to the datablock
         '''
-        for ct_block in datablock_cts.blocks:
+        for ct_block in blocks_iterator:
             node_ids_ptr = ct_block['node_IDs']
             rest_angle_ptr = ct_block['rest_angle']
             stiffness_ptr = ct_block['stiffness']
@@ -59,11 +59,11 @@ class Bending(ConstraintBase):
                 force_ptr[ct_index][2] = f2
 
     @classmethod
-    def compute_jacobians(cls, datablock_cts : DataBlock, scene : Scene, details) -> None:
+    def compute_jacobians(cls, blocks_iterator, scene : Scene, details) -> None:
         '''
         Add the force jacobian functions to the datablock
         '''
-        for ct_block in datablock_cts.blocks:
+        for ct_block in blocks_iterator:
             node_ids_ptr = ct_block['node_IDs']
             rest_angle_ptr = ct_block['rest_angle']
             stiffness_ptr = ct_block['stiffness']

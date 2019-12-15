@@ -8,8 +8,8 @@ import lib.common.node_accessor as na
 from lib.system import Scene
 
 def apply_constraint_forces(constraint_type, block_ids, details):
-    constraint_blocks = details.block_from_datatype(constraint_type).get_blocks(block_ids)
-    for constraint_data in constraint_blocks:
+    blocks_iterator = details.block_from_datatype(constraint_type).get_blocks(block_ids)
+    for constraint_data in blocks_iterator:
         node_ids_ptr = constraint_data['node_IDs']
         force_ptr = constraint_data['f']
         block_n_elements = constraint_data['blockInfo_numElements']
@@ -29,8 +29,6 @@ class Condition:
         # Parameters
         self.stiffness = stiffness
         self.damping = damping
-        # Data
-        self.data = common.DataBlock(constraint_type)
         # Energy / Force / Jacobian (Used by the optimiser)
         self.energy_func = None # Not used yet
         self.force_func =  constraint_type.compute_forces # derivative of the energy function
@@ -54,10 +52,12 @@ class Condition:
         self.init_constraints(scene, details)
 
     def compute_forces(self, scene : Scene, details):
-        self.force_func(self.data, scene, details)
+        blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
+        self.force_func(blocks_iterator, scene, details)
 
     def compute_jacobians(self, scene : Scene, details):
-        self.jacobian_func(self.data, scene, details)
+        blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
+        self.jacobian_func(blocks_iterator, scene, details)
 
     def apply_forces(self, details):
         apply_constraint_forces(self.constraint_type, self.block_ids, details)
