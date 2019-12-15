@@ -43,11 +43,11 @@ def assemble_b__fo_h(node : cpn.Node, b, dt):
     b[offset:offset+2] += node.f * dt
 
 @generate.as_vectorized
-def dfdx_v0_h2(cnt : cpn.ConstraintBase, detail_nodes, b, dt):
-    num_nodes = len(cnt.node_IDs)
+def dfdx_v0_h2(constraint : cpn.ConstraintBase, detail_nodes, b, dt):
+    num_nodes = len(constraint.node_IDs)
     for fi in range(num_nodes):
         for xi in range(num_nodes):
-            Jx = cnt.dfdx[fi][xi]
+            Jx = constraint.dfdx[fi][xi]
             #v = na.node_v(detail_nodes, cnt.node_IDs[xi])
             #v = na.node_v(details.node, ids[xi])
             #vec = np.dot(v, Jx) * dt * dt
