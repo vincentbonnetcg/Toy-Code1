@@ -7,7 +7,8 @@ import lib.common as common
 import lib.common.node_accessor as na
 from lib.system import Scene
 
-def apply_constraint_forces(constraint_blocks, details):
+def apply_constraint_forces(constraint_type, block_ids, details):
+    constraint_blocks = details.block_from_datatype(constraint_type).get_blocks(block_ids)
     for constraint_data in constraint_blocks:
         node_ids_ptr = constraint_data['node_IDs']
         force_ptr = constraint_data['f']
@@ -59,7 +60,7 @@ class Condition:
         self.jacobian_func(self.data, scene, details)
 
     def apply_forces(self, details):
-        apply_constraint_forces(self.data.blocks, details)
+        apply_constraint_forces(self.constraint_type, self.block_ids, details)
 
     def init_constraints(self, scene : Scene, details):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")

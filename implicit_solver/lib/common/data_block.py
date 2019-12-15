@@ -177,7 +177,7 @@ class DataBlock:
         for block_id in block_ids:
             yield iterable[block_id]
 
-    def __get_blocks(self, block_ids = []):
+    def get_blocks(self, block_ids = []):
         if block_ids:
             return DataBlock.__take_from_id(self.blocks, block_ids)
 
@@ -185,14 +185,14 @@ class DataBlock:
 
     def compute_num_elements(self, block_ids = []):
         num_elements = 0
-        for block_data in self.__get_blocks(block_ids):
+        for block_data in self.get_blocks(block_ids):
             num_elements += block_data['blockInfo_numElements']
         return num_elements
 
     def copyto(self, field_name, values, block_ids = []):
         num_elements = 0
 
-        for block_data in self.__get_blocks(block_ids):
+        for block_data in self.get_blocks(block_ids):
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
@@ -200,7 +200,7 @@ class DataBlock:
             np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
 
     def fill(self, field_name, value, block_ids = []):
-        for block in self.__get_blocks(block_ids):
+        for block in self.get_blocks(block_ids):
             block[field_name].fill(value)
 
     def flatten(self, field_name, block_ids = []):
@@ -214,7 +214,7 @@ class DataBlock:
         result = np.empty(num_elements, field_dtype)
 
         num_elements = 0
-        for block_data in self.__get_blocks(block_ids):
+        for block_data in self.get_blocks(block_ids):
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
