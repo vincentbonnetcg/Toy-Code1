@@ -20,10 +20,10 @@ class TimeIntegrator:
     def prepare_system(self, scene, details, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'prepare_system'")
 
-    def assemble_system(self, scene, details, dt):
+    def assemble_system(self, details, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'assemble_system'")
 
-    def solve_system(self, scene, details, dt):
+    def solve_system(self, details, dt):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solve_system'")
 
 
@@ -91,48 +91,50 @@ class ImplicitSolver(TimeIntegrator):
             condition.apply_forces(details)
 
     @cm.timeit
-    def assemble_system(self, scene, details, dt):
+    def assemble_system(self, details, dt):
         '''
         Assemble the system (Ax=b) where x is the unknow change of velocity
         '''
-        if (scene.num_nodes() == 0):
+        if (details.node.compute_num_elements() == 0):
             return
 
-        self._assemble_A(scene, details, dt)
-        self._assemble_b(scene, details, dt)
+        self._assemble_A(details, dt)
+        self._assemble_b(details, dt)
 
     @cm.timeit
-    def solve_system(self, scene, details, dt):
-        if (scene.num_nodes() == 0):
+    def solve_system(self, details, dt):
+        num_nodes = details.node.compute_num_elements()
+        if (num_nodes == 0):
             return
 
         # Solve the system (Ax=b) and reshape the conjugate gradient result
         # In this case, the reshape operation is not causing any reallocation
         cg_result = scipy.sparse.linalg.cg(self.A, self.b)
-        delta_v = cg_result[0].reshape(scene.num_nodes(), 2)
+        delta_v = cg_result[0].reshape(num_nodes, 2)
         # Advect
         self._advect(details, delta_v, dt)
 
     @cm.timeit
-    def _assemble_A(self, scene, details, dt):
+    def _assemble_A(self, details, dt):
         '''
         Assemble A = (M - (h * df/dv + h^2 * df/dx))
         '''
-        total_nodes = scene.num_nodes()
-
+        total_nodes = details.node.compute_num_elements()
         num_rows = total_nodes
         num_columns = total_nodes
         A = cm.BSRSparseMatrix(num_rows, num_columns, 2)
 
         # Set mass matrix
-        for dynamic in scene.dynamics:
-            data_m = details.node.flatten('m',dynamic.block_ids)
-            data_node_id = details.node.flatten('ID',dynamic.block_ids)
-            for i in range(dynamic.num_nodes()):
-                mass_matrix = np.zeros((2,2))
-                np.fill_diagonal(mass_matrix, data_m[i])
-                idx = na.node_global_index(data_node_id[i])
-                A.add(idx, idx, mass_matrix)
+        for dynamic in details.dynamics():
+            for obj_block in dynamic.blocks:
+                data_m = obj_block['m']
+                data_node_id = obj_block['ID']
+                block_n_elements = obj_block['blockInfo_numElements']
+                for i in range(block_n_elements):
+                    mass_matrix = np.zeros((2,2))
+                    np.fill_diagonal(mass_matrix, data_m[i])
+                    idx = na.node_global_index(data_node_id[i])
+                    A.add(idx, idx, mass_matrix)
 
         # Substract (h * df/dv + h^2 * df/dx)
         for condition in details.conditions():
@@ -155,19 +157,19 @@ class ImplicitSolver(TimeIntegrator):
         self.A = A.sparse_matrix()
 
     @cm.timeit
-    def _assemble_b(self, scene, details, dt):
+    def _assemble_b(self, details, dt):
         '''
         Assemble b = h *( f0 + h * df/dx * v0)
                  b = (f0 * h) + (h^2 * df/dx * v0)
         '''
-        total_nodes = scene.num_nodes()
+        total_nodes = details.node.compute_num_elements()
         self.b = np.zeros(total_nodes * 2)
 
         # set (f0 * h)
         assemble_b__fo_h(details.node, self.b, dt)
 
         # add (df/dx * v0 * h * h)
-        #dfdx_v0_h2(scene.conditions, scene.dynamics, self.b, dt)
+        #dfdx_v0_h2(details.conditions, details.dynamics, self.b, dt)
 
         # add (df/dx * v0 * h * h)
         for condition in details.conditions():
@@ -211,11 +213,11 @@ class SemiImplicitSolver(TimeIntegrator):
             condition.apply_forces(scene.dynamics)
 
     @cm.timeit
-    def assemble_system(self, scene, details, dt):
+    def assemble_system(self, details, dt):
         pass
 
     @cm.timeit
-    def solve_system(self, scene, details, dt):
+    def solve_system(self, details, dt):
         # Integrator
         for dynamic in scene.dynamics:
             for i in range(dynamic.num_nodes()):

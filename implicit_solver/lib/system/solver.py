@@ -76,8 +76,8 @@ class Solver:
     def _step(self, scene : Scene, details : SolverDetails, context : SolverContext):
         if self.time_integrator:
             self.time_integrator.prepare_system(scene, details, context.dt)
-            self.time_integrator.assemble_system(scene, details, context.dt)
-            self.time_integrator.solve_system(scene, details, context.dt)
+            self.time_integrator.assemble_system(details, context.dt)
+            self.time_integrator.solve_system(details, context.dt)
 
     @cm.timeit
     def _post_step(self, scene, details, context):
