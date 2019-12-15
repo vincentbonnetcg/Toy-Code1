@@ -5,6 +5,7 @@
 
 import lib.objects as objects
 import lib.common as cm
+import lib.common.node_accessor as na
 
 def set_render_prefs(obj, prefs):
     '''
@@ -42,3 +43,32 @@ def initialize(scene, solver, details, context):
     Initialize the solver
     '''
     solver.initialize(scene, details, context)
+
+def get_position_from_dynamic(scene, index, details):
+    '''
+    Get position from dynamic object
+    '''
+    dynamic = scene.dynamics[index]
+    return details.node.flatten('x', dynamic.block_ids)
+
+def get_segments_from_constraint(scene, index, details):
+    '''
+    Get position from constraint object
+    '''
+    segs = []
+
+    condition = scene.conditions[index]
+    condition_data = details.block_from_datatype(condition.constraint_type)
+
+    node_ids = condition_data.flatten('node_IDs', condition.block_ids)
+    num_constraints = len(node_ids)
+    for ct_index in range(num_constraints):
+        num_nodes = len(node_ids[ct_index])
+        if num_nodes == 2:
+            points = []
+            for node_index in range (num_nodes):
+                x = na.node_x(details.node, node_ids[ct_index][node_index])
+                points.append(x)
+            segs.append(points)
+
+    return segs

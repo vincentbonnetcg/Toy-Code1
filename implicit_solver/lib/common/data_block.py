@@ -122,7 +122,7 @@ class DataBlock:
         '''
         Initialize blocks and return new element ids
         '''
-        blocks_ids = []
+        block_ids = []
         block_dtype = self.__dtype(self.block_size)
 
         num_fields = len(self.dtype_dict['names'])
@@ -150,17 +150,24 @@ class DataBlock:
             if 'ID' in block_data.dtype.names:
                 block_data_ID = block_data['ID']
                 for block_node_id in range(block_n_elements):
-                    object_id = 0 # will be deprecated
-                    na.set_node_id(block_data_ID[block_node_id], object_id, global_element_id, block_id, block_node_id)
-
+                    na.set_node_id(block_data_ID[block_node_id], global_element_id, block_id, block_node_id)
                     global_element_id += 1
 
-            blocks_ids.append(block_id)
+            block_ids.append(block_id)
             block_id += 1
             self.blocks.append(block_data)
 
-        return blocks_ids
+        return block_ids
 
+    def remove(self, block_ids = []):
+        if not block_ids:
+            return
+
+        if 'ID' in self.dtype_dict['names']:
+            raise ValueError("ID channel used by this datablock. Another datablock might references this one => cannot delete")
+
+        for block_id in sorted(block_ids, reverse=True):
+            del(self.blocks[block_id])
 
     '''
     Vectorize Functions on blocks
@@ -170,7 +177,7 @@ class DataBlock:
         for block_id in block_ids:
             yield iterable[block_id]
 
-    def __get_blocks(self, block_ids = []):
+    def get_blocks(self, block_ids = []):
         if block_ids:
             return DataBlock.__take_from_id(self.blocks, block_ids)
 
@@ -178,14 +185,14 @@ class DataBlock:
 
     def compute_num_elements(self, block_ids = []):
         num_elements = 0
-        for block_data in self.__get_blocks(block_ids):
+        for block_data in self.get_blocks(block_ids):
             num_elements += block_data['blockInfo_numElements']
         return num_elements
 
     def copyto(self, field_name, values, block_ids = []):
         num_elements = 0
 
-        for block_data in self.__get_blocks(block_ids):
+        for block_data in self.get_blocks(block_ids):
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
@@ -193,7 +200,7 @@ class DataBlock:
             np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
 
     def fill(self, field_name, value, block_ids = []):
-        for block in self.__get_blocks(block_ids):
+        for block in self.get_blocks(block_ids):
             block[field_name].fill(value)
 
     def flatten(self, field_name, block_ids = []):
@@ -207,7 +214,7 @@ class DataBlock:
         result = np.empty(num_elements, field_dtype)
 
         num_elements = 0
-        for block_data in self.__get_blocks(block_ids):
+        for block_data in self.get_blocks(block_ids):
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements

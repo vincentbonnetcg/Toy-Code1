@@ -5,10 +5,11 @@
 
 import lib.common as common
 import lib.common.node_accessor as na
-from lib.system.scene import Scene
+from lib.system import Scene
 
-def apply_constraint_forces(constraint_blocks, dynamics):
-    for constraint_data in constraint_blocks:
+def apply_constraint_forces(constraint_type, block_ids, details):
+    blocks_iterator = details.block_from_datatype(constraint_type).get_blocks(block_ids)
+    for constraint_data in blocks_iterator:
         node_ids_ptr = constraint_data['node_IDs']
         force_ptr = constraint_data['f']
         block_n_elements = constraint_data['blockInfo_numElements']
@@ -16,18 +17,18 @@ def apply_constraint_forces(constraint_blocks, dynamics):
             node_ids = node_ids_ptr[ct_index]
             forces = force_ptr[ct_index]
             for i in range(len(node_ids)):
-                na.node_add_f(dynamics, node_ids[i], forces[i])
+                na.node_add_f(details.node, node_ids[i], forces[i])
 
 class Condition:
     '''
     Base of a condition
     '''
     def __init__(self, stiffness, damping, constraint_type):
+        self.block_ids = []
+        self.constraint_type = constraint_type
         # Parameters
         self.stiffness = stiffness
         self.damping = damping
-        # Data
-        self.data = common.DataBlock(constraint_type)
         # Energy / Force / Jacobian (Used by the optimiser)
         self.energy_func = None # Not used yet
         self.force_func =  constraint_type.compute_forces # derivative of the energy function
@@ -47,18 +48,20 @@ class Condition:
         '''
         return True
 
-    def update_constraints(self, scene : Scene):
-        self.init_constraints(scene)
+    def update_constraints(self, scene : Scene, details):
+        self.init_constraints(scene, details)
 
-    def compute_forces(self, scene : Scene):
-        self.force_func(self.data, scene)
+    def compute_forces(self, scene : Scene, details):
+        blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
+        self.force_func(blocks_iterator, scene, details)
 
-    def compute_jacobians(self, scene : Scene):
-        self.jacobian_func(self.data, scene)
+    def compute_jacobians(self, scene : Scene, details):
+        blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
+        self.jacobian_func(blocks_iterator, scene, details)
 
-    def apply_forces(self, dynamics):
-        apply_constraint_forces(self.data.blocks, dynamics)
+    def apply_forces(self, details):
+        apply_constraint_forces(self.constraint_type, self.block_ids, details)
 
-    def init_constraints(self, scene : Scene):
+    def init_constraints(self, scene : Scene, details):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
 

@@ -9,7 +9,7 @@ import matplotlib.collections as collections
 
 import lib.common as cm
 import lib.common.node_accessor as na
-import lib.system as system
+from lib.system import Scene
 
 import numpy as np
 
@@ -43,7 +43,7 @@ class Render:
         '''
         self.render_folder_path = path
 
-    def render_scene(self, scene : system.Scene, frame_id):
+    def render_scene(self, dispatcher, scene : Scene, frame_id):
         '''
         Render the scene into a figue
         '''
@@ -69,25 +69,15 @@ class Render:
         plt.ylabel('y (m)')
 
         # Draw constraints
-        for condition in scene.conditions:
+        for condition_id, condition in enumerate(scene.conditions):
             num_constraints = condition.num_constraints()
             stats_total_constraints += num_constraints
-            stats_avg_block_per_constraints += condition.data.num_blocks()
+            #stats_avg_block_per_constraints += condition.data.num_blocks() TODO
             render_prefs = condition.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
 
-            segs = []
-            node_ids = condition.data.flatten('node_IDs')
-            for ct_index in range(num_constraints):
-                num_nodes = len(node_ids[ct_index])
-                if num_nodes == 2:
-                    points = []
-                    for node_index in range (num_nodes):
-                        x = na.node_x(scene.dynamics, node_ids[ct_index][node_index])
-                        points.append(x)
-                    segs.append(points)
-
+            segs = dispatcher.run('get_segments_from_constraint', index=condition_id)
             line_segments = collections.LineCollection(segs,
                                            linewidths=render_prefs['width'],
                                            colors=render_prefs['color'],
@@ -96,18 +86,21 @@ class Render:
 
             self.ax.add_collection(line_segments)
 
-        stats_avg_block_per_constraints /= len(scene.conditions)
-        stats_avg_block_per_constraints = round(stats_avg_block_per_constraints, 2)
+        if stats_avg_block_per_constraints > 0:
+            stats_avg_block_per_constraints /= len(scene.conditions)
+            stats_avg_block_per_constraints = round(stats_avg_block_per_constraints, 2)
 
         # Draw nodes
-        for dynamic in scene.dynamics:
+        for dynamic_id, dynamic in enumerate(scene.dynamics):
             stats_total_nodes += dynamic.num_nodes()
-            stats_avg_block_per_objects += dynamic.data.num_blocks()
+            #stats_avg_block_per_objects += dispatcher.get_dynamic_num_block() TODO
+
             render_prefs = dynamic.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
 
-            x, y = zip(*dynamic.data.flatten('x'))
+            dynamic_data = dispatcher.run('get_position_from_dynamic', index=dynamic_id)
+            x, y = zip(*dynamic_data)
             self.ax.plot(x, y, '.', alpha=render_prefs['alpha'], color=render_prefs['color'], markersize = render_prefs['width'])
 
         stats_avg_block_per_objects /= len(scene.dynamics)
@@ -149,7 +142,7 @@ class Render:
         #self.fig = plt.figure(figsize=(7, 4), dpi=200) # to export higher resolution images
         scene = dispatcher.run("get_scene")
         self.fig = plt.figure()
-        self.render_scene(scene, frame_id)
+        self.render_scene(dispatcher, scene, frame_id)
         #self.render_sparse_matrix(solver, frameId)
 
     @cm.timeit
