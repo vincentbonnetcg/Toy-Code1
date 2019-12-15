@@ -17,7 +17,7 @@ def apply_constraint_forces(constraint_type, block_ids, details):
             node_ids = node_ids_ptr[ct_index]
             forces = force_ptr[ct_index]
             for i in range(len(node_ids)):
-                na.node_add_f(details.node, node_ids[i], forces[i])
+                na.node_add_f(details.node.blocks, node_ids[i], forces[i])
 
 class Condition:
     '''

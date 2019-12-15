@@ -42,16 +42,17 @@ def assemble_b__fo_h(node : cpn.Node, b, dt):
     offset = na.node_global_index(node.ID) * 2
     b[offset:offset+2] += node.f * dt
 
-
-#@generate.as_vectorized
-#def dfdx_v0_h2(cnt : cpn.ConstraintBase, details, b, dt):
-#    num_nodes = len(cnt.node_ids)
-#    for fi in range(num_nodes):
-#        for xi in range(num_nodes):
-#            Jx = cnt.dfdx[fi][xi]
-#            x, v = na.node_xv(details.node, cnt.node_ids[xi])
-#            b_offset = na.node_global_index(cnt.node_ids[fi]) * 2
-#            b[b_offset:b_offset+2] += np.dot(v, Jx) * dt * dt
+@generate.as_vectorized
+def dfdx_v0_h2(cnt : cpn.ConstraintBase, detail_nodes, b, dt):
+    num_nodes = len(cnt.node_IDs)
+    for fi in range(num_nodes):
+        for xi in range(num_nodes):
+            Jx = cnt.dfdx[fi][xi]
+            #v = na.node_v(detail_nodes, cnt.node_IDs[xi])
+            #v = na.node_v(details.node, ids[xi])
+            #vec = np.dot(v, Jx) * dt * dt
+            #b_offset = na.node_global_index(ids[fi]) * 2
+            #self.b[b_offset:b_offset+2] += vec
 
 class ImplicitSolver(TimeIntegrator):
     '''
@@ -168,8 +169,10 @@ class ImplicitSolver(TimeIntegrator):
         # set (f0 * h)
         assemble_b__fo_h(details.node, self.b, dt)
 
-        # add (df/dx * v0 * h * h)
-        #dfdx_v0_h2(details.conditions, details.dynamics, self.b, dt)
+        # add (df/dx * v0 * h * h) 
+        for condition in details.conditions():
+            if len(condition.blocks) > 0:
+                dfdx_v0_h2(condition, details.node, self.b, dt)
 
         # add (df/dx * v0 * h * h)
         for condition in details.conditions():
@@ -182,7 +185,7 @@ class ImplicitSolver(TimeIntegrator):
                     for fi in range(len(ids)):
                         for xi in range(len(ids)):
                             Jx = dfdx_ptr[cid][fi][xi]
-                            v = na.node_v(details.node, ids[xi])
+                            v = na.node_v(details.node.blocks, ids[xi])
                             vec = np.dot(v, Jx) * dt * dt
                             b_offset = na.node_global_index(ids[fi]) * 2
                             self.b[b_offset:b_offset+2] += vec

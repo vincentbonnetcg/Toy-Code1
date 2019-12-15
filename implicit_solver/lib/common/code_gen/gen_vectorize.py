@@ -46,8 +46,6 @@ def as_vectorized(function, use_njit = True):
             return tuple(new_arg)
         elif isinstance(arg, common.DataBlock):
             return tuple(arg.blocks)
-        elif hasattr(arg, 'data') and isinstance(arg.data, common.DataBlock):
-            return tuple(arg.data.blocks)
 
         return arg
 
@@ -65,11 +63,16 @@ def as_vectorized(function, use_njit = True):
         # Call function
         if isinstance(args[0], (list, tuple)):
             new_arg_list = list(arg_list)
-            for element in new_arg_list[0]:
-                new_arg_list[0] = element
-                execute.generated_function(*new_arg_list)
+            for datablock_id, datablock in enumerate(new_arg_list[0]):
+                new_arg_list[0] = datablock
+                if isinstance(args[0][datablock_id], common.DataBlock):
+                    execute.generated_function(*new_arg_list)
+                else:
+                    raise ValueError("The first argument should be a datablock")
+        elif isinstance(args[0], common.DataBlock):
+                execute.generated_function(*arg_list)
         else:
-            execute.generated_function(*arg_list)
+            raise ValueError("The first argument should be a datablock or a list of datablocks")
 
         return True
 

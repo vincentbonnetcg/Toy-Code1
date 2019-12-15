@@ -67,7 +67,7 @@ def get_segments_from_constraint(scene, index, details):
         if num_nodes == 2:
             points = []
             for node_index in range (num_nodes):
-                x = na.node_x(details.node, node_ids[ct_index][node_index])
+                x = na.node_x(details.node.blocks, node_ids[ct_index][node_index])
                 points.append(x)
             segs.append(points)
 

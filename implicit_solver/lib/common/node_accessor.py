@@ -27,27 +27,27 @@ def set_node_id(node_id, global_node_id, block_id, block_node_id):
 def node_global_index(node_id):
     return node_id[0]
 
-def node_x(details_node, node_id):
+def node_x(node_blocks, node_id):
     block_id = node_id[1]
     block_node_id = node_id[2]
-    return details_node.blocks[block_id]['x'][block_node_id]
+    return node_blocks[block_id]['x'][block_node_id]
 
-def node_v(details_node, node_id):
+def node_v(node_blocks, node_id):
     block_id = node_id[1]
     block_node_id = node_id[2]
-    return details_node.blocks[block_id]['v'][block_node_id]
+    return node_blocks[block_id]['v'][block_node_id]
 
-def node_xv(details_node, node_id):
+def node_xv(node_blocks, node_id):
     block_id = node_id[1]
     block_node_id = node_id[2]
 
-    x = details_node.blocks[block_id]['x'][block_node_id]
-    v = details_node.blocks[block_id]['v'][block_node_id]
+    x = node_blocks[block_id]['x'][block_node_id]
+    v = node_blocks[block_id]['v'][block_node_id]
     return (x, v)
 
-def node_add_f(details_node, node_id, force):
+def node_add_f(node_blocks, node_id, force):
     block_id = node_id[1]
     block_node_id = node_id[2]
 
-    f = details_node.blocks[block_id]['f'][block_node_id]
+    f = node_blocks[block_id]['f'][block_node_id]
     f += force
