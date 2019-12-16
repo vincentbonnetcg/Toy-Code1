@@ -25,10 +25,6 @@ def create_datablock():
     datablock.initialize(10)
     return datablock
 
-def create_container():
-    container = Container(create_datablock())
-    return container
-
 '''
 Functions to vectorize
 '''
@@ -55,13 +51,6 @@ class TestCodeGeneration(unittest.TestCase):
         add_values(datablock0, datablock1, 1.0)
         self.assertEqual(datablock0.blocks[0]['x'][0][0][0], 5.2)
         self.assertEqual(datablock0.blocks[0]['y'][0], 4.0)
-
-    def test_generated_function_with_container_input(self):
-        container0 = create_container()
-        container1 = create_container()
-        add_values(container0, container1, 1.0)
-        self.assertEqual(container0.data.blocks[0]['x'][0][0][0], 5.2)
-        self.assertEqual(container0.data.blocks[0]['y'][0], 4.0)
 
     def test_function_generated_once(self):
         datablock0 = create_datablock()

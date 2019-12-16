@@ -17,12 +17,12 @@ class DataBlock:
 
     def __init__(self, class_type, block_size = 100):
         # Data
-        self.blocks = []
+        self.blocks = list()
         # Data type
-        self.dtype_dict = {}
-        self.dtype_dict['names'] = [] # list of names
-        self.dtype_dict['formats'] = [] # list of tuples (data_type, data_shape)
-        self.dtype_dict['defaults'] = [] # list of default values (should match formats)
+        self.dtype_dict = dict()
+        self.dtype_dict['names'] = list() # list of names
+        self.dtype_dict['formats'] = list() # list of tuples (data_type, data_shape)
+        self.dtype_dict['defaults'] = list() # list of default values (should match formats)
         # Block size
         self.block_size = block_size
         # Set class
