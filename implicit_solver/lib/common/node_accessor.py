@@ -27,11 +27,13 @@ def set_node_id(node_id, global_node_id, block_id, block_node_id):
 def node_global_index(node_id):
     return node_id[0]
 
+@numba.njit
 def node_x(node_blocks, node_id):
     block_id = node_id[1]
     block_node_id = node_id[2]
     return node_blocks[block_id]['x'][block_node_id]
 
+@numba.njit
 def node_v(node_blocks, node_id):
     block_id = node_id[1]
     block_node_id = node_id[2]
@@ -45,6 +47,7 @@ def node_xv(node_blocks, node_id):
     v = node_blocks[block_id]['v'][block_node_id]
     return (x, v)
 
+@numba.njit
 def node_add_f(node_blocks, node_id, force):
     block_id = node_id[1]
     block_node_id = node_id[2]

@@ -48,11 +48,10 @@ def dfdx_v0_h2(constraint : cpn.ConstraintBase, detail_nodes, b, dt):
     for fi in range(num_nodes):
         for xi in range(num_nodes):
             Jx = constraint.dfdx[fi][xi]
-            #v = na.node_v(detail_nodes, cnt.node_IDs[xi])
-            #v = na.node_v(details.node, ids[xi])
-            #vec = np.dot(v, Jx) * dt * dt
-            #b_offset = na.node_global_index(ids[fi]) * 2
-            #self.b[b_offset:b_offset+2] += vec
+            v = na.node_v(detail_nodes, constraint.node_IDs[xi])
+            vec = np.dot(v, Jx) * dt * dt
+            b_offset = na.node_global_index(constraint.node_IDs[fi]) * 2
+            b[b_offset:b_offset+2] += vec
 
 class ImplicitSolver(TimeIntegrator):
     '''
@@ -169,26 +168,10 @@ class ImplicitSolver(TimeIntegrator):
         # set (f0 * h)
         assemble_b__fo_h(details.node, self.b, dt)
 
-        # add (df/dx * v0 * h * h) 
+        # add (df/dx * v0 * h * h)
         for condition in details.conditions():
             if len(condition.blocks) > 0:
                 dfdx_v0_h2(condition, details.node, self.b, dt)
-
-        # add (df/dx * v0 * h * h)
-        for condition in details.conditions():
-            for ct_block in condition.blocks:
-                node_ids_ptr = ct_block['node_IDs']
-                dfdx_ptr = ct_block['dfdx']
-                block_n_elements = ct_block['blockInfo_numElements']
-                for cid in range(block_n_elements):
-                    ids = node_ids_ptr[cid]
-                    for fi in range(len(ids)):
-                        for xi in range(len(ids)):
-                            Jx = dfdx_ptr[cid][fi][xi]
-                            v = na.node_v(details.node.blocks, ids[xi])
-                            vec = np.dot(v, Jx) * dt * dt
-                            b_offset = na.node_global_index(ids[fi]) * 2
-                            self.b[b_offset:b_offset+2] += vec
 
     @cm.timeit
     def _advect(self, details, delta_v, dt):
