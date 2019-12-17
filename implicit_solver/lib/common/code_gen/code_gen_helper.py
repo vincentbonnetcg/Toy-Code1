@@ -18,40 +18,6 @@ class CodeGenHelper:
         # Options
         self.use_njit = use_njit
 
-    def generate_njit_function_source(self, function):
-        '''
-        Generate the source code of the function as a njit
-        '''
-        generated_function_name = 'generated_' + function.__name__
-
-        # Get code
-        function_source = inspect.getsource(function)
-
-        # Generate source code
-        code_lines = function_source.splitlines()
-        gen_code_lines = []
-        for code in code_lines:
-
-            # empty line
-            if not code:
-                gen_code_lines.append('')
-                continue
-
-            # remove decorators
-            if code[0] == '@':
-                continue
-
-            if code[0:4] == 'def ':
-                # add njit
-                #gen_code_lines.append('@numba.njit')
-                code = code.replace(function.__name__, generated_function_name)
-
-            gen_code_lines.append(code)
-
-        # Set generated function name and source
-        self.generated_function_name = generated_function_name
-        self.generated_function_source = '\n'.join(gen_code_lines)
-
     def generate_vectorized_function_source(self, function):
         '''
         Generate the source code of the function as a vectorized function
