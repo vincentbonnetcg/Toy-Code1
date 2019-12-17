@@ -71,9 +71,9 @@ class Solver:
         '''
         Initialize the scene
         '''
+        details.lock_dynamics()
         scene.init_kinematics(context.start_time)
         scene.init_conditions(details)
-        details.lock_dynamics()
 
     @cm.timeit
     def solve_step(self, scene : Scene, details : SolverDetails, context : SolverContext):

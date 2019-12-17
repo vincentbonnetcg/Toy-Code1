@@ -39,6 +39,7 @@ def node_v(node_blocks, node_id):
     block_node_id = node_id[2]
     return node_blocks[block_id]['v'][block_node_id]
 
+@numba.njit
 def node_xv(node_blocks, node_id):
     block_id = node_id[1]
     block_node_id = node_id[2]
