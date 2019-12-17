@@ -41,6 +41,8 @@ class TestCodeGeneration(unittest.TestCase):
     def test_generated_function_with_numpy_input(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
+        datablock0.lock()
+        datablock1.lock()
         add_values(datablock0, datablock1, 1.0)
         self.assertEqual(datablock0.blocks[0]['x'][0][0][0], 5.2)
         self.assertEqual(datablock0.blocks[0]['y'][0], 4.0)
@@ -48,6 +50,8 @@ class TestCodeGeneration(unittest.TestCase):
     def test_generated_function_with_datablock_input(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
+        datablock0.lock()
+        datablock1.lock()
         add_values(datablock0, datablock1, 1.0)
         self.assertEqual(datablock0.blocks[0]['x'][0][0][0], 5.2)
         self.assertEqual(datablock0.blocks[0]['y'][0], 4.0)
@@ -55,6 +59,8 @@ class TestCodeGeneration(unittest.TestCase):
     def test_function_generated_once(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
+        datablock0.lock()
+        datablock1.lock()
         add_values(datablock0, datablock1, 1.0)
         function0 = add_values.generated_function
         source0 = add_values.generated_source

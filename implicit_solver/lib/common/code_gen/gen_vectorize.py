@@ -39,13 +39,11 @@ def as_vectorized(function, use_njit = True):
         DataBlock => DataBlock.blocks
         Object => Object.DataBlock.blocks
         '''
-        if isinstance(arg, (list, tuple)):
-            new_arg = [None] * len(arg)
-            for index, element in enumerate(arg):
-                new_arg[index] = convert(element)
-            return tuple(new_arg)
-        elif isinstance(arg, common.DataBlock):
-            return tuple(arg.blocks)
+        if isinstance(arg, common.DataBlock):
+            if isinstance(arg.blocks, tuple):
+                return arg.blocks
+            else:
+                raise ValueError("The blocks should be in a tuple. use datablock.lock()")
 
         return arg
 

@@ -170,6 +170,20 @@ class DataBlock:
             del(self.blocks[block_id])
 
     '''
+    Temporary Logic
+    Lock/unlock functions to switch between list and tuple
+    Numba-0.46.0 doesnt support properly list or numba.typed.list
+    Tuple works better so far
+    '''
+    def lock(self):
+        if isinstance(self.blocks, list):
+            self.blocks = tuple(self.blocks)
+
+    def unlock(self):
+        if isinstance(self.blocks, tuple):
+            self.blocks = list(self.blocks)
+
+    '''
     Vectorize Functions on blocks
     '''
     @staticmethod

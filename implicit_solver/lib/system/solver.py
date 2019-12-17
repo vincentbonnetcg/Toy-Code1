@@ -44,6 +44,22 @@ class SolverDetails:
     def conditions(self):
         return [self.area, self.bending, self.spring, self.anchorSpring]
 
+    def lock_dynamics(self):
+        for dynamic in self.dynamics():
+            dynamic.lock()
+
+    def lock_conditions(self):
+        for condition in self.conditions():
+            condition.lock()
+
+    def unlock_dynamics(self):
+        for dynamic in self.dynamics():
+            dynamic.unlock()
+
+    def unlock_conditions(self):
+        for condition in self.conditions():
+            condition.unlock()
+
 class Solver:
     '''
     Base Solver
@@ -57,6 +73,7 @@ class Solver:
         '''
         scene.init_kinematics(context.start_time)
         scene.init_conditions(details)
+        details.lock_dynamics()
 
     @cm.timeit
     def solve_step(self, scene : Scene, details : SolverDetails, context : SolverContext):
@@ -70,7 +87,9 @@ class Solver:
     @cm.timeit
     def _pre_step(self, scene : Scene, details : SolverDetails, context : SolverContext):
         scene.update_kinematics(context.time, context.dt)
-        scene.update_conditions(details)
+        details.unlock_conditions()
+        scene.update_conditions(details) # allocate dynamically new conditions
+        details.lock_conditions()
 
     @cm.timeit
     def _step(self, scene : Scene, details : SolverDetails, context : SolverContext):
