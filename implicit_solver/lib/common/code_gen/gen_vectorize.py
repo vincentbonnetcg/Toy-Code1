@@ -61,14 +61,15 @@ def as_vectorized(function, use_njit = True):
         # Call function
         if isinstance(args[0], (list, tuple)):
             new_arg_list = list(arg_list)
-            for datablock_id, datablock in enumerate(new_arg_list[0]):
-                new_arg_list[0] = datablock
-                if isinstance(args[0][datablock_id], common.DataBlock):
+            for datablock in args[0]:
+                if isinstance(datablock, common.DataBlock) and not datablock.isEmpty():
+                    new_arg_list[0] = datablock
                     execute.generated_function(*new_arg_list)
                 else:
                     raise ValueError("The first argument should be a datablock")
         elif isinstance(args[0], common.DataBlock):
-                execute.generated_function(*arg_list)
+                if not args[0].isEmpty():
+                    execute.generated_function(*arg_list)
         else:
             raise ValueError("The first argument should be a datablock or a list of datablocks")
 

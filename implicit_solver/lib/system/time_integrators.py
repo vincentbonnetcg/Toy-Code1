@@ -172,16 +172,17 @@ class ImplicitSolver(TimeIntegrator):
         self.b = np.zeros((self.num_nodes, 2))
 
         # set (f0 * h)
-        assemble_b__fo_h(details.node, self.b, dt)
+        for dynamic in details.dynamics():
+            assemble_b__fo_h(dynamic, self.b, dt)
 
         # add (df/dx * v0 * h * h)
         for condition in details.conditions():
-            if len(condition.blocks) > 0:
-                assemble_dfdx_v0_h2(condition, details.node, self.b, dt)
+            assemble_dfdx_v0_h2(condition, details.node, self.b, dt)
 
     @cm.timeit
     def _advect(self, details, delta_v, dt):
-        advect(details.node, delta_v, dt)
+        for dynamic in details.dynamics():
+            advect(dynamic, delta_v, dt)
 
 '''
 NEED TO RE-IMPLEMENT

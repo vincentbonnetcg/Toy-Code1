@@ -169,6 +169,9 @@ class DataBlock:
         for block_id in sorted(block_ids, reverse=True):
             del(self.blocks[block_id])
 
+    def isEmpty(self):
+        return len(self.blocks)==0
+
     '''
     Temporary Logic
     Lock/unlock functions to switch between list and tuple
