@@ -70,9 +70,13 @@ class ImplicitSolver(TimeIntegrator):
         # used to store system Ax=b
         self.A = None
         self.b = None
+        self.num_nodes = 0
 
     @cm.timeit
     def prepare_system(self, scene, details, dt):
+        '''
+        Compute external and constraint forces
+        '''
         # Reset forces on all dynamic
         for dynamic in scene.dynamics:
             details.node.fill('f', 0.0, dynamic.block_ids)
@@ -90,12 +94,15 @@ class ImplicitSolver(TimeIntegrator):
         for condition in scene.conditions:
             condition.apply_forces(details)
 
+        # Store the number of nodes
+        self.num_nodes = details.node.compute_num_elements()
+
     @cm.timeit
     def assemble_system(self, details, dt):
         '''
         Assemble the system (Ax=b) where x is the unknow change of velocity
         '''
-        if (details.node.compute_num_elements() == 0):
+        if (self.num_nodes == 0):
             return
 
         self._assemble_A(details, dt)
@@ -103,14 +110,16 @@ class ImplicitSolver(TimeIntegrator):
 
     @cm.timeit
     def solve_system(self, details, dt):
-        num_nodes = details.node.compute_num_elements()
-        if (num_nodes == 0):
+        '''
+        Solve the assembled linear system (Ax=b)
+        '''
+        if (self.num_nodes == 0):
             return
 
         # Solve the system (Ax=b) and reshape the conjugate gradient result
         # In this case, the reshape operation is not causing any reallocation
         cg_result = scipy.sparse.linalg.cg(self.A, self.b)
-        delta_v = cg_result[0].reshape(num_nodes, 2)
+        delta_v = cg_result[0].reshape(self.num_nodes, 2)
         # Advect
         self._advect(details, delta_v, dt)
 
@@ -119,9 +128,8 @@ class ImplicitSolver(TimeIntegrator):
         '''
         Assemble A = (M - (h * df/dv + h^2 * df/dx))
         '''
-        total_nodes = details.node.compute_num_elements()
-        num_rows = total_nodes
-        num_columns = total_nodes
+        num_rows = self.num_nodes
+        num_columns = self.num_nodes
         A = cm.BSRSparseMatrix(num_rows, num_columns, 2)
 
         # Set mass matrix
@@ -162,8 +170,7 @@ class ImplicitSolver(TimeIntegrator):
         Assemble b = h *( f0 + h * df/dx * v0)
                  b = (f0 * h) + (h^2 * df/dx * v0)
         '''
-        total_nodes = details.node.compute_num_elements()
-        self.b = np.zeros(total_nodes * 2)
+        self.b = np.zeros(self.num_nodes * 2)
 
         # set (f0 * h)
         assemble_b__fo_h(details.node, self.b, dt)
