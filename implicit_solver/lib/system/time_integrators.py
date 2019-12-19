@@ -43,7 +43,7 @@ def assemble_b__fo_h(node : cpn.Node, b, dt):
     b[offset:offset+2] += node.f * dt
 
 @generate.as_vectorized
-def dfdx_v0_h2(constraint : cpn.ConstraintBase, detail_nodes, b, dt):
+def assemble_dfdx_v0_h2(constraint : cpn.ConstraintBase, detail_nodes, b, dt):
     num_nodes = len(constraint.node_IDs)
     for fi in range(num_nodes):
         for xi in range(num_nodes):
@@ -178,7 +178,7 @@ class ImplicitSolver(TimeIntegrator):
         # add (df/dx * v0 * h * h)
         for condition in details.conditions():
             if len(condition.blocks) > 0:
-                dfdx_v0_h2(condition, details.node, self.b, dt)
+                assemble_dfdx_v0_h2(condition, details.node, self.b, dt)
 
     @cm.timeit
     def _advect(self, details, delta_v, dt):
