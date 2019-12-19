@@ -31,11 +31,10 @@ class TimeIntegrator:
 Vectorized functions
 '''
 @generate.as_vectorized
-def advect(node : cpn.Node, delta_vs, dt):
+def advect(node : cpn.Node, delta_v, dt):
     node_index = na.node_global_index(node.ID)
-    delta_v = delta_vs[node_index]
-    node.x += (node.v + delta_v) * dt
-    node.v += delta_v
+    node.v += delta_v[node_index]
+    node.x += node.v * dt
 
 @generate.as_vectorized
 def assemble_b__fo_h(node : cpn.Node, b, dt):
