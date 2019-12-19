@@ -33,11 +33,7 @@ def as_vectorized(function, use_njit = True):
     '''
     def convert(arg):
         '''
-        Convert function argument into a type reconizable by numba
-        Convert with the following rules
-        List/Tuple => Tuple
-        DataBlock => DataBlock.blocks
-        Object => Object.DataBlock.blocks
+        From DataBlock to DataBlock.blocks
         '''
         if isinstance(arg, common.DataBlock):
             if isinstance(arg.blocks, tuple):
@@ -52,23 +48,23 @@ def as_vectorized(function, use_njit = True):
         '''
         Execute the function. At least one argument is expected
         '''
+        # Fetch numpy array from common.DataBlock
         arg_list = list(args)
-
-        # Fetch numpy array from common.DataBlock or a container of common.DataBlock
         for arg_id , arg in enumerate(arg_list):
             arg_list[arg_id] = convert(arg)
 
         # Call function
-        if isinstance(args[0], (list, tuple)):
-            new_arg_list = list(arg_list)
-            for datablock in args[0]:
-                if isinstance(datablock, common.DataBlock) and not datablock.isEmpty():
-                    new_arg_list[0] = datablock
-                    execute.generated_function(*new_arg_list)
+        first_argument = args[0] # argument to vectorize
+        if isinstance(first_argument, (list, tuple)):
+            for datablock in first_argument:
+                if isinstance(datablock, common.DataBlock):
+                    if not datablock.isEmpty():
+                        arg_list[0] = convert(datablock)
+                        execute.generated_function(*arg_list)
                 else:
                     raise ValueError("The first argument should be a datablock")
-        elif isinstance(args[0], common.DataBlock):
-                if not args[0].isEmpty():
+        elif isinstance(first_argument, common.DataBlock):
+                if not first_argument.isEmpty():
                     execute.generated_function(*arg_list)
         else:
             raise ValueError("The first argument should be a datablock or a list of datablocks")
