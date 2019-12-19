@@ -5,7 +5,6 @@
 
 from lib.objects.components import ConstraintBase
 import lib.common.math_2d as math2D
-from lib.common.data_block import DataBlock
 import lib.common.node_accessor as na
 from lib.system.scene import Scene
 from numba import njit

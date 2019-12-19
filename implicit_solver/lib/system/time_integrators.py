@@ -38,19 +38,18 @@ def advect(node : cpn.Node, delta_v, dt):
 
 @generate.as_vectorized
 def assemble_b__fo_h(node : cpn.Node, b, dt):
-    offset = na.node_global_index(node.ID) * 2
-    b[offset:offset+2] += node.f * dt
+    node_index = na.node_global_index(node.ID)
+    b[node_index] += node.f * dt
 
 @generate.as_vectorized
 def assemble_dfdx_v0_h2(constraint : cpn.ConstraintBase, detail_nodes, b, dt):
     num_nodes = len(constraint.node_IDs)
     for fi in range(num_nodes):
+        node_index = na.node_global_index(constraint.node_IDs[fi])
         for xi in range(num_nodes):
             Jx = constraint.dfdx[fi][xi]
             v = na.node_v(detail_nodes, constraint.node_IDs[xi])
-            vec = np.dot(v, Jx) * dt * dt
-            b_offset = na.node_global_index(constraint.node_IDs[fi]) * 2
-            b[b_offset:b_offset+2] += vec
+            b[node_index] += np.dot(v, Jx) * dt * dt
 
 class ImplicitSolver(TimeIntegrator):
     '''
@@ -117,7 +116,8 @@ class ImplicitSolver(TimeIntegrator):
 
         # Solve the system (Ax=b) and reshape the conjugate gradient result
         # In this case, the reshape operation is not causing any reallocation
-        cg_result = scipy.sparse.linalg.cg(self.A, self.b)
+        b = self.b.reshape(self.num_nodes * 2)
+        cg_result = scipy.sparse.linalg.cg(self.A, b)
         delta_v = cg_result[0].reshape(self.num_nodes, 2)
         # Advect
         self._advect(details, delta_v, dt)
@@ -169,7 +169,7 @@ class ImplicitSolver(TimeIntegrator):
         Assemble b = h *( f0 + h * df/dx * v0)
                  b = (f0 * h) + (h^2 * df/dx * v0)
         '''
-        self.b = np.zeros(self.num_nodes * 2)
+        self.b = np.zeros((self.num_nodes, 2))
 
         # set (f0 * h)
         assemble_b__fo_h(details.node, self.b, dt)
