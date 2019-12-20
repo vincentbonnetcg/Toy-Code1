@@ -3,21 +3,8 @@
 @description : conditions create a list of constraints from a list of objects
 """
 
-import lib.common as common
 import lib.common.node_accessor as na
 from lib.system import Scene
-
-def apply_constraint_forces(constraint_type, block_ids, details):
-    blocks_iterator = details.block_from_datatype(constraint_type).get_blocks(block_ids)
-    for constraint_data in blocks_iterator:
-        node_ids_ptr = constraint_data['node_IDs']
-        force_ptr = constraint_data['f']
-        block_n_elements = constraint_data['blockInfo_numElements']
-        for ct_index in range(block_n_elements):
-            node_ids = node_ids_ptr[ct_index]
-            forces = force_ptr[ct_index]
-            for i in range(len(node_ids)):
-                na.node_add_f(details.node.blocks, node_ids[i], forces[i])
 
 class Condition:
     '''
@@ -58,9 +45,6 @@ class Condition:
     def compute_jacobians(self, scene : Scene, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
         self.jacobian_func(blocks_iterator, scene, details)
-
-    def apply_forces(self, details):
-        apply_constraint_forces(self.constraint_type, self.block_ids, details)
 
     def init_constraints(self, scene : Scene, details):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")

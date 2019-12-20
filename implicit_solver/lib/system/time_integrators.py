@@ -31,6 +31,14 @@ class TimeIntegrator:
 Vectorized functions
 '''
 @generate.as_vectorized
+def apply_constraint_forces_to_nodes(constraint : cpn.ConstraintBase, detail_nodes):
+    # Report the constraint forces to node forces
+    # The threaded is disabled to prevent different thread to write on the same node
+    num_nodes = len(constraint.node_IDs)
+    for i in range(num_nodes):
+        na.node_add_f(detail_nodes,  constraint.node_IDs[i], constraint.f[i])
+
+@generate.as_vectorized
 def advect(node : cpn.Node, delta_v, dt):
     node_index = na.node_global_index(node.ID)
     node.v += delta_v[node_index]
@@ -89,8 +97,7 @@ class ImplicitSolver(TimeIntegrator):
             condition.compute_jacobians(scene, details)
 
         # Add forces to object from constraints
-        for condition in scene.conditions:
-            condition.apply_forces(details)
+        apply_constraint_forces_to_nodes(details.conditions(), details.node)
 
         # Store the number of nodes
         self.num_nodes = details.node.compute_num_elements()
@@ -200,7 +207,8 @@ class SemiImplicitSolver(TimeIntegrator):
         # Apply internal forces
         for condition in scene.conditions:
             condition.compute_forces(scene)
-            condition.apply_forces(scene.dynamics)
+
+        apply_constraint_forces_to_nodes(details.conditions(), details.node)
 
     @cm.timeit
     def assemble_system(self, details, dt):

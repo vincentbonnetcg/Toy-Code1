@@ -6,7 +6,6 @@
 import numpy as np
 from lib.objects.components import ConstraintBase
 import lib.common.math_2d as math2D
-from lib.common.data_block import DataBlock
 from lib.common.convex_hull import ConvexHull
 import lib.common.node_accessor as na
 from lib.system import Scene

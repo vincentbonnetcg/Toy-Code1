@@ -5,7 +5,6 @@
 
 import render as rn
 import lib.common as common
-import lib.system as system
 import logic.scene_examples as scene_examples
 import host_app.rpc as rpc
 

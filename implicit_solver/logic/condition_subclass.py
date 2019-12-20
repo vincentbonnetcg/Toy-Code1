@@ -8,9 +8,7 @@ import numpy as np
 import lib.objects.components as cn
 from lib.objects import Condition
 import lib.common as common
-import lib.common.node_accessor as na
 from lib.system import Scene
-from lib.system import SolverDetails
 
 def initialize_condition_from_aos(condition, array_of_struct, details_datablock):
     # initialize datablock
