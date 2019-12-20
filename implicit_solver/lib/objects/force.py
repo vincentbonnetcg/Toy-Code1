@@ -10,5 +10,5 @@ class Force:
     def __init__(self):
         pass
 
-    def apply_forces(self, details):
+    def apply_forces(self, nodes):
         pass

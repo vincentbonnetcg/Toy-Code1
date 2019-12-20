@@ -32,8 +32,7 @@ Vectorized functions
 '''
 @generate.as_vectorized
 def apply_constraint_forces_to_nodes(constraint : cpn.ConstraintBase, detail_nodes):
-    # Report the constraint forces to node forces
-    # The threaded is disabled to prevent different thread to write on the same node
+    # Cannot be threaded yet to prevent different threads to write on the same node
     num_nodes = len(constraint.node_IDs)
     for i in range(num_nodes):
         na.node_add_f(detail_nodes,  constraint.node_IDs[i], constraint.f[i])
@@ -51,6 +50,7 @@ def assemble_b__fo_h(node : cpn.Node, b, dt):
 
 @generate.as_vectorized
 def assemble_dfdx_v0_h2(constraint : cpn.ConstraintBase, detail_nodes, b, dt):
+    # Cannot be threaded yet to prevent different threads to write on the same node
     num_nodes = len(constraint.node_IDs)
     for fi in range(num_nodes):
         node_index = na.node_global_index(constraint.node_IDs[fi])
@@ -89,7 +89,7 @@ class ImplicitSolver(TimeIntegrator):
 
         # Prepare external forces
         for force in scene.forces:
-            force.apply_forces(details)
+            force.apply_forces(details.dynamics())
 
         # Prepare constraints (forces and jacobians)
         for condition in scene.conditions:

@@ -3,7 +3,6 @@
 @description : conditions create a list of constraints from a list of objects
 """
 
-import lib.common.node_accessor as na
 from lib.system import Scene
 
 class Condition:
