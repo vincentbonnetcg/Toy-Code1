@@ -30,6 +30,11 @@ class TimeIntegrator:
 '''
 Vectorized functions
 '''
+def apply_external_forces_to_nodes(dynamics, forces):
+    # this function is not vectorized but forces.apply_forces are vectorized
+    for force in forces:
+        force.apply_forces(dynamics)
+
 @generate.as_vectorized
 def apply_constraint_forces_to_nodes(constraint : cpn.ConstraintBase, detail_nodes):
     # Cannot be threaded yet to prevent different threads to write on the same node
@@ -87,16 +92,13 @@ class ImplicitSolver(TimeIntegrator):
         for dynamic in scene.dynamics:
             details.node.fill('f', 0.0, dynamic.block_ids)
 
-        # Prepare external forces
-        for force in scene.forces:
-            force.apply_forces(details.dynamics())
-
-        # Prepare constraints (forces and jacobians)
+        # Compute constraint forces and jacobians
         for condition in scene.conditions:
             condition.compute_forces(scene, details)
             condition.compute_jacobians(scene, details)
 
-        # Add forces to object from constraints
+        # Add forces to object
+        apply_external_forces_to_nodes(details.dynamics(), scene.forces)
         apply_constraint_forces_to_nodes(details.conditions(), details.node)
 
         # Store the number of nodes
