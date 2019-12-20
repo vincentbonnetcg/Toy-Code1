@@ -88,20 +88,19 @@ class ImplicitSolver(TimeIntegrator):
         '''
         Compute external and constraint forces
         '''
-        # Reset forces on all dynamic
-        for dynamic in scene.dynamics:
-            details.node.fill('f', 0.0, dynamic.block_ids)
+        # Reset forces on dynamics
+        details.node.fill('f', 0.0)
 
         # Compute constraint forces and jacobians
         for condition in scene.conditions:
             condition.compute_forces(scene, details)
             condition.compute_jacobians(scene, details)
 
-        # Add forces to object
+        # Add forces to dynamics
         apply_external_forces_to_nodes(details.dynamics(), scene.forces)
         apply_constraint_forces_to_nodes(details.conditions(), details.node)
 
-        # Store the number of nodes
+        # Store number of nodes
         self.num_nodes = details.node.compute_num_elements()
 
     @cm.timeit
