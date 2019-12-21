@@ -44,18 +44,20 @@ def apply_constraint_forces_to_nodes(constraint : cpn.ConstraintBase, detail_nod
 
 @generate.as_vectorized
 def advect(node : cpn.Node, delta_v, dt):
+    # Can be threaded
     node_index = na.node_global_index(node.ID)
     node.v += delta_v[node_index]
     node.x += node.v * dt
 
 @generate.as_vectorized
-def assemble_b__fo_h(node : cpn.Node, b, dt):
+def assemble_fo_h_to_b(node : cpn.Node, dt, b):
+    # Can be threaded
     node_index = na.node_global_index(node.ID)
     b[node_index] += node.f * dt
 
 @generate.as_vectorized
-def assemble_dfdx_v0_h2(constraint : cpn.ConstraintBase, detail_nodes, b, dt):
-    # Cannot be threaded yet to prevent different threads to write on the same node
+def assemble_dfdx_v0_h2_to_b(constraint : cpn.ConstraintBase, detail_nodes, dt, b):
+    # Cannot be threaded yet
     num_nodes = len(constraint.node_IDs)
     for fi in range(num_nodes):
         node_index = na.node_global_index(constraint.node_IDs[fi])
@@ -63,6 +65,28 @@ def assemble_dfdx_v0_h2(constraint : cpn.ConstraintBase, detail_nodes, b, dt):
             Jx = constraint.dfdx[fi][xi]
             v = na.node_v(detail_nodes, constraint.node_IDs[xi])
             b[node_index] += np.dot(v, Jx) * dt * dt
+
+@generate.as_vectorized(njit=False)
+def assemble_mass_matrix_to_A(node : cpn.Node, A):
+    # Can be threaded
+    node_index = na.node_global_index(node.ID)
+    mass_matrix = np.zeros((2,2))
+    np.fill_diagonal(mass_matrix, node.m)
+    A.add(node_index, node_index, mass_matrix)
+
+@generate.as_vectorized(njit=False)
+def assemble_constraint_forces_to_A(constraint : cpn.ConstraintBase, dt, A):
+    # Substract (h * df/dv + h^2 * df/dx)
+    # Cannot be threaded yet
+    num_nodes = len(constraint.node_IDs)
+    for fi in range(num_nodes):
+        for j in range(num_nodes):
+            Jv = constraint.dfdv[fi][j]
+            Jx = constraint.dfdx[fi][j]
+            global_fi_id = na.node_global_index(constraint.node_IDs[fi])
+            global_j_id = na.node_global_index(constraint.node_IDs[j])
+            A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+
 
 class ImplicitSolver(TimeIntegrator):
     '''
@@ -135,38 +159,16 @@ class ImplicitSolver(TimeIntegrator):
         '''
         Assemble A = (M - (h * df/dv + h^2 * df/dx))
         '''
+        # create empty sparse matrix A
         num_rows = self.num_nodes
         num_columns = self.num_nodes
         A = cm.BSRSparseMatrix(num_rows, num_columns, 2)
 
-        # Set mass matrix
-        for dynamic in details.dynamics():
-            for obj_block in dynamic.blocks:
-                data_m = obj_block['m']
-                data_node_id = obj_block['ID']
-                block_n_elements = obj_block['blockInfo_numElements']
-                for i in range(block_n_elements):
-                    mass_matrix = np.zeros((2,2))
-                    np.fill_diagonal(mass_matrix, data_m[i])
-                    idx = na.node_global_index(data_node_id[i])
-                    A.add(idx, idx, mass_matrix)
+        # set mass matrix
+        assemble_mass_matrix_to_A(details.dynamics(), A)
 
-        # Substract (h * df/dv + h^2 * df/dx)
-        for condition in details.conditions():
-            for ct_block in condition.blocks:
-                node_ids_ptr = ct_block['node_IDs']
-                dfdv_ptr = ct_block['dfdv']
-                dfdx_ptr = ct_block['dfdx']
-                block_n_elements = ct_block['blockInfo_numElements']
-                for cid in range(block_n_elements):
-                    ids = node_ids_ptr[cid]
-                    for fi in range(len(ids)):
-                        for j in range(len(ids)):
-                            Jv = dfdv_ptr[cid][fi][j]
-                            Jx = dfdx_ptr[cid][fi][j]
-                            global_fi_id = na.node_global_index(ids[fi])
-                            global_j_id = na.node_global_index(ids[j])
-                            A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+        # add constraint force to sparse matrix
+        assemble_constraint_forces_to_A(details.conditions(), dt, A)
 
         # convert sparse matrix
         self.A = A.sparse_matrix()
@@ -177,13 +179,14 @@ class ImplicitSolver(TimeIntegrator):
         Assemble b = h *( f0 + h * df/dx * v0)
                  b = (f0 * h) + (h^2 * df/dx * v0)
         '''
+        # create b vector
         self.b = np.zeros((self.num_nodes, 2))
 
         # set (f0 * h)
-        assemble_b__fo_h(details.dynamics(), self.b, dt)
+        assemble_fo_h_to_b(details.dynamics(), dt, self.b)
 
         # add (df/dx * v0 * h * h)
-        assemble_dfdx_v0_h2(details.conditions(), details.node, self.b, dt)
+        assemble_dfdx_v0_h2_to_b(details.conditions(), details.node, dt, self.b)
 
     @cm.timeit
     def _advect(self, details, delta_v, dt):

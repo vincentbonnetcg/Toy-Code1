@@ -54,12 +54,12 @@ class DataBlock:
         '''
         Add fields
         '''
+        data_type = None
+        data_shape = None
         inst = class_type()
+
         for name, value in inst.__dict__.items():
             self.__check_before_add(name)
-
-            data_type = None
-            data_shape = None
 
             if np.isscalar(value):
                 data_type = type(value)

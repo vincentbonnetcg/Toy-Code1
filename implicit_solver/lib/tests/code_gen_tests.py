@@ -20,9 +20,9 @@ class Container:
     def __init__(self, datablock):
         self.data = datablock
 
-def create_datablock():
+def create_datablock(num_elements=10):
     datablock = common.DataBlock(Vertex)
-    datablock.initialize(10)
+    datablock.initialize(num_elements)
     return datablock
 
 '''
@@ -32,6 +32,10 @@ Functions to vectorize
 def add_values(v0 : Vertex, v1 : Vertex, other_value):
     v0.x += v1.x + other_value
     v0.y += v1.y + other_value
+
+@generate.as_vectorized(njit=False)
+def add_values_to_list(v0 : Vertex, v1 : Vertex, out_list):
+    out_list.append(v0.x + v1.x)
 
 '''
 CodeGen Tests
@@ -70,6 +74,16 @@ class TestCodeGeneration(unittest.TestCase):
         self.assertEqual(function0, function1)
         self.assertEqual(source0, source1)
         self.assertEqual(add_values.njit, True)
+
+    def test_function_without_njit(self):
+        datablock0 = create_datablock(15)
+        datablock1 = create_datablock(15)
+        datablock0.lock()
+        datablock1.lock()
+        result_list = []
+        add_values_to_list(datablock0, datablock1, result_list)
+        self.assertEqual(len(result_list), 15)
+        self.assertEqual(result_list[0][0][0], 4.2)
 
     def setUp(self):
         print(" TestCodeGeneration:", self._testMethodName)

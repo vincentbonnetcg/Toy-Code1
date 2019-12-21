@@ -26,10 +26,10 @@ class CodeGenHelper:
 
         # Get code
         function_source = inspect.getsource(function)
-        function_args = inspect.signature(function)
+        function_signature = inspect.signature(function)
 
         # Check arguments
-        self.__prepare_arguments(function_source, function_args)
+        self.__prepare_arguments(function_source, function_signature)
 
         # Generate source code
         code_lines = function_source.splitlines()
@@ -96,21 +96,29 @@ class CodeGenHelper:
         self.generated_function_name = generated_function_name
         self.generated_function_source = '\n'.join(gen_code_lines)
 
-    def __prepare_arguments(self, function_source, function_args):
+    def __prepare_arguments(self, function_source, function_signature):
         self.obj_attrs_map = {}
         self.functions_args = []
         recorded_params = []
-        for param in function_args.parameters:
-            # regular expression to check whether the argument has a format object.attr
-            param_attrs = re.findall(param+'[.][a-zA-Z0-9_]*', function_source)
-            for param_attr in param_attrs:
-                if param_attr in recorded_params:
-                    continue
-                recorded_params.append(param_attr)
 
-                obj, attr = param_attr.split('.')
-                attrs = self.obj_attrs_map.get(obj, [])
-                attrs.append(attr)
-                self.obj_attrs_map[obj] = attrs
+        for param_name in function_signature.parameters:
 
-            self.functions_args.append(param)
+            # A function argument is considered as a datablock
+            # when it is associated to an annotation (such as cpn.Node, cpn.ConstraintBased ...)
+            # it is not generic, but the code generation works with this assumption for now (december 2019)
+            annotation_type = function_signature.parameters[param_name].annotation
+            if annotation_type is not inspect._empty:
+                # regular expression to check whether the argument has a format object.attr
+                param_attrs = re.findall(param_name+'[.][a-zA-Z0-9_]*', function_source)
+                for param_attr in param_attrs:
+                    if param_attr in recorded_params:
+                        continue
+
+                    recorded_params.append(param_attr)
+
+                    obj, attr = param_attr.split('.')
+                    attrs = self.obj_attrs_map.get(obj, [])
+                    attrs.append(attr)
+                    self.obj_attrs_map[obj] = attrs
+
+            self.functions_args.append(param_name)
