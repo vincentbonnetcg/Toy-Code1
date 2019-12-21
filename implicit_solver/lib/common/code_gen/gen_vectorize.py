@@ -13,12 +13,12 @@ import numba
 import numpy as np
 import lib.common.node_accessor as na
 
-def generate_vectorize_function(function, use_njit = True):
+def generate_vectorize_function(function=None, njit=True):
     '''
     Returns a tuple (source code, function object)
     '''
     # Generate code
-    helper = gen.CodeGenHelper(use_njit)
+    helper = gen.CodeGenHelper(njit)
     helper.generate_vectorized_function_source(function)
 
     # Compile code
@@ -27,10 +27,14 @@ def generate_vectorize_function(function, use_njit = True):
 
     return helper.generated_function_source, vars().get(helper.generated_function_name)
 
-def as_vectorized(function, use_njit = True):
+
+def as_vectorized(function=None, *,njit=True):
     '''
-    Decorator to vectorize a function
+    Decorator with arguments to vectorize a function
     '''
+    if function is None:
+        return functools.partial(as_vectorized, njit=njit)
+
     def convert(arg):
         '''
         From DataBlock to DataBlock.blocks
@@ -47,6 +51,8 @@ def as_vectorized(function, use_njit = True):
     def execute(*args):
         '''
         Execute the function. At least one argument is expected
+        From Book : Beazley, David, and Brian K. Jones. Python Cookbook: Recipes for Mastering Python 3. " O'Reilly Media, Inc.", 2013.
+        In Section : 9.6. Defining a Decorator That Takes an Optional Argument
         '''
         # Fetch numpy array from common.DataBlock
         arg_list = list(args)
@@ -60,19 +66,21 @@ def as_vectorized(function, use_njit = True):
                 if isinstance(datablock, common.DataBlock):
                     if not datablock.isEmpty():
                         arg_list[0] = convert(datablock)
-                        execute.generated_function(*arg_list)
+                        execute.function(*arg_list)
                 else:
                     raise ValueError("The first argument should be a datablock")
         elif isinstance(first_argument, common.DataBlock):
                 if not first_argument.isEmpty():
-                    execute.generated_function(*arg_list)
+                    execute.function(*arg_list)
         else:
             raise ValueError("The first argument should be a datablock or a list of datablocks")
 
         return True
 
-    source, function = generate_vectorize_function(function, use_njit)
+    source, function = generate_vectorize_function(function, njit)
 
-    execute.generated_source = source
-    execute.generated_function = function
+    execute.njit = njit
+    execute.source = source
+    execute.function = function
+
     return execute

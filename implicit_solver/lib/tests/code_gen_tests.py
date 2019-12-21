@@ -62,13 +62,14 @@ class TestCodeGeneration(unittest.TestCase):
         datablock0.lock()
         datablock1.lock()
         add_values(datablock0, datablock1, 1.0)
-        function0 = add_values.generated_function
-        source0 = add_values.generated_source
+        function0 = add_values.function
+        source0 = add_values.source
         add_values(datablock0, datablock1, 1.0)
-        function1 = add_values.generated_function
-        source1 = add_values.generated_source
+        function1 = add_values.function
+        source1 = add_values.source
         self.assertEqual(function0, function1)
         self.assertEqual(source0, source1)
+        self.assertEqual(add_values.njit, True)
 
     def setUp(self):
         print(" TestCodeGeneration:", self._testMethodName)
