@@ -6,7 +6,6 @@
 import unittest
 import lib.common as common
 import numpy as np
-from numba import njit
 
 '''
 Datablock Functions
