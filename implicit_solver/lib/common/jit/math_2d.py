@@ -3,10 +3,10 @@
 @description : Maths methods
 """
 import math
-from numba import njit
+import numba
 import numpy as np
 
-@njit
+@numba.njit
 def dot(v0, v1):
     '''
     Returns the dotproduct of a 2D vector
@@ -15,7 +15,7 @@ def dot(v0, v1):
     '''
     return (v0[0] * v1[0]) + (v0[1] * v1[1])
 
-@njit
+@numba.njit
 def norm(vector):
     '''
     Returns the norm of a 2D vector
@@ -25,7 +25,7 @@ def norm(vector):
     dot = (vector[0] * vector[0]) + (vector[1] * vector[1])
     return math.sqrt(dot)
 
-@njit
+@numba.njit
 def is_close(value0, value1, tol=1.e-8):
     '''
     Returns whether two scalar are similar
@@ -34,7 +34,7 @@ def is_close(value0, value1, tol=1.e-8):
     '''
     return math.fabs(value0 - value1) < tol
 
-@njit
+@numba.njit
 def distance(x0, x1):
     '''
     Returns distance between x0 and x1
@@ -42,7 +42,7 @@ def distance(x0, x1):
     distance = norm(x0 - x1)
     return distance
 
-@njit
+@numba.njit
 def area(x0, x1, x2):
     '''
     Returns the area of the 2D triangle from x0, x1, x2
@@ -52,7 +52,7 @@ def area(x0, x1, x2):
     area = math.fabs(u[0]*v[1]-v[0]*u[1]) * 0.5
     return area
 
-@njit
+@numba.njit
 def angle(x0, x1, x2):
     '''
     Returns the angle between the segment x0-x1 and x1-x2
@@ -71,7 +71,7 @@ def angle(x0, x1, x2):
     angle = math.atan2(det,dot)  # atan2 return range [-pi, pi]
     return angle
 
-@njit
+@numba.njit
 def curvature(x0, x1, x2):
     '''
     Connect three points :
@@ -101,7 +101,7 @@ def curvature(x0, x1, x2):
 
     return curvature
 
-@njit
+@numba.njit
 def copy(v):
     '''
     Fast copy of v
