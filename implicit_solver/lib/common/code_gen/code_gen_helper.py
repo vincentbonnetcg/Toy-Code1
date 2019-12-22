@@ -7,7 +7,7 @@ import re
 
 class CodeGenHelper:
 
-    def __init__(self, use_njit = True):
+    def __init__(self, njit = True, parallel=False, debug=False):
         # Generated function
         self.generated_function_name = ''
         self.generated_function_source = ''
@@ -16,7 +16,12 @@ class CodeGenHelper:
         self.variable_remap = {} # dictionnary mapping 'object.attr' with 'object_attr'
         self.functions_args = [] # original functions arguments
         # Options
-        self.use_njit = use_njit
+        self.use_njit = njit
+        self.use_parallel = parallel
+        self.use_debug = debug
+        # Test whether or not it makes sense
+        if (not njit) and (parallel or debug):
+            raise ValueError("Cannot use the flags {parallel, debug} when njit=False ")
 
     def generate_vectorized_function_source(self, function):
         '''
@@ -50,7 +55,11 @@ class CodeGenHelper:
             if code[0:4] == 'def ':
                 # add njit
                 if self.use_njit:
-                    gen_code_lines.append('@numba.njit')
+                    if self.use_parallel:
+                        gen_code_lines.append('@numba.njit(parallel=True)')
+                    else:
+                        gen_code_lines.append('@numba.njit')
+
 
                 # rename the function arguments associated with an object
                 new_functions_args = self.functions_args.copy()
@@ -63,7 +72,10 @@ class CodeGenHelper:
 
                 # loop over the blocks (list/tuple of numpy array)
                 gen_code_lines.append(indents + '_num_blocks = len(' + new_functions_args[0]  + ')' )
-                gen_code_lines.append(indents + 'for _j in range(_num_blocks):')
+                if self.use_parallel:
+                    gen_code_lines.append(indents + 'for _j in numba.prange(_num_blocks):')
+                else:
+                    gen_code_lines.append(indents + 'for _j in range(_num_blocks):')
 
                 # add variable accessor
                 for obj, attrs in self.obj_attrs_map.items():

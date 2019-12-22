@@ -13,12 +13,12 @@ import numba
 import numpy as np
 import lib.common.node_accessor as na
 
-def generate_vectorize_function(function=None, njit=True):
+def generate_vectorize_function(function, njit, parallel, debug):
     '''
     Returns a tuple (source code, function object)
     '''
     # Generate code
-    helper = gen.CodeGenHelper(njit)
+    helper = gen.CodeGenHelper(njit, parallel, debug)
     helper.generate_vectorized_function_source(function)
 
     # Compile code
@@ -28,12 +28,12 @@ def generate_vectorize_function(function=None, njit=True):
     return helper.generated_function_source, vars().get(helper.generated_function_name)
 
 
-def as_vectorized(function=None, *,njit=True):
+def as_vectorized(function=None, *,njit=True, parallel=False, debug=False):
     '''
     Decorator with arguments to vectorize a function
     '''
     if function is None:
-        return functools.partial(as_vectorized, njit=njit)
+        return functools.partial(as_vectorized, njit=njit, parallel=parallel, debug=debug)
 
     def convert(arg):
         '''
@@ -77,9 +77,11 @@ def as_vectorized(function=None, *,njit=True):
 
         return True
 
-    source, function = generate_vectorize_function(function, njit)
+    source, function = generate_vectorize_function(function, njit, parallel, debug)
 
     execute.njit = njit
+    execute.debug = debug
+    execute.parallel = parallel
     execute.source = source
     execute.function = function
 
