@@ -1,7 +1,7 @@
 """
 @author: Vincent Bonnet
 @description : This class provides a mapping between node identifiers and datablock layout
-Format : [object_id, object_node_id, global_node_id, block_id, block_node_id] #
+Format : [global_node_id, block_id, block_node_id]
 """
 
 import numba
