@@ -5,9 +5,9 @@
 
 import numpy as np
 from lib.objects.components import ConstraintBase
-import lib.common.math_2d as math2D
 from lib.common.convex_hull import ConvexHull
-import lib.common.node_accessor as na
+import lib.common.jit.math_2d as math2D
+import lib.common.jit.node_accessor as na
 from lib.system import Scene
 from numba import njit
 

@@ -8,7 +8,6 @@ import matplotlib.patches as patches
 import matplotlib.collections as collections
 
 import lib.common as cm
-import lib.common.node_accessor as na
 from lib.system import Scene
 
 import numpy as np

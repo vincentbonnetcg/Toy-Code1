@@ -5,7 +5,7 @@
 
 import lib.objects as objects
 import lib.common as cm
-import lib.common.node_accessor as na
+import lib.common.jit.node_accessor as na
 
 def set_render_prefs(obj, prefs):
     '''

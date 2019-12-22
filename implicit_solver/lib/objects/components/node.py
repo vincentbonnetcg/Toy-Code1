@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import lib.common.node_accessor as na
+import lib.common.jit.node_accessor as na
 
 class Node:
     '''

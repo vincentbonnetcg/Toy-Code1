@@ -4,8 +4,8 @@
 """
 
 from lib.objects.components import ConstraintBase
-import lib.common.math_2d as math2D
-import lib.common.node_accessor as na
+import lib.common.jit.math_2d as math2D
+import lib.common.jit.node_accessor as na
 from lib.system.scene import Scene
 from numba import njit
 import numpy as np

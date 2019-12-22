@@ -11,7 +11,7 @@ print(data.field_b)
 import math
 import numpy as np
 import keyword
-import lib.common.node_accessor as na
+import lib.common.jit.node_accessor as na
 
 class DataBlock:
 

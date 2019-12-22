@@ -5,7 +5,7 @@
 
 import numpy as np
 import scipy.spatial as spatial
-import lib.common.math_2d as math2D
+import lib.common.jit.math_2d as math2D
 
 class ConvexHull:
 

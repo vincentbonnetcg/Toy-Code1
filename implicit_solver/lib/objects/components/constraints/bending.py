@@ -3,13 +3,15 @@
 @description : Bending Constraint for the implicit solver
 """
 
-from lib.objects.components import ConstraintBase
-import lib.common.math_2d as math2D
-import lib.common.node_accessor as na
-from lib.system.scene import Scene
-from numba import njit
 import math
 import numpy as np
+
+from lib.objects.components import ConstraintBase
+import lib.common.jit.math_2d as math2D
+import lib.common.jit.node_accessor as na
+from lib.system.scene import Scene
+from numba import njit
+
 
 class Bending(ConstraintBase):
     '''
