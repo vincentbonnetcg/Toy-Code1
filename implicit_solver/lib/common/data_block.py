@@ -72,7 +72,7 @@ class DataBlock:
             self.dtype_dict['formats'].append((data_type, data_shape))
             self.dtype_dict['defaults'].append(value)
 
-    def __dtype(self, num_elements):
+    def __dtype(self):
         '''
         Returns the dtype of the datablock
         add_block_info is only used for blocks
@@ -90,17 +90,17 @@ class DataBlock:
             field_shape = field_format[1]
 
             # modify the shape to store data as 'array of structure of array'
-            # x becomes (num_elements, x)
-            # (x, y, ...) becomes (num_elements, x, y, ...)
+            # x becomes (self.block_size, x)
+            # (x, y, ...) becomes (self.block_size, x, y, ...)
             new_field_shape = None
             if field_shape == 1:
-                # The coma after num_elements is essential
-                # In case field_shape == num_elements == 1,
+                # The coma after self.block_size is essential
+                # In case field_shape == self.block_size == 1,
                 # it guarantees an array will be produced and not a single value
-                new_field_shape = (num_elements,)
+                new_field_shape = (self.block_size,)
             else:
                 list_shape = list(field_shape)
-                list_shape.insert(0, num_elements)
+                list_shape.insert(0, self.block_size)
                 new_field_shape = (list_shape)
 
             dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
@@ -123,7 +123,7 @@ class DataBlock:
         Initialize blocks and return new element ids
         '''
         block_ids = []
-        block_dtype = self.__dtype(self.block_size)
+        block_dtype = self.__dtype()
 
         num_fields = len(self.dtype_dict['names'])
         if num_fields == 0:
