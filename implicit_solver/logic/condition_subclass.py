@@ -23,6 +23,8 @@ def initialize_condition_from_aos(condition, array_of_struct, details_datablock)
     condition.block_ids = details_datablock.append(num_constraints)
 
     if (num_constraints == 0):
+        # lock the datablock to allow vectorized operations on it
+        details_datablock.lock()
         return
 
     # copy to datablock
@@ -101,8 +103,9 @@ class KinematicCollisionCondition(Condition):
                     spring.damping = self.damping
                     springs.append(spring)
 
-        initialize_condition_from_aos(self, springs, details.anchorSpring)
-        cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node)
+        # TODO - commented out because the dynamic constraints are broken
+        #initialize_condition_from_aos(self, springs, details.anchorSpring)
+        #cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node)
 
 class KinematicAttachmentCondition(Condition):
     '''
@@ -277,9 +280,9 @@ class WireBendingCondition(Condition):
                         # add bending constraint
                         constraint = cn.Bending()
                         constraint.node_IDs = np.copy(node_ids)
-                        constraint.compute_rest(details)
                         constraint.stiffness = self.stiffness
                         constraint.damping = self.damping
                         constraints.append(constraint)
 
         initialize_condition_from_aos(self, constraints, details.bending)
+        cnts.bending.compute_bending_rest(details.bending, details.node)
