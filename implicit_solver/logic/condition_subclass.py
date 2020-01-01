@@ -5,12 +5,16 @@
 
 import numpy as np
 
+import lib.objects.components.constraints as cnts
 import lib.objects.components as cn
 from lib.objects import Condition
 import lib.common as common
 from lib.system import Scene
 
 def initialize_condition_from_aos(condition, array_of_struct, details_datablock):
+    # unlock the datablock to allow adding new blocks
+    details_datablock.unlock()
+
     # initialize datablock
     num_constraints = len(array_of_struct)
     condition.total_constraints = num_constraints
@@ -45,6 +49,9 @@ def initialize_condition_from_aos(condition, array_of_struct, details_datablock)
 
         # set datbablock
         details_datablock.copyto(field_name, new_array, condition.block_ids)
+
+    # lock the datablock to allow vectorized operations on it
+    details_datablock.lock()
 
 
 class KinematicCollisionCondition(Condition):
@@ -137,12 +144,12 @@ class KinematicAttachmentCondition(Condition):
                 spring.kinematic_component_param = np.float64(attachment_point_params.t)
                 spring.kinematic_component_pos = attachment_point
                 spring.node_IDs = np.copy(node_ids)
-                spring.compute_rest(details)
                 spring.stiffness = self.stiffness
                 spring.damping = self.damping
                 springs.append(spring)
 
         initialize_condition_from_aos(self, springs, details.anchorSpring)
+        cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node)
 
 class DynamicAttachmentCondition(Condition):
     '''

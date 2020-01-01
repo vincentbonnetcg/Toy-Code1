@@ -12,6 +12,7 @@ import lib.common.code_gen.code_gen_helper as gen
 import numba
 import numpy as np
 import lib.common.jit.node_accessor as na
+import lib.common.jit.math_2d as math2D
 
 def generate_vectorize_function(function, njit, parallel, debug):
     '''

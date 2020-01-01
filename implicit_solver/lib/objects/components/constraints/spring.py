@@ -10,6 +10,7 @@ import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
 from lib.system import Scene
 import lib.objects.components.jit.spring_lib as spring_lib
+import lib.common.code_gen as generate
 
 
 class AnchorSpring(ConstraintBase):
@@ -23,13 +24,6 @@ class AnchorSpring(ConstraintBase):
         self.kinematic_component_index =  np.uint32(0)
         self.kinematic_component_param = np.float64(0.0)
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
-
-    def compute_rest(self, details):
-        '''
-        element is an object of type self.datablock_ct generated in add_fields
-        '''
-        x, v = na.node_xv(details.node.blocks, self.node_IDs[0])
-        self.rest_length = np.float64(math2D.distance(self.kinematic_component_pos, x))
 
     @classmethod
     def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:
@@ -80,6 +74,12 @@ class AnchorSpring(ConstraintBase):
                 dfdv = spring_lib.spring_damping_jacobian(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
                 dfdx_ptr[ct_index][0][0] = dfdx
                 dfdv_ptr[ct_index][0][0] = dfdv
+
+@generate.as_vectorized
+def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
+    x = na.node_x(detail_nodes, anchor_spring.node_IDs[0])
+    anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
+
 
 class Spring(ConstraintBase):
     '''
