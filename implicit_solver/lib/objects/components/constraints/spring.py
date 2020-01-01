@@ -22,18 +22,15 @@ class AnchorSpring(ConstraintBase):
         self.kinematic_index = np.uint32(0)
         self.kinematic_component_index =  np.uint32(0)
         self.kinematic_component_param = np.float64(0.0)
+        self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 
-    def set_object(self, details, node_id, kinematic, kinematic_parametric_point):
+    def set_object(self, details, node_ids):
         '''
         element is an object of type self.datablock_ct generated in add_fields
         '''
-        target_pos = kinematic.get_position_from_parametric_point(kinematic_parametric_point)
-        x, v = na.node_xv(details.node.blocks, node_id)
-        self.rest_length = np.float64(math2D.distance(target_pos, x))
-        self.kinematic_index = np.uint32(kinematic.index)
-        self.kinematic_component_index =  np.uint32(kinematic_parametric_point.index)
-        self.kinematic_component_param = np.float64(kinematic_parametric_point.t)
-        self.node_IDs = np.copy([node_id])
+        x, v = na.node_xv(details.node.blocks, node_ids[0])
+        self.rest_length = np.float64(math2D.distance(self.kinematic_component_pos, x))
+        self.node_IDs = np.copy(node_ids)
 
     @classmethod
     def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:

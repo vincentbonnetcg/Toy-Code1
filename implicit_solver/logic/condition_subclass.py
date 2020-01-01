@@ -77,15 +77,19 @@ class KinematicCollisionCondition(Condition):
         for i in range(dynamic.num_nodes()):
             node_pos = data_x[i]
             node_vel = data_v[i]
-            node_id = data_node_id[i]
+            node_ids = [data_node_id[i]]
 
             if (kinematic.is_inside(node_pos)):
                 attachment_point_params = kinematic.get_closest_parametric_point(node_pos)
-                kinematicNormal = kinematic.get_normal_from_parametric_point(attachment_point_params)
-                if (np.dot(kinematicNormal, node_vel) < 0.0):
+                target_normal = kinematic.get_normal_from_parametric_point(attachment_point_params)
+                if (np.dot(target_normal, node_vel) < 0.0):
                     # add spring
                     spring = cn.AnchorSpring()
-                    spring.set_object(details, node_id, kinematic, attachment_point_params)
+                    spring.kinematic_index = np.uint32(kinematic.index)
+                    spring.kinematic_component_index =  np.uint32(attachment_point_params.index)
+                    spring.kinematic_component_param = np.float64(attachment_point_params.t)
+                    spring.kinematic_component_pos = kinematic.get_position_from_parametric_point(attachment_point_params)
+                    spring.set_object(details, node_ids)
                     spring.stiffness = self.stiffness
                     spring.damping = self.damping
                     springs.append(spring)
@@ -118,7 +122,7 @@ class KinematicAttachmentCondition(Condition):
         distance2 = self.distance * self.distance
         for i in range(dynamic.num_nodes()):
             node_pos = data_x[i]
-            node_id = data_node_id[i]
+            node_ids = [data_node_id[i]]
 
             attachment_point_params = kinematic.get_closest_parametric_point(node_pos)
             attachment_point = kinematic.get_position_from_parametric_point(attachment_point_params)
@@ -127,7 +131,11 @@ class KinematicAttachmentCondition(Condition):
             if dist2 < distance2:
                 # add spring
                 spring = cn.AnchorSpring()
-                spring.set_object(details, node_id, kinematic, attachment_point_params)
+                spring.kinematic_index = np.uint32(kinematic.index)
+                spring.kinematic_component_index =  np.uint32(attachment_point_params.index)
+                spring.kinematic_component_param = np.float64(attachment_point_params.t)
+                spring.kinematic_component_pos = attachment_point
+                spring.set_object(details, node_ids)
                 spring.stiffness = self.stiffness
                 spring.damping = self.damping
                 springs.append(spring)
