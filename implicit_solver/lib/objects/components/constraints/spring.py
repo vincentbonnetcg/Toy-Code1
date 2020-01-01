@@ -75,12 +75,6 @@ class AnchorSpring(ConstraintBase):
                 dfdx_ptr[ct_index][0][0] = dfdx
                 dfdv_ptr[ct_index][0][0] = dfdv
 
-@generate.as_vectorized
-def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
-    x = na.node_x(detail_nodes, anchor_spring.node_IDs[0])
-    anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
-
-
 class Spring(ConstraintBase):
     '''
     Describes a 2D spring constraint between two nodes
@@ -88,14 +82,6 @@ class Spring(ConstraintBase):
     def __init__(self):
         ConstraintBase.__init__(self, num_nodes = 2)
         self.rest_length = np.float32(0.0)
-
-    def compute_rest(self, details):
-        '''
-        element is an object of type self.datablock_ct generated in add_fields
-        '''
-        x0, v0 = na.node_xv(details.node.blocks, self.node_IDs[0])
-        x1, v1 = na.node_xv(details.node.blocks, self.node_IDs[1])
-        self.rest_length = math2D.distance(x0, x1)
 
     @classmethod
     def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:
@@ -143,4 +129,15 @@ class Spring(ConstraintBase):
                 dfdx_ptr[ct_index][0][1] = dfdx_ptr[ct_index][1][0] = dfdx * -1
                 dfdv_ptr[ct_index][0][0] = dfdv_ptr[ct_index][1][1] = dfdv
                 dfdv_ptr[ct_index][0][1] = dfdv_ptr[ct_index][1][0] = dfdv * -1
+
+@generate.as_vectorized
+def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
+    x = na.node_x(detail_nodes, anchor_spring.node_IDs[0])
+    anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
+
+@generate.as_vectorized
+def compute_spring_rest(spring : Spring, detail_nodes):
+    x0 = na.node_x(detail_nodes, spring.node_IDs[0])
+    x1 = na.node_x(detail_nodes, spring.node_IDs[1])
+    spring.rest_length = math2D.distance(x0, x1)
 

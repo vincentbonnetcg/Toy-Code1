@@ -97,13 +97,12 @@ class KinematicCollisionCondition(Condition):
                     spring.kinematic_component_param = np.float64(attachment_point_params.t)
                     spring.kinematic_component_pos = kinematic.get_position_from_parametric_point(attachment_point_params)
                     spring.node_IDs = np.copy(node_ids)
-                    spring.compute_rest(details)
                     spring.stiffness = self.stiffness
                     spring.damping = self.damping
                     springs.append(spring)
 
         initialize_condition_from_aos(self, springs, details.anchorSpring)
-
+        cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node)
 
 class KinematicAttachmentCondition(Condition):
     '''
@@ -188,13 +187,12 @@ class DynamicAttachmentCondition(Condition):
                     # add spring
                     spring = cn.Spring()
                     spring.node_IDs = np.copy(node_ids)
-                    spring.compute_rest(details)
                     spring.stiffness = self.stiffness
                     spring.damping = self.damping
                     springs.append(spring)
 
         initialize_condition_from_aos(self, springs, details.spring)
-
+        cnts.spring.compute_spring_rest(details.spring, details.node)
 
 class EdgeCondition(Condition):
     '''
@@ -217,13 +215,12 @@ class EdgeCondition(Condition):
                 # add spring
                 spring = cn.Spring()
                 spring.node_IDs = np.copy(node_ids)
-                spring.compute_rest(details)
                 spring.stiffness = self.stiffness
                 spring.damping = self.damping
                 springs.append(spring)
 
         initialize_condition_from_aos(self, springs, details.spring)
-
+        cnts.spring.compute_spring_rest(details.spring, details.node)
 
 class AreaCondition(Condition):
     '''
