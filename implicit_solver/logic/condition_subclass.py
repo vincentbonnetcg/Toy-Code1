@@ -89,7 +89,8 @@ class KinematicCollisionCondition(Condition):
                     spring.kinematic_component_index =  np.uint32(attachment_point_params.index)
                     spring.kinematic_component_param = np.float64(attachment_point_params.t)
                     spring.kinematic_component_pos = kinematic.get_position_from_parametric_point(attachment_point_params)
-                    spring.set_object(details, node_ids)
+                    spring.node_IDs = np.copy(node_ids)
+                    spring.compute_rest(details)
                     spring.stiffness = self.stiffness
                     spring.damping = self.damping
                     springs.append(spring)
@@ -135,7 +136,8 @@ class KinematicAttachmentCondition(Condition):
                 spring.kinematic_component_index =  np.uint32(attachment_point_params.index)
                 spring.kinematic_component_param = np.float64(attachment_point_params.t)
                 spring.kinematic_component_pos = attachment_point
-                spring.set_object(details, node_ids)
+                spring.node_IDs = np.copy(node_ids)
+                spring.compute_rest(details)
                 spring.stiffness = self.stiffness
                 spring.damping = self.damping
                 springs.append(spring)
@@ -178,7 +180,8 @@ class DynamicAttachmentCondition(Condition):
 
                     # add spring
                     spring = cn.Spring()
-                    spring.set_object(details, node_ids)
+                    spring.node_IDs = np.copy(node_ids)
+                    spring.compute_rest(details)
                     spring.stiffness = self.stiffness
                     spring.damping = self.damping
                     springs.append(spring)
@@ -206,7 +209,8 @@ class EdgeCondition(Condition):
 
                 # add spring
                 spring = cn.Spring()
-                spring.set_object(details, node_ids)
+                spring.node_IDs = np.copy(node_ids)
+                spring.compute_rest(details)
                 spring.stiffness = self.stiffness
                 spring.damping = self.damping
                 springs.append(spring)
@@ -236,7 +240,8 @@ class AreaCondition(Condition):
 
                 # add area constraint
                 constraint = cn.Area()
-                constraint.set_object(details, node_ids)
+                constraint.node_IDs = np.copy(node_ids)
+                constraint.compute_rest(details)
                 constraint.stiffness = self.stiffness
                 constraint.damping = self.damping
                 constraints.append(constraint)
@@ -267,7 +272,8 @@ class WireBendingCondition(Condition):
 
                         # add bending constraint
                         constraint = cn.Bending()
-                        constraint.set_object(details, node_ids)
+                        constraint.node_IDs = np.copy(node_ids)
+                        constraint.compute_rest(details)
                         constraint.stiffness = self.stiffness
                         constraint.damping = self.damping
                         constraints.append(constraint)

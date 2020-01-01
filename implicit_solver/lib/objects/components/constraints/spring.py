@@ -24,13 +24,12 @@ class AnchorSpring(ConstraintBase):
         self.kinematic_component_param = np.float64(0.0)
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 
-    def set_object(self, details, node_ids):
+    def compute_rest(self, details):
         '''
         element is an object of type self.datablock_ct generated in add_fields
         '''
-        x, v = na.node_xv(details.node.blocks, node_ids[0])
+        x, v = na.node_xv(details.node.blocks, self.node_IDs[0])
         self.rest_length = np.float64(math2D.distance(self.kinematic_component_pos, x))
-        self.node_IDs = np.copy(node_ids)
 
     @classmethod
     def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:
@@ -90,14 +89,13 @@ class Spring(ConstraintBase):
         ConstraintBase.__init__(self, num_nodes = 2)
         self.rest_length = np.float32(0.0)
 
-    def set_object(self, details, node_ids):
+    def compute_rest(self, details):
         '''
         element is an object of type self.datablock_ct generated in add_fields
         '''
-        x0, v0 = na.node_xv(details.node.blocks, node_ids[0])
-        x1, v1 = na.node_xv(details.node.blocks, node_ids[1])
+        x0, v0 = na.node_xv(details.node.blocks, self.node_IDs[0])
+        x1, v1 = na.node_xv(details.node.blocks, self.node_IDs[1])
         self.rest_length = math2D.distance(x0, x1)
-        self.node_IDs = np.copy(node_ids)
 
     @classmethod
     def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:
