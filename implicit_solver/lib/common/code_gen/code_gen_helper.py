@@ -7,7 +7,7 @@ import re
 
 class CodeGenHelper:
 
-    def __init__(self, njit = True, parallel=False, debug=False):
+    def __init__(self, njit = True, parallel=False, debug=False, block_ids=False):
         # Generated function
         self.generated_function_name = ''
         self.generated_function_source = ''
@@ -18,7 +18,8 @@ class CodeGenHelper:
         # Options
         self.use_njit = njit
         self.use_parallel = parallel
-        self.use_debug = debug
+        self.use_block_ids = block_ids # NOT USED YET
+        self.use_debug = debug # NOT USED YET
         # Test whether or not it makes sense
         if (not njit) and (parallel or debug):
             raise ValueError("Cannot use the flags {parallel, debug} when njit=False ")

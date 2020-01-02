@@ -14,12 +14,12 @@ import numpy as np
 import lib.common.jit.node_accessor as na
 import lib.common.jit.math_2d as math2D
 
-def generate_vectorize_function(function, njit, parallel, debug):
+def generate_vectorize_function(function, njit, parallel, debug, block_ids):
     '''
     Returns a tuple (source code, function object)
     '''
     # Generate code
-    helper = gen.CodeGenHelper(njit, parallel, debug)
+    helper = gen.CodeGenHelper(njit, parallel, debug, block_ids)
     helper.generate_vectorized_function_source(function)
 
     # Compile code
@@ -29,12 +29,12 @@ def generate_vectorize_function(function, njit, parallel, debug):
     return helper.generated_function_source, vars().get(helper.generated_function_name)
 
 
-def as_vectorized(function=None, *,njit=True, parallel=False, debug=False):
+def as_vectorized(function=None, *,njit=True, parallel=False, debug=False, block_ids=False):
     '''
     Decorator with arguments to vectorize a function
     '''
     if function is None:
-        return functools.partial(as_vectorized, njit=njit, parallel=parallel, debug=debug)
+        return functools.partial(as_vectorized, njit=njit, parallel=parallel, debug=debug, block_ids=block_ids)
 
     def convert(arg):
         '''
@@ -78,11 +78,12 @@ def as_vectorized(function=None, *,njit=True, parallel=False, debug=False):
 
         return True
 
-    source, function = generate_vectorize_function(function, njit, parallel, debug)
+    source, function = generate_vectorize_function(function, njit, parallel, debug, block_ids)
 
     execute.njit = njit
     execute.debug = debug
     execute.parallel = parallel
+    execute.block_ids = block_ids
     execute.source = source
     execute.function = function
 
