@@ -81,7 +81,7 @@ class Spring(ConstraintBase):
     '''
     def __init__(self):
         ConstraintBase.__init__(self, num_nodes = 2)
-        self.rest_length = np.float32(0.0)
+        self.rest_length = np.float64(0.0)
 
     @classmethod
     def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:
