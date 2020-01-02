@@ -248,12 +248,12 @@ class AreaCondition(Condition):
                 # add area constraint
                 constraint = cn.Area()
                 constraint.node_IDs = np.copy(node_ids)
-                constraint.compute_rest(details)
                 constraint.stiffness = self.stiffness
                 constraint.damping = self.damping
                 constraints.append(constraint)
 
         initialize_condition_from_aos(self, constraints, details.area)
+        cnts.area.compute_area_rest(details.area, details.node)
 
 class WireBendingCondition(Condition):
     '''
