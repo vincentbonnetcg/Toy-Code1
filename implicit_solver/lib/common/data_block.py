@@ -187,8 +187,8 @@ class DataBlock:
 
         return block_ids
 
-    def remove(self, block_ids = []):
-        if not block_ids:
+    def remove(self, block_ids = None):
+        if block_ids is None:
             return
 
         if 'ID' in self.dtype_dict['names']:
@@ -217,7 +217,7 @@ class DataBlock:
     '''
     Vectorize Functions on blocks
     '''
-    def __take_with_id(self, block_ids=[]):
+    def __take_with_id(self, block_ids = []):
         for block_id in block_ids:
             if self.blocks[block_id]['blockInfo_active']:
                 yield self.blocks[block_id]
@@ -227,19 +227,19 @@ class DataBlock:
             if block_data['blockInfo_active']:
                 yield block_data
 
-    def get_blocks(self, block_ids = []):
-        if block_ids:
-            return self.__take_with_id(block_ids)
+    def get_blocks(self, block_ids = None):
+        if block_ids is None:
+            return self.__take()
 
-        return self.__take()
+        return self.__take_with_id(block_ids)
 
-    def compute_num_elements(self, block_ids = []):
+    def compute_num_elements(self, block_ids = None):
         num_elements = 0
         for block_data in self.get_blocks(block_ids):
             num_elements += block_data['blockInfo_numElements']
         return num_elements
 
-    def copyto(self, field_name, values, block_ids = []):
+    def copyto(self, field_name, values, block_ids = None):
         num_elements = 0
 
         for block_data in self.get_blocks(block_ids):
@@ -249,11 +249,11 @@ class DataBlock:
             end_index = num_elements
             np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
 
-    def fill(self, field_name, value, block_ids = []):
+    def fill(self, field_name, value, block_ids = None):
         for block in self.get_blocks(block_ids):
             block[field_name].fill(value)
 
-    def flatten(self, field_name, block_ids = []):
+    def flatten(self, field_name, block_ids = None):
         '''
         Convert block of array into a single array
         '''
@@ -273,6 +273,9 @@ class DataBlock:
 
         return result
 
-    def set_active(self, active, block_ids = []):
+    def set_active(self, active, block_ids = None):
         for block_data in self.get_blocks(block_ids):
             block_data['blockInfo_active'] = active
+            # currenly vectorized function to not skip unactive block
+            # set numelement to time being
+            block_data['blockInfo_numElements'] = 0

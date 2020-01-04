@@ -19,7 +19,7 @@ def initialize_condition_from_aos(condition, array_of_struct, details_datablock)
     num_constraints = len(array_of_struct)
     condition.total_constraints = num_constraints
 
-    details_datablock.remove(condition.block_ids)
+    details_datablock.set_active(False, condition.block_ids)
     condition.block_ids = []
 
     # early exit if there is no constraints
@@ -29,7 +29,7 @@ def initialize_condition_from_aos(condition, array_of_struct, details_datablock)
         return False
 
     # allocate
-    condition.block_ids = details_datablock.append(num_constraints)
+    condition.block_ids = details_datablock.append(num_constraints, reuse_inactive_block=True)
 
     # copy to datablock
     num_elements = len(array_of_struct)
@@ -112,6 +112,7 @@ class KinematicCollisionCondition(Condition):
         if initialize_condition_from_aos(self, springs, details.anchorSpring):
             np_block_ids = np.array(self.block_ids)
             cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
+
 
 class KinematicAttachmentCondition(Condition):
     '''
