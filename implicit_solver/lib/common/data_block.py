@@ -1,11 +1,21 @@
 """
 @author: Vincent Bonnet
 @description : Array of Structures of Arrays (AoSoA)
-Example :
-data = DataBlock()
-data.initialize(10)
-print(data.field_a)
-print(data.field_b)
+
+Single Block Memory Layout (with x, v, b as channels)
+|-----------------------------|
+| x[block_size](np.float)     |
+| v[block_size](np.float)     |
+| b[block_size](np.int)       |
+|-----------------------------|
+|blockInfo_numElements (int64)|
+|blockInfo_active     (bool)  |
+|-----------------------------|
+
+blockInfo_numElements is the number of set elements in the Block
+blockInfo_active defines whether or not the Block is active
+
+Datablock is a list of Blocks
 """
 
 import math
@@ -41,7 +51,7 @@ class DataBlock:
         '''
         Raise exception if 'name' cannot be added
         '''
-        if name in ['blockInfo_numElements']:
+        if name in ['blockInfo_numElements', 'blockInfo_active']:
             raise ValueError("field name " + name + " is reserved ")
 
         if keyword.iskeyword(name):
@@ -107,7 +117,9 @@ class DataBlock:
 
         # add block info
         dtype_aosoa_dict['names'].append('blockInfo_numElements')
+        dtype_aosoa_dict['names'].append('blockInfo_active')
         dtype_aosoa_dict['formats'].append(np.int64)
+        dtype_aosoa_dict['formats'].append(np.bool)
 
         return np.dtype(dtype_aosoa_dict, align=True)
 
@@ -141,6 +153,7 @@ class DataBlock:
             begin_index = block_index * self.block_size
             block_n_elements = min(self.block_size, num_elements-begin_index)
             block_data['blockInfo_numElements'] = block_n_elements
+            block_data['blockInfo_active'] = True
 
             # set default values
             for field_id, default_value in enumerate(self.dtype_dict['defaults']):
@@ -239,3 +252,7 @@ class DataBlock:
             np.copyto(result[begin_index:end_index], block_data[field_id][0:block_n_elements])
 
         return result
+
+    def set_active(self, active, block_ids = []):
+        for block_data in self.get_blocks(block_ids):
+            block_data['blockInfo_active'] = active
