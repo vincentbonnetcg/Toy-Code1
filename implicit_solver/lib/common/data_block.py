@@ -134,7 +134,6 @@ class DataBlock:
         '''
         Initialize blocks and return new element ids
         '''
-        # TODO : implement reuse_inactive_block
         block_ids = []
         block_dtype = self.__dtype()
 
@@ -142,14 +141,30 @@ class DataBlock:
         if num_fields == 0:
             return
 
-        block_id = len(self.blocks)
         global_element_id = self.compute_num_elements()
+
+        # collect inactive block ids
+        inactive_block_ids = []
+        if reuse_inactive_block:
+            for block_index,  block_data in enumerate(self.blocks):
+                if not block_data['blockInfo_active']:
+                    inactive_block_ids.append(block_index)
 
         n_blocks = math.ceil(num_elements / self.block_size)
         for block_index in range(n_blocks):
 
-            # allocate memory and blockInfo
-            block_data = np.zeros(1, dtype=block_dtype)[0] # a scalar
+            block_id = -1
+            block_data = None
+
+            if reuse_inactive_block and len(inactive_block_ids) > 0:
+                # reuse blocks
+                block_id = inactive_block_ids.pop(0)
+                block_data = self.blocks[block_id]
+            else:
+                # allocate a new block
+                block_id = len(self.blocks)
+                block_data = np.zeros(1, dtype=block_dtype)[0] # a scalar
+                self.blocks.append(block_data)
 
             begin_index = block_index * self.block_size
             block_n_elements = min(self.block_size, num_elements-begin_index)
@@ -167,9 +182,8 @@ class DataBlock:
                     na.set_node_id(block_data_ID[block_node_id], global_element_id, block_id, block_node_id)
                     global_element_id += 1
 
+            # add block id to result
             block_ids.append(block_id)
-            block_id += 1
-            self.blocks.append(block_data)
 
         return block_ids
 

@@ -85,6 +85,22 @@ class TestDataBlock(unittest.TestCase):
         self.assertEqual(datablock.blocks[3]['blockInfo_active'], False)
         self.assertEqual(datablock.compute_num_elements(), 6)
 
+    def test_reuse_inactive_block(self):
+        num_elements = 10
+        datablock = create_datablock(num_elements, block_size=3)
+        self.assertEqual(len(datablock.blocks), 4)
+
+        # disable two blocks [1, 2] and reuse those blocks
+        datablock.set_active(False, [1,2])
+        datablock.append(num_elements = 6, reuse_inactive_block=True)
+        self.assertEqual(len(datablock.blocks), 4)
+
+        # check all the blocks are active
+        self.assertEqual(datablock.blocks[0]['blockInfo_active'], True)
+        self.assertEqual(datablock.blocks[1]['blockInfo_active'], True)
+        self.assertEqual(datablock.blocks[2]['blockInfo_active'], True)
+        self.assertEqual(datablock.blocks[3]['blockInfo_active'], True)
+
     def setUp(self):
         print(" TestDataBlock:", self._testMethodName)
 
