@@ -12,20 +12,24 @@ import lib.common as common
 from lib.system import Scene
 
 def initialize_condition_from_aos(condition, array_of_struct, details_datablock):
-    # unlock the datablock to allow adding new blocks
+    # unlock the datablock to allow removing/adding blocks
     details_datablock.unlock()
 
-    # initialize datablock
+    # remove previous allocated blocks
     num_constraints = len(array_of_struct)
     condition.total_constraints = num_constraints
 
     details_datablock.remove(condition.block_ids)
-    condition.block_ids = details_datablock.append(num_constraints)
+    condition.block_ids = []
 
+    # early exit if there is no constraints
     if (num_constraints == 0):
         # lock the datablock to allow vectorized operations on it
         details_datablock.lock()
-        return
+        return False
+
+    # allocate
+    condition.block_ids = details_datablock.append(num_constraints)
 
     # copy to datablock
     num_elements = len(array_of_struct)
@@ -54,6 +58,8 @@ def initialize_condition_from_aos(condition, array_of_struct, details_datablock)
 
     # lock the datablock to allow vectorized operations on it
     details_datablock.lock()
+
+    return True
 
 
 class KinematicCollisionCondition(Condition):
@@ -103,9 +109,9 @@ class KinematicCollisionCondition(Condition):
                     spring.damping = self.damping
                     springs.append(spring)
 
-        # TODO - commented out because the dynamic constraints are broken
-        #initialize_condition_from_aos(self, springs, details.anchorSpring)
-        #cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node)
+        if initialize_condition_from_aos(self, springs, details.anchorSpring):
+            np_block_ids = np.array(self.block_ids)
+            cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
 
 class KinematicAttachmentCondition(Condition):
     '''
@@ -150,8 +156,10 @@ class KinematicAttachmentCondition(Condition):
                 spring.damping = self.damping
                 springs.append(spring)
 
-        initialize_condition_from_aos(self, springs, details.anchorSpring)
-        cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node)
+        if initialize_condition_from_aos(self, springs, details.anchorSpring):
+            np_block_ids = np.array(self.block_ids)
+            cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
+
 
 class DynamicAttachmentCondition(Condition):
     '''
@@ -194,8 +202,9 @@ class DynamicAttachmentCondition(Condition):
                     spring.damping = self.damping
                     springs.append(spring)
 
-        initialize_condition_from_aos(self, springs, details.spring)
-        cnts.spring.compute_spring_rest(details.spring, details.node)
+        if initialize_condition_from_aos(self, springs, details.spring):
+            np_block_ids = np.array(self.block_ids)
+            cnts.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
 
 class EdgeCondition(Condition):
     '''
@@ -222,8 +231,9 @@ class EdgeCondition(Condition):
                 spring.damping = self.damping
                 springs.append(spring)
 
-        initialize_condition_from_aos(self, springs, details.spring)
-        cnts.spring.compute_spring_rest(details.spring, details.node)
+        if initialize_condition_from_aos(self, springs, details.spring):
+            np_block_ids = np.array(self.block_ids)
+            cnts.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
 
 class AreaCondition(Condition):
     '''
@@ -252,8 +262,9 @@ class AreaCondition(Condition):
                 constraint.damping = self.damping
                 constraints.append(constraint)
 
-        initialize_condition_from_aos(self, constraints, details.area)
-        cnts.area.compute_area_rest(details.area, details.node)
+        if initialize_condition_from_aos(self, constraints, details.area):
+            np_block_ids = np.array(self.block_ids)
+            cnts.area.compute_area_rest(details.area, details.node, np_block_ids)
 
 class WireBendingCondition(Condition):
     '''
@@ -284,5 +295,6 @@ class WireBendingCondition(Condition):
                         constraint.damping = self.damping
                         constraints.append(constraint)
 
-        initialize_condition_from_aos(self, constraints, details.bending)
-        cnts.bending.compute_bending_rest(details.bending, details.node)
+        if initialize_condition_from_aos(self, constraints, details.bending):
+            np_block_ids = np.array(self.block_ids)
+            cnts.bending.compute_bending_rest(details.bending, details.node, np_block_ids)

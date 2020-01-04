@@ -68,27 +68,39 @@ class CodeGenHelper:
                     if arg in self.obj_attrs_map:
                         new_functions_args[argId] += '_blocks'
 
-                # replace function name
-                gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +'):')
+                # replace function
+                if self.use_block_ids:
+                    gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +', block_ids):')
+                else:
+                    gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +'):')
 
                 # loop over the blocks (list/tuple of numpy array)
-                gen_code_lines.append(indents + '_num_blocks = len(' + new_functions_args[0]  + ')' )
+                if self.use_block_ids:
+                    gen_code_lines.append(indents + '_num_blocks = len(block_ids)' )
+                else:
+                    gen_code_lines.append(indents + '_num_blocks = len(' + new_functions_args[0]  + ')' )
+
                 if self.use_parallel:
                     gen_code_lines.append(indents + 'for _j in numba.prange(_num_blocks):')
                 else:
                     gen_code_lines.append(indents + 'for _j in range(_num_blocks):')
 
+                if self.use_block_ids:
+                    gen_code_lines.append(two_indents + '_handle = block_ids[_j]')
+                else:
+                    gen_code_lines.append(two_indents + '_handle = _j')
+
                 # add variable accessor
                 for obj, attrs in self.obj_attrs_map.items():
                     for attr in attrs:
                         variable_name = obj + '_' + attr
-                        variable_accessor = obj +'_blocks[_j][\'' + attr + '\']'
+                        variable_accessor = obj +'_blocks[_handle][\'' + attr + '\']'
                         variable_code = two_indents + variable_name + ' = ' + variable_accessor
                         gen_code_lines.append(variable_code)
 
                 # loop over the elements (numpy array)
                 master_argument = self.functions_args[0]
-                master_variable_name = master_argument + '_blocks[_j][\'blockInfo_numElements\']'
+                master_variable_name = master_argument + '_blocks[_handle][\'blockInfo_numElements\']'
                 gen_code_lines.append(two_indents + '_num_elements = ' + master_variable_name)
                 gen_code_lines.append(two_indents + 'for _i in range(_num_elements):')
 

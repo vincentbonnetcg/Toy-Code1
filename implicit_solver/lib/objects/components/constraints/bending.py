@@ -72,10 +72,9 @@ class Bending(ConstraintBase):
                 dfdx_ptr[ct_index][0][2] = dfdx_ptr[ct_index][2][0] = dfdx[4]
                 dfdx_ptr[ct_index][1][2] = dfdx_ptr[ct_index][2][1] = dfdx[5]
 
-@generate.as_vectorized
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_bending_rest(bending : Bending, detail_nodes):
     x0 = na.node_x(detail_nodes, bending.node_IDs[0])
     x1 = na.node_x(detail_nodes, bending.node_IDs[1])
     x2 = na.node_x(detail_nodes, bending.node_IDs[2])
     bending.rest_angle = np.float64(math2D.angle(x0, x1, x2))
-

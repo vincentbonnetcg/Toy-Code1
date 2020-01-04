@@ -130,12 +130,12 @@ class Spring(ConstraintBase):
                 dfdv_ptr[ct_index][0][0] = dfdv_ptr[ct_index][1][1] = dfdv
                 dfdv_ptr[ct_index][0][1] = dfdv_ptr[ct_index][1][0] = dfdv * -1
 
-@generate.as_vectorized
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
     x = na.node_x(detail_nodes, anchor_spring.node_IDs[0])
     anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
 
-@generate.as_vectorized
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_spring_rest(spring : Spring, detail_nodes):
     x0 = na.node_x(detail_nodes, spring.node_IDs[0])
     x1 = na.node_x(detail_nodes, spring.node_IDs[1])
