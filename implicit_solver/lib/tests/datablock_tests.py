@@ -83,6 +83,7 @@ class TestDataBlock(unittest.TestCase):
         self.assertEqual(datablock.blocks[1]['blockInfo_active'], False)
         self.assertEqual(datablock.blocks[2]['blockInfo_active'], True)
         self.assertEqual(datablock.blocks[3]['blockInfo_active'], False)
+        self.assertEqual(datablock.compute_num_elements(), 6)
 
     def setUp(self):
         print(" TestDataBlock:", self._testMethodName)

@@ -130,10 +130,11 @@ class DataBlock:
         self.blocks.clear()
         return self.append(num_elements)
 
-    def append(self, num_elements : int):
+    def append(self, num_elements : int, reuse_inactive_block : bool = False):
         '''
         Initialize blocks and return new element ids
         '''
+        # TODO : implement reuse_inactive_block
         block_ids = []
         block_dtype = self.__dtype()
 
@@ -202,16 +203,21 @@ class DataBlock:
     '''
     Vectorize Functions on blocks
     '''
-    @staticmethod
-    def __take_from_id(iterable, block_ids=[]):
+    def __take_with_id(self, block_ids=[]):
         for block_id in block_ids:
-            yield iterable[block_id]
+            if self.blocks[block_id]['blockInfo_active']:
+                yield self.blocks[block_id]
+
+    def __take(self):
+        for block_data in self.blocks:
+            if block_data['blockInfo_active']:
+                yield block_data
 
     def get_blocks(self, block_ids = []):
         if block_ids:
-            return DataBlock.__take_from_id(self.blocks, block_ids)
+            return self.__take_with_id(block_ids)
 
-        return self.blocks
+        return self.__take()
 
     def compute_num_elements(self, block_ids = []):
         num_elements = 0
