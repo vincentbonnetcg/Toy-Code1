@@ -113,6 +113,12 @@ class KinematicCollisionCondition(Condition):
             np_block_ids = np.array(self.block_ids)
             cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
 
+    def pre_update_constraints(self, scene : Scene, details):
+        # TODO
+        pass
+
+    def update_constraints(self, scene : Scene, details):
+        self.init_constraints(scene, details)
 
 class KinematicAttachmentCondition(Condition):
     '''

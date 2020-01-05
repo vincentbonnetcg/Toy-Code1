@@ -34,8 +34,14 @@ class Condition:
         '''
         return True
 
+    def init_constraints(self, scene : Scene, details):
+        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
+
+    def pre_update_constraints(self, scene : Scene, details):
+        pass
+
     def update_constraints(self, scene : Scene, details):
-        self.init_constraints(scene, details)
+        pass
 
     def compute_forces(self, scene : Scene, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
@@ -44,7 +50,4 @@ class Condition:
     def compute_jacobians(self, scene : Scene, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
         self.jacobian_func(blocks_iterator, scene, details)
-
-    def init_constraints(self, scene : Scene, details):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
 
