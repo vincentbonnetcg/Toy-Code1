@@ -88,7 +88,6 @@ class Solver:
     def _pre_step(self, scene : Scene, details : SolverDetails, context : SolverContext):
         scene.update_kinematics(context.time, context.dt)
         details.unlock_conditions()
-        scene.pre_update_conditions(details) # prepare conditions
         scene.update_conditions(details) # allocate dynamically new conditions
         details.lock_conditions()
 

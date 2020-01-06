@@ -19,6 +19,7 @@ class Condition:
         self.energy_func = None # Not used yet
         self.force_func =  constraint_type.compute_forces # derivative of the energy function
         self.jacobian_func = constraint_type.compute_jacobians # derivative of the force function
+        self.pre_compute_func = constraint_type.pre_compute # pre compute whatever is needed. can be empty
         # Metadata
         self.meta_data = {}
         self.total_constraints = 0
@@ -37,11 +38,12 @@ class Condition:
     def init_constraints(self, scene : Scene, details):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
 
-    def pre_update_constraints(self, scene : Scene, details):
-        pass
-
     def update_constraints(self, scene : Scene, details):
         pass
+
+    def pre_compute(self, scene : Scene, details):
+        blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
+        self.pre_compute_func(blocks_iterator, scene, details)
 
     def compute_forces(self, scene : Scene, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)

@@ -46,12 +46,6 @@ class Scene:
         for condition in self.conditions:
             condition.init_constraints(self, details)
 
-    def pre_update_conditions(self, details):
-        for condition in self.conditions:
-            # Only update the dynamic condition
-            if condition.is_static() is False:
-                condition.pre_update_constraints(self, details)
-
     def update_conditions(self, details):
         for condition in self.conditions:
             # Only update the dynamic condition

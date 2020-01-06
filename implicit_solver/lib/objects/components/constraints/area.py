@@ -20,6 +20,10 @@ class Area(ConstraintBase):
         self.rest_area = np.float64(0.0)
 
     @classmethod
+    def pre_compute(cls, blocks_iterator, scene, details) -> None:
+        pass
+
+    @classmethod
     def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:
         '''
         Add the force to the datablock

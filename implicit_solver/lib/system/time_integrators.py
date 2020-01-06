@@ -53,7 +53,9 @@ class ImplicitSolver(TimeIntegrator):
         details.node.fill('f', 0.0)
 
         # Compute constraint forces and jacobians
+        # TODO : have to go over the details
         for condition in scene.conditions:
+            condition.pre_compute(scene, details)
             condition.compute_forces(scene, details)
             condition.compute_jacobians(scene, details)
 
