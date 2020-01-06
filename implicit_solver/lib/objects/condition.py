@@ -47,9 +47,9 @@ class Condition:
 
     def compute_forces(self, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
-        self.force_func(blocks_iterator, details)
+        self.force_func(blocks_iterator, details, self.block_ids)
 
     def compute_jacobians(self, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
-        self.jacobian_func(blocks_iterator, details)
+        self.jacobian_func(blocks_iterator, details, self.block_ids)
 

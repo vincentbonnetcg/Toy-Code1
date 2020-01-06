@@ -32,7 +32,7 @@ class Bending(ConstraintBase):
         pass
 
     @classmethod
-    def compute_forces(cls, blocks_iterator, details) -> None:
+    def compute_forces(cls, blocks_iterator, details, block_ids=None) -> None:
         '''
         Add the force to the datablock
         '''
@@ -53,7 +53,7 @@ class Bending(ConstraintBase):
                 force_ptr[ct_index][2] = f2
 
     @classmethod
-    def compute_jacobians(cls, blocks_iterator, details) -> None:
+    def compute_jacobians(cls, blocks_iterator, details, block_ids=None) -> None:
         '''
         Add the force jacobian functions to the datablock
         '''

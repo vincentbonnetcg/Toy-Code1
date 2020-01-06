@@ -9,10 +9,13 @@ import lib.common as common
 import lib.common.code_gen.code_gen_helper as gen
 
 # Possible packages used by the generated functions
+# TODO : modify to get the import from original python file
 import numba
 import numpy as np
 import lib.common.jit.node_accessor as na
 import lib.common.jit.math_2d as math2D
+import lib.objects.components.jit.spring_lib as spring_lib
+
 
 def generate_vectorize_function(function, njit, parallel, debug, block_ids):
     '''
