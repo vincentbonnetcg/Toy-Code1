@@ -40,7 +40,7 @@ class AnchorSpring(ConstraintBase):
                 k_c_pos_ptr[ct_index] = kinematic.get_position_from_parametric_point(point_params)
 
     @classmethod
-    def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:
+    def compute_forces(cls, blocks_iterator, details) -> None:
         for ct_block in blocks_iterator:
             kinematic_vel = np.zeros(2)
             node_ids_ptr = ct_block['node_IDs']
@@ -60,16 +60,14 @@ class AnchorSpring(ConstraintBase):
                 force_ptr[ct_index] = force
 
     @classmethod
-    def compute_jacobians(cls, blocks_iterator, scene : Scene, details) -> None:
+    def compute_jacobians(cls, blocks_iterator, details) -> None:
         for ct_block in blocks_iterator:
             kinematic_vel = np.zeros(2)
             node_ids_ptr = ct_block['node_IDs']
             stiffness_ptr = ct_block['stiffness']
             damping_ptr = ct_block['damping']
             rest_length_ptr = ct_block['rest_length']
-            k_index_ptr = ct_block['kinematic_index']
-            k_c_index_ptr = ct_block['kinematic_component_index']
-            k_c_param_ptr = ct_block['kinematic_component_param']
+            k_c_pos_ptr = ct_block['kinematic_component_pos']
             dfdx_ptr = ct_block['dfdx']
             dfdv_ptr = ct_block['dfdv']
             block_n_elements = ct_block['blockInfo_numElements']
@@ -77,9 +75,7 @@ class AnchorSpring(ConstraintBase):
             for ct_index in range(block_n_elements):
                 node_ids = node_ids_ptr[ct_index]
                 x, v = na.node_xv(details.node.blocks, node_ids[0])
-                kinematic = scene.kinematics[k_index_ptr[ct_index]]
-                point_params = ConvexHull.ParametricPoint(k_c_index_ptr[ct_index], k_c_param_ptr[ct_index])
-                target_pos = kinematic.get_position_from_parametric_point(point_params)
+                target_pos = k_c_pos_ptr[ct_index]
                 dfdx = spring_lib.spring_stretch_jacobian(x, target_pos, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
                 dfdv = spring_lib.spring_damping_jacobian(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
                 dfdx_ptr[ct_index][0][0] = dfdx
@@ -98,7 +94,7 @@ class Spring(ConstraintBase):
         pass
 
     @classmethod
-    def compute_forces(cls, blocks_iterator, scene : Scene, details) -> None:
+    def compute_forces(cls, blocks_iterator, details) -> None:
         '''
         Add the force to the datablock
         '''
@@ -120,7 +116,7 @@ class Spring(ConstraintBase):
                 force_ptr[ct_index][1] = force * -1.0
 
     @classmethod
-    def compute_jacobians(cls, blocks_iterator, scene : Scene, details) -> None:
+    def compute_jacobians(cls, blocks_iterator, details) -> None:
         '''
         Add the force jacobian functions to the datablock
         '''

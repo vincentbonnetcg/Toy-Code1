@@ -45,11 +45,11 @@ class Condition:
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
         self.pre_compute_func(blocks_iterator, scene, details)
 
-    def compute_forces(self, scene : Scene, details):
+    def compute_forces(self, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
-        self.force_func(blocks_iterator, scene, details)
+        self.force_func(blocks_iterator, details)
 
-    def compute_jacobians(self, scene : Scene, details):
+    def compute_jacobians(self, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
-        self.jacobian_func(blocks_iterator, scene, details)
+        self.jacobian_func(blocks_iterator, details)
 

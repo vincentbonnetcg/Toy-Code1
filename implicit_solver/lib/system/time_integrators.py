@@ -56,8 +56,8 @@ class ImplicitSolver(TimeIntegrator):
         # TODO : have to go over the details
         for condition in scene.conditions:
             condition.pre_compute(scene, details)
-            condition.compute_forces(scene, details)
-            condition.compute_jacobians(scene, details)
+            condition.compute_forces(details)
+            condition.compute_jacobians(details)
 
         # Add forces to dynamics
         integrator_lib.apply_external_forces_to_nodes(details.dynamics(), scene.forces)
