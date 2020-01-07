@@ -42,14 +42,11 @@ class Condition:
         pass
 
     def pre_compute(self, scene : Scene, details):
-        blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
-        self.pre_compute_func(blocks_iterator, scene, details, self.block_ids)
+        self.pre_compute_func(scene, details, self.block_ids)
 
     def compute_forces(self, details):
-        blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
-        self.force_func(blocks_iterator, details, self.block_ids)
+        self.force_func(details, self.block_ids)
 
     def compute_jacobians(self, details):
-        blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
-        self.jacobian_func(blocks_iterator, details, self.block_ids)
+        self.jacobian_func(details, self.block_ids)
 

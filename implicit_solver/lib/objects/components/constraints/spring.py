@@ -21,17 +21,17 @@ class AnchorSpring(ConstraintBase):
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 
     @classmethod
-    def pre_compute(cls, blocks_iterator, scene, details, block_ids) -> None:
+    def pre_compute(cls, scene, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         pre_compute_anchor_spring(details.anchorSpring, scene, details.node, np_block_ids)
 
     @classmethod
-    def compute_forces(cls, blocks_iterator, details, block_ids) -> None:
+    def compute_forces(cls, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         compute_anchor_spring_forces(details.anchorSpring, details.node, np_block_ids)
 
     @classmethod
-    def compute_jacobians(cls, blocks_iterator, details, block_ids) -> None:
+    def compute_jacobians(cls, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         compute_anchor_spring_jacobians(details.anchorSpring, details.node, np_block_ids)
 
@@ -44,16 +44,16 @@ class Spring(ConstraintBase):
         self.rest_length = np.float64(0.0)
 
     @classmethod
-    def pre_compute(cls, blocks_iterator, scene, details, block_ids) -> None:
+    def pre_compute(cls, scene, details, block_ids) -> None:
         pass
 
     @classmethod
-    def compute_forces(cls, blocks_iterator, details, block_ids) -> None:
+    def compute_forces(cls, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         compute_spring_forces(details.spring, details.node, np_block_ids)
 
     @classmethod
-    def compute_jacobians(cls, blocks_iterator, details, block_ids) -> None:
+    def compute_jacobians(cls, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         compute_spring_jacobians(details.spring, details.node, np_block_ids)
 

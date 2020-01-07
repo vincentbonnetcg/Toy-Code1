@@ -20,16 +20,16 @@ class Area(ConstraintBase):
         self.rest_area = np.float64(0.0)
 
     @classmethod
-    def pre_compute(cls, blocks_iterator, scene, details, block_ids=None) -> None:
+    def pre_compute(cls, scene, details, block_ids):
         pass
 
     @classmethod
-    def compute_forces(cls, blocks_iterator, details, block_ids=None) -> None:
+    def compute_forces(cls, details, block_ids):
         np_block_ids = np.array(block_ids)
         compute_area_forces(details.area, details.node, np_block_ids)
 
     @classmethod
-    def compute_jacobians(cls, blocks_iterator, details, block_ids=None) -> None:
+    def compute_jacobians(cls, details, block_ids):
         np_block_ids = np.array(block_ids)
         compute_area_jacobians(details.area, details.node, np_block_ids)
 
