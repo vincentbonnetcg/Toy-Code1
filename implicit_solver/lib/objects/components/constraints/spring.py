@@ -5,13 +5,8 @@
 
 import numpy as np
 from lib.objects.components import ConstraintBase
-from lib.common.convex_hull import ConvexHull
-import lib.common.jit.math_2d as math2D
-import lib.common.jit.node_accessor as na
-from lib.system import Scene
-import lib.objects.components.jit.spring_lib as spring_lib
 import lib.common.code_gen as generate
-
+import lib.common.jit.node_accessor as na
 
 class AnchorSpring(ConstraintBase):
     '''
@@ -26,60 +21,19 @@ class AnchorSpring(ConstraintBase):
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 
     @classmethod
-    def pre_compute(cls, blocks_iterator, scene, details) -> None:
-        for ct_block in blocks_iterator:
-            k_index_ptr = ct_block['kinematic_index']
-            k_c_index_ptr = ct_block['kinematic_component_index']
-            k_c_param_ptr = ct_block['kinematic_component_param']
-            k_c_pos_ptr = ct_block['kinematic_component_pos']
-            block_n_elements = ct_block['blockInfo_numElements']
-
-            for ct_index in range(block_n_elements):
-                kinematic = scene.kinematics[k_index_ptr[ct_index]]
-                point_params = ConvexHull.ParametricPoint(k_c_index_ptr[ct_index], k_c_param_ptr[ct_index])
-                k_c_pos_ptr[ct_index] = kinematic.get_position_from_parametric_point(point_params)
+    def pre_compute(cls, blocks_iterator, scene, details, block_ids=None) -> None:
+        np_block_ids = np.array(block_ids)
+        pre_compute_anchor_spring(details.anchorSpring, scene, details.node, np_block_ids)
 
     @classmethod
     def compute_forces(cls, blocks_iterator, details, block_ids=None) -> None:
-        for ct_block in blocks_iterator:
-            kinematic_vel = np.zeros(2)
-            node_ids_ptr = ct_block['node_IDs']
-            stiffness_ptr = ct_block['stiffness']
-            damping_ptr = ct_block['damping']
-            rest_length_ptr = ct_block['rest_length']
-            k_c_pos_ptr = ct_block['kinematic_component_pos']
-            force_ptr = ct_block['f']
-            block_n_elements = ct_block['blockInfo_numElements']
-
-            for ct_index in range(block_n_elements):
-                node_ids = node_ids_ptr[ct_index]
-                x, v = na.node_xv(details.node.blocks, node_ids[0])
-                target_pos = k_c_pos_ptr[ct_index]
-                force = spring_lib.spring_stretch_force(x, target_pos, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
-                force += spring_lib.spring_damping_force(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
-                force_ptr[ct_index] = force
+        np_block_ids = np.array(block_ids)
+        compute_anchor_spring_forces(details.anchorSpring, details.node, np_block_ids)
 
     @classmethod
     def compute_jacobians(cls, blocks_iterator, details, block_ids=None) -> None:
-        for ct_block in blocks_iterator:
-            kinematic_vel = np.zeros(2)
-            node_ids_ptr = ct_block['node_IDs']
-            stiffness_ptr = ct_block['stiffness']
-            damping_ptr = ct_block['damping']
-            rest_length_ptr = ct_block['rest_length']
-            k_c_pos_ptr = ct_block['kinematic_component_pos']
-            dfdx_ptr = ct_block['dfdx']
-            dfdv_ptr = ct_block['dfdv']
-            block_n_elements = ct_block['blockInfo_numElements']
-
-            for ct_index in range(block_n_elements):
-                node_ids = node_ids_ptr[ct_index]
-                x, v = na.node_xv(details.node.blocks, node_ids[0])
-                target_pos = k_c_pos_ptr[ct_index]
-                dfdx = spring_lib.spring_stretch_jacobian(x, target_pos, rest_length_ptr[ct_index], stiffness_ptr[ct_index])
-                dfdv = spring_lib.spring_damping_jacobian(x, target_pos, v, kinematic_vel, damping_ptr[ct_index])
-                dfdx_ptr[ct_index][0][0] = dfdx
-                dfdv_ptr[ct_index][0][0] = dfdv
+        np_block_ids = np.array(block_ids)
+        compute_anchor_spring_jacobians(details.anchorSpring, details.node, np_block_ids)
 
 class Spring(ConstraintBase):
     '''
@@ -90,7 +44,7 @@ class Spring(ConstraintBase):
         self.rest_length = np.float64(0.0)
 
     @classmethod
-    def pre_compute(cls, blocks_iterator, scene, details) -> None:
+    def pre_compute(cls, blocks_iterator, scene, details, block_ids=None) -> None:
         pass
 
     @classmethod
@@ -104,11 +58,42 @@ class Spring(ConstraintBase):
         compute_spring_jacobians(details.spring, details.node, np_block_ids)
 
 
+'''
+AnchorSpring compute functions
+'''
+@generate.as_vectorized(njit=False, parallel=False, debug=False, block_ids=True)
+def pre_compute_anchor_spring(anchor_spring : AnchorSpring, scene, detail_nodes):
+    kinematic = scene.kinematics[anchor_spring.kinematic_index]
+    point_params = ConvexHull.ParametricPoint(anchor_spring.kinematic_component_index, anchor_spring.kinematic_component_param)
+    anchor_spring.kinematic_component_pos = kinematic.get_position_from_parametric_point(point_params)
+
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
     x = na.node_x(detail_nodes, anchor_spring.node_IDs[0])
     anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
 
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+def compute_anchor_spring_forces(anchor_spring : AnchorSpring, detail_nodes):
+    x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
+    kinematic_vel = np.zeros(2)
+    target_pos = anchor_spring.kinematic_component_pos
+    force = spring_lib.spring_stretch_force(x, target_pos, anchor_spring.rest_length, anchor_spring.stiffness)
+    force += spring_lib.spring_damping_force(x, target_pos, v, kinematic_vel, anchor_spring.damping)
+    anchor_spring.f = force
+
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+def compute_anchor_spring_jacobians(anchor_spring : AnchorSpring, detail_nodes):
+    x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
+    kinematic_vel = np.zeros(2)
+    target_pos = anchor_spring.kinematic_component_pos
+    dfdx = spring_lib.spring_stretch_jacobian(x, target_pos, anchor_spring.rest_length, anchor_spring.stiffness)
+    dfdv = spring_lib.spring_damping_jacobian(x, target_pos, v, kinematic_vel, anchor_spring.damping)
+    anchor_spring.dfdx[0][0] = dfdx
+    anchor_spring.dfdv[0][0] = dfdv
+
+'''
+Spring compute functions
+'''
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_spring_rest(spring : Spring, detail_nodes):
     x0 = na.node_x(detail_nodes, spring.node_IDs[0])

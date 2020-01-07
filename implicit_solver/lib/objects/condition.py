@@ -43,7 +43,7 @@ class Condition:
 
     def pre_compute(self, scene : Scene, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)
-        self.pre_compute_func(blocks_iterator, scene, details)
+        self.pre_compute_func(blocks_iterator, scene, details, self.block_ids)
 
     def compute_forces(self, details):
         blocks_iterator = details.block_from_datatype(self.constraint_type).get_blocks(self.block_ids)

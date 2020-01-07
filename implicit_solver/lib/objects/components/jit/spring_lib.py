@@ -7,6 +7,9 @@ import numpy as np
 import numba
 import lib.common.jit.math_2d as math2D
 
+'''
+AnchorSpring/Spring helper functions
+'''
 @numba.njit
 def spring_stretch_jacobian(x0, x1, rest, stiffness):
     direction = x0 - x1

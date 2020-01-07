@@ -28,7 +28,7 @@ class Bending(ConstraintBase):
         self.rest_angle = np.float64(0.0)
 
     @classmethod
-    def pre_compute(cls, blocks_iterator, scene, details) -> None:
+    def pre_compute(cls, blocks_iterator, scene, details, block_ids=None) -> None:
         pass
 
     @classmethod
