@@ -33,48 +33,13 @@ class Bending(ConstraintBase):
 
     @classmethod
     def compute_forces(cls, blocks_iterator, details, block_ids=None) -> None:
-        '''
-        Add the force to the datablock
-        '''
-        for ct_block in blocks_iterator:
-            node_ids_ptr = ct_block['node_IDs']
-            rest_angle_ptr = ct_block['rest_angle']
-            stiffness_ptr = ct_block['stiffness']
-            force_ptr = ct_block['f']
-            block_n_elements = ct_block['blockInfo_numElements']
-
-            for ct_index in range(block_n_elements):
-                x0, v0 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][0])
-                x1, v1 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][1])
-                x2, v2 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][2])
-                f0, f1, f2 = bending_lib.elastic_bending_forces(x0, x1, x2, rest_angle_ptr[ct_index], stiffness_ptr[ct_index], (True, True, True))
-                force_ptr[ct_index][0] = f0
-                force_ptr[ct_index][1] = f1
-                force_ptr[ct_index][2] = f2
+        np_block_ids = np.array(block_ids)
+        compute_bending_forces(details.bending, details.node, np_block_ids)
 
     @classmethod
     def compute_jacobians(cls, blocks_iterator, details, block_ids=None) -> None:
-        '''
-        Add the force jacobian functions to the datablock
-        '''
-        for ct_block in blocks_iterator:
-            node_ids_ptr = ct_block['node_IDs']
-            rest_angle_ptr = ct_block['rest_angle']
-            stiffness_ptr = ct_block['stiffness']
-            dfdx_ptr = ct_block['dfdx']
-            block_n_elements = ct_block['blockInfo_numElements']
-
-            for ct_index in range(block_n_elements):
-                x0, v0 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][0])
-                x1, v1 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][1])
-                x2, v2 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][2])
-                dfdx = bending_lib.elastic_bending_numerical_jacobians(x0, x1, x2, rest_angle_ptr[ct_index], stiffness_ptr[ct_index])
-                dfdx_ptr[ct_index][0][0] = dfdx[0]
-                dfdx_ptr[ct_index][1][1] = dfdx[1]
-                dfdx_ptr[ct_index][2][2] = dfdx[2]
-                dfdx_ptr[ct_index][0][1] = dfdx_ptr[ct_index][1][0] = dfdx[3]
-                dfdx_ptr[ct_index][0][2] = dfdx_ptr[ct_index][2][0] = dfdx[4]
-                dfdx_ptr[ct_index][1][2] = dfdx_ptr[ct_index][2][1] = dfdx[5]
+        np_block_ids = np.array(block_ids)
+        compute_bending_jacobians(details.bending, details.node, np_block_ids)
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_bending_rest(bending : Bending, detail_nodes):
@@ -82,3 +47,27 @@ def compute_bending_rest(bending : Bending, detail_nodes):
     x1 = na.node_x(detail_nodes, bending.node_IDs[1])
     x2 = na.node_x(detail_nodes, bending.node_IDs[2])
     bending.rest_angle = np.float64(math2D.angle(x0, x1, x2))
+
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+def compute_bending_forces(bending : Bending, detail_nodes):
+    x0 = na.node_x(detail_nodes, bending.node_IDs[0])
+    x1 = na.node_x(detail_nodes, bending.node_IDs[1])
+    x2 = na.node_x(detail_nodes, bending.node_IDs[2])
+    forces = bending_lib.elastic_bending_forces(x0, x1, x2, bending.rest_angle, bending.stiffness, (True, True, True))
+    bending.f[0] = forces[0]
+    bending.f[1] = forces[1]
+    bending.f[2] = forces[2]
+
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+def compute_bending_jacobians(bending : Bending, detail_nodes):
+    x0 = na.node_x(detail_nodes, bending.node_IDs[0])
+    x1 = na.node_x(detail_nodes, bending.node_IDs[1])
+    x2 = na.node_x(detail_nodes, bending.node_IDs[2])
+    dfdx = bending_lib.elastic_bending_numerical_jacobians(x0, x1, x2, bending.rest_angle, bending.stiffness)
+    bending.dfdx[0][0] = dfdx[0]
+    bending.dfdx[1][1] = dfdx[1]
+    bending.dfdx[2][2] = dfdx[2]
+    bending.dfdx[0][1] = bending.dfdx[1][0] = dfdx[3]
+    bending.dfdx[0][2] = bending.dfdx[2][0] = dfdx[4]
+    bending.dfdx[1][2] = bending.dfdx[2][1] = dfdx[5]
+

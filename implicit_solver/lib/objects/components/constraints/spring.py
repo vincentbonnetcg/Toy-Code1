@@ -21,17 +21,17 @@ class AnchorSpring(ConstraintBase):
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 
     @classmethod
-    def pre_compute(cls, blocks_iterator, scene, details, block_ids=None) -> None:
+    def pre_compute(cls, blocks_iterator, scene, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         pre_compute_anchor_spring(details.anchorSpring, scene, details.node, np_block_ids)
 
     @classmethod
-    def compute_forces(cls, blocks_iterator, details, block_ids=None) -> None:
+    def compute_forces(cls, blocks_iterator, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         compute_anchor_spring_forces(details.anchorSpring, details.node, np_block_ids)
 
     @classmethod
-    def compute_jacobians(cls, blocks_iterator, details, block_ids=None) -> None:
+    def compute_jacobians(cls, blocks_iterator, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         compute_anchor_spring_jacobians(details.anchorSpring, details.node, np_block_ids)
 
@@ -44,16 +44,16 @@ class Spring(ConstraintBase):
         self.rest_length = np.float64(0.0)
 
     @classmethod
-    def pre_compute(cls, blocks_iterator, scene, details, block_ids=None) -> None:
+    def pre_compute(cls, blocks_iterator, scene, details, block_ids) -> None:
         pass
 
     @classmethod
-    def compute_forces(cls, blocks_iterator, details, block_ids=None) -> None:
+    def compute_forces(cls, blocks_iterator, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         compute_spring_forces(details.spring, details.node, np_block_ids)
 
     @classmethod
-    def compute_jacobians(cls, blocks_iterator, details, block_ids=None) -> None:
+    def compute_jacobians(cls, blocks_iterator, details, block_ids) -> None:
         np_block_ids = np.array(block_ids)
         compute_spring_jacobians(details.spring, details.node, np_block_ids)
 
@@ -72,7 +72,7 @@ def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
     x = na.node_x(detail_nodes, anchor_spring.node_IDs[0])
     anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+@generate.as_vectorized(njit=False, parallel=False, debug=False, block_ids=True)
 def compute_anchor_spring_forces(anchor_spring : AnchorSpring, detail_nodes):
     x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
@@ -81,7 +81,7 @@ def compute_anchor_spring_forces(anchor_spring : AnchorSpring, detail_nodes):
     force += spring_lib.spring_damping_force(x, target_pos, v, kinematic_vel, anchor_spring.damping)
     anchor_spring.f = force
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+@generate.as_vectorized(njit=False, parallel=False, debug=False, block_ids=True)
 def compute_anchor_spring_jacobians(anchor_spring : AnchorSpring, detail_nodes):
     x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
