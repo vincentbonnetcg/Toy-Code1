@@ -15,6 +15,7 @@ import numpy as np
 import lib.common.jit.node_accessor as na
 import lib.common.jit.math_2d as math2D
 import lib.objects.components.jit.spring_lib as spring_lib
+import lib.objects.components.jit.area_lib as area_lib
 from lib.common.convex_hull import ConvexHull
 
 

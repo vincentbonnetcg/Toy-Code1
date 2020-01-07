@@ -25,48 +25,13 @@ class Area(ConstraintBase):
 
     @classmethod
     def compute_forces(cls, blocks_iterator, details, block_ids=None) -> None:
-        '''
-        Add the force to the datablock
-        '''
-        for ct_block in blocks_iterator:
-            node_ids_ptr = ct_block['node_IDs']
-            rest_area_ptr = ct_block['rest_area']
-            stiffness_ptr = ct_block['stiffness']
-            force_ptr = ct_block['f']
-            block_n_elements = ct_block['blockInfo_numElements']
-
-            for ct_index in range(block_n_elements):
-                x0, v0 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][0])
-                x1, v1 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][1])
-                x2, v2 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][2])
-                f0, f1, f2 = area_lib.elastic_area_forces(x0, x1, x2, rest_area_ptr[ct_index], stiffness_ptr[ct_index], (True, True, True))
-                force_ptr[ct_index][0] = f0
-                force_ptr[ct_index][1] = f1
-                force_ptr[ct_index][2] = f2
+        np_block_ids = np.array(block_ids)
+        compute_spring_forces(details.area, details.node, np_block_ids)
 
     @classmethod
     def compute_jacobians(cls, blocks_iterator, details, block_ids=None) -> None:
-        '''
-        Add the force jacobian functions to the datablock
-        '''
-        for ct_block in blocks_iterator:
-            node_ids_ptr = ct_block['node_IDs']
-            rest_area_ptr = ct_block['rest_area']
-            stiffness_ptr = ct_block['stiffness']
-            dfdx_ptr = ct_block['dfdx']
-            block_n_elements = ct_block['blockInfo_numElements']
-
-            for ct_index in range(block_n_elements):
-                x0, v0 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][0])
-                x1, v1 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][1])
-                x2, v2 = na.node_xv(details.node.blocks, node_ids_ptr[ct_index][2])
-                dfdx = area_lib.elastic_area_numerical_jacobians(x0, x1, x2, rest_area_ptr[ct_index], stiffness_ptr[ct_index])
-                dfdx_ptr[ct_index][0][0] = dfdx[0]
-                dfdx_ptr[ct_index][1][1] = dfdx[1]
-                dfdx_ptr[ct_index][2][2] = dfdx[2]
-                dfdx_ptr[ct_index][0][1] = dfdx_ptr[ct_index][1][0] = dfdx[3]
-                dfdx_ptr[ct_index][0][2] = dfdx_ptr[ct_index][2][0] = dfdx[4]
-                dfdx_ptr[ct_index][1][2] = dfdx_ptr[ct_index][2][1] = dfdx[5]
+        np_block_ids = np.array(block_ids)
+        compute_spring_jacobians(details.area, details.node, np_block_ids)
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_area_rest(area : Area, detail_nodes):
@@ -75,3 +40,25 @@ def compute_area_rest(area : Area, detail_nodes):
     x2 = na.node_x(detail_nodes, area.node_IDs[2])
     area.rest_area = np.float64(math2D.area(x0, x1, x2))
 
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+def compute_spring_forces(area : Area, detail_nodes):
+    x0 = na.node_x(detail_nodes, area.node_IDs[0])
+    x1 = na.node_x(detail_nodes, area.node_IDs[1])
+    x2 = na.node_x(detail_nodes, area.node_IDs[2])
+    forces = area_lib.elastic_area_forces(x0, x1, x2, area.rest_area, area.stiffness, (True, True, True))
+    area.f[0] = forces[0]
+    area.f[1] = forces[1]
+    area.f[2] = forces[2]
+
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+def compute_spring_jacobians(area : Area, detail_nodes):
+    x0 = na.node_x(detail_nodes, area.node_IDs[0])
+    x1 = na.node_x(detail_nodes, area.node_IDs[1])
+    x2 = na.node_x(detail_nodes, area.node_IDs[2])
+    jacobians = area_lib.elastic_area_numerical_jacobians(x0, x1, x2, area.rest_area, area.stiffness)
+    area.dfdx[0][0] = jacobians[0]
+    area.dfdx[1][1] = jacobians[1]
+    area.dfdx[2][2] = jacobians[2]
+    area.dfdx[0][1] = area.dfdx[1][0] = jacobians[3]
+    area.dfdx[0][2] = area.dfdx[2][0] = jacobians[4]
+    area.dfdx[1][2] = area.dfdx[2][1] = jacobians[5]
