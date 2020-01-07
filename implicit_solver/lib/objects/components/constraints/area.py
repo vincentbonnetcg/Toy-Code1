@@ -26,12 +26,12 @@ class Area(ConstraintBase):
     @classmethod
     def compute_forces(cls, blocks_iterator, details, block_ids=None) -> None:
         np_block_ids = np.array(block_ids)
-        compute_spring_forces(details.area, details.node, np_block_ids)
+        compute_area_forces(details.area, details.node, np_block_ids)
 
     @classmethod
     def compute_jacobians(cls, blocks_iterator, details, block_ids=None) -> None:
         np_block_ids = np.array(block_ids)
-        compute_spring_jacobians(details.area, details.node, np_block_ids)
+        compute_area_jacobians(details.area, details.node, np_block_ids)
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_area_rest(area : Area, detail_nodes):
@@ -41,7 +41,7 @@ def compute_area_rest(area : Area, detail_nodes):
     area.rest_area = np.float64(math2D.area(x0, x1, x2))
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
-def compute_spring_forces(area : Area, detail_nodes):
+def compute_area_forces(area : Area, detail_nodes):
     x0 = na.node_x(detail_nodes, area.node_IDs[0])
     x1 = na.node_x(detail_nodes, area.node_IDs[1])
     x2 = na.node_x(detail_nodes, area.node_IDs[2])
@@ -51,7 +51,7 @@ def compute_spring_forces(area : Area, detail_nodes):
     area.f[2] = forces[2]
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
-def compute_spring_jacobians(area : Area, detail_nodes):
+def compute_area_jacobians(area : Area, detail_nodes):
     x0 = na.node_x(detail_nodes, area.node_IDs[0])
     x1 = na.node_x(detail_nodes, area.node_IDs[1])
     x2 = na.node_x(detail_nodes, area.node_IDs[2])
