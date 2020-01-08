@@ -42,11 +42,14 @@ class Condition:
         pass
 
     def pre_compute(self, scene : Scene, details):
-        self.pre_compute_func(scene, details, self.block_ids)
+        if self.block_ids:
+            self.pre_compute_func(scene, details, self.block_ids)
 
     def compute_forces(self, details):
-        self.force_func(details, self.block_ids)
+        if self.block_ids:
+            self.force_func(details, self.block_ids)
 
     def compute_jacobians(self, details):
-        self.jacobian_func(details, self.block_ids)
+        if self.block_ids:
+            self.jacobian_func(details, self.block_ids)
 
