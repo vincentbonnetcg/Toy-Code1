@@ -5,7 +5,6 @@
 
 import numpy as np
 
-import lib.objects.components.constraints as cnts
 import lib.objects.components as cn
 from lib.objects import Condition
 import lib.common as common
@@ -111,7 +110,7 @@ class KinematicCollisionCondition(Condition):
 
         if initialize_condition_from_aos(self, springs, details.anchorSpring):
             np_block_ids = np.array(self.block_ids)
-            cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
+            cn.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
 
     def update_constraints(self, scene : Scene, details):
         self.init_constraints(scene, details)
@@ -161,7 +160,7 @@ class KinematicAttachmentCondition(Condition):
 
         if initialize_condition_from_aos(self, springs, details.anchorSpring):
             np_block_ids = np.array(self.block_ids)
-            cnts.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
+            cn.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
 
 
 class DynamicAttachmentCondition(Condition):
@@ -207,7 +206,7 @@ class DynamicAttachmentCondition(Condition):
 
         if initialize_condition_from_aos(self, springs, details.spring):
             np_block_ids = np.array(self.block_ids)
-            cnts.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
+            cn.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
 
 class EdgeCondition(Condition):
     '''
@@ -236,7 +235,7 @@ class EdgeCondition(Condition):
 
         if initialize_condition_from_aos(self, springs, details.spring):
             np_block_ids = np.array(self.block_ids)
-            cnts.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
+            cn.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
 
 class AreaCondition(Condition):
     '''
@@ -267,7 +266,7 @@ class AreaCondition(Condition):
 
         if initialize_condition_from_aos(self, constraints, details.area):
             np_block_ids = np.array(self.block_ids)
-            cnts.area.compute_area_rest(details.area, details.node, np_block_ids)
+            cn.area.compute_area_rest(details.area, details.node, np_block_ids)
 
 class WireBendingCondition(Condition):
     '''
@@ -300,4 +299,4 @@ class WireBendingCondition(Condition):
 
         if initialize_condition_from_aos(self, constraints, details.bending):
             np_block_ids = np.array(self.block_ids)
-            cnts.bending.compute_bending_rest(details.bending, details.node, np_block_ids)
+            cn.bending.compute_bending_rest(details.bending, details.node, np_block_ids)
