@@ -7,6 +7,9 @@ import numpy as np
 from lib.objects.components import ConstraintBase
 import lib.common.code_gen as generate
 import lib.common.jit.node_accessor as na
+import lib.objects.components.jit.spring_lib as spring_lib
+from lib.common.convex_hull import ConvexHull
+import lib.common.jit.math_2d as math2D
 
 class AnchorSpring(ConstraintBase):
     '''
@@ -115,7 +118,6 @@ def compute_spring_jacobians(spring : Spring, detail_nodes):
     x1, v1 = na.node_xv(detail_nodes, spring.node_IDs[1])
     dfdx = spring_lib.spring_stretch_jacobian(x0, x1, spring.rest_length, spring.stiffness)
     dfdv = spring_lib.spring_damping_jacobian(x0, x1, v0, v1, spring.damping)
-    # Set jacobians
     spring.dfdx[0][0] = spring.dfdx[1][1] = dfdx
     spring.dfdx[0][1] = spring.dfdx[1][0] = dfdx * -1
     spring.dfdv[0][0] = spring.dfdv[1][1] = dfdv
