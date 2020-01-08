@@ -17,9 +17,9 @@ class Condition:
         self.stiffness = stiffness
         self.damping = damping
         # Energy / Force / Jacobian (Used by the optimiser)
-        self.energy_func = None # Not used yet
-        self.force_func =  constraint_type.compute_forces # derivative of the energy function
-        self.jacobian_func = constraint_type.compute_jacobians # derivative of the force function
+        self.value_func = None # Not used yet
+        self.gradient_func =  constraint_type.compute_gradients # derivative of the energy function
+        self.hessian_func = constraint_type.compute_hessians # derivative of the force function
         self.pre_compute_func = constraint_type.pre_compute # pre compute whatever is needed. can be empty
         # Metadata
         self.meta_data = {}
@@ -47,13 +47,13 @@ class Condition:
             np_block_ids = np.array(self.block_ids)
             self.pre_compute_func(scene, details, np_block_ids)
 
-    def compute_forces(self, details):
+    def compute_gradients(self, details):
         if self.block_ids:
             np_block_ids = np.array(self.block_ids)
-            self.force_func(details, np_block_ids)
+            self.gradient_func(details, np_block_ids)
 
-    def compute_jacobians(self, details):
+    def compute_hessians(self, details):
         if self.block_ids:
             np_block_ids = np.array(self.block_ids)
-            self.jacobian_func(details, np_block_ids)
+            self.hessian_func(details, np_block_ids)
 

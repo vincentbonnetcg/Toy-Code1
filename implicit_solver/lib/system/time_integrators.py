@@ -53,11 +53,10 @@ class ImplicitSolver(TimeIntegrator):
         details.node.fill('f', 0.0)
 
         # Compute constraint forces and jacobians
-        # TODO : have to go over the details
         for condition in scene.conditions:
             condition.pre_compute(scene, details)
-            condition.compute_forces(details)
-            condition.compute_jacobians(details)
+            condition.compute_gradients(details)
+            condition.compute_hessians(details)
 
         # Add forces to dynamics
         integrator_lib.apply_external_forces_to_nodes(details.dynamics(), scene.forces)
@@ -149,7 +148,7 @@ class SemiImplicitSolver(TimeIntegrator):
 
         # Apply internal forces
         for condition in scene.conditions:
-            condition.compute_forces(scene)
+            condition.compute_gradients(scene)
 
         apply_constraint_forces_to_nodes(details.conditions(), details.node)
 
