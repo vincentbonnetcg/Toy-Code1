@@ -6,7 +6,7 @@ import numpy as np
 
 import lib.common.jit.node_accessor as na
 import lib.common.code_gen as generate
-import lib.objects.components as cpn
+import lib.objects.components_jit as cpn
 
 def apply_external_forces_to_nodes(dynamics, forces):
     # this function is not vectorized but forces.apply_forces are vectorized

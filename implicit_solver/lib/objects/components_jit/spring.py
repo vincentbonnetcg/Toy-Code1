@@ -4,19 +4,20 @@
 """
 
 import numpy as np
-from lib.objects.components import ConstraintBase
-import lib.common.code_gen as generate
-import lib.common.jit.node_accessor as na
-import lib.objects.components.jit.spring_lib as spring_lib
-from lib.common.convex_hull import ConvexHull
-import lib.common.jit.math_2d as math2D
 
-class AnchorSpring(ConstraintBase):
+import lib.common.jit.math_2d as math2D
+import lib.common.jit.node_accessor as na
+import lib.common.code_gen as generate
+import lib.common.convex_hull as ch
+import lib.objects.components_jit.utils.spring_lib as spring_lib
+import lib.objects.components_jit as cpn
+
+class AnchorSpring(cpn.ConstraintBase):
     '''
     Describes a 2D spring constraint between a node and point
     '''
     def __init__(self):
-        ConstraintBase.__init__(self, num_nodes = 1)
+        cpn.ConstraintBase.__init__(self, num_nodes = 1)
         self.rest_length = np.float64(0.0)
         self.kinematic_index = np.uint32(0)
         self.kinematic_component_index =  np.uint32(0)
@@ -35,12 +36,12 @@ class AnchorSpring(ConstraintBase):
     def compute_hessians(cls, details, np_block_ids):
         compute_anchor_spring_hessians(details.anchorSpring, details.node, np_block_ids)
 
-class Spring(ConstraintBase):
+class Spring(cpn.ConstraintBase):
     '''
     Describes a 2D spring constraint between two nodes
     '''
     def __init__(self):
-        ConstraintBase.__init__(self, num_nodes = 2)
+        cpn.ConstraintBase.__init__(self, num_nodes = 2)
         self.rest_length = np.float64(0.0)
 
     @classmethod
@@ -62,7 +63,7 @@ AnchorSpring compute functions
 @generate.as_vectorized(njit=False, parallel=False, debug=False, block_ids=True)
 def pre_compute_anchor_spring(anchor_spring : AnchorSpring, scene, detail_nodes):
     kinematic = scene.kinematics[anchor_spring.kinematic_index]
-    point_params = ConvexHull.ParametricPoint(anchor_spring.kinematic_component_index, anchor_spring.kinematic_component_param)
+    point_params = ch.ConvexHull.ParametricPoint(anchor_spring.kinematic_component_index, anchor_spring.kinematic_component_param)
     anchor_spring.kinematic_component_pos = kinematic.get_position_from_parametric_point(point_params)
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)

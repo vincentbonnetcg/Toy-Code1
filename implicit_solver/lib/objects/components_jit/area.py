@@ -3,20 +3,20 @@
 @description : Constraint base for the implicit solver
 """
 
-from lib.objects.components import ConstraintBase
+import numpy as np
+
 import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
-from lib.system.scene import Scene
-import numpy as np
-import lib.objects.components.jit.area_lib as area_lib
 import lib.common.code_gen as generate
+import lib.objects.components_jit.utils.area_lib as area_lib
+import lib.objects.components_jit as cpn
 
-class Area(ConstraintBase):
+class Area(cpn.ConstraintBase):
     '''
     Describes a 2D area constraint between three nodes
     '''
     def __init__(self):
-        ConstraintBase.__init__(self, num_nodes = 3)
+        cpn.ConstraintBase.__init__(self, num_nodes = 3)
         self.rest_area = np.float64(0.0)
 
     @classmethod

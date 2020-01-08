@@ -5,14 +5,13 @@
 
 import numpy as np
 
-from lib.objects.components import ConstraintBase
 import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
-from lib.system.scene import Scene
-import lib.objects.components.jit.bending_lib as bending_lib
 import lib.common.code_gen as generate
+import lib.objects.components_jit.utils.bending_lib as bending_lib
+import lib.objects.components_jit as cpn
 
-class Bending(ConstraintBase):
+class Bending(cpn.ConstraintBase):
     '''
     Describes a 2D bending constraint of a thin inextensible wire
     between three nodes.
@@ -24,7 +23,7 @@ class Bending(ConstraintBase):
         Constraint three nodes to maintain angle between
         node_ids[0] - node_ids[1] - node_ids[2]
         '''
-        ConstraintBase.__init__(self, num_nodes = 3)
+        cpn.ConstraintBase.__init__(self, num_nodes = 3)
         self.rest_angle = np.float64(0.0)
 
     @classmethod

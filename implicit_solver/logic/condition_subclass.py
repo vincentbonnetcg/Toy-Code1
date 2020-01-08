@@ -5,7 +5,7 @@
 
 import numpy as np
 
-import lib.objects.components as cn
+import lib.objects.components_jit as cpn
 from lib.objects import Condition
 import lib.common as common
 from lib.system import Scene
@@ -66,7 +66,7 @@ class KinematicCollisionCondition(Condition):
     Creates collision constraint between one kinematic and one dynamic object
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping):
-        Condition.__init__(self, stiffness, damping, cn.AnchorSpring)
+        Condition.__init__(self, stiffness, damping, cpn.AnchorSpring)
         self.dynamic_indices = [dynamic.index]
         self.kinematic_indices = [kinematic.index]
 
@@ -98,7 +98,7 @@ class KinematicCollisionCondition(Condition):
                 target_normal = kinematic.get_normal_from_parametric_point(attachment_point_params)
                 if (np.dot(target_normal, node_vel) < 0.0):
                     # add spring
-                    spring = cn.AnchorSpring()
+                    spring = cpn.AnchorSpring()
                     spring.kinematic_index = np.uint32(kinematic.index)
                     spring.kinematic_component_index =  np.uint32(attachment_point_params.index)
                     spring.kinematic_component_param = np.float64(attachment_point_params.t)
@@ -110,7 +110,7 @@ class KinematicCollisionCondition(Condition):
 
         if initialize_condition_from_aos(self, springs, details.anchorSpring):
             np_block_ids = np.array(self.block_ids)
-            cn.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
+            cpn.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
 
     def update_constraints(self, scene : Scene, details):
         self.init_constraints(scene, details)
@@ -120,7 +120,7 @@ class KinematicAttachmentCondition(Condition):
     Creates attachment constraint between one kinematic and one dynamic object
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping, distance):
-       Condition.__init__(self, stiffness, damping, cn.AnchorSpring)
+       Condition.__init__(self, stiffness, damping, cpn.AnchorSpring)
        self.distance = distance
        self.dynamic_indices = [dynamic.index]
        self.kinematic_indices = [kinematic.index]
@@ -148,7 +148,7 @@ class KinematicAttachmentCondition(Condition):
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
                 # add spring
-                spring = cn.AnchorSpring()
+                spring = cpn.AnchorSpring()
                 spring.kinematic_index = np.uint32(kinematic.index)
                 spring.kinematic_component_index =  np.uint32(attachment_point_params.index)
                 spring.kinematic_component_param = np.float64(attachment_point_params.t)
@@ -160,7 +160,7 @@ class KinematicAttachmentCondition(Condition):
 
         if initialize_condition_from_aos(self, springs, details.anchorSpring):
             np_block_ids = np.array(self.block_ids)
-            cn.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
+            cpn.spring.compute_anchor_spring_rest(details.anchorSpring, details.node, np_block_ids)
 
 
 class DynamicAttachmentCondition(Condition):
@@ -168,7 +168,7 @@ class DynamicAttachmentCondition(Condition):
     Creates attachment constraint between two dynamic objects
     '''
     def __init__(self, dynamic0, dynamic1, stiffness, damping, distance):
-       Condition.__init__(self, stiffness, damping, cn.Spring)
+       Condition.__init__(self, stiffness, damping, cpn.Spring)
        self.distance = distance
        self.dynamic_indices = [dynamic0.index, dynamic1.index]
 
@@ -198,7 +198,7 @@ class DynamicAttachmentCondition(Condition):
                     node_ids = [node_id0, node_id1]
 
                     # add spring
-                    spring = cn.Spring()
+                    spring = cpn.Spring()
                     spring.node_IDs = np.copy(node_ids)
                     spring.stiffness = self.stiffness
                     spring.damping = self.damping
@@ -206,7 +206,7 @@ class DynamicAttachmentCondition(Condition):
 
         if initialize_condition_from_aos(self, springs, details.spring):
             np_block_ids = np.array(self.block_ids)
-            cn.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
+            cpn.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
 
 class EdgeCondition(Condition):
     '''
@@ -214,7 +214,7 @@ class EdgeCondition(Condition):
     Replaces edges with Spring constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, stiffness, damping, cn.Spring)
+       Condition.__init__(self, stiffness, damping, cpn.Spring)
        self.dynamic_indices = [dynamic.index for dynamic in dynamics]
 
     def init_constraints(self, scene : Scene, details):
@@ -227,7 +227,7 @@ class EdgeCondition(Condition):
                 node_ids[1] = dynamic.get_node_id(vertex_index[1])
 
                 # add spring
-                spring = cn.Spring()
+                spring = cpn.Spring()
                 spring.node_IDs = np.copy(node_ids)
                 spring.stiffness = self.stiffness
                 spring.damping = self.damping
@@ -235,7 +235,7 @@ class EdgeCondition(Condition):
 
         if initialize_condition_from_aos(self, springs, details.spring):
             np_block_ids = np.array(self.block_ids)
-            cn.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
+            cpn.spring.compute_spring_rest(details.spring, details.node, np_block_ids)
 
 class AreaCondition(Condition):
     '''
@@ -243,7 +243,7 @@ class AreaCondition(Condition):
     Replaces triangle with Area constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, stiffness, damping, cn.Area)
+       Condition.__init__(self, stiffness, damping, cpn.Area)
        self.dynamic_indices = [dynamic.index for dynamic in dynamics]
 
     def init_constraints(self, scene : Scene, details):
@@ -258,7 +258,7 @@ class AreaCondition(Condition):
                 node_ids[2] = dynamic.get_node_id(vertex_index[2])
 
                 # add area constraint
-                constraint = cn.Area()
+                constraint = cpn.Area()
                 constraint.node_IDs = np.copy(node_ids)
                 constraint.stiffness = self.stiffness
                 constraint.damping = self.damping
@@ -266,14 +266,14 @@ class AreaCondition(Condition):
 
         if initialize_condition_from_aos(self, constraints, details.area):
             np_block_ids = np.array(self.block_ids)
-            cn.area.compute_area_rest(details.area, details.node, np_block_ids)
+            cpn.area.compute_area_rest(details.area, details.node, np_block_ids)
 
 class WireBendingCondition(Condition):
     '''
     Creates Wire Bending constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, stiffness, damping, cn.Bending)
+       Condition.__init__(self, stiffness, damping, cpn.Bending)
        self.dynamic_indices = [dynamic.index for dynamic in dynamics]
 
     def init_constraints(self, scene : Scene, details):
@@ -291,7 +291,7 @@ class WireBendingCondition(Condition):
                         node_ids[2] = dynamic.get_node_id(vertex_index_neighbour[1])
 
                         # add bending constraint
-                        constraint = cn.Bending()
+                        constraint = cpn.Bending()
                         constraint.node_IDs = np.copy(node_ids)
                         constraint.stiffness = self.stiffness
                         constraint.damping = self.damping
@@ -299,4 +299,4 @@ class WireBendingCondition(Condition):
 
         if initialize_condition_from_aos(self, constraints, details.bending):
             np_block_ids = np.array(self.block_ids)
-            cn.bending.compute_bending_rest(details.bending, details.node, np_block_ids)
+            cpn.bending.compute_bending_rest(details.bending, details.node, np_block_ids)
