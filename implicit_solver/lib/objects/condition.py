@@ -4,6 +4,7 @@
 """
 
 from lib.system import Scene
+import numpy as np
 
 class Condition:
     '''
@@ -43,13 +44,16 @@ class Condition:
 
     def pre_compute(self, scene : Scene, details):
         if self.block_ids:
-            self.pre_compute_func(scene, details, self.block_ids)
+            np_block_ids = np.array(self.block_ids)
+            self.pre_compute_func(scene, details, np_block_ids)
 
     def compute_forces(self, details):
         if self.block_ids:
-            self.force_func(details, self.block_ids)
+            np_block_ids = np.array(self.block_ids)
+            self.force_func(details, np_block_ids)
 
     def compute_jacobians(self, details):
         if self.block_ids:
-            self.jacobian_func(details, self.block_ids)
+            np_block_ids = np.array(self.block_ids)
+            self.jacobian_func(details, np_block_ids)
 

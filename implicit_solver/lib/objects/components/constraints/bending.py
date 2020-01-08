@@ -28,17 +28,15 @@ class Bending(ConstraintBase):
         self.rest_angle = np.float64(0.0)
 
     @classmethod
-    def pre_compute(cls, scene, details, block_ids):
+    def pre_compute(cls, scene, details, np_block_ids):
         pass
 
     @classmethod
-    def compute_forces(cls, details, block_ids):
-        np_block_ids = np.array(block_ids)
+    def compute_forces(cls, details, np_block_ids):
         compute_bending_forces(details.bending, details.node, np_block_ids)
 
     @classmethod
-    def compute_jacobians(cls, details, block_ids):
-        np_block_ids = np.array(block_ids)
+    def compute_jacobians(cls, details, np_block_ids):
         compute_bending_jacobians(details.bending, details.node, np_block_ids)
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
