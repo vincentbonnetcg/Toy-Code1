@@ -20,8 +20,8 @@ class Area(cpn.ConstraintBase):
         self.rest_area = np.float64(0.0)
 
     @classmethod
-    def pre_compute(cls, scene, details, np_block_ids):
-        pass
+    def pre_compute(cls):
+        return None
 
     @classmethod
     def compute_gradients(cls, details, np_block_ids):

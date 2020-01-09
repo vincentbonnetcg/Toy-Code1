@@ -45,7 +45,10 @@ class Condition:
     def pre_compute(self, scene : Scene, details):
         if self.block_ids:
             np_block_ids = np.array(self.block_ids)
-            self.pre_compute_func(scene, details, np_block_ids)
+            func = self.pre_compute_func()
+            if func:
+                data = details.block_from_datatype(self.constraint_type)
+                func(data, scene, details.node, np_block_ids)
 
     def compute_gradients(self, details):
         if self.block_ids:

@@ -25,8 +25,8 @@ class AnchorSpring(cpn.ConstraintBase):
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 
     @classmethod
-    def pre_compute(cls, scene, details, np_block_ids):
-        pre_compute_anchor_spring(details.anchorSpring, scene, details.node, np_block_ids)
+    def pre_compute(cls):
+        return pre_compute_anchor_spring
 
     @classmethod
     def compute_gradients(cls, details, np_block_ids):
@@ -45,8 +45,8 @@ class Spring(cpn.ConstraintBase):
         self.rest_length = np.float64(0.0)
 
     @classmethod
-    def pre_compute(cls, scene, details, np_block_ids):
-        pass
+    def pre_compute(cls):
+        return None
 
     @classmethod
     def compute_gradients(cls, details, np_block_ids):
