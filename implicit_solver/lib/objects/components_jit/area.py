@@ -24,12 +24,12 @@ class Area(cpn.ConstraintBase):
         return None
 
     @classmethod
-    def compute_gradients(cls, details, np_block_ids):
-        compute_area_forces(details.area, details.node, np_block_ids)
+    def compute_gradients(cls):
+        return compute_area_forces
 
     @classmethod
-    def compute_hessians(cls, details, np_block_ids):
-        compute_area_jacobians(details.area, details.node, np_block_ids)
+    def compute_hessians(cls):
+        return compute_area_jacobians
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_area_rest(area : Area, detail_nodes):

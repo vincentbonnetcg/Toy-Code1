@@ -31,12 +31,12 @@ class Bending(cpn.ConstraintBase):
         return None
 
     @classmethod
-    def compute_gradients(cls, details, np_block_ids):
-        compute_bending_forces(details.bending, details.node, np_block_ids)
+    def compute_gradients(cls):
+        return compute_bending_forces
 
     @classmethod
-    def compute_hessians(cls, details, np_block_ids):
-        compute_bending_jacobians(details.bending, details.node, np_block_ids)
+    def compute_hessians(cls):
+        return compute_bending_jacobians
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_bending_rest(bending : Bending, detail_nodes):

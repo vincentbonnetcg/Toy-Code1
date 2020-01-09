@@ -29,12 +29,12 @@ class AnchorSpring(cpn.ConstraintBase):
         return pre_compute_anchor_spring
 
     @classmethod
-    def compute_gradients(cls, details, np_block_ids):
-        compute_anchor_spring_forces(details.anchorSpring, details.node, np_block_ids)
+    def compute_gradients(cls):
+        return compute_anchor_spring_forces
 
     @classmethod
-    def compute_hessians(cls, details, np_block_ids):
-        compute_anchor_spring_jacobians(details.anchorSpring, details.node, np_block_ids)
+    def compute_hessians(cls):
+        return compute_anchor_spring_jacobians
 
 class Spring(cpn.ConstraintBase):
     '''
@@ -49,12 +49,12 @@ class Spring(cpn.ConstraintBase):
         return None
 
     @classmethod
-    def compute_gradients(cls, details, np_block_ids):
-        compute_spring_forces(details.spring, details.node, np_block_ids)
+    def compute_gradients(cls):
+        return compute_spring_forces
 
     @classmethod
-    def compute_hessians(cls, details, np_block_ids):
-        compute_spring_jacobians(details.spring, details.node, np_block_ids)
+    def compute_hessians(cls):
+        return compute_spring_jacobians
 
 
 '''

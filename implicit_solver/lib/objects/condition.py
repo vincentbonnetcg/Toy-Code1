@@ -53,10 +53,15 @@ class Condition:
     def compute_gradients(self, details):
         if self.block_ids:
             np_block_ids = np.array(self.block_ids)
-            self.gradient_func(details, np_block_ids)
+            func = self.gradient_func()
+            if func:
+                data = details.block_from_datatype(self.constraint_type)
+                func(data, details.node, np_block_ids)
 
     def compute_hessians(self, details):
         if self.block_ids:
             np_block_ids = np.array(self.block_ids)
-            self.hessian_func(details, np_block_ids)
-
+            func = self.hessian_func()
+            if func:
+                data = details.block_from_datatype(self.constraint_type)
+                func(data, details.node, np_block_ids)
