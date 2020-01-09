@@ -29,7 +29,7 @@ class Area(cpn.ConstraintBase):
 
     @classmethod
     def compute_hessians(cls, details, np_block_ids):
-        compute_area_hessians(details.area, details.node, np_block_ids)
+        compute_area_jacobians(details.area, details.node, np_block_ids)
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_area_rest(area : Area, detail_nodes):
@@ -49,11 +49,11 @@ def compute_area_forces(area : Area, detail_nodes):
     area.f[2] = forces[2]
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
-def compute_area_hessians(area : Area, detail_nodes):
+def compute_area_jacobians(area : Area, detail_nodes):
     x0 = na.node_x(detail_nodes, area.node_IDs[0])
     x1 = na.node_x(detail_nodes, area.node_IDs[1])
     x2 = na.node_x(detail_nodes, area.node_IDs[2])
-    jacobians = area_lib.elastic_area_numerical_hessians(x0, x1, x2, area.rest_area, area.stiffness)
+    jacobians = area_lib.elastic_area_numerical_jacobians(x0, x1, x2, area.rest_area, area.stiffness)
     area.dfdx[0][0] = jacobians[0]
     area.dfdx[1][1] = jacobians[1]
     area.dfdx[2][2] = jacobians[2]

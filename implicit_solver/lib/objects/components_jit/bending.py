@@ -36,7 +36,7 @@ class Bending(cpn.ConstraintBase):
 
     @classmethod
     def compute_hessians(cls, details, np_block_ids):
-        compute_bending_hessians(details.bending, details.node, np_block_ids)
+        compute_bending_jacobians(details.bending, details.node, np_block_ids)
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
 def compute_bending_rest(bending : Bending, detail_nodes):
@@ -56,11 +56,11 @@ def compute_bending_forces(bending : Bending, detail_nodes):
     bending.f[2] = forces[2]
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
-def compute_bending_hessians(bending : Bending, detail_nodes):
+def compute_bending_jacobians(bending : Bending, detail_nodes):
     x0 = na.node_x(detail_nodes, bending.node_IDs[0])
     x1 = na.node_x(detail_nodes, bending.node_IDs[1])
     x2 = na.node_x(detail_nodes, bending.node_IDs[2])
-    dfdx = bending_lib.elastic_bending_numerical_hessians(x0, x1, x2, bending.rest_angle, bending.stiffness)
+    dfdx = bending_lib.elastic_bending_numerical_jacobians(x0, x1, x2, bending.rest_angle, bending.stiffness)
     bending.dfdx[0][0] = dfdx[0]
     bending.dfdx[1][1] = dfdx[1]
     bending.dfdx[2][2] = dfdx[2]

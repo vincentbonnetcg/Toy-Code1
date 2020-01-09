@@ -37,7 +37,7 @@ def elastic_area_forces(x0, x1, x2, rest_area, stiffness, enable_force = (True, 
     return forces
 
 @numba.njit
-def elastic_area_numerical_hessians(x0, x1, x2, rest_area, stiffness):
+def elastic_area_numerical_jacobians(x0, x1, x2, rest_area, stiffness):
     '''
     Returns the six jacobians matrices in the following order
     df0dx0, df1dx1, df2dx2, df0dx1, df0dx2, df1dx2

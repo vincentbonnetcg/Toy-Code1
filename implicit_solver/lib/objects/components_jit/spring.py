@@ -34,7 +34,7 @@ class AnchorSpring(cpn.ConstraintBase):
 
     @classmethod
     def compute_hessians(cls, details, np_block_ids):
-        compute_anchor_spring_hessians(details.anchorSpring, details.node, np_block_ids)
+        compute_anchor_spring_jacobians(details.anchorSpring, details.node, np_block_ids)
 
 class Spring(cpn.ConstraintBase):
     '''
@@ -54,7 +54,7 @@ class Spring(cpn.ConstraintBase):
 
     @classmethod
     def compute_hessians(cls, details, np_block_ids):
-        compute_spring_hessians(details.spring, details.node, np_block_ids)
+        compute_spring_jacobians(details.spring, details.node, np_block_ids)
 
 
 '''
@@ -81,7 +81,7 @@ def compute_anchor_spring_forces(anchor_spring : AnchorSpring, detail_nodes):
     anchor_spring.f = force
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
-def compute_anchor_spring_hessians(anchor_spring : AnchorSpring, detail_nodes):
+def compute_anchor_spring_jacobians(anchor_spring : AnchorSpring, detail_nodes):
     x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
     target_pos = anchor_spring.kinematic_component_pos
@@ -109,7 +109,7 @@ def compute_spring_forces(spring : Spring, detail_nodes):
     spring.f[1] = force * -1.0
 
 @generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
-def compute_spring_hessians(spring : Spring, detail_nodes):
+def compute_spring_jacobians(spring : Spring, detail_nodes):
     x0, v0 = na.node_xv(detail_nodes, spring.node_IDs[0])
     x1, v1 = na.node_xv(detail_nodes, spring.node_IDs[1])
     dfdx = spring_lib.spring_stretch_jacobian(x0, x1, spring.rest_length, spring.stiffness)

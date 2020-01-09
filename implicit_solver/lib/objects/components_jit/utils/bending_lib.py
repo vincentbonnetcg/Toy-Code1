@@ -52,7 +52,7 @@ def elastic_bending_forces(x0, x1, x2, rest_angle, stiffness, enable_force = (Tr
     return forces
 
 @numba.njit
-def elastic_bending_numerical_hessians(x0, x1, x2, rest_angle, stiffness):
+def elastic_bending_numerical_jacobians(x0, x1, x2, rest_angle, stiffness):
     '''
     Returns the six jacobians matrices in the following order
     df0dx0, df1dx1, df2dx2, df0dx1, df0dx2, df1dx2
