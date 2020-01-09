@@ -24,6 +24,10 @@ class Area(cpn.ConstraintBase):
         return None
 
     @classmethod
+    def compute_rest(cls):
+        return compute_area_rest
+
+    @classmethod
     def compute_gradients(cls):
         return compute_area_forces
 

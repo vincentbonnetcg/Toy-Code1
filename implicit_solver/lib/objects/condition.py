@@ -16,11 +16,6 @@ class Condition:
         # Parameters
         self.stiffness = stiffness
         self.damping = damping
-        # Energy / Force / Jacobian (Used by the optimiser)
-        self.value_func = None # Not used yet
-        self.gradient_func =  constraint_type.compute_gradients # derivative of the energy function
-        self.hessian_func = constraint_type.compute_hessians # derivative of the force function
-        self.pre_compute_func = constraint_type.pre_compute # pre compute whatever is needed. can be empty
         # Metadata
         self.meta_data = {}
         self.total_constraints = 0
@@ -45,15 +40,23 @@ class Condition:
     def pre_compute(self, scene : Scene, details):
         if self.block_ids:
             np_block_ids = np.array(self.block_ids)
-            func = self.pre_compute_func()
+            func = self.constraint_type.pre_compute()
             if func:
                 data = details.block_from_datatype(self.constraint_type)
                 func(data, scene, details.node, np_block_ids)
 
+    def compute_rest(self, details):
+        if self.block_ids:
+            np_block_ids = np.array(self.block_ids)
+            func = self.constraint_type.compute_rest()
+            if func:
+                data = details.block_from_datatype(self.constraint_type)
+                func(data, details.node, np_block_ids)
+
     def compute_gradients(self, details):
         if self.block_ids:
             np_block_ids = np.array(self.block_ids)
-            func = self.gradient_func()
+            func = self.constraint_type.compute_gradients()
             if func:
                 data = details.block_from_datatype(self.constraint_type)
                 func(data, details.node, np_block_ids)
@@ -61,7 +64,7 @@ class Condition:
     def compute_hessians(self, details):
         if self.block_ids:
             np_block_ids = np.array(self.block_ids)
-            func = self.hessian_func()
+            func = self.constraint_type.compute_hessians()
             if func:
                 data = details.block_from_datatype(self.constraint_type)
                 func(data, details.node, np_block_ids)

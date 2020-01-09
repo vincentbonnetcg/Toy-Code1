@@ -31,6 +31,10 @@ class Bending(cpn.ConstraintBase):
         return None
 
     @classmethod
+    def compute_rest(cls):
+        return compute_bending_rest
+
+    @classmethod
     def compute_gradients(cls):
         return compute_bending_forces
 

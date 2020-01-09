@@ -29,6 +29,10 @@ class AnchorSpring(cpn.ConstraintBase):
         return pre_compute_anchor_spring
 
     @classmethod
+    def compute_rest(cls):
+        return compute_anchor_spring_rest
+
+    @classmethod
     def compute_gradients(cls):
         return compute_anchor_spring_forces
 
@@ -49,13 +53,16 @@ class Spring(cpn.ConstraintBase):
         return None
 
     @classmethod
+    def compute_rest(cls):
+        return compute_spring_rest
+
+    @classmethod
     def compute_gradients(cls):
         return compute_spring_forces
 
     @classmethod
     def compute_hessians(cls):
         return compute_spring_jacobians
-
 
 '''
 AnchorSpring compute functions
