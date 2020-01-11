@@ -7,7 +7,7 @@ import re
 
 class CodeGenHelper:
 
-    def __init__(self, njit = True, parallel=False, debug=False, block_ids=False):
+    def __init__(self, njit = True, parallel=False, debug=False, block_handles=False):
         # Generated function
         self.generated_function_name = ''
         self.generated_function_source = ''
@@ -18,7 +18,7 @@ class CodeGenHelper:
         # Options
         self.use_njit = njit
         self.use_parallel = parallel
-        self.use_block_ids = block_ids # NOT USED YET
+        self.use_block_handles = block_handles
         self.use_debug = debug # NOT USED YET
         # Test whether or not it makes sense
         if (not njit) and (parallel or debug):
@@ -69,14 +69,14 @@ class CodeGenHelper:
                         new_functions_args[argId] += '_blocks'
 
                 # replace function
-                if self.use_block_ids:
-                    gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +', block_ids):')
+                if self.use_block_handles:
+                    gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +', block_handles):')
                 else:
                     gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +'):')
 
                 # loop over the blocks (list/tuple of numpy array)
-                if self.use_block_ids:
-                    gen_code_lines.append(indents + '_num_blocks = len(block_ids)' )
+                if self.use_block_handles:
+                    gen_code_lines.append(indents + '_num_blocks = len(block_handles)' )
                 else:
                     gen_code_lines.append(indents + '_num_blocks = len(' + new_functions_args[0]  + ')' )
 
@@ -85,8 +85,8 @@ class CodeGenHelper:
                 else:
                     gen_code_lines.append(indents + 'for _j in range(_num_blocks):')
 
-                if self.use_block_ids:
-                    gen_code_lines.append(two_indents + '_handle = block_ids[_j]')
+                if self.use_block_handles:
+                    gen_code_lines.append(two_indents + '_handle = block_handles[_j]')
                 else:
                     gen_code_lines.append(two_indents + '_handle = _j')
 

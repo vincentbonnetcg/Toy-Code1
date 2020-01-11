@@ -20,12 +20,12 @@ import lib.objects.components_jit.utils.bending_lib as bending_lib
 import lib.common.convex_hull as ch
 
 
-def generate_vectorize_function(function, njit, parallel, debug, block_ids):
+def generate_vectorize_function(function, njit, parallel, debug, block_handles):
     '''
     Returns a tuple (source code, function object)
     '''
     # Generate code
-    helper = gen.CodeGenHelper(njit, parallel, debug, block_ids)
+    helper = gen.CodeGenHelper(njit, parallel, debug, block_handles)
     helper.generate_vectorized_function_source(function)
 
     # Compile code
@@ -35,12 +35,12 @@ def generate_vectorize_function(function, njit, parallel, debug, block_ids):
     return helper.generated_function_source, vars().get(helper.generated_function_name)
 
 
-def as_vectorized(function=None, *,njit=True, parallel=False, debug=False, block_ids=False):
+def as_vectorized(function=None, *,njit=True, parallel=False, debug=False, block_handles=False):
     '''
     Decorator with arguments to vectorize a function
     '''
     if function is None:
-        return functools.partial(as_vectorized, njit=njit, parallel=parallel, debug=debug, block_ids=block_ids)
+        return functools.partial(as_vectorized, njit=njit, parallel=parallel, debug=debug, block_handles=block_handles)
 
     def convert(arg):
         '''
@@ -84,12 +84,12 @@ def as_vectorized(function=None, *,njit=True, parallel=False, debug=False, block
 
         return True
 
-    source, function = generate_vectorize_function(function, njit, parallel, debug, block_ids)
+    source, function = generate_vectorize_function(function, njit, parallel, debug, block_handles)
 
     execute.njit = njit
     execute.debug = debug
     execute.parallel = parallel
-    execute.block_ids = block_ids
+    execute.block_handles = block_handles
     execute.source = source
     execute.function = function
 

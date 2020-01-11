@@ -67,18 +67,18 @@ class Spring(cpn.ConstraintBase):
 '''
 AnchorSpring compute functions
 '''
-@generate.as_vectorized(njit=False, parallel=False, debug=False, block_ids=True)
+@generate.as_vectorized(njit=False, parallel=False, debug=False, block_handles=True)
 def pre_compute_anchor_spring(anchor_spring : AnchorSpring, scene, detail_nodes):
     kinematic = scene.kinematics[anchor_spring.kinematic_index]
     point_params = ch.ConvexHull.ParametricPoint(anchor_spring.kinematic_component_index, anchor_spring.kinematic_component_param)
     anchor_spring.kinematic_component_pos = kinematic.get_position_from_parametric_point(point_params)
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_handles=True)
 def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
     x = na.node_x(detail_nodes, anchor_spring.node_IDs[0])
     anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_handles=True)
 def compute_anchor_spring_forces(anchor_spring : AnchorSpring, detail_nodes):
     x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
@@ -87,7 +87,7 @@ def compute_anchor_spring_forces(anchor_spring : AnchorSpring, detail_nodes):
     force += spring_lib.spring_damping_force(x, target_pos, v, kinematic_vel, anchor_spring.damping)
     anchor_spring.f = force
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_handles=True)
 def compute_anchor_spring_jacobians(anchor_spring : AnchorSpring, detail_nodes):
     x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
@@ -100,13 +100,13 @@ def compute_anchor_spring_jacobians(anchor_spring : AnchorSpring, detail_nodes):
 '''
 Spring compute functions
 '''
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_handles=True)
 def compute_spring_rest(spring : Spring, detail_nodes):
     x0 = na.node_x(detail_nodes, spring.node_IDs[0])
     x1 = na.node_x(detail_nodes, spring.node_IDs[1])
     spring.rest_length = np.float64(math2D.distance(x0, x1))
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_handles=True)
 def compute_spring_forces(spring : Spring, detail_nodes):
     x0, v0 = na.node_xv(detail_nodes, spring.node_IDs[0])
     x1, v1 = na.node_xv(detail_nodes, spring.node_IDs[1])
@@ -115,7 +115,7 @@ def compute_spring_forces(spring : Spring, detail_nodes):
     spring.f[0] = force
     spring.f[1] = force * -1.0
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_ids=True)
+@generate.as_vectorized(njit=True, parallel=False, debug=False, block_handles=True)
 def compute_spring_jacobians(spring : Spring, detail_nodes):
     x0, v0 = na.node_xv(detail_nodes, spring.node_IDs[0])
     x1, v1 = na.node_xv(detail_nodes, spring.node_IDs[1])
