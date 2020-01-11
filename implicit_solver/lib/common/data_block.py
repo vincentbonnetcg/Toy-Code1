@@ -134,7 +134,7 @@ class DataBlock:
         '''
         Initialize blocks and return new element ids
         '''
-        block_ids = []
+        block_handles = []
         block_dtype = self.__dtype()
 
         num_fields = len(self.dtype_dict['names'])
@@ -144,25 +144,25 @@ class DataBlock:
         global_element_id = self.compute_num_elements()
 
         # collect inactive block ids
-        inactive_block_ids = []
+        inactive_block_handles = []
         if reuse_inactive_block:
             for block_index,  block_data in enumerate(self.blocks):
                 if not block_data['blockInfo_active']:
-                    inactive_block_ids.append(block_index)
+                    inactive_block_handles.append(block_index)
 
         n_blocks = math.ceil(num_elements / self.block_size)
         for block_index in range(n_blocks):
 
-            block_id = -1
+            block_handle = -1
             block_data = None
 
-            if reuse_inactive_block and len(inactive_block_ids) > 0:
+            if reuse_inactive_block and len(inactive_block_handles) > 0:
                 # reuse blocks
-                block_id = inactive_block_ids.pop(0)
-                block_data = self.blocks[block_id]
+                block_handle = inactive_block_handles.pop(0)
+                block_data = self.blocks[block_handle]
             else:
                 # allocate a new block
-                block_id = len(self.blocks)
+                block_handle = len(self.blocks)
                 block_data = np.zeros(1, dtype=block_dtype)[0] # a scalar
                 self.blocks.append(block_data)
 
@@ -179,26 +179,34 @@ class DataBlock:
             if 'ID' in block_data.dtype.names:
                 block_data_ID = block_data['ID']
                 for block_node_id in range(block_n_elements):
-                    na.set_node_id(block_data_ID[block_node_id], global_element_id, block_id, block_node_id)
+                    na.set_node_id(block_data_ID[block_node_id], global_element_id, block_handle, block_node_id)
                     global_element_id += 1
 
             # add block id to result
-            block_ids.append(block_id)
+            block_handles.append(block_handle)
 
-        return block_ids
+        return self.create_block_handle(block_handles)
 
-    def remove(self, block_ids = None):
-        if block_ids is None:
+    def remove(self, block_handles = None):
+        if block_handles is None:
             return
 
         if 'ID' in self.dtype_dict['names']:
             raise ValueError("ID channel used by this datablock. Another datablock might references this one => cannot delete")
 
-        for block_id in sorted(block_ids, reverse=True):
-            del(self.blocks[block_id])
+        for block_handle in sorted(block_handles, reverse=True):
+            del(self.blocks[block_handle])
 
-    def isEmpty(self):
+    def is_empty(self):
         return len(self.blocks)==0
+
+    @staticmethod
+    def create_block_handle(handles=None):
+        if handles:
+            return np.array(handles, dtype='int')
+
+        return np.zeros(0, dtype='int') # empty block
+
 
     '''
     Temporary Logic
@@ -217,54 +225,54 @@ class DataBlock:
     '''
     Vectorize Functions on blocks
     '''
-    def __take_with_id(self, block_ids = []):
-        for block_id in block_ids:
-            if self.blocks[block_id]['blockInfo_active']:
-                yield self.blocks[block_id]
+    def __take_with_id(self, block_handles = []):
+        for block_handle in block_handles:
+            if self.blocks[block_handle]['blockInfo_active']:
+                yield self.blocks[block_handle]
 
     def __take(self):
         for block_data in self.blocks:
             if block_data['blockInfo_active']:
                 yield block_data
 
-    def get_blocks(self, block_ids = None):
-        if block_ids is None:
+    def get_blocks(self, block_handles = None):
+        if block_handles is None:
             return self.__take()
 
-        return self.__take_with_id(block_ids)
+        return self.__take_with_id(block_handles)
 
-    def compute_num_elements(self, block_ids = None):
+    def compute_num_elements(self, block_handles = None):
         num_elements = 0
-        for block_data in self.get_blocks(block_ids):
+        for block_data in self.get_blocks(block_handles):
             num_elements += block_data['blockInfo_numElements']
         return num_elements
 
-    def copyto(self, field_name, values, block_ids = None):
+    def copyto(self, field_name, values, block_handles = None):
         num_elements = 0
 
-        for block_data in self.get_blocks(block_ids):
+        for block_data in self.get_blocks(block_handles):
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
             end_index = num_elements
             np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
 
-    def fill(self, field_name, value, block_ids = None):
-        for block in self.get_blocks(block_ids):
+    def fill(self, field_name, value, block_handles = None):
+        for block in self.get_blocks(block_handles):
             block[field_name].fill(value)
 
-    def flatten(self, field_name, block_ids = None):
+    def flatten(self, field_name, block_handles = None):
         '''
         Convert block of array into a single array
         '''
         field_id = self.dtype_dict['names'].index(field_name)
         field_dtype = self.dtype_dict['formats'][field_id]
 
-        num_elements = self.compute_num_elements(block_ids)
+        num_elements = self.compute_num_elements(block_handles)
         result = np.empty(num_elements, field_dtype)
 
         num_elements = 0
-        for block_data in self.get_blocks(block_ids):
+        for block_data in self.get_blocks(block_handles):
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
@@ -273,8 +281,8 @@ class DataBlock:
 
         return result
 
-    def set_active(self, active, block_ids = None):
-        for block_data in self.get_blocks(block_ids):
+    def set_active(self, active, block_handles = None):
+        for block_data in self.get_blocks(block_handles):
             block_data['blockInfo_active'] = active
             # currenly vectorized function to not skip unactive block
             # set numelement to time being

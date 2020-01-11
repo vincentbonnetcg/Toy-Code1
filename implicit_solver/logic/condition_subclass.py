@@ -20,8 +20,8 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
     num_constraints = len(array_of_struct)
     condition.total_constraints = num_constraints
 
-    data.set_active(False, condition.block_ids)
-    condition.block_ids = []
+    data.set_active(False, condition.block_handles)
+    condition.block_handles = common.DataBlock.create_block_handle(None)
 
     # early exit if there is no constraints
     if (num_constraints == 0):
@@ -30,8 +30,8 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
         return False
 
     # allocate
-    block_ids = data.append(num_constraints, reuse_inactive_block=True)
-    condition.block_ids = block_ids
+    block_handles = data.append(num_constraints, reuse_inactive_block=True)
+    condition.block_handles = block_handles
 
     # copy to datablock
     num_elements = len(array_of_struct)
@@ -56,7 +56,7 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
             new_array[element_id] = getattr(element, field_name)
 
         # set datbablock
-        data.copyto(field_name, new_array, condition.block_ids)
+        data.copyto(field_name, new_array, condition.block_handles)
 
     # lock the datablock to allow vectorized operations on it
     data.lock()

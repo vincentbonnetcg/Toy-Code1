@@ -71,13 +71,13 @@ def as_vectorized(function=None, *,njit=True, parallel=False, debug=False, block
         if isinstance(first_argument, (list, tuple)):
             for datablock in first_argument:
                 if isinstance(datablock, common.DataBlock):
-                    if not datablock.isEmpty():
+                    if not datablock.is_empty():
                         arg_list[0] = convert(datablock)
                         execute.function(*arg_list)
                 else:
                     raise ValueError("The first argument should be a datablock")
         elif isinstance(first_argument, common.DataBlock):
-                if not first_argument.isEmpty():
+                if not first_argument.is_empty():
                     execute.function(*arg_list)
         else:
             raise ValueError("The first argument should be a datablock or a list of datablocks")

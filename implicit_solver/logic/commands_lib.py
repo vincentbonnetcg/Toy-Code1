@@ -60,7 +60,7 @@ def get_segments_from_constraint(scene, index, details):
     condition = scene.conditions[index]
     condition_data = details.block_from_datatype(condition.constraint_type)
 
-    node_ids = condition_data.flatten('node_IDs', condition.block_ids)
+    node_ids = condition_data.flatten('node_IDs', condition.block_handles)
     num_constraints = len(node_ids)
     for ct_index in range(num_constraints):
         num_nodes = len(node_ids[ct_index])

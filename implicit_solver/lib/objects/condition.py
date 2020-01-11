@@ -5,13 +5,14 @@
 
 from lib.system import Scene
 import numpy as np
+import lib.common as common
 
 class Condition:
     '''
     Base of a condition
     '''
     def __init__(self, stiffness, damping, constraint_type):
-        self.block_ids = []
+        self.block_handles = common.DataBlock.create_block_handle(None)
         self.constraint_type = constraint_type
         # Parameters
         self.stiffness = stiffness
@@ -38,33 +39,29 @@ class Condition:
         pass
 
     def pre_compute(self, scene : Scene, details):
-        if self.block_ids:
-            np_block_ids = np.array(self.block_ids)
+        if len(self.block_handles)>0:
             func = self.constraint_type.pre_compute()
             if func:
                 data = details.block_from_datatype(self.constraint_type)
-                func(data, scene, details.node, np_block_ids)
+                func(data, scene, details.node, self.block_handles)
 
     def compute_rest(self, details):
-        if self.block_ids:
-            np_block_ids = np.array(self.block_ids)
+        if len(self.block_handles)>0:
             func = self.constraint_type.compute_rest()
             if func:
                 data = details.block_from_datatype(self.constraint_type)
-                func(data, details.node, np_block_ids)
+                func(data, details.node, self.block_handles)
 
     def compute_gradients(self, details):
-        if self.block_ids:
-            np_block_ids = np.array(self.block_ids)
+        if len(self.block_handles)>0:
             func = self.constraint_type.compute_gradients()
             if func:
                 data = details.block_from_datatype(self.constraint_type)
-                func(data, details.node, np_block_ids)
+                func(data, details.node, self.block_handles)
 
     def compute_hessians(self, details):
-        if self.block_ids:
-            np_block_ids = np.array(self.block_ids)
+        if len(self.block_handles)>0:
             func = self.constraint_type.compute_hessians()
             if func:
                 data = details.block_from_datatype(self.constraint_type)
-                func(data, details.node, np_block_ids)
+                func(data, details.node, self.block_handles)

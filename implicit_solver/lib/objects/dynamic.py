@@ -37,7 +37,7 @@ class Dynamic:
     def set_indexing(self, index):
         self.index = index
 
-    def get_node_id(self, vertex_index):
+    def get_node_id(self, vertex_index) -> int:
         return self.node_ids[vertex_index]
 
     def convert_to_shape(self, details):
