@@ -3,7 +3,6 @@
 @description : conditions create a list of constraints from a list of objects
 """
 
-from lib.system import Scene
 import numpy as np
 import lib.common as common
 
@@ -32,36 +31,29 @@ class Condition:
         '''
         return True
 
-    def init_constraints(self, scene : Scene, details):
+    def init_constraints(self, scene, details):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
 
-    def update_constraints(self, scene : Scene, details):
+    def update_constraints(self, scene, details):
         pass
 
-    def pre_compute(self, scene : Scene, details):
-        if len(self.block_handles)>0:
-            func = self.constraint_type.pre_compute()
-            if func:
-                data = details.block_from_datatype(self.constraint_type)
+    def __call_func(self, func, details, scene = None):
+        if func and len(self.block_handles)>0:
+            data = details.block_from_datatype(self.constraint_type)
+            if scene:
                 func(data, scene, details.node, self.block_handles)
+            else:
+                func(data, details.node, self.block_handles)
+
+    def pre_compute(self, scene, details):
+        self.__call_func(self.constraint_type.pre_compute(), details, scene)
 
     def compute_rest(self, details):
-        if len(self.block_handles)>0:
-            func = self.constraint_type.compute_rest()
-            if func:
-                data = details.block_from_datatype(self.constraint_type)
-                func(data, details.node, self.block_handles)
+        self.__call_func(self.constraint_type.compute_rest(), details)
 
     def compute_gradients(self, details):
-        if len(self.block_handles)>0:
-            func = self.constraint_type.compute_gradients()
-            if func:
-                data = details.block_from_datatype(self.constraint_type)
-                func(data, details.node, self.block_handles)
+        self.__call_func(self.constraint_type.compute_gradients(), details)
 
     def compute_hessians(self, details):
-        if len(self.block_handles)>0:
-            func = self.constraint_type.compute_hessians()
-            if func:
-                data = details.block_from_datatype(self.constraint_type)
-                func(data, details.node, self.block_handles)
+        self.__call_func(self.constraint_type.compute_hessians(), details)
+
