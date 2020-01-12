@@ -19,7 +19,6 @@ import lib.objects.components_jit.utils.area_lib as area_lib
 import lib.objects.components_jit.utils.bending_lib as bending_lib
 import lib.common.convex_hull as ch
 
-
 def generate_vectorize_function(function, njit, parallel, debug, block_handles):
     '''
     Returns a tuple (source code, function object)
@@ -29,10 +28,10 @@ def generate_vectorize_function(function, njit, parallel, debug, block_handles):
     helper.generate_vectorized_function_source(function)
 
     # Compile code
-    generated_function_object = compile(helper.generated_function_source, helper.generated_function_name, 'exec')
+    generated_function_object = compile(helper.generated_function_source, '', 'exec')
     exec(generated_function_object)
 
-    return helper.generated_function_source, vars().get(helper.generated_function_name)
+    return helper.generated_function_source, locals().get(helper.generated_function_name)
 
 
 def as_vectorized(function=None, *,njit=True, parallel=False, debug=False, block_handles=False):
