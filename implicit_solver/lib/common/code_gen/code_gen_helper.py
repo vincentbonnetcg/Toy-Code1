@@ -103,7 +103,7 @@ class CodeGenHelper:
                 # add variable to access block data
                 for obj, attrs in self.obj_attrs_map.items():
                     for attr in attrs:
-                        variable_name = obj + '_' + attr
+                        variable_name = '_' + obj + '_' + attr
                         variable_accessor = obj +'_blocks[_handle][\'' + attr + '\']'
                         variable_code = two_indents + variable_name + ' = ' + variable_accessor
                         gen_code_lines.append(variable_code)
@@ -116,7 +116,7 @@ class CodeGenHelper:
                 for obj, attrs in self.obj_attrs_map.items():
                     for attr in attrs:
                         original_name = obj + '.' + attr
-                        variable_name = obj + '_' + attr
+                        variable_name = '_' + obj + '_' + attr
                         self.variable_remap[original_name] = variable_name
             else:
                 for key, value in self.variable_remap.items():
