@@ -284,6 +284,3 @@ class DataBlock:
     def set_active(self, active, block_handles = None):
         for block_data in self.get_blocks(block_handles):
             block_data['blockInfo_active'] = active
-            # currenly vectorized function to not skip unactive block
-            # set numelement to time being
-            block_data['blockInfo_numElements'] = 0

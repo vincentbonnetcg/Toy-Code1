@@ -42,6 +42,7 @@ class CodeGenHelper:
         gen_code_lines = []
         indents = ' ' * 4
         two_indents = ' ' * 8
+        three_indents = ' ' * 12
         for code in code_lines:
 
             # empty line
@@ -90,7 +91,16 @@ class CodeGenHelper:
                 else:
                     gen_code_lines.append(two_indents + '_handle = _j')
 
-                # add variable accessor
+                # add variable to access block info
+                master_argument = self.functions_args[0]
+                master_variable_name = master_argument + '_blocks[_handle][\'blockInfo_numElements\']'
+                gen_code_lines.append(two_indents + '_num_elements = ' + master_variable_name)
+                master_variable_name = master_argument + '_blocks[_handle][\'blockInfo_active\']'
+                gen_code_lines.append(two_indents + '_active = ' + master_variable_name)
+                gen_code_lines.append(two_indents + 'if not _active:')
+                gen_code_lines.append(three_indents + 'continue')
+
+                # add variable to access block data
                 for obj, attrs in self.obj_attrs_map.items():
                     for attr in attrs:
                         variable_name = obj + '_' + attr
@@ -99,9 +109,6 @@ class CodeGenHelper:
                         gen_code_lines.append(variable_code)
 
                 # loop over the elements (numpy array)
-                master_argument = self.functions_args[0]
-                master_variable_name = master_argument + '_blocks[_handle][\'blockInfo_numElements\']'
-                gen_code_lines.append(two_indents + '_num_elements = ' + master_variable_name)
                 gen_code_lines.append(two_indents + 'for _i in range(_num_elements):')
 
                 # generate the variable remap
