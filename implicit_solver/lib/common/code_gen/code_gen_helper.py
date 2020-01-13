@@ -119,6 +119,10 @@ class CodeGenHelper:
                         variable_name = '_' + obj + '_' + attr
                         self.variable_remap[original_name] = variable_name
             else:
+                # prevent certain variables - cheap solution for now but could be improved
+                if 'block_handles' in code:
+                    raise ValueError("Cannot use the reserved 'block_handles' variables")
+
                 for key, value in self.variable_remap.items():
                     code = code.replace(key, value+'[_i]')
 
