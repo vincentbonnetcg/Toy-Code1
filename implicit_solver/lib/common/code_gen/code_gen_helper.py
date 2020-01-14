@@ -5,9 +5,24 @@
 import inspect
 import re
 
+class CodeGenOptions:
+    def __init__(self, options):
+        self.njit = options.get('njit', True)
+        self.parallel = options.get('parallel', False)
+        self.debug = options.get('debug', False)
+        self.block_handles = options.get('block_handles', False)
+
+    def __str__(self):
+        result = 'njit ' + str(self.njit) + '\n'
+        result += 'parallel ' + str(self.parallel) + '\n'
+        result += 'debug ' + str(self.debug) + '\n'
+        result += 'block_handles ' + str(self.block_handles)
+
+        return result
+
 class CodeGenHelper:
 
-    def __init__(self, njit = True, parallel=False, debug=False, block_handles=False):
+    def __init__(self, options : CodeGenOptions):
         # Generated function
         self.generated_function_name = ''
         self.generated_function_source = ''
@@ -16,12 +31,9 @@ class CodeGenHelper:
         self.variable_remap = {} # dictionnary mapping 'object.attr' with 'object_attr'
         self.functions_args = [] # original functions arguments
         # Options
-        self.use_njit = njit
-        self.use_parallel = parallel
-        self.use_block_handles = block_handles
-        self.use_debug = debug # NOT USED YET
+        self.options = options
         # Test whether or not it makes sense
-        if (not njit) and (parallel or debug):
+        if (not options.njit) and (options.parallel or options.debug):
             raise ValueError("Cannot use the flags {parallel, debug} when njit=False ")
 
     def generate_vectorized_function_source(self, function):
@@ -56,8 +68,8 @@ class CodeGenHelper:
 
             if code[0:4] == 'def ':
                 # add njit
-                if self.use_njit:
-                    if self.use_parallel:
+                if self.options.njit:
+                    if self.options.parallel:
                         gen_code_lines.append('@numba.njit(parallel=True)')
                     else:
                         gen_code_lines.append('@numba.njit')
@@ -70,23 +82,23 @@ class CodeGenHelper:
                         new_functions_args[argId] += '_blocks'
 
                 # replace function
-                if self.use_block_handles:
+                if self.options.block_handles:
                     gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +', block_handles):')
                 else:
                     gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +'):')
 
                 # loop over the blocks (list/tuple of numpy array)
-                if self.use_block_handles:
+                if self.options.block_handles:
                     gen_code_lines.append(indents + '_num_blocks = len(block_handles)' )
                 else:
                     gen_code_lines.append(indents + '_num_blocks = len(' + new_functions_args[0]  + ')' )
 
-                if self.use_parallel:
+                if self.options.parallel:
                     gen_code_lines.append(indents + 'for _j in numba.prange(_num_blocks):')
                 else:
                     gen_code_lines.append(indents + 'for _j in range(_num_blocks):')
 
-                if self.use_block_handles:
+                if self.options.block_handles:
                     gen_code_lines.append(two_indents + '_handle = block_handles[_j]')
                 else:
                     gen_code_lines.append(two_indents + '_handle = _j')
