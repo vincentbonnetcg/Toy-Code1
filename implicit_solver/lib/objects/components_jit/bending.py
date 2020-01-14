@@ -42,14 +42,14 @@ class Bending(cpn.ConstraintBase):
     def compute_hessians(cls):
         return compute_bending_jacobians
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_handles=True)
+@generate.as_vectorized(block_handles=True)
 def compute_bending_rest(bending : Bending, detail_nodes):
     x0 = na.node_x(detail_nodes, bending.node_IDs[0])
     x1 = na.node_x(detail_nodes, bending.node_IDs[1])
     x2 = na.node_x(detail_nodes, bending.node_IDs[2])
     bending.rest_angle = np.float64(math2D.angle(x0, x1, x2))
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_handles=True)
+@generate.as_vectorized(block_handles=True)
 def compute_bending_forces(bending : Bending, detail_nodes):
     x0 = na.node_x(detail_nodes, bending.node_IDs[0])
     x1 = na.node_x(detail_nodes, bending.node_IDs[1])
@@ -59,7 +59,7 @@ def compute_bending_forces(bending : Bending, detail_nodes):
     bending.f[1] = forces[1]
     bending.f[2] = forces[2]
 
-@generate.as_vectorized(njit=True, parallel=False, debug=False, block_handles=True)
+@generate.as_vectorized(block_handles=True)
 def compute_bending_jacobians(bending : Bending, detail_nodes):
     x0 = na.node_x(detail_nodes, bending.node_IDs[0])
     x1 = na.node_x(detail_nodes, bending.node_IDs[1])
