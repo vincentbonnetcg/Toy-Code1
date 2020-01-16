@@ -10,6 +10,7 @@ class CodeGenOptions:
         self.njit = options.get('njit', True)
         self.parallel = options.get('parallel', False)
         self.debug = options.get('debug', False)
+        self.fastmath = options.get('fastmath', False)
         self.block_handles = options.get('block_handles', False)
 
     def __str__(self):
@@ -69,11 +70,23 @@ class CodeGenHelper:
             if code[0:4] == 'def ':
                 # add njit
                 if self.options.njit:
-                    if self.options.parallel:
-                        gen_code_lines.append('@numba.njit(parallel=True)')
+                    numba_arguments = ('parallel','fastmath', 'debug')
+                    numba_default_options = (False, False, False)
+                    codegen_options = (self.options.parallel,
+                                       self.options.fastmath,
+                                       self.options.debug)
+
+                    args = []
+                    for i in range(len(codegen_options)):
+                        if numba_default_options[i] != codegen_options[i]:
+                            arg = numba_arguments[i]+'='+str(codegen_options[i])
+                            args.append(arg)
+
+                    if len(args)>0:
+                        arg = ','.join(args)
+                        gen_code_lines.append('@numba.njit('+arg+')')
                     else:
                         gen_code_lines.append('@numba.njit')
-
 
                 # rename the function arguments associated with an object
                 new_functions_args = self.functions_args.copy()
