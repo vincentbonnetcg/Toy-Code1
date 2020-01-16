@@ -21,6 +21,23 @@ class CodeGenOptions:
 
         return result
 
+class CodeGenWriter:
+    def __init__(self, indent_size = 4):
+        self.code_lines = []
+        self.indent = 0
+        self._indent_size = indent_size # space per indentation
+
+    def append(self, code_line):
+        if not code_line:
+            self.code_lines.append(code_line)
+            return
+
+        indent_str = ' ' * self.indent * self._indent_size
+        self.code_lines.append(indent_str + code_line)
+
+    def source(self):
+        return '\n'.join(self.code_lines)
+
 class CodeGenHelper:
 
     def __init__(self, options : CodeGenOptions):
@@ -52,15 +69,13 @@ class CodeGenHelper:
 
         # Generate source code
         code_lines = function_source.splitlines()
-        gen_code_lines = []
-        indents = ' ' * 4
-        two_indents = ' ' * 8
-        three_indents = ' ' * 12
+        writer = CodeGenWriter()
+
         for code in code_lines:
 
             # empty line
             if not code:
-                gen_code_lines.append('')
+                writer.append(code)
                 continue
 
             # remove decorators
@@ -84,9 +99,9 @@ class CodeGenHelper:
 
                     if len(args)>0:
                         arg = ','.join(args)
-                        gen_code_lines.append('@numba.njit('+arg+')')
+                        writer.append('@numba.njit('+arg+')')
                     else:
-                        gen_code_lines.append('@numba.njit')
+                        writer.append('@numba.njit')
 
                 # rename the function arguments associated with an object
                 new_functions_args = self.functions_args.copy()
@@ -96,45 +111,49 @@ class CodeGenHelper:
 
                 # replace function
                 if self.options.block_handles:
-                    gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +', block_handles):')
+                    writer.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +', block_handles):')
                 else:
-                    gen_code_lines.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +'):')
+                    writer.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +'):')
 
                 # loop over the blocks (list/tuple of numpy array)
+                writer.indent += 1
                 if self.options.block_handles:
-                    gen_code_lines.append(indents + '_num_blocks = len(block_handles)' )
+                    writer.append('_num_blocks = len(block_handles)' )
                 else:
-                    gen_code_lines.append(indents + '_num_blocks = len(' + new_functions_args[0]  + ')' )
+                    writer.append('_num_blocks = len(' + new_functions_args[0]  + ')' )
 
                 if self.options.parallel:
-                    gen_code_lines.append(indents + 'for _j in numba.prange(_num_blocks):')
+                    writer.append('for _j in numba.prange(_num_blocks):')
                 else:
-                    gen_code_lines.append(indents + 'for _j in range(_num_blocks):')
+                    writer.append('for _j in range(_num_blocks):')
 
+                writer.indent += 1
                 if self.options.block_handles:
-                    gen_code_lines.append(two_indents + '_handle = block_handles[_j]')
+                    writer.append('_handle = block_handles[_j]')
                 else:
-                    gen_code_lines.append(two_indents + '_handle = _j')
+                    writer.append('_handle = _j')
 
                 # add variable to access block info
                 master_argument = self.functions_args[0]
                 master_variable_name = master_argument + '_blocks[_handle][\'blockInfo_numElements\']'
-                gen_code_lines.append(two_indents + '_num_elements = ' + master_variable_name)
+                writer.append('_num_elements = ' + master_variable_name)
                 master_variable_name = master_argument + '_blocks[_handle][\'blockInfo_active\']'
-                gen_code_lines.append(two_indents + '_active = ' + master_variable_name)
-                gen_code_lines.append(two_indents + 'if not _active:')
-                gen_code_lines.append(three_indents + 'continue')
+                writer.append('_active = ' + master_variable_name)
+                writer.append('if not _active:')
+                writer.indent += 1
+                writer.append('continue')
+                writer.indent -= 1
 
                 # add variable to access block data
                 for obj, attrs in self.obj_attrs_map.items():
                     for attr in attrs:
                         variable_name = '_' + obj + '_' + attr
                         variable_accessor = obj +'_blocks[_handle][\'' + attr + '\']'
-                        variable_code = two_indents + variable_name + ' = ' + variable_accessor
-                        gen_code_lines.append(variable_code)
+                        variable_code = variable_name + ' = ' + variable_accessor
+                        writer.append(variable_code)
 
                 # loop over the elements (numpy array)
-                gen_code_lines.append(two_indents + 'for _i in range(_num_elements):')
+                writer.append('for _i in range(_num_elements):')
 
                 # generate the variable remap
                 self.variable_remap = {}
@@ -151,11 +170,12 @@ class CodeGenHelper:
                 for key, value in self.variable_remap.items():
                     code = code.replace(key, value+'[_i]')
 
-                gen_code_lines.append(two_indents + code)
+                writer.append(code)
 
         # Set generated function name and source
+
         self.generated_function_name = generated_function_name
-        self.generated_function_source = '\n'.join(gen_code_lines)
+        self.generated_function_source = writer.source()
 
     def __prepare_arguments(self, function_source, function_signature):
         self.obj_attrs_map = {}
