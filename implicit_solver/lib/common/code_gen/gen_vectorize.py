@@ -17,6 +17,7 @@ import lib.common.jit.math_2d as math2D
 import lib.objects.components_jit.utils.spring_lib as spring_lib
 import lib.objects.components_jit.utils.area_lib as area_lib
 import lib.objects.components_jit.utils.bending_lib as bending_lib
+import lib.system.jit.sparse_matrix_lib as sparse_lib
 import lib.common.convex_hull as ch
 
 def generate_vectorize_function(function, options : gen.CodeGenOptions):

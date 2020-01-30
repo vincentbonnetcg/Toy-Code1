@@ -8,6 +8,7 @@ import numpy as np
 import lib.common.jit.node_accessor as na
 import lib.common.code_gen as generate
 import lib.objects.components_jit as cpn
+from . import sparse_matrix_lib as sparse_lib
 
 def apply_external_forces_to_nodes(dynamics, forces):
     # this function is not vectorized but forces.apply_forces are vectorized
@@ -45,20 +46,13 @@ def assemble_dfdx_v0_h2_to_b(constraint : cpn.ConstraintBase, detail_nodes, dt, 
             v = na.node_v(detail_nodes, constraint.node_IDs[xi])
             b[node_index] += np.dot(v, Jx) * dt * dt
 
-@numba.njit
-def create_empty_sparse_matrix(num_rows, block_size):
-    A = []
-    for i in range(num_rows):
-        A.append({i:np.zeros((block_size,block_size))})
-    return A
-
 @generate.as_vectorized(njit=False)
 def assemble_mass_matrix_to_A(node : cpn.Node, A):
     # Can be threaded
     node_index = na.node_global_index(node.ID)
     mass_matrix = np.zeros((2,2))
     np.fill_diagonal(mass_matrix, node.m)
-    A.add(node_index, node_index, mass_matrix)
+    sparse_lib.add(A.dict_indices, node_index, node_index, mass_matrix)
 
 @generate.as_vectorized(njit=False)
 def assemble_constraint_forces_to_A(constraint : cpn.ConstraintBase, dt, A):
@@ -71,4 +65,4 @@ def assemble_constraint_forces_to_A(constraint : cpn.ConstraintBase, dt, A):
             Jx = constraint.dfdx[fi][j]
             global_fi_id = na.node_global_index(constraint.node_IDs[fi])
             global_j_id = na.node_global_index(constraint.node_IDs[j])
-            A.add(global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+            sparse_lib.add(A.dict_indices, global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)

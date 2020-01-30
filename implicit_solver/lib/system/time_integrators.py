@@ -10,6 +10,7 @@ import scipy.sparse.linalg
 
 import lib.common as cm
 import lib.system.jit.integrator_lib as integrator_lib
+import lib.system.jit.sparse_matrix_lib as sparse_lib
 
 class TimeIntegrator:
     '''
@@ -101,7 +102,7 @@ class ImplicitSolver(TimeIntegrator):
         num_rows = self.num_nodes
         num_columns = self.num_nodes
         A = cm.BSRSparseMatrix(num_rows, num_columns, 2)
-        A.dict_indices = integrator_lib.create_empty_sparse_matrix(num_rows, 2)
+        A.dict_indices = tuple(sparse_lib.create_empty_sparse_matrix(num_rows, 2))
 
         # set mass matrix
         integrator_lib.assemble_mass_matrix_to_A(details.dynamics(), A)
