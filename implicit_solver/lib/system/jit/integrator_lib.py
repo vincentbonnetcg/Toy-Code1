@@ -2,6 +2,7 @@
 @author: Vincent Bonnet
 @description : Helper functions for time integrators
 """
+import numba
 import numpy as np
 
 import lib.common.jit.node_accessor as na
@@ -44,9 +45,17 @@ def assemble_dfdx_v0_h2_to_b(constraint : cpn.ConstraintBase, detail_nodes, dt, 
             v = na.node_v(detail_nodes, constraint.node_IDs[xi])
             b[node_index] += np.dot(v, Jx) * dt * dt
 
+@numba.njit
+def create_empty_sparse_matrix(num_rows, block_size):
+    A = []
+    for i in range(num_rows):
+        A.append({i:np.zeros((block_size,block_size))})
+    return A
+
 @generate.as_vectorized(njit=False)
 def assemble_mass_matrix_to_A(node : cpn.Node, A):
     # Can be threaded
+    # A is an array of dictionnary
     node_index = na.node_global_index(node.ID)
     mass_matrix = np.zeros((2,2))
     np.fill_diagonal(mass_matrix, node.m)

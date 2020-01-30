@@ -101,6 +101,7 @@ class ImplicitSolver(TimeIntegrator):
         num_rows = self.num_nodes
         num_columns = self.num_nodes
         A = cm.BSRSparseMatrix(num_rows, num_columns, 2)
+        A.dict_indices = integrator_lib.create_empty_sparse_matrix(num_rows, 2)
 
         # set mass matrix
         integrator_lib.assemble_mass_matrix_to_A(details.dynamics(), A)
