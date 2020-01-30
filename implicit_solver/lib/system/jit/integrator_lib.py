@@ -55,7 +55,6 @@ def create_empty_sparse_matrix(num_rows, block_size):
 @generate.as_vectorized(njit=False)
 def assemble_mass_matrix_to_A(node : cpn.Node, A):
     # Can be threaded
-    # A is an array of dictionnary
     node_index = na.node_global_index(node.ID)
     mass_matrix = np.zeros((2,2))
     np.fill_diagonal(mass_matrix, node.m)
