@@ -46,15 +46,15 @@ def assemble_dfdx_v0_h2_to_b(constraint : cpn.ConstraintBase, detail_nodes, dt, 
             v = na.node_v(detail_nodes, constraint.node_IDs[xi])
             b[node_index] += np.dot(v, Jx) * dt * dt
 
-@generate.as_vectorized(njit=False)
+@generate.as_vectorized
 def assemble_mass_matrix_to_A(node : cpn.Node, A):
     # Can be threaded
     node_index = na.node_global_index(node.ID)
     mass_matrix = np.zeros((2,2))
     np.fill_diagonal(mass_matrix, node.m)
-    sparse_lib.add(A.dict_indices, node_index, node_index, mass_matrix)
+    sparse_lib.add(A, node_index, node_index, mass_matrix)
 
-@generate.as_vectorized(njit=False)
+@generate.as_vectorized
 def assemble_constraint_forces_to_A(constraint : cpn.ConstraintBase, dt, A):
     # Substract (h * df/dv + h^2 * df/dx)
     # Cannot be threaded yet
@@ -65,4 +65,4 @@ def assemble_constraint_forces_to_A(constraint : cpn.ConstraintBase, dt, A):
             Jx = constraint.dfdx[fi][j]
             global_fi_id = na.node_global_index(constraint.node_IDs[fi])
             global_j_id = na.node_global_index(constraint.node_IDs[j])
-            sparse_lib.add(A.dict_indices, global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+            sparse_lib.add(A, global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)

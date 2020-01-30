@@ -15,8 +15,7 @@ def create_empty_sparse_matrix(num_rows, block_size):
 
 @numba.njit
 def add(A, i, j, data):
-    row = A[i]
-    if j in row:
-        row[j] += data
+    if j in A[i]:
+        A[i][j] += data
     else:
-        row[j] = data
+        A[i][j] = data

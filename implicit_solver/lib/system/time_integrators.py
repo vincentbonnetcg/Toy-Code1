@@ -105,10 +105,10 @@ class ImplicitSolver(TimeIntegrator):
         A.dict_indices = tuple(sparse_lib.create_empty_sparse_matrix(num_rows, 2))
 
         # set mass matrix
-        integrator_lib.assemble_mass_matrix_to_A(details.dynamics(), A)
+        integrator_lib.assemble_mass_matrix_to_A(details.dynamics(), A.dict_indices)
 
         # add constraint force to sparse matrix
-        integrator_lib.assemble_constraint_forces_to_A(details.conditions(), dt, A)
+        integrator_lib.assemble_constraint_forces_to_A(details.conditions(), dt, A.dict_indices)
 
         # convert sparse matrix
         self.A = A.sparse_matrix()
