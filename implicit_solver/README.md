@@ -24,6 +24,9 @@ Algorithms usually based on Newton methods (or Quasi-Newton such as L-BFGS)  or 
 
 [5] Liu, Tiantian, Sofien Bouaziz, and Ladislav Kavan. "Quasi-newton methods for real-time simulation of hyperelastic materials." ACM Transactions on Graphics (TOG) 36, no. 3 (2017): 23.
 
+[6] Bouaziz, Sofien, Sebastian Martin, Tiantian Liu, Ladislav Kavan, and Mark Pauly. "Projective dynamics: fusing constraint projections for fast simulation." ACM Transactions on Graphics (TOG) 33, no. 4 (2014): 1-11.
+
+
 ### Domain-specific language papers
 
 Those DSLs simplify the code and separate the data structures to the algorithms.
