@@ -66,3 +66,9 @@ def assemble_constraint_forces_to_A(constraint : cpn.ConstraintBase, dt, A):
             global_fi_id = na.node_global_index(constraint.node_IDs[fi])
             global_j_id = na.node_global_index(constraint.node_IDs[j])
             sparse_lib.add(A, global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
+
+@numba.njit
+def assemble_A(dynamics_details, num_rows, mass_matrix_assembly_func):
+    A = sparse_lib.create_empty_sparse_matrix(num_rows, 2)
+    mass_matrix_assembly_func(dynamics_details, A)
+    return A
