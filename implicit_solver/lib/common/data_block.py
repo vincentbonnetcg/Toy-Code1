@@ -200,6 +200,9 @@ class DataBlock:
     def is_empty(self):
         return len(self.blocks)==0
 
+    def __len__(self):
+        return len(self.blocks)
+
     @staticmethod
     def create_block_handle(handles=None):
         if handles:

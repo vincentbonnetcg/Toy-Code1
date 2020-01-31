@@ -42,6 +42,19 @@ def as_vectorized(function=None, local={} , **options):
     if function is None:
         return functools.partial(as_vectorized, **options)
 
+    def isDatablock(value):
+        '''
+        Returns whether the argument 'arg' is a datablock
+        a list/tuple of numpy.void (array of complex datatypes) is also consider as a datablock
+        '''
+        if isinstance(value, common.DataBlock):
+            return True
+
+        if isinstance(value,(list, tuple)):
+            return isinstance(value[0], np.void)
+
+        return False
+
     def convert(arg):
         '''
         From DataBlock to DataBlock.blocks
@@ -68,17 +81,17 @@ def as_vectorized(function=None, local={} , **options):
 
         # Call function
         first_argument = args[0] # argument to vectorize
-        if isinstance(first_argument, (list, tuple)):
+        if isDatablock(first_argument):
+            if len(first_argument) > 0:
+                execute.function(*arg_list)
+        elif isinstance(first_argument, (list, tuple)):
             for datablock in first_argument:
-                if isinstance(datablock, common.DataBlock):
-                    if not datablock.is_empty():
+                if isDatablock(datablock):
+                    if len(datablock) > 0:
                         arg_list[0] = convert(datablock)
                         execute.function(*arg_list)
                 else:
                     raise ValueError("The first argument should be a datablock")
-        elif isinstance(first_argument, common.DataBlock):
-                if not first_argument.is_empty():
-                    execute.function(*arg_list)
         else:
             raise ValueError("The first argument should be a datablock or a list of datablocks")
 
