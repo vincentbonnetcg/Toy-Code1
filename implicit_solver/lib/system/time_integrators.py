@@ -103,12 +103,22 @@ class ImplicitSolver(TimeIntegrator):
         num_columns = self.num_nodes
         A = cm.BSRSparseMatrix(num_rows, num_columns, 2)
 
-        A.dict_indices = integrator_lib.assemble_A(details.dynamics()[0].blocks, num_rows, 
-                                                   integrator_lib.assemble_mass_matrix_to_A.function)
-        A.dict_indices = tuple(A.dict_indices)
+        # TODO : SuperUgly but issue when using Numba 0.48.0 to lower details class
+        node_blocks = details.node.blocks
+        area_blocks = details.area.blocks
+        bending_blocks = details.bending.blocks
+        spring_blocks = details.spring.blocks
+        anchorSpring_blocks = details.anchorSpring.blocks
 
-        # add constraint force to sparse matrix
-        integrator_lib.assemble_constraint_forces_to_A(details.conditions(), dt, A.dict_indices)
+        A.dict_indices = integrator_lib.assemble_A(node_blocks,
+                                                   area_blocks,
+                                                   bending_blocks,
+                                                   spring_blocks,
+                                                   anchorSpring_blocks,
+                                                   num_rows,
+                                                   dt,
+                                                   integrator_lib.assemble_mass_matrix_to_A.function,
+                                                   integrator_lib.assemble_constraint_forces_to_A.function)
 
         # convert sparse matrix
         self.A = A.sparse_matrix()

@@ -37,6 +37,7 @@ class DataBlock:
         self.block_size = block_size
         # Set class
         self.__set_field_from_type(class_type)
+        self.clear()
 
     def num_blocks(self):
         return len(self.blocks)
@@ -46,6 +47,10 @@ class DataBlock:
         Clear the data on the datablock (it doesn't reset the datatype)
         '''
         self.blocks.clear()
+        # create an inactive block
+        # it prevents to have empty list which would break the JIT compile to work
+        self.append(1)
+        self.set_active(False)
 
     def __check_before_add(self, name):
         '''
@@ -127,7 +132,7 @@ class DataBlock:
         '''
         Initialize blocks and return new block ids
         '''
-        self.blocks.clear()
+        self.clear()
         return self.append(num_elements)
 
     def append(self, num_elements : int, reuse_inactive_block : bool = False):

@@ -68,7 +68,25 @@ def assemble_constraint_forces_to_A(constraint : cpn.ConstraintBase, dt, A):
             sparse_lib.add(A, global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
 @numba.njit
-def assemble_A(dynamics_details, num_rows, mass_matrix_assembly_func):
+def assemble_A(node_blocks,
+               area_blocks,
+               bending_blocks,
+               spring_blocks,
+               anchorSpring_blocks,
+               num_rows,
+               dt,
+               mass_matrix_assembly_func,
+               constraint_matrix_assembly_func):
+
+    # create mass matrix
     A = sparse_lib.create_empty_sparse_matrix(num_rows, 2)
-    mass_matrix_assembly_func(dynamics_details, A)
+    mass_matrix_assembly_func(node_blocks, A)
+
+    # assemble constraint in matrix
+    constraint_matrix_assembly_func(area_blocks, dt, A)
+    constraint_matrix_assembly_func(bending_blocks, dt, A)
+    constraint_matrix_assembly_func(spring_blocks, dt, A)
+    constraint_matrix_assembly_func(anchorSpring_blocks, dt, A)
+
     return A
+
