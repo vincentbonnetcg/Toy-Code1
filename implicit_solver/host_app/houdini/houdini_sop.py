@@ -12,29 +12,25 @@ def fetch_mesh_data(geo):
     triangle_array = None
 
     # get points and primitives
-    points = geo.points()
     edges = geo.globEdges("*")
     primitives = geo.prims()
-
-    # allocate numpy arrays
-    num_vertices = len(points)
     num_edges = len(edges)
     num_triangles = len(primitives)
-    pos_array = np.zeros((num_vertices, 2), dtype=float)
-    edge_array = np.zeros((num_edges, 2), dtype=int)
-    triangle_array = np.zeros((num_triangles, 3), dtype=int)
 
-    # Collect Position
-    for i, point in enumerate(points):
-        point = point.position()
-        pos_array[i] = [point[0],point[1]]
+    # Collect points
+    pos_array = np.array(geo.pointFloatAttribValues('P'))
+    num_vertices = len(pos_array) / 3
+    pos_array = pos_array.reshape((num_vertices, 3))
+    pos_array = pos_array[:,0:2]
 
     # Collect Edges
+    edge_array = np.zeros((num_edges, 2), dtype=int)
     for i, edge in enumerate(edges):
         points = edge.points()
         edge_array[i] = [points[0].number(), points[1].number()]
 
     # Collect Polygon (Triangles)
+    triangle_array = np.zeros((num_triangles, 3), dtype=int)
     for i, primitive in enumerate(primitives):
         points = primitive.points()
         if len(points) == 3:
