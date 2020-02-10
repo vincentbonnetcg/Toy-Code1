@@ -25,7 +25,7 @@ import lib.common.jit.node_accessor as na
 
 class DataBlock:
 
-    def __init__(self, class_type, block_size = 100):
+    def __init__(self, class_type, block_size = 100, dummy_block=True):
         # Data
         self.blocks = list()
         # Data type
@@ -35,6 +35,9 @@ class DataBlock:
         self.dtype_dict['defaults'] = list() # list of default values (should match formats)
         # Block size
         self.block_size = block_size
+        # Dummy block creates an inactive block
+        # it prevents to have empty list which would break the JIT compile to work
+        self.dummy_block = dummy_block
         # Set class
         self.__set_field_from_type(class_type)
         self.clear()
@@ -47,10 +50,9 @@ class DataBlock:
         Clear the data on the datablock (it doesn't reset the datatype)
         '''
         self.blocks.clear()
-        # create an inactive block
-        # it prevents to have empty list which would break the JIT compile to work
-        self.append(1)
-        self.set_active(False)
+        if self.dummy_block:
+            self.append(1)
+            self.set_active(False)
 
     def __check_before_add(self, name):
         '''

@@ -21,7 +21,7 @@ class Container:
         self.data = datablock
 
 def create_datablock(num_elements=10):
-    datablock = common.DataBlock(Vertex)
+    datablock = common.DataBlock(Vertex, block_size = 100, dummy_block=False)
     datablock.initialize(num_elements)
     return datablock
 
@@ -73,7 +73,7 @@ class TestCodeGeneration(unittest.TestCase):
         source1 = add_values.source
         self.assertEqual(function0, function1)
         self.assertEqual(source0, source1)
-        self.assertEqual(add_values.njit, True)
+        self.assertEqual(add_values.options.njit, True)
 
     def test_function_without_njit(self):
         datablock0 = create_datablock(15)
