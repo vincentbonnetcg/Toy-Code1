@@ -78,8 +78,10 @@ def assemble_A(node_blocks,
                mass_matrix_assembly_func,
                constraint_matrix_assembly_func):
 
+    sub_size=2 # submatrix size
+
     # create mass matrix
-    A = sparse_lib.create_empty_sparse_matrix(num_rows, 2)
+    A = sparse_lib.create_empty_sparse_matrix(num_rows, sub_size)
     mass_matrix_assembly_func(node_blocks, A)
 
     # assemble constraint in matrix
@@ -88,10 +90,27 @@ def assemble_A(node_blocks,
     constraint_matrix_assembly_func(spring_blocks, dt, A)
     constraint_matrix_assembly_func(anchorSpring_blocks, dt, A)
 
-    # compute number of entries per row
+    # allocate and set number of entries per row
     num_entries_per_row = np.zeros(num_rows, dtype=np.int32)
     for row_id in range(num_rows):
         num_entries_per_row[row_id] = len(A[row_id])
 
-    return num_entries_per_row, A
+    # allocate column indices and array of matrix
+    total_entries = np.sum(num_entries_per_row)
+    data = np.zeros((total_entries, sub_size, sub_size))
+    column_indices = np.zeros(total_entries, dtype=np.int32)
+
+    # set column indices and array of matrix
+    idx = 0
+    for row_id in range(num_rows):
+        # numba-0.0.47 use return an array of key when sorting a dictionnary
+        # it should be fix in later version
+        sortedA = sorted(A[row_id])
+        for column_id in sortedA:
+            matrix = A[row_id][column_id]
+            column_indices[idx] = column_id
+            data[idx] = matrix
+            idx += 1
+
+    return num_entries_per_row, column_indices, data
 

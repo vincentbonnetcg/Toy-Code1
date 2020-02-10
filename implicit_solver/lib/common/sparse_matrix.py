@@ -42,22 +42,9 @@ class BSRSparseMatrix(BaseSparseMatrix):
         else:
             value += data
 
-    def sparse_matrix(self, num_entries_per_row):
-        total_entries = np.sum(num_entries_per_row)
-        min_entry_index = 0 # an entry exists in [0,0] due to mass matrix
-
-        # allocate the sparse matrix
-        column_indices = np.zeros(total_entries, dtype=int)
-        data = np.zeros((total_entries, self.block_size, self.block_size))
-        idx = 0
-        for row_id in range(self.num_rows):
-            for column_id, matrix in sorted(self.dict_indices[row_id].items()):
-                column_indices[idx] = column_id
-                data[idx] = matrix
-                idx += 1
-
+    def sparse_matrix(self, num_entries_per_row, column_indices, data):
         row_indptr = np.zeros(self.num_rows+1, dtype=int)
-        row_indptr[0] = min_entry_index
+        row_indptr[0] = 0 # minimum entry exists at [0,0] due to mass matrix
         np.add.accumulate(num_entries_per_row, out=row_indptr[1:self.num_rows+1])
 
         return sc.sparse.bsr_matrix((data, column_indices, row_indptr))

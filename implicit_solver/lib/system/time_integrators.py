@@ -100,8 +100,6 @@ class ImplicitSolver(TimeIntegrator):
         '''
         # create empty sparse matrix A
         num_rows = self.num_nodes
-        num_columns = self.num_nodes
-        A = cm.BSRSparseMatrix(num_rows, num_columns, 2)
 
         # TODO : SuperUgly but issue when using Numba 0.48.0 to lower details class
         node_blocks = details.node.blocks
@@ -110,7 +108,7 @@ class ImplicitSolver(TimeIntegrator):
         spring_blocks = details.spring.blocks
         anchorSpring_blocks = details.anchorSpring.blocks
 
-        num_entries_per_row, A.dict_indices = integrator_lib.assemble_A(node_blocks,
+        num_entries_per_row, column_indices, data = integrator_lib.assemble_A(node_blocks,
                                                    area_blocks,
                                                    bending_blocks,
                                                    spring_blocks,
@@ -120,8 +118,12 @@ class ImplicitSolver(TimeIntegrator):
                                                    integrator_lib.assemble_mass_matrix_to_A.function,
                                                    integrator_lib.assemble_constraint_forces_to_A.function)
 
-        # convert sparse matrix
-        self.A = A.sparse_matrix(num_entries_per_row)
+        # allocate row indices
+        row_indptr = np.zeros(num_rows+1, dtype=np.int32)
+        row_indptr[0] = 0 # minimum entry exists at [0,0] due to mass matrix
+        np.add.accumulate(num_entries_per_row, out=row_indptr[1:num_rows+1])
+
+        self.A = scipy.sparse.bsr_matrix((data, column_indices, row_indptr))
 
     @cm.timeit
     def _assemble_b(self, details, dt):
