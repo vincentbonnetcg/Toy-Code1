@@ -88,5 +88,10 @@ def assemble_A(node_blocks,
     constraint_matrix_assembly_func(spring_blocks, dt, A)
     constraint_matrix_assembly_func(anchorSpring_blocks, dt, A)
 
-    return A
+    # compute number of entries per row
+    num_entries_per_row = np.zeros(num_rows, dtype=np.int32)
+    for row_id in range(num_rows):
+        num_entries_per_row[row_id] = len(A[row_id])
+
+    return num_entries_per_row, A
 

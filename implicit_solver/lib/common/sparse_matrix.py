@@ -42,15 +42,7 @@ class BSRSparseMatrix(BaseSparseMatrix):
         else:
             value += data
 
-    def get_num_entries_per_row(self):
-        num_entries_per_row = np.zeros(self.num_rows, dtype=int)
-        for row_id in range(self.num_rows):
-            num_entries_per_row[row_id] = len(self.dict_indices[row_id])
-
-        return num_entries_per_row
-
-    def sparse_matrix(self):
-        num_entries_per_row = self.get_num_entries_per_row()
+    def sparse_matrix(self, num_entries_per_row):
         total_entries = np.sum(num_entries_per_row)
         min_entry_index = 0 # an entry exists in [0,0] due to mass matrix
 

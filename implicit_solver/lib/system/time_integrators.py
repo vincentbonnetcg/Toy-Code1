@@ -110,7 +110,7 @@ class ImplicitSolver(TimeIntegrator):
         spring_blocks = details.spring.blocks
         anchorSpring_blocks = details.anchorSpring.blocks
 
-        A.dict_indices = integrator_lib.assemble_A(node_blocks,
+        num_entries_per_row, A.dict_indices = integrator_lib.assemble_A(node_blocks,
                                                    area_blocks,
                                                    bending_blocks,
                                                    spring_blocks,
@@ -121,7 +121,7 @@ class ImplicitSolver(TimeIntegrator):
                                                    integrator_lib.assemble_constraint_forces_to_A.function)
 
         # convert sparse matrix
-        self.A = A.sparse_matrix()
+        self.A = A.sparse_matrix(num_entries_per_row)
 
     @cm.timeit
     def _assemble_b(self, details, dt):
