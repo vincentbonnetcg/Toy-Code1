@@ -43,7 +43,7 @@ class BSRSparseMatrix(BaseSparseMatrix):
             value += data
 
     def get_num_entries_per_row(self):
-        num_entries_per_row = np.zeros(self.num_columns, dtype=int)
+        num_entries_per_row = np.zeros(self.num_rows, dtype=int)
         for row_id in range(self.num_rows):
             num_entries_per_row[row_id] = len(self.dict_indices[row_id])
 
