@@ -69,9 +69,8 @@ class Render:
 
         # Draw constraints
         for condition_id, condition in enumerate(scene.conditions):
-            num_constraints = condition.num_constraints()
-            stats_total_constraints += num_constraints
-            #stats_avg_block_per_constraints += condition.data.num_blocks() TODO
+            stats_total_constraints += condition.num_constraints()
+            stats_avg_block_per_constraints += condition.num_blocks()
             render_prefs = condition.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
@@ -92,7 +91,7 @@ class Render:
         # Draw nodes
         for dynamic_id, dynamic in enumerate(scene.dynamics):
             stats_total_nodes += dynamic.num_nodes()
-            #stats_avg_block_per_objects += dispatcher.get_dynamic_num_block() TODO
+            stats_avg_block_per_objects += dynamic.num_blocks()
 
             render_prefs = dynamic.meta_data.get("render_prefs" , None)
             if render_prefs is None:

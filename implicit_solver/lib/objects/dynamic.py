@@ -34,6 +34,9 @@ class Dynamic:
     def num_nodes(self) -> int:
         return self.total_nodes
 
+    def num_blocks(self) -> int:
+        return len(self.block_handles)
+
     def set_indexing(self, index):
         self.index = index
 

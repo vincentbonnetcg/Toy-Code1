@@ -23,6 +23,9 @@ class Condition:
     def num_constraints(self) -> int:
         return self.total_constraints
 
+    def num_blocks(self) -> int:
+        return len(self.block_handles)
+
     def is_static(self) -> bool:
         '''
         Returns whether or not the created constraints are dynamic or static
