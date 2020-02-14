@@ -44,9 +44,9 @@ def initialize(scene, solver, details, context):
     '''
     solver.initialize(scene, details, context)
 
-def get_position_from_dynamic(scene, index, details):
+def get_nodes_from_dynamic(scene, index, details):
     '''
-    Get position from dynamic object
+    Get node position from dynamic object
     '''
     dynamic = scene.dynamics[index]
     return details.node.flatten('x', dynamic.block_handles)

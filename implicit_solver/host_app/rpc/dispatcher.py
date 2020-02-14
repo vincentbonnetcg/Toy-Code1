@@ -96,7 +96,7 @@ class CommandSolverDispatcher(CommandDispatcher):
         self.register_cmd(sim_cmds.add_dynamic)
         self.register_cmd(sim_cmds.add_kinematic)
         self.register_cmd(sim_cmds.solve_to_next_frame)
-        self.register_cmd(sim_cmds.get_position_from_dynamic)
+        self.register_cmd(sim_cmds.get_nodes_from_dynamic)
         self.register_cmd(sim_cmds.get_segments_from_constraint)
         self.register_cmd(sim_cmds.set_render_prefs)
         self.register_cmd(subclass_cmds.add_gravity)

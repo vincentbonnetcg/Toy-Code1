@@ -22,18 +22,17 @@ class Shape:
         self.vertex = np.zeros((num_vertices, 2), dtype=float)
         self.edge = np.zeros((num_edges, 2), dtype=int)
         self.face = np.zeros((num_faces, 3), dtype=int)
-        self.position = np.zeros(2)
-        self.rotation = 0.0
 
     def compute_best_transform(self):
         '''
         Returns the 'optimal' position and modify the shape vertices from world space to local space
         Optimal rotation is not computed yet
         '''
-        self.position = np.average(self.vertex, axis=0)
-        np.subtract(self.vertex, self.position, out=self.vertex)
-        self.rotation = 0
-        return self.position, self.rotation
+        position = np.average(self.vertex, axis=0)
+        np.subtract(self.vertex, position, out=self.vertex)
+        rotation = 0.0
+
+        return position, rotation
 
     def num_vertices(self):
         return len(self.vertex)
@@ -43,3 +42,4 @@ class Shape:
 
     def num_faces(self):
         return len(self.face)
+

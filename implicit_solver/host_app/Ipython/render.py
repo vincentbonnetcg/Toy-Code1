@@ -97,7 +97,7 @@ class Render:
             if render_prefs is None:
                 continue
 
-            dynamic_data = dispatcher.run('get_position_from_dynamic', index=dynamic_id)
+            dynamic_data = dispatcher.run('get_nodes_from_dynamic', index=dynamic_id)
             x, y = zip(*dynamic_data)
             self.ax.plot(x, y, '.', alpha=render_prefs['alpha'], color=render_prefs['color'], markersize = render_prefs['width'])
 

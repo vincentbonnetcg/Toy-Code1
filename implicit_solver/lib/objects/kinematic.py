@@ -17,7 +17,7 @@ class Kinematic:
         '''
         def __init__(self, position, rotation):
             self.linear_velocity = np.zeros(2)
-            self.angular_velocity = 0.0
+            self.angular_velocity = float(0.0)
             self.rotation_matrix = np.zeros((2,2))
             self.inverse_rotation_matrix = np.zeros((2,2))
             self.update(position, rotation)
@@ -52,6 +52,9 @@ class Kinematic:
         self.state = Kinematic.State(position = position, rotation = rotation)
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
         self.meta_data = {} # Metadata
+        self.vertices = np.copy(shape.vertex)
+        self.edge_ids = np.copy(shape.edge)
+        self.face_ids = np.copy(shape.face)
 
     def set_indexing(self, index):
         self.index = index
