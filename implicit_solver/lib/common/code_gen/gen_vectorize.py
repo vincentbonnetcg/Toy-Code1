@@ -34,6 +34,18 @@ def generate_vectorize_function(function, options : gen.CodeGenOptions):
 
     return helper.generated_function_source, locals().get(helper.generated_function_name)
 
+def convert_argument(arg):
+    '''
+    From DataBlock to DataBlock.blocks
+    '''
+    if isinstance(arg, common.DataBlock):
+        if isinstance(arg.blocks, tuple):
+            return arg.blocks
+        else:
+            raise ValueError("The blocks should be in a tuple. use datablock.lock()")
+
+    return arg
+
 def as_vectorized(function=None, local={} , **options):
     '''
     Decorator with arguments to vectorize a function
@@ -55,18 +67,6 @@ def as_vectorized(function=None, local={} , **options):
 
         return False
 
-    def convert(arg):
-        '''
-        From DataBlock to DataBlock.blocks
-        '''
-        if isinstance(arg, common.DataBlock):
-            if isinstance(arg.blocks, tuple):
-                return arg.blocks
-            else:
-                raise ValueError("The blocks should be in a tuple. use datablock.lock()")
-
-        return arg
-
     @functools.wraps(function)
     def execute(*args):
         '''
@@ -77,7 +77,7 @@ def as_vectorized(function=None, local={} , **options):
         # Fetch numpy array from common.DataBlock
         arg_list = list(args)
         for arg_id , arg in enumerate(arg_list):
-            arg_list[arg_id] = convert(arg)
+            arg_list[arg_id] = convert_argument(arg)
 
         # Call function
         first_argument = args[0] # argument to vectorize
@@ -88,7 +88,7 @@ def as_vectorized(function=None, local={} , **options):
             for datablock in first_argument:
                 if isDatablock(datablock):
                     if len(datablock) > 0:
-                        arg_list[0] = convert(datablock)
+                        arg_list[0] = convert_argument(datablock)
                         execute.function(*arg_list)
                 else:
                     raise ValueError("The first argument should be a datablock")
@@ -104,3 +104,5 @@ def as_vectorized(function=None, local={} , **options):
     execute.function = function
 
     return execute
+
+
