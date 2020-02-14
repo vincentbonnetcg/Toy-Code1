@@ -6,6 +6,7 @@
 import math
 import numpy as np
 from lib.common.convex_hull import ConvexHull
+from lib.common import Shape
 
 class Kinematic:
     '''
@@ -50,21 +51,25 @@ class Kinematic:
     def __init__(self, shape, position = (0., 0.), rotation = 0.):
         self.convex_hull = ConvexHull(shape.vertex)
         self.state = Kinematic.State(position = position, rotation = rotation)
-        self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
-        self.meta_data = {} # Metadata
         self.vertices = np.copy(shape.vertex)
         self.edge_ids = np.copy(shape.edge)
         self.face_ids = np.copy(shape.face)
+        self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
+        self.meta_data = {} # Metadata
 
     def set_indexing(self, index):
         self.index = index
 
-    def get_vertices(self, localSpace):
-        if localSpace:
-            return self.convex_hull.counter_clockwise_points
-        R = self.state.rotation_matrix
-        point_ws = np.matmul(self.convex_hull.counter_clockwise_points, R)
-        return np.add(point_ws, self.state.position)
+    def get_shape(self):
+        shape = Shape(len(self.vertices), len(self.edge_ids), len(self.face_ids))
+        np.copyto(shape.vertex, self.vertices)
+        np.copyto(shape.edge, self.edge_ids)
+        np.copyto(shape.face, self.face_ids)
+
+        np.matmul(shape.vertex, self.state.rotation_matrix, out=shape.vertex)
+        np.add(shape.vertex, self.state.position, out=shape.vertex)
+
+        return shape
 
     def get_closest_parametric_point(self, point):
         '''

@@ -99,7 +99,9 @@ class Render:
 
             dynamic_data = dispatcher.run('get_nodes_from_dynamic', index=dynamic_id)
             x, y = zip(*dynamic_data)
-            self.ax.plot(x, y, '.', alpha=render_prefs['alpha'], color=render_prefs['color'], markersize = render_prefs['width'])
+            self.ax.plot(x, y, '.', alpha=render_prefs['alpha'],
+                                     color=render_prefs['color'],
+                                     markersize = render_prefs['width'])
 
         stats_avg_block_per_objects /= len(scene.dynamics)
         stats_avg_block_per_objects = round(stats_avg_block_per_objects, 2)
@@ -110,9 +112,18 @@ class Render:
             if render_prefs is None:
                 continue
 
-            vertices = kinematic.get_vertices(False)
-            polygon  = patches.Polygon(vertices, facecolor=render_prefs['color'], alpha=render_prefs['alpha'])
-            self.ax.add_patch(polygon)
+            triangles = []
+            shape = kinematic.get_shape()
+            for face_id in shape.face:
+                v0 = shape.vertex[face_id[0]]
+                v1 = shape.vertex[face_id[1]]
+                v2 = shape.vertex[face_id[2]]
+                triangles.append([v0, v1, v2])
+
+            collec = collections.PolyCollection(triangles, facecolors=render_prefs['color'],
+                                                            edgecolors=render_prefs['color'],
+                                                            alpha=render_prefs['alpha'])
+            self.ax.add_collection(collec)
 
         # Add Legend
         red_patch = patches.Patch(color='red', label=str(stats_total_nodes) + ' nodes')
