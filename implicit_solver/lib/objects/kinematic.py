@@ -17,13 +17,15 @@ class Kinematic:
         State of a kinematic object
         '''
         def __init__(self, position, rotation):
+            self.position = np.zeros(2)
+            self.rotation = np.float(0.0)
             self.linear_velocity = np.zeros(2)
-            self.angular_velocity = float(0.0)
+            self.angular_velocity = np.float(0.0)
             self.rotation_matrix = np.zeros((2,2))
             self.inverse_rotation_matrix = np.zeros((2,2))
             self.update(position, rotation)
 
-        def update(self, position, rotation, dt = 0.0):
+        def update(self, position = (0.0, 0.0), rotation = 0.0, dt = 0.0):
             '''
             Updates the state
             '''
@@ -37,8 +39,8 @@ class Kinematic:
                     self.angular_velocity = shortest_angle * inv_dt
 
             # Updates position and rotation
-            self.position = position
-            self.rotation = rotation
+            self.position = np.asarray(position)
+            self.rotation = np.float(rotation)
 
             # Update rotation matrices
             theta = np.radians(self.rotation)
