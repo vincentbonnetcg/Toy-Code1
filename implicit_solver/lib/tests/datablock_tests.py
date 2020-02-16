@@ -22,9 +22,9 @@ def create_datablock(num_elements, block_size = 100):
     return datablock
 
 '''
-Datablock Tests
+Tests for datablock
 '''
-class TestDataBlock(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def test_datatype(self):
         datablock = create_datablock(num_elements=10)
@@ -102,7 +102,7 @@ class TestDataBlock(unittest.TestCase):
         self.assertEqual(datablock.blocks[3]['blockInfo_active'], True)
 
     def setUp(self):
-        print(" TestDataBlock:", self._testMethodName)
+        print(" DataBlock Test:", self._testMethodName)
 
 if __name__ == '__main__':
-    unittest.main(TestDataBlock())
+    unittest.main(Tests())

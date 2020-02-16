@@ -16,7 +16,7 @@ def vertex_ids_neighbours(vertex_ids):
 
 class Shape:
     '''
-    Shape contains a list of points and edge+face connectivities
+    Shape contains a flat list of vertices and connectivities (edge,face)
     '''
     def __init__(self, num_vertices, num_edges=0, num_faces=0):
         self.vertex = np.zeros((num_vertices, 2), dtype=float)
@@ -42,4 +42,30 @@ class Shape:
 
     def num_faces(self):
         return len(self.face)
+
+    def get_edges_on_surface(self):
+        edges_map = dict()
+
+        for face_vtx in self.face:
+            for i in range(3):
+                vtx0 = face_vtx[i]
+                vtx1 = face_vtx[(i+1)%3]
+
+                # create a edge_key
+                edge_key = tuple([vtx0,vtx1])
+                if edge_key[0] > edge_key[1]:
+                    edge_key = tuple([vtx1,vtx0])
+
+                # add coutner on the edge
+                counter = edges_map.get(edge_key, 0)
+                edges_map[edge_key] = counter+1
+
+        # retrieve the surface edges
+        surface_edges = []
+        for k, v in edges_map.items():
+            if v == 1:
+                surface_edges.append(k)
+
+        return np.asarray(surface_edges)
+
 

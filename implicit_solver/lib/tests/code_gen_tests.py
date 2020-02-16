@@ -38,9 +38,9 @@ def add_values_to_list(v0 : Vertex, v1 : Vertex, out_list):
     out_list.append(v0.x + v1.x)
 
 '''
-CodeGen Tests
+Tests for code generation
 '''
-class TestCodeGeneration(unittest.TestCase):
+class Tests(unittest.TestCase):
 
     def test_generated_function_with_numpy_input(self):
         datablock0 = create_datablock()
@@ -86,7 +86,7 @@ class TestCodeGeneration(unittest.TestCase):
         self.assertEqual(result_list[0][0][0], 4.2)
 
     def setUp(self):
-        print(" TestCodeGeneration:", self._testMethodName)
+        print(" CodeGeneration Test:", self._testMethodName)
 
 if __name__ == '__main__':
-    unittest.main(TestCodeGeneration())
+    unittest.main(Tests())

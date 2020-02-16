@@ -33,19 +33,11 @@ class RectangleShape(Shape):
     def __init__(self, min_x, min_y, max_x, max_y):
         Shape.__init__(self, num_vertices=4, num_edges=5, num_faces=2)
         # Set vertex positions
-        self.vertex[0] = (min_x, min_y)
-        self.vertex[1] = (min_x, max_y)
-        self.vertex[2] = (max_x, max_y)
-        self.vertex[3] = (max_x, min_y)
-        # Set edges
-        self.edge[0] = (0, 1)
-        self.edge[1] = (1, 2)
-        self.edge[2] = (2, 0)
-        self.edge[3] = (2, 3)
-        self.edge[4] = (3, 0)
-        # Set faces
-        self.face[0] = (0, 1, 2)
-        self.face[1] = (0, 2, 3)
+        self.vertex[:] = ((min_x, min_y), (min_x, max_y),
+                          (max_x, max_y), (max_x, min_y))
+        # Set connectivities (edge and face)
+        self.edge[:] = ((0, 1),(1,2),(2, 0),(2, 3),(3,0))
+        self.face[:] = ((0, 1, 2),(0, 2, 3))
 
 class BeamShape(Shape):
     '''
