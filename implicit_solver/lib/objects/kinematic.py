@@ -124,7 +124,28 @@ class Kinematic:
         '''
         Returns whether or not the point is inside the kinematic
         '''
-        return False # Temporary disable collision before fixing get_normal_from_parametric_point
         inv_R = self.state.inverse_rotation_matrix
         local_point = np.matmul(point - self.state.position, inv_R)
-        return self.convex_hull.is_inside(local_point)
+
+        isinside = False
+        for face_ids in self.face_ids:
+            edge_vtx = np.take(self.vertices, face_ids, axis=0)
+            v0 = edge_vtx[2] - edge_vtx[0]
+            v1 = edge_vtx[1] - edge_vtx[0]
+            v2 = local_point - edge_vtx[0]
+
+            dot00 = math2D.dot(v0, v0)
+            dot01 = math2D.dot(v0, v1)
+            dot02 = math2D.dot(v0, v2)
+            dot11 = math2D.dot(v1, v1)
+            dot12 = math2D.dot(v1, v2)
+
+            inv = 1.0 / (dot00 * dot11 - dot01 * dot01)
+            a = (dot11 * dot02 - dot01 * dot12) * inv
+            b = (dot00 * dot12 - dot01 * dot02) * inv
+
+            if a>=0 and b>=0 and a+b<=1:
+                isinside = True
+
+        #return self.convex_hull.is_inside(local_point)
+        return False
