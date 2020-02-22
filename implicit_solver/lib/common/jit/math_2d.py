@@ -7,32 +7,39 @@ import numba
 import numpy as np
 
 @numba.njit
-def dot(v0, v1):
+def dot(u, v):
     '''
     Returns the dotproduct of a 2D vector
     np.dot is generic and fast for array but slow for a single for scalar
     Therefore, it is replaced by a less generic norm
     '''
-    return (v0[0] * v1[0]) + (v0[1] * v1[1])
+    return (u[0] * v[0]) + (u[1] * v[1])
 
 @numba.njit
-def norm(vector):
+def det(u, v):
+    '''
+    Returns the determinant of the matrix formed from the column vectors u and v
+    '''
+    return (u[0] * v[1]) (u[1] * v[0])
+
+@numba.njit
+def norm(v):
     '''
     Returns the norm of a 2D vector
     np.linalg.norm is generic and fast for array but slow for a single for scalar
     Therefore, it is replaced by a less generic norm
     '''
-    dot = (vector[0] * vector[0]) + (vector[1] * vector[1])
+    dot = (v[0] * v[0]) + (v[1] * v[1])
     return math.sqrt(dot)
 
 @numba.njit
-def is_close(value0, value1, tol=1.e-8):
+def is_close(v0, v1, tol=1.e-8):
     '''
     Returns whether two scalar are similar
     np.isclose is generic and fast for array but slow for a single for scalar
     Therefore, it is replaced by a less generic norm
     '''
-    return math.fabs(value0 - value1) < tol
+    return math.fabs(v0 - v1) < tol
 
 @numba.njit
 def distance(x0, x1):
