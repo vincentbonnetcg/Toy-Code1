@@ -20,7 +20,7 @@ def det(u, v):
     '''
     Returns the determinant of the matrix formed from the column vectors u and v
     '''
-    return (u[0] * v[1]) (u[1] * v[0])
+    return (u[0] * v[1]) - (u[1] * v[0])
 
 @numba.njit
 def norm(v):
