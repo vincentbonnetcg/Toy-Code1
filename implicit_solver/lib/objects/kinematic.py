@@ -64,6 +64,7 @@ class Kinematic:
         self.edge_ids = np.copy(shape.edge)
         self.face_ids = np.copy(shape.face)
         self.surface_edge_ids = shape.get_edges_on_surface()
+        self.surface_edge_normals = shape.get_edge_normals_on_surface()
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
         self.meta_data = {} # Metadata
 
@@ -116,7 +117,7 @@ class Kinematic:
         return np.matmul(local_point, R) + self.state.position
 
     def get_normal_from_parametric_point(self, param):
-        local_normal = self.convex_hull.get_normal_from_parametric_point(param)
+        local_normal = self.surface_edge_normals[param.index]
         R = self.state.rotation_matrix
         return np.matmul(local_normal, R)
 
@@ -127,7 +128,6 @@ class Kinematic:
         inv_R = self.state.inverse_rotation_matrix
         local_point = np.matmul(point - self.state.position, inv_R)
 
-        isinside = False
         for face_ids in self.face_ids:
             edge_vtx = np.take(self.vertices, face_ids, axis=0)
             v0 = edge_vtx[2] - edge_vtx[0]
@@ -145,7 +145,6 @@ class Kinematic:
             b = (dot00 * dot12 - dot01 * dot02) * inv
 
             if a>=0 and b>=0 and a+b<=1:
-                isinside = True
+                return True
 
-        #return self.convex_hull.is_inside(local_point)
         return False
