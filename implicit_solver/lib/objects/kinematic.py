@@ -5,7 +5,7 @@
 
 import math
 import numpy as np
-from lib.common import ConvexHull, Shape
+from lib.common import Shape
 import lib.common.jit.math_2d as math2D
 
 class Kinematic:
@@ -58,7 +58,6 @@ class Kinematic:
             self.inverse_rotation_matrix = np.array(((c, -s), (s, c)))
 
     def __init__(self, shape, position = (0., 0.), rotation = 0.):
-        self.convex_hull = ConvexHull(shape.vertex)
         self.state = Kinematic.State(position = position, rotation = rotation)
         self.vertices = np.copy(shape.vertex)
         self.edge_ids = np.copy(shape.edge)

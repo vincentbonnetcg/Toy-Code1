@@ -8,9 +8,9 @@ import numpy as np
 import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
 import lib.common.code_gen as generate
-import lib.common.convex_hull as ch
 import lib.objects.components_jit.utils.spring_lib as spring_lib
 import lib.objects.components_jit as cpn
+from lib.objects import Kinematic
 
 class AnchorSpring(cpn.ConstraintBase):
     '''
@@ -70,7 +70,7 @@ AnchorSpring compute functions
 @generate.as_vectorized(njit=False, block_handles=True)
 def pre_compute_anchor_spring(anchor_spring : AnchorSpring, scene, detail_nodes):
     kinematic = scene.kinematics[anchor_spring.kinematic_index]
-    point_params = ch.ConvexHull.ParametricPoint(anchor_spring.kinematic_component_index, anchor_spring.kinematic_component_param)
+    point_params = Kinematic.ParametricPoint(anchor_spring.kinematic_component_index, anchor_spring.kinematic_component_param)
     anchor_spring.kinematic_component_pos = kinematic.get_position_from_parametric_point(point_params)
 
 @generate.as_vectorized(block_handles=True)
