@@ -62,8 +62,7 @@ class Kinematic:
         self.vertices = np.copy(shape.vertex)
         self.edge_ids = np.copy(shape.edge)
         self.face_ids = np.copy(shape.face)
-        self.surface_edge_ids = shape.get_edges_on_surface()
-        self.surface_edge_normals = shape.get_edge_normals_on_surface()
+        self.surface_edge_ids, self.surface_edge_normals = shape.get_edge_surface_data()
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
         self.meta_data = {} # Metadata
 

@@ -44,32 +44,10 @@ class Shape:
     def num_faces(self):
         return len(self.face)
 
-    def get_edges_on_surface(self):
-        edges_map = dict()
-
-        for face_vtx in self.face:
-            for i in range(3): # loop around the edges
-                vtx0 = face_vtx[i]
-                vtx1 = face_vtx[(i+1)%3]
-
-                # create a edge_key
-                edge_key = tuple([vtx0,vtx1])
-                if edge_key[0] > edge_key[1]:
-                    edge_key = tuple([vtx1,vtx0])
-
-                # add counter on the edge
-                counter = edges_map.get(edge_key, 0)
-                edges_map[edge_key] = counter+1
-
-        # retrieve the surface edges
-        surface_edges = []
-        for k, v in edges_map.items():
-            if v == 1:
-                surface_edges.append(k)
-
-        return np.asarray(surface_edges)
-
-    def get_edge_normals_on_surface(self):
+    def get_edge_surface_data(self):
+        '''
+        Returns the edge ids on the surface and associated normals
+        '''
         edges_map = dict()
 
         for face_vtx in self.face:
@@ -97,10 +75,13 @@ class Shape:
                 edges_map[edge_key] = info
 
         # retrieve the surface edges
-        edge_normals = []
+        surface_edge_normals = []
+        surface_edge_ids = []
+
         for k, v in edges_map.items():
             if v[0] == 1:
-                edge_normals.append(v[1])
+                surface_edge_normals.append(v[1])
+                surface_edge_ids.append(k)
 
-        return np.asarray(edge_normals)
+        return np.asarray(surface_edge_ids), np.asarray(surface_edge_normals)
 

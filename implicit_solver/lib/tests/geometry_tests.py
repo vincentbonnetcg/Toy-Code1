@@ -19,8 +19,9 @@ def createTriangulatedSquareShape():
 class Tests(unittest.TestCase):
     def test_edges_on_surface(self):
         shape = createTriangulatedSquareShape()
-        edges_on_surface = shape.get_edges_on_surface()
-        self.assertEqual(len(edges_on_surface), 4)
+        edges_ids, edge_normals = shape.get_edge_surface_data()
+        self.assertEqual(len(edges_ids), 4)
+        self.assertEqual(len(edge_normals), 4)
 
     def setUp(self):
         print(" Geometry Test:", self._testMethodName)
