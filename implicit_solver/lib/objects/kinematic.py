@@ -60,7 +60,6 @@ class Kinematic:
     def __init__(self, shape, position = (0., 0.), rotation = 0.):
         self.state = Kinematic.State(position = position, rotation = rotation)
         self.vertices = np.copy(shape.vertex)
-        self.edge_ids = np.copy(shape.edge)
         self.face_ids = np.copy(shape.face)
         self.surface_edge_ids, self.surface_edge_normals = shape.get_edge_surface_data()
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
@@ -70,9 +69,9 @@ class Kinematic:
         self.index = index
 
     def get_shape(self):
-        shape = Shape(len(self.vertices), len(self.edge_ids), len(self.face_ids))
+        shape = Shape(len(self.vertices), len(self.surface_edge_ids), len(self.face_ids))
         np.copyto(shape.vertex, self.vertices)
-        np.copyto(shape.edge, self.edge_ids)
+        np.copyto(shape.edge, self.surface_edge_ids)
         np.copyto(shape.face, self.face_ids)
 
         np.matmul(shape.vertex, self.state.rotation_matrix, out=shape.vertex)
