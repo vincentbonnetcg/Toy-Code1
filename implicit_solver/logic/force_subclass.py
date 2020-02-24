@@ -5,7 +5,7 @@
 
 import numpy as np
 from lib.objects import Force
-import lib.objects.components_jit as cpn
+import lib.objects.jit as cpn
 import lib.common.code_gen as generate
 
 @generate.as_vectorized

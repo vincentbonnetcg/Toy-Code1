@@ -7,7 +7,7 @@ import numpy as np
 
 import lib.common.jit.node_accessor as na
 import lib.common.code_gen as generate
-import lib.objects.components_jit as cpn
+import lib.objects.jit as cpn
 from . import sparse_matrix_lib as sparse_lib
 
 def apply_external_forces_to_nodes(dynamics, forces):

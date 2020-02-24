@@ -5,7 +5,7 @@
 
 import numpy as np
 
-import lib.objects.components_jit as cpn
+import lib.objects.jit as cpn
 from lib.objects import Condition
 import lib.common as common
 from lib.system import Scene

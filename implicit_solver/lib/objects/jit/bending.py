@@ -8,8 +8,8 @@ import numpy as np
 import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
 import lib.common.code_gen as generate
-import lib.objects.components_jit.utils.bending_lib as bending_lib
-import lib.objects.components_jit as cpn
+import lib.objects.jit.utils.bending_lib as bending_lib
+import lib.objects.jit as cpn
 
 class Bending(cpn.ConstraintBase):
     '''

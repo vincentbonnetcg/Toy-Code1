@@ -4,7 +4,7 @@
 """
 
 import lib.common as cm
-import lib.objects.components_jit as cpn
+import lib.objects.jit as cpn
 from lib.system import Scene
 
 class SolverContext:
