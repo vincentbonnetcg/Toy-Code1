@@ -6,8 +6,7 @@
 import math
 import numpy as np
 from lib.common import Shape
-import lib.common.jit.math_2d as math2D
-import lib.common.jit.geometry_lib as geo
+import lib.common.jit.geometry_2d as geo
 
 class Kinematic:
     '''
