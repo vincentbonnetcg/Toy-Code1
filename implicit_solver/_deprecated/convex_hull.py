@@ -27,7 +27,7 @@ class ConvexHull:
         self.equations = hull.equations
         self.counter_clockwise_points = np.take(hull.points, hull.vertices, axis=0)
 
-    def get_closest_parametric_point(self, point):
+    def get_closest_parametric_value(self, point):
         '''
         Projects the point on the closest segment of the convex hull and
         returns the closest parametric value as a tuple [edgeId, ratio]

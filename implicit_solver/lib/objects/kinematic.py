@@ -80,7 +80,7 @@ class Kinematic:
 
         return shape
 
-    def get_closest_parametric_point(self, point):
+    def get_closest_parametric_value(self, point):
         '''
         Returns a pair [edgeId, line parameter (t)] which define
         the closest point on the convex hull
@@ -88,25 +88,8 @@ class Kinematic:
         inv_R = self.state.inverse_rotation_matrix
         local_point = np.matmul(point - self.state.position, inv_R)
 
-        edge_param = Kinematic.ParametricPoint(-1, 0.0)
-        min_distance2 = np.finfo(np.float64).max
-        for index, edge_ids in enumerate(self.surface_edge_ids):
-            edge_vtx = np.take(self.vertices, edge_ids, axis=0)# could be precomputed
-            edge_dir = edge_vtx[1] - edge_vtx[0] # could be precomputed
-            edge_dir_square = math2D.dot(edge_dir, edge_dir) # could be precomputed
-            proj_p = math2D.dot(local_point - edge_vtx[0], edge_dir)
-            t = proj_p / edge_dir_square
-            t = max(min(t, 1.0), 0.0)
-            projected_point = edge_vtx[0] + edge_dir * t # correct the project point
-            vector_distance = (local_point - projected_point)
-            distance2 = math2D.dot(vector_distance, vector_distance)
-            # update the minimum distance
-            if distance2 < min_distance2:
-                edge_param.index = index
-                edge_param.t = t
-                min_distance2 = distance2
-
-        return edge_param
+        edge_id, edge_t = geo.get_closest_parametric_value(local_point, self.vertices, self.surface_edge_ids)
+        return Kinematic.ParametricPoint(edge_id, edge_t)
 
     def get_position_from_parametric_point(self, param):
         edge_vtx = np.take(self.vertices, self.surface_edge_ids[param.index], axis=0)

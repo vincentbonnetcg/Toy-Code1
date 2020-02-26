@@ -5,6 +5,7 @@
 
 import numba
 import lib.common.jit.math_2d as math2D
+import numpy as np
 
 @numba.njit
 def is_inside(point, vertices, face_ids):
@@ -32,3 +33,29 @@ def is_inside(point, vertices, face_ids):
 
     return False
 
+@numba.njit
+def get_closest_parametric_value(point, vertices, edge_ids):
+    edge_id = -1
+    edge_t = 0.0
+
+    min_distance2 = np.finfo(np.float64).max
+
+    for i in range(len(edge_ids)):
+        edge_vtx = [vertices[edge_ids[i][0]],
+                    vertices[edge_ids[i][1]]]
+
+        edge_dir = edge_vtx[1] - edge_vtx[0] # could be precomputed
+        edge_dir_square = math2D.dot(edge_dir, edge_dir) # could be precomputed
+        proj_p = math2D.dot(point - edge_vtx[0], edge_dir)
+        t = proj_p / edge_dir_square
+        t = max(min(t, 1.0), 0.0)
+        projected_point = edge_vtx[0] + edge_dir * t # correct the project point
+        vector_distance = (point - projected_point)
+        distance2 = math2D.dot(vector_distance, vector_distance)
+        # update the minimum distance
+        if distance2 < min_distance2:
+            edge_id = i
+            edge_t = t
+            min_distance2 = distance2
+
+    return edge_id, edge_t
