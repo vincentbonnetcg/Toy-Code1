@@ -43,7 +43,7 @@ class Dynamic:
     def get_node_id(self, vertex_index) -> int:
         return self.node_ids[vertex_index]
 
-    def convert_to_shape(self, details):
+    def get_as_shape(self, details):
         '''
         Create a simple shape from the dynamic datablock and
         node connectivities

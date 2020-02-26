@@ -68,7 +68,7 @@ class Kinematic:
     def set_indexing(self, index):
         self.index = index
 
-    def get_shape(self):
+    def get_as_shape(self):
         shape = Shape(len(self.vertices), len(self.surface_edge_ids), len(self.face_ids))
         np.copyto(shape.vertex, self.vertices)
         np.copyto(shape.edge, self.surface_edge_ids)

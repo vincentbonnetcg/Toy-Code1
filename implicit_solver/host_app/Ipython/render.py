@@ -113,7 +113,7 @@ class Render:
                 continue
 
             triangles = []
-            shape = kinematic.get_shape()
+            shape = kinematic.get_as_shape()
             for face_id in shape.face:
                 v0 = shape.vertex[face_id[0]]
                 v1 = shape.vertex[face_id[1]]
