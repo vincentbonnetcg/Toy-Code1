@@ -3,7 +3,6 @@
 @description : conditions create a list of constraints from a list of objects
 """
 
-import numpy as np
 import lib.common as common
 
 class Condition:
