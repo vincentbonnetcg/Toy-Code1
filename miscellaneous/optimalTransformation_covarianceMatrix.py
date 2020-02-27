@@ -86,10 +86,10 @@ def drawPointsAndFrame(pointData):
 
     vec0 = np.reshape(frames[0], (2, 1))
     vec1 = np.reshape(frames[1], (2, 1))
-    vec0x = np.asscalar(vec0[0])
-    vec0y = np.asscalar(vec0[1])
-    vec1x = np.asscalar(vec1[0])
-    vec1y = np.asscalar(vec1[1])
+    vec0x = vec0[0].item()
+    vec0y = vec0[1].item()
+    vec1x = vec1[0].item()
+    vec1y = vec1[1].item()
 
     # draw the local frame
     # in ax.arrow(...)  vec.y and vec.x are reversed !
