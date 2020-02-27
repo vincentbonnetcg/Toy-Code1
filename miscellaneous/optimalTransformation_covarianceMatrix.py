@@ -119,6 +119,7 @@ centroid = computeCentroid(pointData)
 frames = computeOrthogonalFrame(pointData, centroid)
 det = np.linalg.det(frames)
 if det < 0.0:
+    # from reflection matrix to rotation matrix
     frames *= -1.0
 rotationMatrix = frames
 
