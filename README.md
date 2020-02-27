@@ -76,10 +76,11 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [1] Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
 
-## . Dimensionality reduction
+## . Dimensionality reduction (PCA)
 **File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/optimalTransformation_covarianceMatrix.py)<br>
 **Description** Optimal rigid transformation by using Principal Component Analysis (Eigen Decomposition)
-- Compute Covariance Matrix from point cloud
+- Covariance matrix from point cloud
+- Best oriented bounding box
 
 ![PCA](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation_covarianceMatrix.png)
 
