@@ -78,16 +78,16 @@ class DataBlock:
         for name, value in inst.__dict__.items():
             self.__check_before_add(name)
 
+            self.dtype_dict['names'].append(name)
+            self.dtype_dict['defaults'].append(value)
+
             if np.isscalar(value):
                 data_type = type(value)
-                data_shape = 1
+                self.dtype_dict['formats'].append(data_type)
             else:
                 data_type = value.dtype.type
                 data_shape = value.shape
-
-            self.dtype_dict['names'].append(name)
-            self.dtype_dict['formats'].append((data_type, data_shape))
-            self.dtype_dict['defaults'].append(value)
+                self.dtype_dict['formats'].append((data_type, data_shape))
 
     def __dtype(self):
         '''
@@ -103,22 +103,22 @@ class DataBlock:
             dtype_aosoa_dict['names'].append(field_name)
 
         for field_format in self.dtype_dict['formats']:
-            field_type = field_format[0]
-            field_shape = field_format[1]
 
             # modify the shape to store data as 'array of structure of array'
             # x becomes (self.block_size, x)
             # (x, y, ...) becomes (self.block_size, x, y, ...)
+            field_type = None
             new_field_shape = None
-            if field_shape == 1:
+            if isinstance(field_format, tuple):
+                field_type = field_format[0]
+                field_shape = field_format[1]
+                new_field_shape = ([self.block_size] + list(field_shape))
+            else:
                 # The coma after self.block_size is essential
                 # In case field_shape == self.block_size == 1,
                 # it guarantees an array will be produced and not a single value
+                field_type = field_format
                 new_field_shape = (self.block_size,)
-            else:
-                list_shape = list(field_shape)
-                list_shape.insert(0, self.block_size)
-                new_field_shape = (list_shape)
 
             dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
 
