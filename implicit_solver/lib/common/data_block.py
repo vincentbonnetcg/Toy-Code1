@@ -43,7 +43,7 @@ class DataBlock:
         # it prevents to have empty list which would break the JIT compile to work
         self.dummy_block = dummy_block
         # Set class
-        self.__set_field_from_type(class_type)
+        self.__set_dtype(class_type)
         self.clear()
 
     def num_blocks(self):
@@ -71,7 +71,7 @@ class DataBlock:
         if name in self.dtype_dict['names']:
             raise ValueError("field name already used : " + name)
 
-    def __set_field_from_type(self, class_type):
+    def __set_dtype(self, class_type):
         '''
         Add fields
         '''
@@ -105,11 +105,17 @@ class DataBlock:
         self.dtype_aosoa_dict['formats'].append(np.int64)
         self.dtype_aosoa_dict['formats'].append(np.bool)
 
-    def __dtype(self):
+    def aosoa_dtype(self):
         '''
         Returns the aosoa dtype of the datablock
         '''
         return np.dtype(self.dtype_aosoa_dict, align=True)
+
+    def value_dtype(self):
+        '''
+        Returns the value dtype of the datablock
+        '''
+        return np.dtype(self.dtype_dict, align=True)
 
     def initialize(self, num_elements):
         '''
@@ -123,7 +129,7 @@ class DataBlock:
         Initialize blocks and return new element ids
         '''
         block_handles = []
-        block_dtype = self.__dtype()
+        block_dtype = self.aosoa_dtype()
 
         num_fields = len(self.dtype_dict['names'])
         if num_fields == 0:
