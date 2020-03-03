@@ -105,13 +105,13 @@ class DataBlock:
         self.dtype_aosoa_dict['formats'].append(np.int64)
         self.dtype_aosoa_dict['formats'].append(np.bool)
 
-    def aosoa_dtype(self):
+    def get_block_dtype(self):
         '''
         Returns the aosoa dtype of the datablock
         '''
         return np.dtype(self.dtype_aosoa_dict, align=True)
 
-    def value_dtype(self):
+    def get_scalar_dtype(self):
         '''
         Returns the value dtype of the datablock
         '''
@@ -129,7 +129,7 @@ class DataBlock:
         Initialize blocks and return new element ids
         '''
         block_handles = []
-        block_dtype = self.aosoa_dtype()
+        block_dtype = self.get_block_dtype()
 
         num_fields = len(self.dtype_dict['names'])
         if num_fields == 0:
