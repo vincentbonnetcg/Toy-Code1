@@ -28,11 +28,15 @@ class DataBlock:
     def __init__(self, class_type, block_size = 100, dummy_block=True):
         # Data
         self.blocks = list()
-        # Data type
-        self.dtype_dict = dict()
-        self.dtype_dict['names'] = list() # list of names
-        self.dtype_dict['formats'] = list() # list of tuples (data_type, data_shape)
-        self.dtype_dict['defaults'] = list() # list of default values (should match formats)
+        # Data type : (x, y, ...)
+        self.dtype_dict = {}
+        self.dtype_dict['names'] = [] # list of names
+        self.dtype_dict['formats'] = [] # list of tuples (data_type, data_shape)
+        self.dtype_dict['defaults'] = [] # list of default values (should match formats)
+        # Aosoa data type : (x, y, ...) becomes (self.block_size, x, y, ...)
+        self.dtype_aosoa_dict = {}
+        self.dtype_aosoa_dict['names'] = []
+        self.dtype_aosoa_dict['formats'] = []
         # Block size
         self.block_size = block_size
         # Dummy block creates an inactive block
@@ -71,64 +75,41 @@ class DataBlock:
         '''
         Add fields
         '''
-        data_type = None
-        data_shape = None
         inst = class_type()
 
         for name, value in inst.__dict__.items():
             self.__check_before_add(name)
 
+            self.dtype_aosoa_dict['names'].append(name)
             self.dtype_dict['names'].append(name)
             self.dtype_dict['defaults'].append(value)
 
             if np.isscalar(value):
                 data_type = type(value)
                 self.dtype_dict['formats'].append(data_type)
+                # The coma after (self.block_size,) is essential
+                # In case field_shape == self.block_size == 1,
+                # it guarantees an array will be produced and not a single value
+                aosoa_field_shape = (self.block_size,)
+                self.dtype_aosoa_dict['formats'].append((data_type, aosoa_field_shape))
             else:
                 data_type = value.dtype.type
                 data_shape = value.shape
                 self.dtype_dict['formats'].append((data_type, data_shape))
+                aosoa_field_shape = ([self.block_size] + list(data_shape))
+                self.dtype_aosoa_dict['formats'].append((data_type, aosoa_field_shape))
+
+        # add block info
+        self.dtype_aosoa_dict['names'].append('blockInfo_numElements')
+        self.dtype_aosoa_dict['names'].append('blockInfo_active')
+        self.dtype_aosoa_dict['formats'].append(np.int64)
+        self.dtype_aosoa_dict['formats'].append(np.bool)
 
     def __dtype(self):
         '''
-        Returns the dtype of the datablock
-        add_block_info is only used for blocks
+        Returns the aosoa dtype of the datablock
         '''
-        # create a new dictionnary to create an 'array of structure of array'
-        dtype_aosoa_dict = {}
-        dtype_aosoa_dict['names'] = []
-        dtype_aosoa_dict['formats'] = []
-
-        for field_name in self.dtype_dict['names']:
-            dtype_aosoa_dict['names'].append(field_name)
-
-        for field_format in self.dtype_dict['formats']:
-
-            # modify the shape to store data as 'array of structure of array'
-            # x becomes (self.block_size, x)
-            # (x, y, ...) becomes (self.block_size, x, y, ...)
-            field_type = None
-            new_field_shape = None
-            if isinstance(field_format, tuple):
-                field_type = field_format[0]
-                field_shape = field_format[1]
-                new_field_shape = ([self.block_size] + list(field_shape))
-            else:
-                # The coma after self.block_size is essential
-                # In case field_shape == self.block_size == 1,
-                # it guarantees an array will be produced and not a single value
-                field_type = field_format
-                new_field_shape = (self.block_size,)
-
-            dtype_aosoa_dict['formats'].append((field_type, new_field_shape))
-
-        # add block info
-        dtype_aosoa_dict['names'].append('blockInfo_numElements')
-        dtype_aosoa_dict['names'].append('blockInfo_active')
-        dtype_aosoa_dict['formats'].append(np.int64)
-        dtype_aosoa_dict['formats'].append(np.bool)
-
-        return np.dtype(dtype_aosoa_dict, align=True)
+        return np.dtype(self.dtype_aosoa_dict, align=True)
 
     def initialize(self, num_elements):
         '''
