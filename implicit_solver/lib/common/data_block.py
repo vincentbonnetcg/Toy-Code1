@@ -73,7 +73,7 @@ class DataBlock:
 
     def __set_dtype(self, class_type):
         '''
-        Add fields
+        Set data type from the class type
         '''
         inst = class_type()
 
