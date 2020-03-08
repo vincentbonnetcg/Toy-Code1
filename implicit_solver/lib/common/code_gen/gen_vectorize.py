@@ -42,7 +42,7 @@ def convert_argument(arg):
         if isinstance(arg.blocks, numba.typed.List):
             return arg.blocks
         else:
-            raise ValueError("The blocks should be in a tuple/numba.Typed.List. use datablock.lock()")
+            raise ValueError("The blocks should be in a numba.Typed.List.")
 
     return arg
 

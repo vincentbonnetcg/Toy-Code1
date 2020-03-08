@@ -45,8 +45,6 @@ class Tests(unittest.TestCase):
     def test_generated_function_with_numpy_input(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
-        datablock0.lock()
-        datablock1.lock()
         add_values(datablock0, datablock1, 1.0)
         self.assertEqual(datablock0.block(0)['x'][0][0][0], 5.2)
         self.assertEqual(datablock0.block(0)['y'][0], 4.0)
@@ -54,8 +52,6 @@ class Tests(unittest.TestCase):
     def test_generated_function_with_datablock_input(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
-        datablock0.lock()
-        datablock1.lock()
         add_values(datablock0, datablock1, 1.0)
         self.assertEqual(datablock0.block(0)['x'][0][0][0], 5.2)
         self.assertEqual(datablock0.block(0)['y'][0], 4.0)
@@ -63,8 +59,6 @@ class Tests(unittest.TestCase):
     def test_function_generated_once(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
-        datablock0.lock()
-        datablock1.lock()
         add_values(datablock0, datablock1, 1.0)
         function0 = add_values.function
         source0 = add_values.source
@@ -78,8 +72,6 @@ class Tests(unittest.TestCase):
     def test_function_without_njit(self):
         datablock0 = create_datablock(15)
         datablock1 = create_datablock(15)
-        datablock0.lock()
-        datablock1.lock()
         result_list = []
         add_values_to_list(datablock0, datablock1, result_list)
         self.assertEqual(len(result_list), 15)
