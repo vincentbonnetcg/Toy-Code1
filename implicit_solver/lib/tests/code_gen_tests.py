@@ -48,8 +48,8 @@ class Tests(unittest.TestCase):
         datablock0.lock()
         datablock1.lock()
         add_values(datablock0, datablock1, 1.0)
-        self.assertEqual(datablock0.blocks[0]['x'][0][0][0], 5.2)
-        self.assertEqual(datablock0.blocks[0]['y'][0], 4.0)
+        self.assertEqual(datablock0.block(0)['x'][0][0][0], 5.2)
+        self.assertEqual(datablock0.block(0)['y'][0], 4.0)
 
     def test_generated_function_with_datablock_input(self):
         datablock0 = create_datablock()
@@ -57,8 +57,8 @@ class Tests(unittest.TestCase):
         datablock0.lock()
         datablock1.lock()
         add_values(datablock0, datablock1, 1.0)
-        self.assertEqual(datablock0.blocks[0]['x'][0][0][0], 5.2)
-        self.assertEqual(datablock0.blocks[0]['y'][0], 4.0)
+        self.assertEqual(datablock0.block(0)['x'][0][0][0], 5.2)
+        self.assertEqual(datablock0.block(0)['y'][0], 4.0)
 
     def test_function_generated_once(self):
         datablock0 = create_datablock()

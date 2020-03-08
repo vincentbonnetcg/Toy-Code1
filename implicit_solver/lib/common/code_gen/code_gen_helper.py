@@ -135,9 +135,9 @@ class CodeGenHelper:
 
                 # add variable to access block info
                 master_argument = self.functions_args[0]
-                master_variable_name = master_argument + '_blocks[_handle][\'blockInfo_numElements\']'
+                master_variable_name = master_argument + '_blocks[_handle][0][\'blockInfo_numElements\']'
                 writer.append('_num_elements = ' + master_variable_name)
-                master_variable_name = master_argument + '_blocks[_handle][\'blockInfo_active\']'
+                master_variable_name = master_argument + '_blocks[_handle][0][\'blockInfo_active\']'
                 writer.append('_active = ' + master_variable_name)
                 writer.append('if not _active:')
                 writer.indent += 1
@@ -148,7 +148,7 @@ class CodeGenHelper:
                 for obj, attrs in self.obj_attrs_map.items():
                     for attr in attrs:
                         variable_name = '_' + obj + '_' + attr
-                        variable_accessor = obj +'_blocks[_handle][\'' + attr + '\']'
+                        variable_accessor = obj +'_blocks[_handle][0][\'' + attr + '\']'
                         variable_code = variable_name + ' = ' + variable_accessor
                         writer.append(variable_code)
 

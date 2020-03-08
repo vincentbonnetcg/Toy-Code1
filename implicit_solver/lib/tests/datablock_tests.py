@@ -28,7 +28,7 @@ class Tests(unittest.TestCase):
 
     def test_datatype(self):
         datablock = create_datablock(num_elements=10)
-        datablock_type = np.dtype(datablock.blocks[0])
+        datablock_type = np.dtype(datablock.block(0))
         self.assertEqual('field_0' in datablock_type.names, True)
         self.assertEqual('field_1' in datablock_type.names, True)
         self.assertEqual('field_c' in datablock_type.names, False)
@@ -37,7 +37,7 @@ class Tests(unittest.TestCase):
 
     def test_default_values(self):
         datablock = create_datablock(num_elements=10)
-        block0 = datablock.blocks[0]
+        block0 = datablock.block(0)
         self.assertEqual(block0['field_0'][0], 0.6)
         self.assertTrue((block0['field_1'][0] == [[0.5, 0.5], [0.5, 0.5]]).all())
         self.assertEqual(block0['field_1'][0][0][0], 0.5)
@@ -46,7 +46,7 @@ class Tests(unittest.TestCase):
         datablock = create_datablock(num_elements=10)
         datablock.fill('field_0', 1.5)
         datablock.fill('field_1', 2.5)
-        block0 = datablock.blocks[0]
+        block0 = datablock.block(0)
         self.assertEqual(block0['field_0'][0], 1.5)
         self.assertTrue((block0['field_1'][0] == [[2.5, 2.5], [2.5, 2.5]]).all())
 
@@ -56,14 +56,14 @@ class Tests(unittest.TestCase):
         datablock.copyto('field_0', range(num_elements))
 
         self.assertEqual(len(datablock.blocks), 4)
-        self.assertEqual(datablock.blocks[0]['blockInfo_numElements'], 3)
-        self.assertEqual(datablock.blocks[3]['blockInfo_numElements'], 1)
-        self.assertEqual(datablock.blocks[0]['blockInfo_active'], True)
-        self.assertEqual(datablock.blocks[3]['blockInfo_active'], True)
-        self.assertTrue((datablock.blocks[0]['field_0'] == [0.,1.,2.]).all())
-        self.assertTrue((datablock.blocks[1]['field_0'] == [3.,4.,5.]).all())
-        self.assertTrue((datablock.blocks[2]['field_0'] == [6.,7.,8.]).all())
-        self.assertTrue((datablock.blocks[3]['field_0'] == [9.,0.6,0.6]).all())
+        self.assertEqual(datablock.block(0)['blockInfo_numElements'], 3)
+        self.assertEqual(datablock.block(3)['blockInfo_numElements'], 1)
+        self.assertEqual(datablock.block(0)['blockInfo_active'], True)
+        self.assertEqual(datablock.block(3)['blockInfo_active'], True)
+        self.assertTrue((datablock.block(0)['field_0'] == [0.,1.,2.]).all())
+        self.assertTrue((datablock.block(1)['field_0'] == [3.,4.,5.]).all())
+        self.assertTrue((datablock.block(2)['field_0'] == [6.,7.,8.]).all())
+        self.assertTrue((datablock.block(3)['field_0'] == [9.,0.6,0.6]).all())
 
     def test_remove_blocks(self):
         num_elements = 10
@@ -79,10 +79,10 @@ class Tests(unittest.TestCase):
         datablock = create_datablock(num_elements, block_size=3)
         datablock.copyto('field_0', range(num_elements))
         datablock.set_active(False, [1,3])
-        self.assertEqual(datablock.blocks[0]['blockInfo_active'], True)
-        self.assertEqual(datablock.blocks[1]['blockInfo_active'], False)
-        self.assertEqual(datablock.blocks[2]['blockInfo_active'], True)
-        self.assertEqual(datablock.blocks[3]['blockInfo_active'], False)
+        self.assertEqual(datablock.block(0)['blockInfo_active'], True)
+        self.assertEqual(datablock.block(1)['blockInfo_active'], False)
+        self.assertEqual(datablock.block(2)['blockInfo_active'], True)
+        self.assertEqual(datablock.block(3)['blockInfo_active'], False)
         self.assertEqual(datablock.compute_num_elements(), 6)
 
     def test_reuse_inactive_block(self):
@@ -96,10 +96,10 @@ class Tests(unittest.TestCase):
         self.assertEqual(len(datablock.blocks), 4)
 
         # check all the blocks are active
-        self.assertEqual(datablock.blocks[0]['blockInfo_active'], True)
-        self.assertEqual(datablock.blocks[1]['blockInfo_active'], True)
-        self.assertEqual(datablock.blocks[2]['blockInfo_active'], True)
-        self.assertEqual(datablock.blocks[3]['blockInfo_active'], True)
+        self.assertEqual(datablock.block(0)['blockInfo_active'], True)
+        self.assertEqual(datablock.block(1)['blockInfo_active'], True)
+        self.assertEqual(datablock.block(2)['blockInfo_active'], True)
+        self.assertEqual(datablock.block(3)['blockInfo_active'], True)
 
     def setUp(self):
         print(" DataBlock Test:", self._testMethodName)

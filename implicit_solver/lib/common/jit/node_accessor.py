@@ -31,21 +31,21 @@ def node_global_index(node_id):
 def node_x(node_blocks, node_id):
     block_handle = node_id[1]
     block_node_id = node_id[2]
-    return node_blocks[block_handle]['x'][block_node_id]
+    return node_blocks[block_handle][0]['x'][block_node_id]
 
 @numba.njit
 def node_v(node_blocks, node_id):
     block_handle = node_id[1]
     block_node_id = node_id[2]
-    return node_blocks[block_handle]['v'][block_node_id]
+    return node_blocks[block_handle][0]['v'][block_node_id]
 
 @numba.njit
 def node_xv(node_blocks, node_id):
     block_handle = node_id[1]
     block_node_id = node_id[2]
 
-    x = node_blocks[block_handle]['x'][block_node_id]
-    v = node_blocks[block_handle]['v'][block_node_id]
+    x = node_blocks[block_handle][0]['x'][block_node_id]
+    v = node_blocks[block_handle][0]['v'][block_node_id]
     return (x, v)
 
 @numba.njit
@@ -53,5 +53,5 @@ def node_add_f(node_blocks, node_id, force):
     block_handle = node_id[1]
     block_node_id = node_id[2]
 
-    f = node_blocks[block_handle]['f'][block_node_id]
+    f = node_blocks[block_handle][0]['f'][block_node_id]
     f += force

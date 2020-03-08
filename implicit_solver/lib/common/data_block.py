@@ -49,6 +49,10 @@ class DataBlock:
     def num_blocks(self):
         return len(self.blocks)
 
+    def block(self, block_index):
+        # [0] because the self.blocks[block_index] is an array with one element
+        return self.blocks[block_index][0]
+
     def clear(self):
         '''
         Clear the data on the datablock (it doesn't reset the datatype)
@@ -140,7 +144,8 @@ class DataBlock:
         # collect inactive block ids
         inactive_block_handles = []
         if reuse_inactive_block:
-            for block_index,  block_data in enumerate(self.blocks):
+            for block_index,  block_container in enumerate(self.blocks):
+                block_data = block_container[0]
                 if not block_data['blockInfo_active']:
                     inactive_block_handles.append(block_index)
 
@@ -153,12 +158,13 @@ class DataBlock:
             if reuse_inactive_block and len(inactive_block_handles) > 0:
                 # reuse blocks
                 block_handle = inactive_block_handles.pop(0)
-                block_data = self.blocks[block_handle]
+                block_data = self.block(block_handle)
             else:
                 # allocate a new block
                 block_handle = len(self.blocks)
-                block_data = np.zeros(1, dtype=block_dtype)[0] # a scalar
-                self.blocks.append(block_data)
+                new_block_container = np.zeros(1, dtype=block_dtype)
+                self.blocks.append(new_block_container)
+                block_data = new_block_container[0]
 
             begin_index = block_index * self.block_size
             block_n_elements = min(self.block_size, num_elements-begin_index)
@@ -224,13 +230,16 @@ class DataBlock:
     '''
     def __take_with_id(self, block_handles = []):
         for block_handle in block_handles:
-            if self.blocks[block_handle]['blockInfo_active']:
-                yield self.blocks[block_handle]
+            block_container = self.blocks[block_handle]
+            block_data = block_container[0]
+            if block_data['blockInfo_active']:
+                yield block_container
 
     def __take(self):
-        for block_data in self.blocks:
+        for block_container in self.blocks:
+            block_data = block_container[0]
             if block_data['blockInfo_active']:
-                yield block_data
+                yield block_container
 
     def get_blocks(self, block_handles = None):
         if block_handles is None:
@@ -240,14 +249,16 @@ class DataBlock:
 
     def compute_num_elements(self, block_handles = None):
         num_elements = 0
-        for block_data in self.get_blocks(block_handles):
+        for block_container in self.get_blocks(block_handles):
+            block_data = block_container[0]
             num_elements += block_data['blockInfo_numElements']
         return num_elements
 
     def copyto(self, field_name, values, block_handles = None):
         num_elements = 0
 
-        for block_data in self.get_blocks(block_handles):
+        for block_container in self.get_blocks(block_handles):
+            block_data = block_container[0]
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
@@ -255,8 +266,9 @@ class DataBlock:
             np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
 
     def fill(self, field_name, value, block_handles = None):
-        for block in self.get_blocks(block_handles):
-            block[field_name].fill(value)
+        for block_container in self.get_blocks(block_handles):
+            block_data = block_container[0]
+            block_data[field_name].fill(value)
 
     def flatten(self, field_name, block_handles = None):
         '''
@@ -269,7 +281,8 @@ class DataBlock:
         result = np.empty(num_elements, field_dtype)
 
         num_elements = 0
-        for block_data in self.get_blocks(block_handles):
+        for block_container in self.get_blocks(block_handles):
+            block_data = block_container[0]
             begin_index = num_elements
             block_n_elements = block_data['blockInfo_numElements']
             num_elements += block_n_elements
@@ -279,5 +292,6 @@ class DataBlock:
         return result
 
     def set_active(self, active, block_handles = None):
-        for block_data in self.get_blocks(block_handles):
+        for block_container in self.get_blocks(block_handles):
+            block_data = block_container[0]
             block_data['blockInfo_active'] = active
