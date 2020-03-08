@@ -59,6 +59,13 @@ def create_typed_list(block_dtype, num_blocks):
         append_block(array, block_data)
     return array
 
+@numba.njit(parallel=False)
+def iterate_on_typed_list(array):
+    num_blocks = len(array)
+    for block_index in numba.prange(num_blocks):
+        block_container = array[block_index]
+        block_data = block_container[0]
+        block_data['blockInfo_numElements'] = 11
 
 class Tests(unittest.TestCase):
     def test_typed_list(self):
@@ -66,19 +73,19 @@ class Tests(unittest.TestCase):
         blocks = create_typed_list(block_dtype, num_blocks = 15)
         self.assertEqual(len(blocks), 16) # include inactive block
         # Test dummy/inactive block
-        block_data = blocks[0]
-        item = block_data[0]
-        self.assertEqual(item['blockInfo_numElements'], 0)
-        self.assertEqual(item['blockInfo_active'], False)
+        block_container = blocks[0]
+        block_data = block_container[0]
+        self.assertEqual(block_data['blockInfo_numElements'], 0)
+        self.assertEqual(block_data['blockInfo_active'], False)
 
         # Test first active block
-        block_data = blocks[1]
-        item = block_data[0]
+        block_container = blocks[1]
+        block_data = block_container[0]
         componentTest = ComponentTest()
-        self.assertEqual(item['blockInfo_numElements'], 10)
-        self.assertEqual(item['blockInfo_active'], True)
-        self.assertTrue(item['field_0'][0] == componentTest.field_0)
-        self.assertTrue((item['field_1'][0] == componentTest.field_1).all())
+        self.assertEqual(block_data['blockInfo_numElements'], 10)
+        self.assertEqual(block_data['blockInfo_active'], True)
+        self.assertTrue(block_data['field_0'][0] == componentTest.field_0)
+        self.assertTrue((block_data['field_1'][0] == componentTest.field_1).all())
 
     def test_inactive(self):
         block_dtype = get_block_dtype(block_size = 100)
@@ -86,9 +93,16 @@ class Tests(unittest.TestCase):
         block_indices = get_inactive_block_indices(blocks)
         self.assertTrue(len(block_indices) == 1)
 
+    def test_iteration(self):
+        block_dtype = get_block_dtype(block_size = 100)
+        blocks = create_typed_list(block_dtype, num_blocks = 15)
+        iterate_on_typed_list(blocks)
+        block_container = blocks[1]
+        block_data = block_container[0]
+        self.assertEqual(block_data['blockInfo_numElements'], 11)
+
     def setUp(self):
         print(" Numba Test:", self._testMethodName)
 
 if __name__ == '__main__':
     unittest.main(Tests())
-
