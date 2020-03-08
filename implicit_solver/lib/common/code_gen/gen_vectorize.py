@@ -39,10 +39,10 @@ def convert_argument(arg):
     From DataBlock to DataBlock.blocks
     '''
     if isinstance(arg, common.DataBlock):
-        if isinstance(arg.blocks, tuple):
+        if isinstance(arg.blocks, numba.typed.List):
             return arg.blocks
         else:
-            raise ValueError("The blocks should be in a tuple. use datablock.lock()")
+            raise ValueError("The blocks should be in a tuple/numba.Typed.List. use datablock.lock()")
 
     return arg
 

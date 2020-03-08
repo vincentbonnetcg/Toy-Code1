@@ -11,11 +11,11 @@ ID_SIZE = 3
 
 @numba.njit
 def empty_node_ids(num_nodes):
-    return np.empty((num_nodes, ID_SIZE), dtype=np.uint32)
+    return np.empty((num_nodes, ID_SIZE), dtype=np.int32)
 
 @numba.njit
 def emtpy_node_id():
-    return np.empty(ID_SIZE, dtype=np.uint32)
+    return np.empty(ID_SIZE, dtype=np.int32)
 
 @numba.njit
 def set_node_id(node_id, global_node_id, block_handle, block_node_id):

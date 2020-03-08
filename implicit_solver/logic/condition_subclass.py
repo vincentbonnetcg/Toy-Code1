@@ -13,10 +13,7 @@ from lib.system import Scene
 def initialize_condition_from_aos(condition, array_of_struct, details):
     data = details.block_from_datatype(condition.constraint_type)
 
-    # unlock the datablock to allow removing/adding blocks
-    data.unlock()
-
-    # remove previous allocated blocks
+    # disable previous allocated blocks
     num_constraints = len(array_of_struct)
     condition.total_constraints = num_constraints
 
@@ -25,8 +22,6 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
 
     # early exit if there is no constraints
     if (num_constraints == 0):
-        # lock the datablock to allow vectorized operations on it
-        data.lock()
         return False
 
     # allocate
@@ -57,9 +52,6 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
 
         # set datbablock
         data.copyto(field_name, new_array, condition.block_handles)
-
-    # lock the datablock to allow vectorized operations on it
-    data.lock()
 
     # compute constraint rest
     condition.compute_rest(details)

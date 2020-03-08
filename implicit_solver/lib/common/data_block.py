@@ -18,6 +18,7 @@ blockInfo_active defines whether or not the Block is active
 Datablock is a list of Blocks
 """
 
+import numba
 import math
 import numpy as np
 import keyword
@@ -27,7 +28,7 @@ class DataBlock:
 
     def __init__(self, class_type, block_size = 100, dummy_block=True):
         # Data
-        self.blocks = list()
+        self.blocks = numba.typed.List()
         # Data type : (x, y, ...)
         self.dtype_dict = {}
         self.dtype_dict['names'] = [] # list of names
@@ -57,7 +58,7 @@ class DataBlock:
         '''
         Clear the data on the datablock (it doesn't reset the datatype)
         '''
-        self.blocks.clear()
+        self.blocks = numba.typed.List()
         if self.dummy_block:
             self.append(1)
             self.set_active(False)
@@ -187,6 +188,8 @@ class DataBlock:
 
         return self.create_block_handle(block_handles)
 
+    '''
+    DISABLE FOR NOW - NEED FIX
     def remove(self, block_handles = None):
         if block_handles is None:
             return
@@ -196,6 +199,7 @@ class DataBlock:
 
         for block_handle in sorted(block_handles, reverse=True):
             del(self.blocks[block_handle])
+    '''
 
     def is_empty(self):
         return len(self.blocks)==0
@@ -218,12 +222,14 @@ class DataBlock:
     Tuple works better so far
     '''
     def lock(self):
-        if isinstance(self.blocks, list):
-            self.blocks = tuple(self.blocks)
+        pass
+        #if isinstance(self.blocks, list):
+        #    self.blocks = tuple(self.blocks)
 
     def unlock(self):
-        if isinstance(self.blocks, tuple):
-            self.blocks = list(self.blocks)
+        pass
+        #if isinstance(self.blocks, tuple):
+        #    self.blocks = list(self.blocks)
 
     '''
     Vectorize Functions on blocks
