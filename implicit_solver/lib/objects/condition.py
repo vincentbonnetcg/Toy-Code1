@@ -3,14 +3,14 @@
 @description : conditions create a list of constraints from a list of objects
 """
 
-import lib.common as common
+import lib.common.jit.block_utils as block_utils
 
 class Condition:
     '''
     Base of a condition
     '''
     def __init__(self, stiffness, damping, constraint_type):
-        self.block_handles = common.DataBlock.create_block_handle(None)
+        self.block_handles = block_utils.empty_block_handles()
         self.constraint_type = constraint_type
         # Parameters
         self.stiffness = stiffness

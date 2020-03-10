@@ -8,6 +8,7 @@ import numpy as np
 import lib.objects.jit as cpn
 from lib.objects import Condition
 import lib.common as common
+import lib.common.jit.block_utils as block_utils
 from lib.system import Scene
 
 def initialize_condition_from_aos(condition, array_of_struct, details):
@@ -18,7 +19,7 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
     condition.total_constraints = num_constraints
 
     data.set_active(False, condition.block_handles)
-    condition.block_handles = common.DataBlock.create_block_handle(None)
+    condition.block_handles = block_utils.empty_block_handles()
 
     # early exit if there is no constraints
     if (num_constraints == 0):

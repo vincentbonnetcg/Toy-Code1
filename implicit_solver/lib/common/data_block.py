@@ -23,6 +23,7 @@ import math
 import numpy as np
 import keyword
 import lib.common.jit.node_accessor as na
+import lib.common.jit.block_utils as block_utils
 
 class DataBlock:
 
@@ -133,17 +134,17 @@ class DataBlock:
         '''
         Initialize blocks and return new element ids
         '''
-        block_handles = []
-        block_dtype = self.get_block_dtype()
-
         num_fields = len(self.dtype_dict['names'])
         if num_fields == 0:
             return
 
+        block_handles = block_utils.empty_block_handles()
+        block_dtype = self.get_block_dtype()
+
         global_element_id = self.compute_num_elements()
 
         # collect inactive block ids
-        inactive_block_handles = []
+        inactive_block_handles = block_utils.empty_block_handles()
         if reuse_inactive_block:
             for block_index,  block_container in enumerate(self.blocks):
                 block_data = block_container[0]
@@ -186,7 +187,7 @@ class DataBlock:
             # add block id to result
             block_handles.append(block_handle)
 
-        return self.create_block_handle(block_handles)
+        return block_handles
 
     '''
     DISABLE FOR NOW - NEED FIX
@@ -206,13 +207,6 @@ class DataBlock:
 
     def __len__(self):
         return len(self.blocks)
-
-    @staticmethod
-    def create_block_handle(handles=None):
-        if handles:
-            return np.array(handles, dtype='int')
-
-        return np.zeros(0, dtype='int') # empty block
 
     '''
     Vectorize Functions on blocks
