@@ -67,6 +67,18 @@ def iterate_on_typed_list(array):
         block_data = block_container[0]
         block_data['blockInfo_numElements'] = 11
 
+@numba.njit
+def take(values, indices = None):
+    result = 0
+    if indices is None:
+        for value in values:
+            result += value
+    else:
+        for index in indices:
+            result += values[index]
+
+    return result
+
 class Tests(unittest.TestCase):
     def test_typed_list(self):
         block_dtype = get_block_dtype(block_size = 100)
@@ -100,6 +112,12 @@ class Tests(unittest.TestCase):
         block_container = blocks[1]
         block_data = block_container[0]
         self.assertEqual(block_data['blockInfo_numElements'], 11)
+
+    def test_overload(self):
+        values = np.ones(10) * 1.5
+        indices = np.asarray([1,2,3])
+        self.assertEqual(take(values), 15.0)
+        self.assertEqual(take(values, indices), 4.5)
 
     def setUp(self):
         print(" Numba Test:", self._testMethodName)
