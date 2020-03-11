@@ -231,11 +231,9 @@ class DataBlock:
         return self.__take_with_id(block_handles)
 
     def compute_num_elements(self, block_handles = None):
-        num_elements = 0
-        for block_container in self.get_blocks(block_handles):
-            block_data = block_container[0]
-            num_elements += block_data['blockInfo_numElements']
-        return num_elements
+        if len(self.blocks) == 0:
+            return 0
+        return block_utils.compute_num_elements(self.blocks, block_handles)
 
     def copyto(self, field_name, values, block_handles = None):
         num_elements = 0
