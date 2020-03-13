@@ -42,6 +42,8 @@ class DataBlock:
         self.defaults = () #  heterogeneous tuple storing defaults value
         # Block size
         self.block_size = block_size
+        # class has an ID
+        self.hasID = False
         # Dummy block creates an inactive block
         # it prevents to have empty list which would break the JIT compile to work
         self.dummy_block = dummy_block
@@ -93,6 +95,9 @@ class DataBlock:
             self.dtype_dict['names'].append(name)
             default_values.append(value)
 
+            if name == 'ID':
+                self.hasID = True
+
             if np.isscalar(value):
                 data_type = type(value)
                 self.dtype_dict['formats'].append(data_type)
@@ -139,10 +144,6 @@ class DataBlock:
         '''
         Initialize blocks and return new element ids
         '''
-        num_fields = len(self.dtype_dict['names'])
-        if num_fields == 0:
-            return
-
         block_handles = block_utils.empty_block_handles()
         block_dtype = self.get_block_dtype()
 
@@ -150,41 +151,40 @@ class DataBlock:
 
         # collect inactive block ids
         inactive_block_handles = block_utils.empty_block_handles()
-        if reuse_inactive_block:
+        if reuse_inactive_block and len(self.blocks) > 0:
             for block_index,  block_container in enumerate(self.blocks):
-                block_data = block_container[0]
-                if not block_data['blockInfo_active']:
+                if not block_container[0]['blockInfo_active']:
                     inactive_block_handles.append(block_index)
 
+        # append block
         n_blocks = math.ceil(num_elements / self.block_size)
         for block_index in range(n_blocks):
 
             block_handle = -1
-            block_data = None
+            block_container = None
 
             if reuse_inactive_block and len(inactive_block_handles) > 0:
                 # reuse blocks
                 block_handle = inactive_block_handles.pop(0)
-                block_data = self.block(block_handle)
+                block_container = self.blocks[block_handle]
             else:
                 # allocate a new block
                 block_handle = len(self.blocks)
-                new_block_container = block_utils.empty_block(block_dtype)
-                self.blocks.append(new_block_container)
-                block_data = new_block_container[0]
+                block_container = block_utils.empty_block(block_dtype)
+                self.blocks.append(block_container)
 
             begin_index = block_index * self.block_size
             block_n_elements = min(self.block_size, num_elements-begin_index)
-            block_data['blockInfo_numElements'] = block_n_elements
-            block_data['blockInfo_active'] = True
+            block_container[0]['blockInfo_numElements'] = block_n_elements
+            block_container[0]['blockInfo_active'] = True
 
             # set default values
             for field_id, default_value in enumerate(self.defaults):
-                block_data[field_id][:] = default_value
+                block_container[0][field_id][:] = default_value
 
             # set ID if available
-            if 'ID' in block_data.dtype.names:
-                block_data_ID = block_data['ID']
+            if self.hasID:
+                block_data_ID = block_container[0]['ID']
                 for block_node_id in range(block_n_elements):
                     na.set_node_id(block_data_ID[block_node_id], global_element_id, block_handle, block_node_id)
                     global_element_id += 1
