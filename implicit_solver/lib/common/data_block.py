@@ -61,8 +61,9 @@ class DataBlock:
         '''
         self.blocks = numba.typed.List()
         if self.dummy_block:
-            self.append(1)
-            self.set_active(False)
+            block_dtype = self.get_block_dtype()
+            block = block_utils.empty_block(block_dtype)
+            self.blocks.append(block)
 
     def __check_before_add(self, name):
         '''

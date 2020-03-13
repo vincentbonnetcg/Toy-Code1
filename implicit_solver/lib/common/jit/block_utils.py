@@ -12,7 +12,10 @@ def empty_block_handles():
 
 @numba.njit
 def empty_block(block_dtype):
-    return np.empty(1, dtype=block_dtype)
+    block = np.empty(1, dtype=block_dtype)
+    block[0]['blockInfo_active'] = False
+    block[0]['blockInfo_numElements'] = 0
+    return block
 
 @numba.njit
 def compute_num_elements(blocks, block_handles = None):
