@@ -34,11 +34,12 @@ class DataBlock:
         self.dtype_dict = {}
         self.dtype_dict['names'] = [] # list of names
         self.dtype_dict['formats'] = [] # list of tuples (data_type, data_shape)
-        self.dtype_dict['defaults'] = [] # list of default values (should match formats)
         # Aosoa data type : (x, y, ...) becomes (self.block_size, x, y, ...)
         self.dtype_aosoa_dict = {}
         self.dtype_aosoa_dict['names'] = []
         self.dtype_aosoa_dict['formats'] = []
+        # Default values
+        self.defaults = () #  heterogeneous tuple storing defaults value
         # Block size
         self.block_size = block_size
         # Dummy block creates an inactive block
@@ -84,12 +85,13 @@ class DataBlock:
         '''
         inst = class_type()
 
+        default_values = []
         for name, value in inst.__dict__.items():
             self.__check_before_add(name)
 
             self.dtype_aosoa_dict['names'].append(name)
             self.dtype_dict['names'].append(name)
-            self.dtype_dict['defaults'].append(value)
+            default_values.append(value)
 
             if np.isscalar(value):
                 data_type = type(value)
@@ -105,6 +107,8 @@ class DataBlock:
                 self.dtype_dict['formats'].append((data_type, data_shape))
                 aosoa_field_shape = ([self.block_size] + list(data_shape))
                 self.dtype_aosoa_dict['formats'].append((data_type, aosoa_field_shape))
+
+        self.defaults = tuple(default_values)
 
         # add block info
         self.dtype_aosoa_dict['names'].append('blockInfo_numElements')
@@ -175,7 +179,7 @@ class DataBlock:
             block_data['blockInfo_active'] = True
 
             # set default values
-            for field_id, default_value in enumerate(self.dtype_dict['defaults']):
+            for field_id, default_value in enumerate(self.defaults):
                 block_data[field_id][:] = default_value
 
             # set ID if available
