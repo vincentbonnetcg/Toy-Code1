@@ -4,10 +4,15 @@
 """
 
 import numba
+import numpy as np
 
 @numba.njit
 def empty_block_handles():
     return numba.typed.List.empty_list(numba.int32)
+
+@numba.njit
+def empty_block(block_dtype):
+    return np.empty(1, dtype=block_dtype)
 
 @numba.njit
 def compute_num_elements(blocks, block_handles = None):

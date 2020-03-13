@@ -164,7 +164,7 @@ class DataBlock:
             else:
                 # allocate a new block
                 block_handle = len(self.blocks)
-                new_block_container = np.zeros(1, dtype=block_dtype)
+                new_block_container = block_utils.empty_block(block_dtype)
                 self.blocks.append(new_block_container)
                 block_data = new_block_container[0]
 
