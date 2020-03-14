@@ -18,6 +18,14 @@ def empty_block(block_dtype):
     return block
 
 @numba.njit
+def inactive_block_handles(blocks):
+    handles = empty_block_handles()
+    for block_index in range(len(blocks)):
+        if blocks[block_index][0]['blockInfo_active'] == False:
+            handles.append(block_index)
+    return handles
+
+@numba.njit
 def compute_num_elements(blocks, block_handles = None):
     num_elements = 0
 

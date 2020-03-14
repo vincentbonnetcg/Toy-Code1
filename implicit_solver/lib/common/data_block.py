@@ -144,17 +144,15 @@ class DataBlock:
         '''
         Initialize blocks and return new element ids
         '''
+        inactive_block_handles = block_utils.empty_block_handles()
         block_handles = block_utils.empty_block_handles()
         block_dtype = self.get_block_dtype()
 
         global_element_id = self.compute_num_elements()
 
         # collect inactive block ids
-        inactive_block_handles = block_utils.empty_block_handles()
         if reuse_inactive_block and len(self.blocks) > 0:
-            for block_index,  block_container in enumerate(self.blocks):
-                if not block_container[0]['blockInfo_active']:
-                    inactive_block_handles.append(block_index)
+            inactive_block_handles = block_utils.inactive_block_handles(self.blocks)
 
         # append block
         n_blocks = math.ceil(num_elements / self.block_size)
