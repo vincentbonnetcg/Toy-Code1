@@ -21,7 +21,7 @@ class Container:
         self.data = datablock
 
 def create_datablock(num_elements=10):
-    datablock = common.DataBlock(Vertex, block_size = 100, dummy_block=False)
+    datablock = common.DataBlock(Vertex, block_size = 100)
     datablock.initialize(num_elements)
     return datablock
 

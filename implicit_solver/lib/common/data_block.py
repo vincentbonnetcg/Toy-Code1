@@ -27,7 +27,7 @@ import lib.common.jit.block_utils as block_utils
 
 class DataBlock:
 
-    def __init__(self, class_type, block_size = 100, dummy_block=True):
+    def __init__(self, class_type, block_size = 100):
         # Data
         self.blocks = numba.typed.List()
         # Data type : (x, y, ...)
@@ -44,9 +44,6 @@ class DataBlock:
         self.block_size = block_size
         # class has an ID
         self.hasID = False
-        # Dummy block creates an inactive block
-        # it prevents to have empty list which would break the JIT compile to work
-        self.dummy_block = dummy_block
         # Set class
         self.__set_dtype(class_type)
         self.clear()
@@ -63,10 +60,11 @@ class DataBlock:
         Clear the data on the datablock (it doesn't reset the datatype)
         '''
         self.blocks = numba.typed.List()
-        if self.dummy_block:
-            block_dtype = self.get_block_dtype()
-            block = block_utils.empty_block(block_dtype)
-            self.blocks.append(block)
+        # append inactive block
+        # it prevents to have empty list which would break the JIT compile to work
+        block_dtype = self.get_block_dtype()
+        block = block_utils.empty_block(block_dtype)
+        self.blocks.append(block)
 
     def __check_before_add(self, name):
         '''
@@ -138,7 +136,7 @@ class DataBlock:
         Initialize blocks and return new block ids
         '''
         self.clear()
-        return self.append(num_elements)
+        return self.append(num_elements, True)
 
     def append(self, num_elements : int, reuse_inactive_block : bool = False):
         '''
@@ -151,7 +149,7 @@ class DataBlock:
         global_element_id = self.compute_num_elements()
 
         # collect inactive block ids
-        if reuse_inactive_block and len(self.blocks) > 0:
+        if reuse_inactive_block:
             inactive_block_handles = block_utils.inactive_block_handles(self.blocks)
 
         # append block
@@ -234,8 +232,6 @@ class DataBlock:
         return self.__take_with_id(block_handles)
 
     def compute_num_elements(self, block_handles = None):
-        if len(self.blocks) == 0:
-            return 0
         return block_utils.compute_num_elements(self.blocks, block_handles)
 
     def copyto(self, field_name, values, block_handles = None):

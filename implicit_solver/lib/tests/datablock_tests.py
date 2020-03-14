@@ -17,7 +17,7 @@ class ComponentTest:
         self.field_1 = np.ones((2, 2), dtype = np.int64) * 0.5
 
 def create_datablock(num_elements, block_size = 100):
-    datablock = common.DataBlock(ComponentTest, block_size, dummy_block=False)
+    datablock = common.DataBlock(ComponentTest, block_size)
     datablock.initialize(num_elements)
     return datablock
 

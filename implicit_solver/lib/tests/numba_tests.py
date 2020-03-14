@@ -15,7 +15,7 @@ class ComponentTest:
         self.field_1 = np.ones((2, 2), dtype = np.int64)
 
 def get_block_dtype(block_size = 100):
-    datablock = common.DataBlock(ComponentTest, block_size, dummy_block=True)
+    datablock = common.DataBlock(ComponentTest, block_size)
     return datablock.get_block_dtype()
 
 @numba.njit
