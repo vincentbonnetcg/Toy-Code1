@@ -146,7 +146,7 @@ class DataBlock:
         block_handles = block_utils.empty_block_handles()
         block_dtype = self.get_block_dtype()
 
-        global_element_id = self.compute_num_elements()
+        global_element_id = block_utils.compute_num_elements(self.blocks)
 
         # collect inactive block ids
         if reuse_inactive_block:
