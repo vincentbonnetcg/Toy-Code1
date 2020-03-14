@@ -34,10 +34,12 @@ class DataBlock:
         self.dtype_dict = {}
         self.dtype_dict['names'] = [] # list of names
         self.dtype_dict['formats'] = [] # list of tuples (data_type, data_shape)
+        self.dtype_value = None
         # Aosoa data type : (x, y, ...) becomes (self.block_size, x, y, ...)
-        self.dtype_aosoa_dict = {}
-        self.dtype_aosoa_dict['names'] = []
-        self.dtype_aosoa_dict['formats'] = []
+        self.dtype_block_dict = {}
+        self.dtype_block_dict['names'] = []
+        self.dtype_block_dict['formats'] = []
+        self.dtype_block = None
         # Default values
         self.defaults = () #  heterogeneous tuple storing defaults value
         # Block size
@@ -89,7 +91,7 @@ class DataBlock:
         for name, value in inst.__dict__.items():
             self.__check_before_add(name)
 
-            self.dtype_aosoa_dict['names'].append(name)
+            self.dtype_block_dict['names'].append(name)
             self.dtype_dict['names'].append(name)
             default_values.append(value)
 
@@ -103,33 +105,37 @@ class DataBlock:
                 # In case field_shape == self.block_size == 1,
                 # it guarantees an array will be produced and not a single value
                 aosoa_field_shape = (self.block_size,)
-                self.dtype_aosoa_dict['formats'].append((data_type, aosoa_field_shape))
+                self.dtype_block_dict['formats'].append((data_type, aosoa_field_shape))
             else:
                 data_type = value.dtype.type
                 data_shape = value.shape
                 self.dtype_dict['formats'].append((data_type, data_shape))
                 aosoa_field_shape = ([self.block_size] + list(data_shape))
-                self.dtype_aosoa_dict['formats'].append((data_type, aosoa_field_shape))
+                self.dtype_block_dict['formats'].append((data_type, aosoa_field_shape))
 
         self.defaults = tuple(default_values)
 
         # add block info
-        self.dtype_aosoa_dict['names'].append('blockInfo_numElements')
-        self.dtype_aosoa_dict['names'].append('blockInfo_active')
-        self.dtype_aosoa_dict['formats'].append(np.int64)
-        self.dtype_aosoa_dict['formats'].append(np.bool)
+        self.dtype_block_dict['names'].append('blockInfo_numElements')
+        self.dtype_block_dict['names'].append('blockInfo_active')
+        self.dtype_block_dict['formats'].append(np.int64)
+        self.dtype_block_dict['formats'].append(np.bool)
+
+        # create datatype
+        self.dtype_block = np.dtype(self.dtype_block_dict, align=True)
+        self.dtype_value = np.dtype(self.dtype_dict, align=True)
 
     def get_block_dtype(self):
         '''
-        Returns the aosoa dtype of the datablock
+        Returns the the dtype of a block
         '''
-        return np.dtype(self.dtype_aosoa_dict, align=True)
+        return self.dtype_block
 
     def get_scalar_dtype(self):
         '''
         Returns the value dtype of the datablock
         '''
-        return np.dtype(self.dtype_dict, align=True)
+        return self.dtype_value
 
     def initialize(self, num_elements):
         '''
