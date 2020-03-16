@@ -19,7 +19,6 @@ Datablock is a list of Blocks
 """
 
 import numba
-import math
 import numpy as np
 import keyword
 import lib.common.jit.node_accessor as na
@@ -149,38 +148,11 @@ class DataBlock:
         Initialize blocks and return new element ids
         '''
         global_element_id = block_utils.compute_num_elements(self.blocks)
-        inactive_block_handles = block_utils.empty_block_handles()
-        block_handles = block_utils.empty_block_handles()
         block_dtype = self.get_block_dtype()
 
-        # collect inactive block ids
-        if reuse_inactive_block:
-            inactive_block_handles = block_utils.inactive_block_handles(self.blocks)
-
-        # append blocks
-        n_blocks = math.ceil(num_elements / self.block_size)
-        for block_index in range(n_blocks):
-
-            block_handle = -1
-            block_container = None
-
-            if reuse_inactive_block and len(inactive_block_handles) > 0:
-                # reuse blocks
-                block_handle = inactive_block_handles.pop(0)
-                block_container = self.blocks[block_handle]
-            else:
-                # allocate a new block
-                block_handle = len(self.blocks)
-                block_container = block_utils.empty_block(block_dtype)
-                self.blocks.append(block_container)
-
-            begin_index = block_index * self.block_size
-            block_n_elements = min(self.block_size, num_elements-begin_index)
-            block_container[0]['blockInfo_numElements'] = block_n_elements
-            block_container[0]['blockInfo_active'] = True
-
-            # add block id to result
-            block_handles.append(block_handle)
+        block_handles = block_utils.append_blocks(self.blocks, block_dtype,
+                                                  reuse_inactive_block,
+                                                  num_elements, self.block_size)
 
         # set attributes
         for block_handle in block_handles:
@@ -193,6 +165,7 @@ class DataBlock:
             # set ID if available
             if self.hasID:
                 block_data_ID = block_container[0]['ID']
+                block_n_elements = block_container[0]['blockInfo_numElements']
                 for block_node_id in range(block_n_elements):
                     na.set_node_id(block_data_ID[block_node_id],
                                    global_element_id,
