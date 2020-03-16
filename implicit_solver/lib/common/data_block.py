@@ -148,17 +148,16 @@ class DataBlock:
         '''
         Initialize blocks and return new element ids
         '''
+        global_element_id = block_utils.compute_num_elements(self.blocks)
         inactive_block_handles = block_utils.empty_block_handles()
         block_handles = block_utils.empty_block_handles()
         block_dtype = self.get_block_dtype()
-
-        global_element_id = block_utils.compute_num_elements(self.blocks)
 
         # collect inactive block ids
         if reuse_inactive_block:
             inactive_block_handles = block_utils.inactive_block_handles(self.blocks)
 
-        # append block
+        # append blocks
         n_blocks = math.ceil(num_elements / self.block_size)
         for block_index in range(n_blocks):
 
@@ -180,7 +179,14 @@ class DataBlock:
             block_container[0]['blockInfo_numElements'] = block_n_elements
             block_container[0]['blockInfo_active'] = True
 
-            # set default values
+            # add block id to result
+            block_handles.append(block_handle)
+
+        # set attributes
+        for block_handle in block_handles:
+            block_container = self.blocks[block_handle]
+
+            # default values
             for field_id, default_value in enumerate(self.defaults):
                 block_container[0][field_id][:] = default_value
 
@@ -188,11 +194,11 @@ class DataBlock:
             if self.hasID:
                 block_data_ID = block_container[0]['ID']
                 for block_node_id in range(block_n_elements):
-                    na.set_node_id(block_data_ID[block_node_id], global_element_id, block_handle, block_node_id)
+                    na.set_node_id(block_data_ID[block_node_id],
+                                   global_element_id,
+                                   block_handle,
+                                   block_node_id)
                     global_element_id += 1
-
-            # add block id to result
-            block_handles.append(block_handle)
 
         return block_handles
 
