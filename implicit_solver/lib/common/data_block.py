@@ -21,7 +21,6 @@ Datablock is a list of Blocks
 import numba
 import numpy as np
 import keyword
-import lib.common.jit.node_accessor as na
 import lib.common.jit.block_utils as block_utils
 
 class DataBlock:
@@ -145,7 +144,8 @@ class DataBlock:
 
     def append(self, num_elements : int, reuse_inactive_block : bool = False):
         '''
-        Initialize blocks and return new element ids
+        Return a list of new blocks
+        Initialize with default values
         '''
         block_dtype = self.get_block_dtype()
         block_handles = None
@@ -166,6 +166,24 @@ class DataBlock:
                 if self.dtype_block_dict['names'][field_id] != 'ID':
                     block_container[0][field_id][:] = default_value
 
+        return block_handles
+
+
+    def append_empty(self, num_elements : int, reuse_inactive_block : bool = False):
+        '''
+        Return a list of uninitialized blocks
+        '''
+        block_dtype = self.get_block_dtype()
+        block_handles = None
+
+        if self.hasID:
+            block_handles = block_utils.append_blocks_with_ID(self.blocks, block_dtype,
+                                                      reuse_inactive_block,
+                                                      num_elements, self.block_size)
+        else:
+            block_handles = block_utils.append_blocks(self.blocks, block_dtype,
+                                                      reuse_inactive_block,
+                                                      num_elements, self.block_size)
         return block_handles
 
     '''

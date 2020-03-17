@@ -13,7 +13,7 @@ class Dynamic:
     def __init__(self, details, shape, node_mass):
         # Allocate node data
         self.total_nodes = shape.num_vertices()
-        self.block_handles = details.node.append(self.total_nodes)
+        self.block_handles = details.node.append_empty(self.total_nodes)
         self.node_ids = details.node.flatten('ID', self.block_handles)
 
         # Set node data

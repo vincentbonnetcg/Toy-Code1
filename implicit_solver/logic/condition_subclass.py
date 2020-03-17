@@ -26,7 +26,7 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
         return False
 
     # allocate
-    block_handles = data.append(num_constraints, reuse_inactive_block=True)
+    block_handles = data.append_empty(num_constraints, reuse_inactive_block=True)
     condition.block_handles = block_handles
 
     # copy to datablock
