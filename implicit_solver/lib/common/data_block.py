@@ -174,17 +174,15 @@ class DataBlock:
         Return a list of uninitialized blocks
         '''
         block_dtype = self.get_block_dtype()
-        block_handles = None
 
         if self.hasID:
-            block_handles = block_utils.append_blocks_with_ID(self.blocks, block_dtype,
+            return block_utils.append_blocks_with_ID(self.blocks, block_dtype,
                                                       reuse_inactive_block,
                                                       num_elements, self.block_size)
-        else:
-            block_handles = block_utils.append_blocks(self.blocks, block_dtype,
-                                                      reuse_inactive_block,
-                                                      num_elements, self.block_size)
-        return block_handles
+
+        return block_utils.append_blocks(self.blocks, block_dtype,
+                                         reuse_inactive_block,
+                                         num_elements, self.block_size)
 
     '''
     DISABLE FOR NOW - NEED FIX
