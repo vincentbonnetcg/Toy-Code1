@@ -147,31 +147,24 @@ class DataBlock:
         '''
         Initialize blocks and return new element ids
         '''
-        global_element_id = block_utils.compute_num_elements(self.blocks)
         block_dtype = self.get_block_dtype()
+        block_handles = None
 
-        block_handles = block_utils.append_blocks(self.blocks, block_dtype,
-                                                  reuse_inactive_block,
-                                                  num_elements, self.block_size)
+        if self.hasID:
+            block_handles = block_utils.append_blocks_with_ID(self.blocks, block_dtype,
+                                                      reuse_inactive_block,
+                                                      num_elements, self.block_size)
+        else:
+            block_handles = block_utils.append_blocks(self.blocks, block_dtype,
+                                                      reuse_inactive_block,
+                                                      num_elements, self.block_size)
 
-        # set attributes
+        # set default values exept for the reserved attribute ID
         for block_handle in block_handles:
             block_container = self.blocks[block_handle]
-
-            # default values
             for field_id, default_value in enumerate(self.defaults):
-                block_container[0][field_id][:] = default_value
-
-            # set ID if available
-            if self.hasID:
-                block_data_ID = block_container[0]['ID']
-                block_n_elements = block_container[0]['blockInfo_numElements']
-                for block_node_id in range(block_n_elements):
-                    na.set_node_id(block_data_ID[block_node_id],
-                                   global_element_id,
-                                   block_handle,
-                                   block_node_id)
-                    global_element_id += 1
+                if self.dtype_block_dict['names'][field_id] != 'ID':
+                    block_container[0][field_id][:] = default_value
 
         return block_handles
 

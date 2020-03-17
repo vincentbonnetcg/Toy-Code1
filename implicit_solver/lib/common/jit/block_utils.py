@@ -6,6 +6,7 @@
 import math
 import numba
 import numpy as np
+import lib.common.jit.node_accessor as na
 
 @numba.njit
 def empty_block_handles():
@@ -77,5 +78,27 @@ def append_blocks(blocks, block_dtype, reuse_inactive_block, num_elements, block
 
         # add block id to result
         block_handles.append(block_handle)
+
+    return block_handles
+
+@numba.njit
+def append_blocks_with_ID(blocks, block_dtype, reuse_inactive_block, num_elements, block_size):
+    global_element_id = compute_num_elements(blocks)
+
+    block_handles = append_blocks(blocks, block_dtype, reuse_inactive_block, num_elements, block_size)
+
+    num_blocks = len(block_handles)
+    for i in range(num_blocks):
+        block_handle = block_handles[i]
+        block_container = blocks[block_handle]
+        block_data_ID = block_container[0]['ID']
+        block_n_elements = block_container[0]['blockInfo_numElements']
+
+        for block_node_id in range(block_n_elements):
+            na.set_node_id(block_data_ID[block_node_id],
+                           global_element_id,
+                           block_handle,
+                           block_node_id)
+            global_element_id += 1
 
     return block_handles
