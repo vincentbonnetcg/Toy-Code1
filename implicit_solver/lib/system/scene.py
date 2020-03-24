@@ -30,7 +30,7 @@ class Scene:
             animation = self.animators[index]
             if animation:
                 position, rotation = animation.get_value(time)
-                kinematic.state.update(position, rotation, dt)
+                kinematic.update(position, rotation, dt)
 
     def num_nodes(self):
         num_nodes = 0

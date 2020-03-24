@@ -30,9 +30,9 @@ class Kinematic:
             self.angular_velocity = np.float(0.0)
             self.rotation_matrix = np.zeros((2,2))
             self.inverse_rotation_matrix = np.zeros((2,2))
-            self.update(position, rotation)
+            self.update_matrices(position, rotation)
 
-        def update(self, position = (0.0, 0.0), rotation = 0.0, dt = 0.0):
+        def update_velocities(self, position = (0.0, 0.0), rotation = 0.0, dt = 0.0):
             '''
             Updates the state
             '''
@@ -45,6 +45,7 @@ class Kinematic:
                     shortest_angle -= 360.0
                     self.angular_velocity = shortest_angle * inv_dt
 
+        def update_matrices(self, position = (0.0, 0.0), rotation = 0.0):
             # Updates position and rotation
             self.position = np.asarray(position)
             self.rotation = np.float(rotation)
@@ -59,25 +60,31 @@ class Kinematic:
 
     def __init__(self, shape, position = (0., 0.), rotation = 0.):
         self.state = Kinematic.State(position = position, rotation = rotation)
-        self.vertices = np.copy(shape.vertex)
+        self.local_vertex = np.copy(shape.vertex)
         self.face_ids = np.copy(shape.face)
         self.surface_edge_ids, self.surface_edge_normals = shape.get_edge_surface_data()
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
+        self.vertex = np.copy(shape.vertex)
         self.meta_data = {} # Metadata
+        self.update(position, rotation)
 
     def set_indexing(self, index):
         self.index = index
 
     def get_as_shape(self):
-        shape = Shape(len(self.vertices), len(self.surface_edge_ids), len(self.face_ids))
-        np.copyto(shape.vertex, self.vertices)
+        shape = Shape(len(self.vertex), len(self.surface_edge_ids), len(self.face_ids))
+        np.copyto(shape.vertex, self.vertex)
         np.copyto(shape.edge, self.surface_edge_ids)
         np.copyto(shape.face, self.face_ids)
-
-        np.matmul(shape.vertex, self.state.rotation_matrix, out=shape.vertex)
-        np.add(shape.vertex, self.state.position, out=shape.vertex)
-
         return shape
+
+    def update(self, position, rotation, dt = 0.0):
+        # Update state
+        self.state.update_velocities(position, rotation, dt)
+        self.state.update_matrices(position, rotation)
+        # Update vertices
+        np.matmul(self.local_vertex, self.state.rotation_matrix, out=self.vertex)
+        np.add(self.vertex, self.state.position, out=self.vertex)
 
     def get_closest_parametric_value(self, point):
         '''
@@ -87,11 +94,11 @@ class Kinematic:
         inv_R = self.state.inverse_rotation_matrix
         local_point = np.matmul(point - self.state.position, inv_R)
 
-        edge_id, edge_t = geo.get_closest_parametric_value(local_point, self.vertices, self.surface_edge_ids)
+        edge_id, edge_t = geo.get_closest_parametric_value(local_point, self.local_vertex, self.surface_edge_ids)
         return Kinematic.ParametricPoint(edge_id, edge_t)
 
     def get_position_from_parametric_point(self, param):
-        edge_vtx = np.take(self.vertices, self.surface_edge_ids[param.index], axis=0)
+        edge_vtx = np.take(self.local_vertex, self.surface_edge_ids[param.index], axis=0)
         local_point = edge_vtx[0] * (1.0 - param.t) + edge_vtx[1] * param.t
         R = self.state.rotation_matrix
         return np.matmul(local_point, R) + self.state.position
@@ -107,5 +114,5 @@ class Kinematic:
         '''
         inv_R = self.state.inverse_rotation_matrix
         local_point = np.matmul(point - self.state.position, inv_R)
-        return geo.is_inside(local_point, self.vertices, self.face_ids)
+        return geo.is_inside(local_point, self.local_vertex, self.face_ids)
 
