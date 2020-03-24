@@ -91,28 +91,19 @@ class Kinematic:
         Returns a pair [edgeId, line parameter (t)] which define
         the closest point on the convex hull
         '''
-        inv_R = self.state.inverse_rotation_matrix
-        local_point = np.matmul(point - self.state.position, inv_R)
-
-        edge_id, edge_t = geo.get_closest_parametric_value(local_point, self.local_vertex, self.surface_edge_ids)
+        edge_id, edge_t = geo.get_closest_parametric_value(point, self.vertex, self.surface_edge_ids)
         return Kinematic.ParametricPoint(edge_id, edge_t)
 
     def get_position_from_parametric_point(self, param):
-        edge_vtx = np.take(self.local_vertex, self.surface_edge_ids[param.index], axis=0)
-        local_point = edge_vtx[0] * (1.0 - param.t) + edge_vtx[1] * param.t
-        R = self.state.rotation_matrix
-        return np.matmul(local_point, R) + self.state.position
+        edge_vtx = np.take(self.vertex, self.surface_edge_ids[param.index], axis=0)
+        return edge_vtx[0] * (1.0 - param.t) + edge_vtx[1] * param.t
 
     def get_normal_from_parametric_point(self, param):
-        local_normal = self.surface_edge_normals[param.index]
-        R = self.state.rotation_matrix
-        return np.matmul(local_normal, R)
+        return self.surface_edge_normals[param.index]
 
     def is_inside(self, point):
         '''
         Returns whether or not the point is inside the kinematic
         '''
-        inv_R = self.state.inverse_rotation_matrix
-        local_point = np.matmul(point - self.state.position, inv_R)
-        return geo.is_inside(local_point, self.local_vertex, self.face_ids)
+        return geo.is_inside(point, self.vertex, self.face_ids)
 
