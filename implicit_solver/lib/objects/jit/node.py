@@ -8,9 +8,6 @@ import numpy as np
 import lib.common.jit.node_accessor as na
 
 class Node:
-    '''
-    Describes the constraint base
-    '''
     def __init__(self):
         self.x = np.zeros(2, dtype = np.float64)
         self.v = np.zeros(2, dtype = np.float64)
