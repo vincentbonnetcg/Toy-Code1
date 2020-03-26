@@ -1,6 +1,6 @@
 """
 @author: Vincent Bonnet
-@description : Simplices to store point, line, triangle, tetrahedron
+@description : Simplices to store point, edge, triangle, tetrahedron
 """
 
 import numpy as np
@@ -11,7 +11,7 @@ class Point:
         self.x = np.zeros(2, dtype = np.float64)
         self.ID = na.emtpy_node_id()
 
-class Line:
+class Edge:
     def __init__(self):
         self.point_IDs = na.empty_node_ids(2)
 

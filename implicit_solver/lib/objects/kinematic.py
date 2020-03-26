@@ -58,7 +58,7 @@ class Kinematic:
             c, s = np.cos(-theta), np.sin(-theta)
             self.inverse_rotation_matrix = np.array(((c, -s), (s, c)))
 
-    def __init__(self, shape, position = (0., 0.), rotation = 0.):
+    def __init__(self, details, shape, position = (0., 0.), rotation = 0.):
         self.state = Kinematic.State(position = position, rotation = rotation)
         self.local_vertex = np.copy(shape.vertex)
         self.face_ids = np.copy(shape.face)

@@ -26,11 +26,18 @@ class SolverDetails:
     '''
     def __init__(self):
         block_size = 100
-        self.node = cm.DataBlock(cpn.Node, block_size) # dynamic objects
-        self.area = cm.DataBlock(cpn.Area, block_size) # area constraints
-        self.bending = cm.DataBlock(cpn.Bending, block_size) # bending constraints
-        self.spring = cm.DataBlock(cpn.Spring, block_size) # spring constraints
-        self.anchorSpring = cm.DataBlock(cpn.AnchorSpring, block_size) # anchor spring constraints
+        # dynamics
+        self.node = cm.DataBlock(cpn.Node, block_size) # nodes
+        # constraints
+        self.area = cm.DataBlock(cpn.Area, block_size) # area
+        self.bending = cm.DataBlock(cpn.Bending, block_size) # bending rod
+        self.spring = cm.DataBlock(cpn.Spring, block_size) # spring
+        self.anchorSpring = cm.DataBlock(cpn.AnchorSpring, block_size) # anchor spring
+        # kinematics
+        self.point = cm.DataBlock(cpn.Point, block_size) # point
+        self.edge = cm.DataBlock(cpn.Edge, block_size) # edge
+        self.triangle = cm.DataBlock(cpn.Triangle, block_size) # triangle
+        self.tetrahedron = cm.DataBlock(cpn.Tetrahedron, block_size) # tetrahedron
 
     def block_from_datatype(self, datatype):
         blocks = [self.node, self.area, self.bending, self.spring, self.anchorSpring]

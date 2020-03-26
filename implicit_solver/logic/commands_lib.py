@@ -13,11 +13,11 @@ def set_render_prefs(obj, prefs):
     '''
     obj.meta_data['render_prefs'] = prefs
 
-def add_kinematic(scene, shape, position = (0., 0.), rotation = 0., animator = None):
+def add_kinematic(scene, details, shape, position = (0., 0.), rotation = 0., animator = None):
     '''
     Add a Kinematic object
     '''
-    kinematic = objects.Kinematic(shape, position, rotation)
+    kinematic = objects.Kinematic(details, shape, position, rotation)
     scene.add_kinematic(kinematic, animator)
     return kinematic
 
