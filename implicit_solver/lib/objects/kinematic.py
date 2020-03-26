@@ -95,8 +95,9 @@ class Kinematic:
         return Kinematic.ParametricPoint(edge_id, edge_t)
 
     def get_position_from_parametric_point(self, param):
-        edge_vtx = np.take(self.vertex, self.surface_edge_ids[param.index], axis=0)
-        return edge_vtx[0] * (1.0 - param.t) + edge_vtx[1] * param.t
+        v0 = self.surface_edge_ids[param.index][0]
+        v1 = self.surface_edge_ids[param.index][1]
+        return self.vertex[v0] * (1.0 - param.t) + self.vertex[v1] * param.t
 
     def get_normal_from_parametric_point(self, param):
         return self.surface_edge_normals[param.index]
