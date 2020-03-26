@@ -41,7 +41,9 @@ class SolverDetails:
 
     def block_from_datatype(self, datatype):
         blocks = [self.node, self.area, self.bending, self.spring, self.anchorSpring]
+        blocks += [self.point, self.edge, self.triangle, self.tetrahedron]
         datatypes = [cpn.Node, cpn.Area, cpn.Bending, cpn.Spring, cpn.AnchorSpring]
+        datatypes += [cpn.Point, cpn.Edge, cpn.Triangle, cpn.Tetrahedron]
         index = datatypes.index(datatype)
         return blocks[index]
 
