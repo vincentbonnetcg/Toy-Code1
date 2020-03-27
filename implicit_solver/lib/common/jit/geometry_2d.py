@@ -7,6 +7,15 @@ import numba
 import lib.common.jit.math_2d as math2D
 import numpy as np
 
+parametricSpec = [('index', numba.int32), # simplex index
+             ('t', numba.float32)] # parametric value
+
+@numba.jitclass(parametricSpec)
+class ParametricPoint(object):
+    def __init__(self, index, t):
+        self.index = index
+        self.t = t
+
 @numba.njit
 def is_inside(point, vertices, face_ids):
     for i in range(len(face_ids)):

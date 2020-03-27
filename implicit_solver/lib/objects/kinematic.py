@@ -6,19 +6,12 @@
 import math
 import numpy as np
 from lib.common import Shape
-import lib.common.jit.geometry_2d as geo
+import lib.common.jit.geometry_2d as geo2d_lib
 
 class Kinematic:
     '''
     Kinematic describes an animated object
     '''
-    class ParametricPoint:
-        __slots__  = ['index', 't']
-
-        def __init__(self, index : int, t : float):
-            self.index = index # simplex index
-            self.t = t # parametrix value
-
     class State:
         '''
         State of a kinematic object
@@ -108,8 +101,8 @@ class Kinematic:
         Returns a pair [edgeId, line parameter (t)] which define
         the closest point on the convex hull
         '''
-        edge_id, edge_t = geo.get_closest_parametric_value(point, self.vertex, self.surface_edge_ids)
-        return Kinematic.ParametricPoint(edge_id, edge_t)
+        edge_id, edge_t = geo2d_lib.get_closest_parametric_value(point, self.vertex, self.surface_edge_ids)
+        return geo2d_lib.ParametricPoint(edge_id, edge_t)
 
     def get_position_from_parametric_point(self, param):
         v0 = self.surface_edge_ids[param.index][0]
@@ -123,5 +116,5 @@ class Kinematic:
         '''
         Returns whether or not the point is inside the kinematic
         '''
-        return geo.is_inside(point, self.vertex, self.face_ids)
+        return geo2d_lib.is_inside(point, self.vertex, self.face_ids)
 
