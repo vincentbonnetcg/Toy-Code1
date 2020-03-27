@@ -61,12 +61,27 @@ class Kinematic:
     def __init__(self, details, shape, position = (0., 0.), rotation = 0.):
         self.state = Kinematic.State(position = position, rotation = rotation)
         self.local_vertex = np.copy(shape.vertex)
-        self.face_ids = np.copy(shape.face)
-        self.surface_edge_ids, self.surface_edge_normals = shape.get_edge_surface_data()
-        self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
+        # local memory - will be remove
         self.vertex = np.copy(shape.vertex)
-        self.meta_data = {} # Metadata
+        self.surface_edge_ids, self.surface_edge_normals = shape.get_edge_surface_data()
+        self.face_ids = np.copy(shape.face)
+        # append points
+        self.point_handles =  details.point.append_empty(len(self.vertex))
+        details.point.copyto('x', shape.vertex, self.point_handles)
+        point_ids = details.point.flatten('ID', self.point_handles)
+        # append edges
+        self.edge_handles = details.edge.append_empty(len(self.surface_edge_ids))
+        edge_pids = np.take(point_ids, self.surface_edge_ids, axis=0)
+        details.edge.copyto('normal', self.surface_edge_normals, self.edge_handles)
+        details.edge.copyto('point_IDs', edge_pids, self.edge_handles)
+        # append triangles
+        self.triangle_handles = details.triangle.append_empty(len(self.face_ids))
+        triangle_pids = np.take(point_ids, self.face_ids, axis=0)
+        details.triangle.copyto('point_IDs', triangle_pids, self.triangle_handles)
+        # update vertices
         self.update(position, rotation)
+        self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
+        self.meta_data = {}
 
     def set_indexing(self, index):
         self.index = index
