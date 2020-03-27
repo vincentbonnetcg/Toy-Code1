@@ -14,6 +14,7 @@ class Point:
 class Edge:
     def __init__(self):
         self.point_IDs = na.empty_node_ids(2)
+        self.normal = np.zeros(2, dtype = np.float64)
 
 class Triangle:
     def __init__(self):
