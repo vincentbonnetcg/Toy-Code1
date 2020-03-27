@@ -22,15 +22,15 @@ class Scene:
         self.kinematics.append(kinematic)
         self.animators.append(animator)
 
-    def init_kinematics(self, start_time):
-        self.update_kinematics(start_time, dt = 0.0)
+    def init_kinematics(self, details, start_time):
+        self.update_kinematics(details, start_time, dt = 0.0)
 
-    def update_kinematics(self, time, dt):
+    def update_kinematics(self, details, time, dt):
         for index, kinematic in enumerate(self.kinematics):
             animation = self.animators[index]
             if animation:
                 position, rotation = animation.get_value(time)
-                kinematic.update(position, rotation, dt)
+                kinematic.update(details, position, rotation, dt)
 
     def num_nodes(self):
         num_nodes = 0

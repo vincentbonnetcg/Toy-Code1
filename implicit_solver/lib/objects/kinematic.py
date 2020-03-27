@@ -79,7 +79,7 @@ class Kinematic:
         triangle_pids = np.take(point_ids, self.face_ids, axis=0)
         details.triangle.copyto('point_IDs', triangle_pids, self.triangle_handles)
         # update vertices
-        self.update(position, rotation)
+        self.update(details, position, rotation)
         self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
         self.meta_data = {}
 
@@ -93,13 +93,15 @@ class Kinematic:
         np.copyto(shape.face, self.face_ids)
         return shape
 
-    def update(self, position, rotation, dt = 0.0):
+    def update(self, details, position, rotation, dt = 0.0):
         # Update state
         self.state.update_velocities(position, rotation, dt)
         self.state.update_matrices(position, rotation)
-        # Update vertices
+        # Update vertices - to remove
         np.matmul(self.local_vertex, self.state.rotation_matrix, out=self.vertex)
         np.add(self.vertex, self.state.position, out=self.vertex)
+        # Update vertices
+        #details.point.copyto('x', self.local_vertex, self.point_handles)
 
     def get_closest_parametric_value(self, point):
         '''
