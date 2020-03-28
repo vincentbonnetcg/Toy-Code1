@@ -6,7 +6,10 @@
 import math
 import numpy as np
 from lib.common import Shape
+import numba # required by lib.common.code_gen
+import lib.common.code_gen as generate
 import lib.common.jit.geometry_2d as geo2d_lib
+import lib.objects.jit as cpn
 
 class Kinematic:
     '''
@@ -59,7 +62,7 @@ class Kinematic:
         self.surface_edge_ids, self.surface_edge_normals = shape.get_edge_surface_data()
         self.face_ids = np.copy(shape.face)
         # append points
-        self.point_handles =  details.point.append_empty(len(self.vertex))
+        self.point_handles =  details.point.append_empty(len(self.local_vertex))
         details.point.copyto('x', shape.vertex, self.point_handles)
         point_ids = details.point.flatten('ID', self.point_handles)
         # append edges
@@ -79,9 +82,9 @@ class Kinematic:
     def set_indexing(self, index):
         self.index = index
 
-    def get_as_shape(self):
-        shape = Shape(len(self.vertex), len(self.surface_edge_ids), len(self.face_ids))
-        np.copyto(shape.vertex, self.vertex)
+    def get_as_shape(self, details):
+        shape = Shape(len(self.local_vertex), len(self.surface_edge_ids), len(self.face_ids))
+        np.copyto(shape.vertex, details.point.flatten('x', self.point_handles))
         np.copyto(shape.edge, self.surface_edge_ids)
         np.copyto(shape.face, self.face_ids)
         return shape
@@ -91,10 +94,14 @@ class Kinematic:
         self.state.update_velocities(position, rotation, dt)
         self.state.update_matrices(position, rotation)
         # Update vertices - to remove
-        np.matmul(self.local_vertex, self.state.rotation_matrix, out=self.vertex)
+        np.dot(self.local_vertex, self.state.rotation_matrix, out=self.vertex)
         np.add(self.vertex, self.state.position, out=self.vertex)
         # Update vertices
-        #details.point.copyto('x', self.local_vertex, self.point_handles)
+        details.point.copyto('x', self.local_vertex, self.point_handles)
+        cpn.simplex.transformPoint(details.point,
+                                   self.state.rotation_matrix,
+                                   self.state.position,
+                                   self.point_handles)
 
     def get_closest_parametric_value(self, point):
         '''

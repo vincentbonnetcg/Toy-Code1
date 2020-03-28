@@ -4,8 +4,8 @@
 """
 
 import numba
-import lib.common.jit.math_2d as math2D
 import numpy as np
+import lib.common.jit.math_2d as math2D
 
 parametricSpec = [('index', numba.int32), # simplex index
              ('t', numba.float32)] # parametric value

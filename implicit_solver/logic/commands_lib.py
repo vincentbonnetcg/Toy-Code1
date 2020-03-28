@@ -51,6 +51,13 @@ def get_nodes_from_dynamic(scene, index, details):
     dynamic = scene.dynamics[index]
     return details.node.flatten('x', dynamic.block_handles)
 
+def get_shape_from_kinematic(scene, index, details):
+    '''
+    Get points from kinematic
+    '''
+    kinematic = scene.kinematics[index]
+    return kinematic.get_as_shape(details)
+
 def get_segments_from_constraint(scene, index, details):
     '''
     Get position from constraint object

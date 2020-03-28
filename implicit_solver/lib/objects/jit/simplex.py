@@ -4,7 +4,10 @@
 """
 
 import numpy as np
+import numba # required by lib.common.code_gen
+
 import lib.common.jit.node_accessor as na
+import lib.common.code_gen as generate
 
 class Point:
     def __init__(self):
@@ -24,3 +27,8 @@ class Tetrahedron:
     def __init__(self):
         self.point_IDs = na.empty_node_ids(4)
 
+@generate.as_vectorized(njit=True,block_handles=True)
+def transformPoint(point : Point, rotation_matrix, translate):
+    #np.dot(point.x, rotation_matrix, out=point.x) #  not working with Numba0.45.1
+    point.x = np.dot(point.x, rotation_matrix)
+    point.x += translate

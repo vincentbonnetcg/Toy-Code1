@@ -107,13 +107,13 @@ class Render:
         stats_avg_block_per_objects = round(stats_avg_block_per_objects, 2)
 
         # Draw kinematics
-        for kinematic in scene.kinematics:
+        for kinematic_id, kinematic in enumerate(scene.kinematics):
             render_prefs = kinematic.meta_data.get("render_prefs" , None)
             if render_prefs is None:
                 continue
 
             triangles = []
-            shape = kinematic.get_as_shape()
+            shape = dispatcher.run('get_shape_from_kinematic', index=kinematic_id)
             for face_id in shape.face:
                 v0 = shape.vertex[face_id[0]]
                 v1 = shape.vertex[face_id[1]]
