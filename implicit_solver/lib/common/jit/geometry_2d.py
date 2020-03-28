@@ -44,9 +44,7 @@ def is_inside(point, vertices, face_ids):
 
 @numba.njit
 def get_closest_parametric_value(point, vertices, edge_ids):
-    edge_id = -1
-    edge_t = 0.0
-
+    result = ParametricPoint(-1, 0.0)
     min_distance2 = np.finfo(np.float64).max
 
     for i in range(len(edge_ids)):
@@ -63,8 +61,8 @@ def get_closest_parametric_value(point, vertices, edge_ids):
         distance2 = math2D.dot(vector_distance, vector_distance)
         # update the minimum distance
         if distance2 < min_distance2:
-            edge_id = i
-            edge_t = t
+            result.index = i
+            result.t = t
             min_distance2 = distance2
 
-    return edge_id, edge_t
+    return result

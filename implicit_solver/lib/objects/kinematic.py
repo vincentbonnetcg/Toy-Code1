@@ -6,8 +6,6 @@
 import math
 import numpy as np
 from lib.common import Shape
-import numba # required by lib.common.code_gen
-import lib.common.code_gen as generate
 import lib.common.jit.geometry_2d as geo2d_lib
 import lib.objects.jit as cpn
 
@@ -105,11 +103,9 @@ class Kinematic:
 
     def get_closest_parametric_value(self, point):
         '''
-        Returns a pair [edgeId, line parameter (t)] which define
-        the closest point on the convex hull
+        return the closest parametric value
         '''
-        edge_id, edge_t = geo2d_lib.get_closest_parametric_value(point, self.vertex, self.surface_edge_ids)
-        return geo2d_lib.ParametricPoint(edge_id, edge_t)
+        return geo2d_lib.get_closest_parametric_value(point, self.vertex, self.surface_edge_ids)
 
     def get_position_from_parametric_point(self, param):
         v0 = self.surface_edge_ids[param.index][0]
