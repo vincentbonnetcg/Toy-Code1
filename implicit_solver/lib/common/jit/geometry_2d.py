@@ -8,13 +8,17 @@ import numpy as np
 import lib.common.jit.math_2d as math2D
 
 parametricSpec = [('index', numba.int32), # simplex index
-             ('t', numba.float32)] # parametric value
+                  ('t', numba.float32), # parametric value
+                  ('position', numba.float64[:]),  # position
+                  ('normal', numba.float64[:])]  # normal
 
 @numba.jitclass(parametricSpec)
 class ParametricPoint(object):
     def __init__(self, index, t):
         self.index = index
         self.t = t
+        self.position = np.zeros(2, dtype=np.float64)
+        self.normal = np.zeros(2, dtype=np.float64)
 
 @numba.njit
 def is_inside(point, vertices, face_ids):
@@ -43,8 +47,8 @@ def is_inside(point, vertices, face_ids):
     return False
 
 @numba.njit
-def get_closest_parametric_value(point, vertices, edge_ids):
-    result = ParametricPoint(-1, 0.0)
+def get_closest_position(point, vertices, edge_ids, edge_normals):
+    param = ParametricPoint(-1, 0.0)
     min_distance2 = np.finfo(np.float64).max
 
     for i in range(len(edge_ids)):
@@ -61,8 +65,16 @@ def get_closest_parametric_value(point, vertices, edge_ids):
         distance2 = math2D.dot(vector_distance, vector_distance)
         # update the minimum distance
         if distance2 < min_distance2:
-            result.index = i
-            result.t = t
+            param.index = i
+            param.t = t
             min_distance2 = distance2
 
-    return result
+    # set position
+    v0 = edge_ids[param.index][0]
+    v1 = edge_ids[param.index][1]
+    param.position = vertices[v0] * (1.0 - param.t) + vertices[v1] * param.t
+
+    # set normal
+    param.normal = edge_normals[param.index]
+
+    return param

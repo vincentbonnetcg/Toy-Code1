@@ -101,23 +101,14 @@ class Kinematic:
                                    self.state.position,
                                    self.point_handles)
 
-    def get_closest_parametric_value(self, point):
-        '''
-        return the closest parametric value
-        '''
-        return geo2d_lib.get_closest_parametric_value(point, self.vertex, self.surface_edge_ids)
+    def get_closest_position(self, point):
+        return geo2d_lib.get_closest_position(point, self.vertex, self.surface_edge_ids, self.surface_edge_normals)
 
     def get_position_from_parametric_point(self, param):
         v0 = self.surface_edge_ids[param.index][0]
         v1 = self.surface_edge_ids[param.index][1]
         return self.vertex[v0] * (1.0 - param.t) + self.vertex[v1] * param.t
 
-    def get_normal_from_parametric_point(self, param):
-        return self.surface_edge_normals[param.index]
-
     def is_inside(self, point):
-        '''
-        Returns whether or not the point is inside the kinematic
-        '''
         return geo2d_lib.is_inside(point, self.vertex, self.face_ids)
 

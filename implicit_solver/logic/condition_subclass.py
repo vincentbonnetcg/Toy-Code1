@@ -93,15 +93,14 @@ class KinematicCollisionCondition(Condition):
             node_ids = [data_node_id[i]]
 
             if (kinematic.is_inside(node_pos)):
-                attachment_point_params = kinematic.get_closest_parametric_value(node_pos)
-                target_normal = kinematic.get_normal_from_parametric_point(attachment_point_params)
-                if (np.dot(target_normal, node_vel) < 0.0):
+                closest_pos = kinematic.get_closest_position(node_pos)
+                if (np.dot(closest_pos.normal, node_vel) < 0.0):
                     # add spring
                     spring = cpn.AnchorSpring()
                     spring.kinematic_index = np.uint32(kinematic.index)
-                    spring.kinematic_component_index =  np.uint32(attachment_point_params.index)
-                    spring.kinematic_component_param = np.float64(attachment_point_params.t)
-                    spring.kinematic_component_pos = kinematic.get_position_from_parametric_point(attachment_point_params)
+                    spring.kinematic_component_index =  np.uint32(closest_pos.index)
+                    spring.kinematic_component_param = np.float64(closest_pos.t)
+                    spring.kinematic_component_pos = closest_pos.position
                     spring.node_IDs = np.copy(node_ids)
                     spring.stiffness = self.stiffness
                     spring.damping = self.damping
@@ -139,17 +138,16 @@ class KinematicAttachmentCondition(Condition):
             node_pos = data_x[i]
             node_ids = [data_node_id[i]]
 
-            attachment_point_params = kinematic.get_closest_parametric_value(node_pos)
-            attachment_point = kinematic.get_position_from_parametric_point(attachment_point_params)
-            direction = (attachment_point - node_pos)
+            closest_pos = kinematic.get_closest_position(node_pos)
+            direction = (closest_pos.position - node_pos)
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
                 # add spring
                 spring = cpn.AnchorSpring()
                 spring.kinematic_index = np.uint32(kinematic.index)
-                spring.kinematic_component_index =  np.uint32(attachment_point_params.index)
-                spring.kinematic_component_param = np.float64(attachment_point_params.t)
-                spring.kinematic_component_pos = attachment_point
+                spring.kinematic_component_index =  np.uint32(closest_pos.index)
+                spring.kinematic_component_param = np.float64(closest_pos.t)
+                spring.kinematic_component_pos = closest_pos.position
                 spring.node_IDs = np.copy(node_ids)
                 spring.stiffness = self.stiffness
                 spring.damping = self.damping
