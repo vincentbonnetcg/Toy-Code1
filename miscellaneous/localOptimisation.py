@@ -12,26 +12,26 @@ from mpl_toolkits.mplot3d import Axes3D
 '''
 # Step parameter
 NORMALIZED_STEP = True  # Only Gradient Descent
-SCALE_STEP = 0.1 # Newton Method and Gradient Descent
+SCALE_STEP = 0.02 # Newton Method and Gradient Descent
 # Termination condition
-MAX_ITERATIONS = 100
-THRESHOLD = 0.00001
+MAX_ITERATIONS = 200
+THRESHOLD = 1e-07
 
 '''
  1D Function For Example
 '''
 class function1D():
     def guess():
-        return 3.0
+        return np.array(3.0)
 
     def value(X):
         return np.sin(X)
 
     def gradient(X):
-        return np.cos(X)
+        return np.array(np.cos(X))
 
-    def hessian(X):
-        return np.sin(X) * -1.0
+    def inv_hessian(X):
+        return np.array(1.0 / np.sin(X) * -1.0)
 
 '''
  2D Function For Example
@@ -41,16 +41,26 @@ class function2D():
         return np.array([0.5,0.6])
 
     def value(X):
-        return X[0]*np.exp(-X[0]**2-X[1]**2)*0.75
+        exp = np.exp(-X[0]**2-X[1]**2)
+        return 0.75 * X[0] * exp
 
     def gradient(X):
-        dfdx = (6*X[0]**2 - 3)*np.exp(-X[0]**2-X[1]**2) * -0.25
-        dfdy = (3*X[0]*X[1])*np.exp(-X[1]**2-X[0]**2) * -3/2
+        exp = np.exp(-X[0]**2-X[1]**2)
+        dfdx = 0.75 * (exp - 2*exp*X[0]**2)
+        dfdy = -1.5 * exp * X[0] * X[1]
         return np.array([dfdx, dfdy])
 
-    def hessian(X):
-        # TODO
-        return None
+    def inv_hessian(X):
+        exp = np.exp(-X[0]**2-X[1]**2)
+        dfdxx = 0.75 * (4*exp*X[0]**3 - 6*exp*X[0])
+        dfdxy = 0.75 * (-2*exp*X[1] + 4*exp*X[0]**2*X[1])
+        dfdyy = -1.5 * X[0] * (-2*exp*X[1]**2 + exp)
+        hessian = np.zeros((2,2))
+        hessian[0][0] = dfdxx
+        hessian[1][1] = dfdyy
+        hessian[0][1] = dfdxy
+        hessian[1][0] = dfdxy
+        return np.linalg.inv(hessian)
 
 '''
  Gradient Descent
@@ -109,13 +119,13 @@ def NewtonRaphson(function):
     results.append(result)
 
     while not terminate:
-        step = (function.gradient(guess) / function.hessian(guess)) * SCALE_STEP
+        step = function.inv_hessian(guess).dot(function.gradient(guess)) * SCALE_STEP
         guess -= step
 
         # test termination conditions
         num_iterations += 1
 
-        if step < THRESHOLD or num_iterations > MAX_ITERATIONS:
+        if np.linalg.norm(step) < THRESHOLD or num_iterations > MAX_ITERATIONS:
             terminate = True
 
         # store result
@@ -186,10 +196,10 @@ def draw2D(optimiser):
     plt.show()
 
 def main():
-    draw1D(gradientDescent)
-    draw2D(gradientDescent)
-    draw1D(NewtonRaphson)
-    #draw2D(NewtonRaphson)
+    #draw1D(gradientDescent)
+    #draw2D(gradientDescent)
+    #draw1D(NewtonRaphson)
+    draw2D(NewtonRaphson)
 
 
 if __name__ == '__main__':
