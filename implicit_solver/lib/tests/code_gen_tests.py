@@ -69,6 +69,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(function0, function1)
         self.assertEqual(source0, source1)
         self.assertEqual(add_values.options.njit, True)
+        self.assertEqual(function0.__module__, function1.__module__)
 
     def test_function_without_njit(self):
         datablock0 = create_datablock(15)
