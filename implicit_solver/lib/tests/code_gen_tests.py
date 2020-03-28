@@ -3,6 +3,7 @@
 @description : Evaluation of Abstract Syntax Trees
 """
 
+import numba # required by lib.common.code_gen
 import lib.common.code_gen as generate
 import lib.common as common
 import numpy as np

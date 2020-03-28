@@ -4,6 +4,7 @@
 """
 
 import numpy as np
+import numba # required by lib.common.code_gen
 
 import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
@@ -71,4 +72,3 @@ def compute_bending_jacobians(bending : Bending, detail_nodes):
     bending.dfdx[0][1] = bending.dfdx[1][0] = dfdx[3]
     bending.dfdx[0][2] = bending.dfdx[2][0] = dfdx[4]
     bending.dfdx[1][2] = bending.dfdx[2][1] = dfdx[5]
-

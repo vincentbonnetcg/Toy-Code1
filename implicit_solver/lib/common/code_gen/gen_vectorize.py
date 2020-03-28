@@ -4,35 +4,28 @@
 """
 
 # Package used by gen_vectorize.py
+import inspect
 import functools
+import numpy
+import numba
+
 import lib.common as common
 import lib.common.code_gen.code_gen_helper as gen
-
-# Possible packages used by the generated functions
-# TODO : modify to get the import from original python file
-import numba
-import numpy as np
-import lib.common.jit.node_accessor as na
-import lib.common.jit.math_2d as math2D
-import lib.objects.jit.utils.spring_lib as spring_lib
-import lib.objects.jit.utils.area_lib as area_lib
-import lib.objects.jit.utils.bending_lib as bending_lib
-import lib.system.jit.sparse_matrix_lib as sparse_lib
-import lib.common.jit.geometry_2d as geo2d_lib
 
 def generate_vectorize_function(function, options : gen.CodeGenOptions):
     '''
     Returns a tuple (source code, function object)
     '''
+    func_module = inspect.getmodule(function)
     # Generate code
     helper = gen.CodeGenHelper(options)
     helper.generate_vectorized_function_source(function)
 
     # Compile code
     generated_function_object = compile(helper.generated_function_source, '', 'exec')
-    exec(generated_function_object)
+    exec(generated_function_object, func_module.__dict__)
 
-    return helper.generated_function_source, locals().get(helper.generated_function_name)
+    return helper.generated_function_source, getattr(func_module, helper.generated_function_name)
 
 def convert_argument(arg):
     '''
@@ -63,7 +56,7 @@ def as_vectorized(function=None, local={} , **options):
             return True
 
         if isinstance(value,(list, tuple)):
-            return isinstance(value[0], np.void)
+            return isinstance(value[0], numpy.void)
 
         return False
 

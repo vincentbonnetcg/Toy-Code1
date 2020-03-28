@@ -4,6 +4,7 @@
 """
 
 import numpy as np
+import numba # required by lib.common.code_gen
 
 import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na

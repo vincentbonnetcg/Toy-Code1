@@ -2,7 +2,7 @@
 @author: Vincent Bonnet
 @description : Helper functions for time integrators
 """
-import numba
+import numba # required by lib.common.code_gen
 import numpy as np
 
 import lib.common.jit.node_accessor as na

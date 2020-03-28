@@ -4,6 +4,8 @@
 """
 
 import numpy as np
+import numba # required by lib.common.code_gen
+
 from lib.objects import Force
 import lib.objects.jit as cpn
 import lib.common.code_gen as generate
