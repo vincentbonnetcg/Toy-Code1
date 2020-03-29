@@ -70,6 +70,12 @@ def load_data():
         offsets[file_ID-1][:] = offset[:]
         bones[file_ID-1][:] = bone_rotations[:]
 
+    # normalize input (bones)
+    x_min = np.min(bones)
+    x_max = np.max(bones)
+    bones -= x_min
+    bones /= (x_max - x_min)
+
     return undeformed, bones, offsets, in_shape, out_shape
 
 def main():
