@@ -60,7 +60,13 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
-## . Lattice Boltzmann
+## . Path Tracing (WIP)
+**Folder** [path_tracing](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/path_tracing)<br>
+**Description** Path Tracer with Python and Numba
+
+- PathTracing WIP
+
+## . Lattice Boltzmann (WIP)
 **Folder** [lattice_boltzmann](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/lattice_boltzmann)<br>
 **Description** Lattice Boltzmann Evaluation
 
@@ -97,13 +103,13 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Powell, Michael JD. "The theory of radial basis function approximation in 1990." Advances in numerical analysis (1992): 105-210.
 
-## . Signed distance field (placeholder)
+## . Signed distance field (WIP)
 **File** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/miscellaneous/signed_distance_field.py)<br>
 **Description** Solve Eikonal Equation to compute signed distance field from 2D-polygon
 
 ![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/distance_field.png)
 
-## . Load Balancing (placeholder)
+## . Load Balancing (WIP)
 **File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/load_balancing/graphColouring_greedyAlgorithm.py)<br>
 **Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
 
