@@ -29,24 +29,27 @@ class Sphere():
 
         return hit
 
-class PolygonMesh():
+class PolygonSoup():
     def __init__(self):
-        self.v, self.t, self.n = geometry.create_test_triangle(-2)
+        self.tv = None # triangle vertices
+        self.n = None  # triangle normal
         self.material = Material([232, 232, 128])
+        v, ti, n = geometry.create_test_triangle(-2)
+        self.set_polygons(v, ti, n)
+
+    def set_polygons(self, vertices, triangle_indices, normals):
+        self.tv = np.take(vertices, triangle_indices, axis=0)
+        self.n = normals
 
     def intersect(self, ray : jit_core.Ray):
         min_t = np.finfo(np.float).max
         hit = jit_core.Hit()
-        triangle_vertices = np.zeros((3, 3), dtype=float)
-        for ti in range(len(self.t)):
-            np.copyto(triangle_vertices[0], self.v[self.t[ti][0]])
-            np.copyto(triangle_vertices[1], self.v[self.t[ti][1]])
-            np.copyto(triangle_vertices[2], self.v[self.t[ti][2]])
-            t = jit_maths.ray_triangle(ray.o, ray.d, triangle_vertices)
+        for i in range(len(self.tv)):
+            t = jit_maths.ray_triangle(ray.o, ray.d, self.tv[i])
             if t > 0.0 and t < min_t:
                 hit.t = t
                 hit.p = ray.o + (ray.d * t)
-                hit.n = self.n[ti]
+                hit.n = self.n[i]
                 hit.diffuse = self.material.d
                 min_t = t
 
@@ -68,8 +71,8 @@ class Scene:
         sphere_radius = 0.5
         sphere = Sphere(sphere_center, sphere_radius)
         self.objects.append(sphere)
-        # create polygon mesh
-        polygon = PolygonMesh()
+        # create polygon soup
+        polygon = PolygonSoup()
         self.objects.append(polygon)
         # create lights
         light = AreaLight()
