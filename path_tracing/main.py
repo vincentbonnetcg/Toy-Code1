@@ -3,6 +3,7 @@
 @description : Pathtracer with Python+Numba
 """
 
+import common
 import math
 import njit_utils
 import numpy as np
@@ -11,6 +12,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 NUM_SAMPLES = 1 # number of sample per pixel
+
 
 class Ray:
     def __init__(self, orgin, direction):
@@ -121,6 +123,7 @@ def trace(ray : Ray, scene : Scene):
     hit = scene.intersect(ray)
     return shade(ray, hit)
 
+@common.timeit
 def render(scene : Scene, camera : Camera):
     image = np.zeros((camera.height, camera.width, 3))
     for i in range(camera.width):
@@ -128,17 +131,20 @@ def render(scene : Scene, camera : Camera):
             for _ in range(NUM_SAMPLES):
                 ray = camera.ray(i, j)
                 image[camera.height-1-j, i] = trace(ray, scene)
+    return image
 
+@common.timeit
+def show(image):
     plt.imshow(image, aspect='auto')
     plt.axis('off')
     plt.show()
-
 
 def main():
     scene = Scene()
     scene.load()
     camera = Camera(320, 240)
-    render(scene, camera)
+    image = render(scene, camera)
+    show(image)
 
 if __name__ == '__main__':
     main()
