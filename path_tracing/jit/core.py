@@ -2,13 +2,14 @@
 @author: Vincent Bonnet
 @description : core objects not used to describe a scene
 """
+
 import numpy as np
+import numba
 
-class Ray:
-    def __init__(self, orgin, direction):
-        self.o = orgin
-        self.d = direction / np.linalg.norm(direction)
-
+@numba.jitclass([('t', numba.float64),
+                 ('p', numba.float64[:]),
+                 ('n', numba.float64[:]),
+                 ('diffuse', numba.float64[:])])
 class Hit:
     def __init__(self, t = -1.0):
         self.t = t # ray distance
@@ -21,6 +22,21 @@ class Hit:
             return True
         return False
 
+@numba.jitclass([('o', numba.float64[:]),
+                 ('d', numba.float64[:])])
+class Ray:
+    def __init__(self, origin, direction):
+        self.o = np.zeros(3)
+        self.d = np.zeros(3)
+        self.o = origin
+        self.d = direction / np.linalg.norm(direction)
+
+
+@numba.jitclass([('origin', numba.float64[:]),
+                 ('width', numba.int32),
+                 ('height', numba.int32),
+                 ('fovx', numba.float64),
+                 ('fovy', numba.float64)])
 class Camera:
     def __init__(self, width : int, height : int):
         self.origin = np.zeros(3)
@@ -37,5 +53,6 @@ class Camera:
         direction[1] = y
         direction[2] = -1
         return Ray(self.origin, direction)
+
 
 

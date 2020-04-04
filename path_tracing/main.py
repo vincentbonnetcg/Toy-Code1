@@ -11,24 +11,24 @@ import io
 import PIL
 
 import common
-import njit_core
+from jit import core as jit_core
 from scene_details import Scene
 
 NUM_SAMPLES = 1 # number of sample per pixel
 
-def shade(ray : njit_core.Ray, hit : njit_core.Hit):
+def shade(ray : jit_core.Ray, hit : jit_core.Hit):
     if hit.valid():
         dot =  math.fabs(np.dot(ray.d, hit.n))
         return hit.diffuse * dot
     # background colour
     return np.asarray([10,10,10])/255.0
 
-def trace(ray : njit_core.Ray, scene : Scene):
+def trace(ray : jit_core.Ray, scene : Scene):
     hit = scene.intersect(ray)
     return shade(ray, hit)
 
 @common.timeit
-def render(scene : Scene, camera : njit_core.Camera):
+def render(scene : Scene, camera : jit_core.Camera):
     image = np.zeros((camera.height, camera.width, 3))
     for i in range(camera.width):
         for j in range(camera.height):
@@ -46,7 +46,7 @@ def show(image):
 def main():
     scene = Scene()
     scene.load()
-    camera = njit_core.Camera(320, 240)
+    camera = jit_core.Camera(320, 240)
     image = render(scene, camera)
     show(image)
 
