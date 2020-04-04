@@ -3,6 +3,7 @@
 @description : jitted utilities
 """
 
+from . import core as jit_core
 import numpy as np
 import numba
 import math
@@ -35,6 +36,7 @@ def ray_triangle(ray_o, ray_d, tv):
     #A = np.zeros((3, 3), dtype=float)
     #A[:,0] = -ray_d
     #A[:,1] = e1
+
     #A[:,2] = e2
     # solve the system with Cramer's rule
     # det(A) = tripleProduct(-ray_d, e1, e2) = dot(-ray_d, cross(e1,e2))
@@ -88,3 +90,25 @@ def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
         t = s1
 
     return t
+
+@numba.njit
+def intersect(ray, details):
+    min_t = np.finfo(numba.float64).max
+    hit = jit_core.Hit(-1.0)
+    tri_vertices = details[0]
+    tri_normals = details[1]
+    tri_materials = details[2]
+    # intersection test with triangles
+    num_triangles = len(tri_vertices)
+    for i in range(num_triangles):
+        t = ray_triangle(ray.o, ray.d, tri_vertices[i])
+        if t > 0.0 and t < min_t:
+            hit.t = t
+            hit.p = ray.o + (ray.d * t)
+            hit.n = tri_normals[i]
+            hit.diffuse = tri_materials[i]
+            min_t = t
+    # intersection test with sphere
+    # TODO
+
+    return hit
