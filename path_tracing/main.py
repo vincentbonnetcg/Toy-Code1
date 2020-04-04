@@ -14,7 +14,7 @@ import PIL
 import common
 from jit import core as jit_core
 from jit import maths as jit_maths
-from scene_details import Scene
+from scene import Scene
 
 NUM_SAMPLES = 1 # number of sample per pixel
 
