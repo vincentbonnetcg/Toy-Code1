@@ -3,17 +3,18 @@
 @description : Pathtracer with Python+Numba
 """
 
+import math
+import IPython.display
+
+import numpy as np
+import io
+import PIL
+
 import common
 import geometry
-import math
 import njit_utils
-import numpy as np
-import numba
-import matplotlib
-import matplotlib.pyplot as plt
 
 NUM_SAMPLES = 1 # number of sample per pixel
-
 
 class Ray:
     def __init__(self, orgin, direction):
@@ -146,9 +147,9 @@ def render(scene : Scene, camera : Camera):
 
 @common.timeit
 def show(image):
-    plt.imshow(image, aspect='auto')
-    plt.axis('off')
-    plt.show()
+    buffer = io.BytesIO()
+    PIL.Image.fromarray(np.uint8(image*255)).save(buffer, 'png')
+    IPython.display.display(IPython.display.Image(data=buffer.getvalue()))
 
 def main():
     scene = Scene()
@@ -159,3 +160,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
