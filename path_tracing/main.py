@@ -11,132 +11,24 @@ import io
 import PIL
 
 import common
-import geometry
-import njit_utils
+import njit_core
+from scene_details import Scene
 
 NUM_SAMPLES = 1 # number of sample per pixel
 
-class Ray:
-    def __init__(self, orgin, direction):
-        self.o = orgin
-        self.d = direction / np.linalg.norm(direction)
-
-class Hit:
-    def __init__(self, t = -1.0):
-        self.t = t # ray distance
-        self.p = np.zeros(3) # hit positon
-        self.n = np.zeros(3) # hit normal
-        self.diffuse = np.zeros(3) # diffuse material
-
-    def valid(self):
-        if self.t >= 0.0:
-            return True
-        return False
-
-class Material:
-    def __init__(self, rgb = [1,1,1]):
-        self.d = np.asarray(rgb) / 255.0 # diffuse
-
-class Sphere():
-    def __init__(self, center = np.zeros(3), radius = 1.0):
-        self.c = center
-        self.r = radius
-        self.material = Material([140, 255, 191])
-
-    def intersect(self, ray : Ray):
-        t = njit_utils.ray_sphere(ray.o, ray.d, self.c, self.r)
-        hit = Hit(t)
-        if hit.valid():
-            hit.p = ray.o + (ray.d * t)
-            hit.n = (hit.p - self.c) / self.r
-            hit.diffuse = self.material.d
-
-        return hit
-
-class PolygonMesh():
-    def __init__(self):
-        self.v, self.t, self.n = geometry.create_test_triangle(-2)
-        self.material = Material([232, 232, 128])
-
-    def intersect(self, ray : Ray):
-        min_t = np.finfo(np.float).max
-        hit = Hit()
-        triangle_vertices = np.zeros((3, 3), dtype=float)
-        for ti in range(len(self.t)):
-            np.copyto(triangle_vertices[0], self.v[self.t[ti][0]])
-            np.copyto(triangle_vertices[1], self.v[self.t[ti][1]])
-            np.copyto(triangle_vertices[2], self.v[self.t[ti][2]])
-            t = njit_utils.ray_triangle(ray.o, ray.d, triangle_vertices)
-            if t > 0.0 and t < min_t:
-                hit.t = t
-                hit.p = ray.o + (ray.d * t)
-                hit.n = self.n[ti]
-                hit.diffuse = self.material.d
-                min_t = t
-
-        return hit
-
-class AreaLight():
-    def __init__(self):
-        pass
-
-class Camera:
-    def __init__(self, width : int, height : int):
-        self.origin = np.zeros(3)
-        self.width = width
-        self.height = height
-        self.fovx = np.pi / 2
-        self.fovy = float(self.height) / float(self.width) * self.fovx
-
-    def ray(self, i : int, j : int):
-        x = (2 * i - (self.width-1)) / (self.width-1) * np.tan(self.fovx*0.5)
-        y = (2 * j - (self.height-1)) / (self.height-1) * np.tan(self.fovy*0.5)
-        direction = np.zeros(3)
-        direction[0] = x
-        direction[1] = y
-        direction[2] = -1
-        return Ray(self.origin, direction)
-
-class Scene:
-    def __init__(self):
-        self.objects = []
-        self.lights = []
-
-    def load(self):
-        # create sphere
-        sphere_center = np.zeros(3)
-        np.copyto(sphere_center, [0, -0.6, -2])
-        sphere_radius = 0.5
-        sphere = Sphere(sphere_center, sphere_radius)
-        self.objects.append(sphere)
-        # create polygon mesh
-        polygon = PolygonMesh()
-        self.objects.append(polygon)
-        # create lights
-        light = AreaLight()
-        self.lights.append(light)
-
-    def intersect(self, ray : Ray):
-        hit = Hit()  # intersection
-        for obj in self.objects:
-            obj_hit = obj.intersect(ray)
-            if (obj_hit.valid() and obj_hit.t < hit.t) or not hit.valid():
-                hit = obj_hit
-        return hit
-
-def shade(ray : Ray, hit : Hit):
+def shade(ray : njit_core.Ray, hit : njit_core.Hit):
     if hit.valid():
         dot =  math.fabs(np.dot(ray.d, hit.n))
         return hit.diffuse * dot
     # background colour
     return np.asarray([10,10,10])/255.0
 
-def trace(ray : Ray, scene : Scene):
+def trace(ray : njit_core.Ray, scene : Scene):
     hit = scene.intersect(ray)
     return shade(ray, hit)
 
 @common.timeit
-def render(scene : Scene, camera : Camera):
+def render(scene : Scene, camera : njit_core.Camera):
     image = np.zeros((camera.height, camera.width, 3))
     for i in range(camera.width):
         for j in range(camera.height):
@@ -154,7 +46,7 @@ def show(image):
 def main():
     scene = Scene()
     scene.load()
-    camera = Camera(320, 240)
+    camera = njit_core.Camera(320, 240)
     image = render(scene, camera)
     show(image)
 
