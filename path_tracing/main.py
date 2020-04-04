@@ -34,11 +34,32 @@ class Sphere():
         self.r = radius
 
     def intersect(self, ray : Ray):
-        t = njit_utils.sphere_intersect(ray.o, ray.d, self.c, self.r)
+        t = njit_utils.ray_sphere(ray.o, ray.d, self.c, self.r)
         hit = Hit(t)
         if hit.valid():
             hit.p = ray.o + (ray.d * t)
             hit.n = (hit.p - self.c) / self.r
+
+        return hit
+
+class PolygonMesh():
+    def __init__(self):
+        self.v, self.t, self.n = njit_utils.create_test_triangle(-2)
+
+    def intersect(self, ray : Ray):
+        min_t = np.finfo(np.float).max
+        hit = Hit()
+        triangle_vertices = np.zeros((3, 3), dtype=float)
+        for ti in range(len(self.t)):
+            np.copyto(triangle_vertices[0], self.v[self.t[ti][0]])
+            np.copyto(triangle_vertices[1], self.v[self.t[ti][1]])
+            np.copyto(triangle_vertices[2], self.v[self.t[ti][2]])
+            t = njit_utils.ray_triangle(ray.o, ray.d, triangle_vertices)
+            if t > 0.0 and t < min_t:
+                hit.t = t
+                hit.p = ray.o + (ray.d * t)
+                hit.n = self.n[ti]
+                min_t = t
 
         return hit
 
@@ -69,13 +90,15 @@ class Scene:
         self.lights = []
 
     def load(self):
-        # create objects
+        # create sphere
         sphere_center = np.zeros(3)
-        sphere_center[1] = -0.6
-        sphere_center[2] = -2
+        np.copyto(sphere_center, [0, -0.6, -2])
         sphere_radius = 0.5
         sphere = Sphere(sphere_center, sphere_radius)
         self.objects.append(sphere)
+        # create polygon mesh
+        polygon = PolygonMesh()
+        self.objects.append(polygon)
         # create lights
         light = AreaLight()
         self.lights.append(light)
@@ -107,6 +130,7 @@ def render(scene : Scene, camera : Camera):
                 image[camera.height-1-j, i] = trace(ray, scene)
 
     plt.imshow(image, aspect='auto')
+    plt.axis('off')
     plt.show()
 
 
