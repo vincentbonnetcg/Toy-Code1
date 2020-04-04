@@ -4,6 +4,7 @@
 """
 
 import common
+import geometry
 import math
 import njit_utils
 import numpy as np
@@ -20,20 +21,26 @@ class Ray:
         self.d = direction / np.linalg.norm(direction)
 
 class Hit:
-    def __init__(self, t = -1.0, p = np.zeros(3), n = np.zeros(3)):
+    def __init__(self, t = -1.0):
         self.t = t # ray distance
-        self.p = p # hit positon
-        self.n = n # hit normal
+        self.p = np.zeros(3) # hit positon
+        self.n = np.zeros(3) # hit normal
+        self.diffuse = np.zeros(3) # diffuse material
 
     def valid(self):
         if self.t >= 0.0:
             return True
         return False
 
+class Material:
+    def __init__(self, rgb = [1,1,1]):
+        self.d = np.asarray(rgb) / 255.0 # diffuse
+
 class Sphere():
     def __init__(self, center = np.zeros(3), radius = 1.0):
         self.c = center
         self.r = radius
+        self.material = Material([140, 255, 191])
 
     def intersect(self, ray : Ray):
         t = njit_utils.ray_sphere(ray.o, ray.d, self.c, self.r)
@@ -41,12 +48,14 @@ class Sphere():
         if hit.valid():
             hit.p = ray.o + (ray.d * t)
             hit.n = (hit.p - self.c) / self.r
+            hit.diffuse = self.material.d
 
         return hit
 
 class PolygonMesh():
     def __init__(self):
-        self.v, self.t, self.n = njit_utils.create_test_triangle(-2)
+        self.v, self.t, self.n = geometry.create_test_triangle(-2)
+        self.material = Material([232, 232, 128])
 
     def intersect(self, ray : Ray):
         min_t = np.finfo(np.float).max
@@ -61,6 +70,7 @@ class PolygonMesh():
                 hit.t = t
                 hit.p = ray.o + (ray.d * t)
                 hit.n = self.n[ti]
+                hit.diffuse = self.material.d
                 min_t = t
 
         return hit
@@ -116,8 +126,9 @@ class Scene:
 def shade(ray : Ray, hit : Hit):
     if hit.valid():
         dot =  math.fabs(np.dot(ray.d, hit.n))
-        return np.asarray([0.9,0.85,1]) * dot
-    return np.asarray([0,0,0])
+        return hit.diffuse * dot
+    # background colour
+    return np.asarray([10,10,10])/255.0
 
 def trace(ray : Ray, scene : Scene):
     hit = scene.intersect(ray)
