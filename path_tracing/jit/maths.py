@@ -24,6 +24,13 @@ def dot(a, b):
     return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]
 
 @numba.njit
+def normalize(v):
+    invnorm = 1.0 / math.sqrt(dot(v,v))
+    v[0] *= invnorm
+    v[1] *= invnorm
+    v[2] *= invnorm
+
+@numba.njit
 def ray_triangle(ray_o, ray_d, tv):
     # Moller-Trumbore intersection algorithm
     e1 = tv[1] - tv[0]

@@ -48,7 +48,7 @@ def show(image):
 
 def main():
     scene = Scene()
-    scene.load()
+    scene.load_cornell_box()
     details = scene.details()
     camera = jit_core.Camera(320, 240)
     image = np.empty((camera.height, camera.width, 3))

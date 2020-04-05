@@ -17,16 +17,10 @@ class Sphere():
         self.material = Material([140, 255, 191])
 
 class PolygonSoup():
-    def __init__(self):
-        self.tv = None # triangle vertices
-        self.n = None  # triangle normal
+    def __init__(self, vertices, triangle_indices, normals):
+        self.tv = np.take(vertices, triangle_indices, axis=0) # triangle vertices
+        self.n = normals  # triangle normal
         self.material = Material([232, 232, 128])
-        v, ti, n = geometry.create_test_triangle(-2)
-        self.set_polygons(v, ti, n)
-
-    def set_polygons(self, vertices, triangle_indices, normals):
-        self.tv = np.take(vertices, triangle_indices, axis=0)
-        self.n = normals
 
     def get_triangles(self):
         result = []
@@ -38,6 +32,12 @@ class PolygonSoup():
         result = []
         for triNormal in self.n:
             result.append(triNormal)
+        return result
+
+    def get_materials(self):
+        result = []
+        for _ in range(len(self.n)):
+            result.append(self.material.d)
         return result
 
 class AreaLight():
@@ -57,7 +57,18 @@ class Scene:
         sphere = Sphere(sphere_center, sphere_radius)
         self.objects.append(sphere)
         # create polygon soup
-        polygon = PolygonSoup()
+        v, ti, n = geometry.create_test_triangle(-2)
+        polygon = PolygonSoup(v, ti, n)
+        self.objects.append(polygon)
+        # create lights
+        light = AreaLight()
+        self.lights.append(light)
+
+    def load_cornell_box(self):
+        # create polygon soup
+        v0, v1, v2, v3 = [-1,-1,-2],[-1,1,-2],[1,1,-2],[1,-1,-2]
+        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
+        polygon = PolygonSoup(v, ti, n)
         self.objects.append(polygon)
         # create lights
         light = AreaLight()
@@ -75,7 +86,7 @@ class Scene:
             elif isinstance(obj, PolygonSoup):
                 triangles += obj.get_triangles()
                 triangle_normals += obj.get_normals()
-                triangle_materials.append(obj.material.d)
+                triangle_materials += obj.get_materials()
 
         # consolidate spheres in contiguous numpy array
         sphere_dtype = np.dtype([('c', np.float64, (3,)), ('r', np.float64)])
