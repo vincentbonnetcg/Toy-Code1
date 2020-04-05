@@ -32,7 +32,8 @@ class Ray:
                  ('fovx', numba.float64),
                  ('fovy', numba.float64),
                  ('tan_fovx', numba.float64),
-                 ('tan_fovy', numba.float64)])
+                 ('tan_fovy', numba.float64),
+                 ('dir_z', numba.float64)])
 class Camera:
     def __init__(self, width : int, height : int):
         self.origin = np.zeros(3)
@@ -42,6 +43,7 @@ class Camera:
         self.fovy = float(self.height) / float(self.width) * self.fovx
         self.tan_fovx = math.tan(self.fovx*0.5)
         self.tan_fovy = math.tan(self.fovy*0.5)
+        self.dir_z = -1.0
 
     def ray(self, i : int, j : int):
         x = (2 * i - (self.width-1)) / (self.width-1) * self.tan_fovx
@@ -51,7 +53,7 @@ class Camera:
         ray.d = np.empty(3)
         ray.d[0] = x
         ray.d[1] = y
-        ray.d[2] = -1
+        ray.d[2] = self.dir_z
         invnorm = 1.0 / math.sqrt(ray.d[0]*ray.d[0]+
                                   ray.d[1]*ray.d[1]+
                                   ray.d[2]*ray.d[2])
