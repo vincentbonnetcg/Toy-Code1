@@ -50,7 +50,8 @@ def main():
     scene = Scene()
     scene.load_cornell_box()
     details = scene.details()
-    camera = jit_core.Camera(320, 240)
+    camera = scene.camera
+    camera.set_resolution(640, 480)
     image = np.empty((camera.height, camera.width, 3))
     render(image, camera, details)
     show(image)

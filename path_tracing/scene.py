@@ -5,6 +5,7 @@
 
 import numpy as np
 import geometry
+from jit import core as jit_core
 
 class Material:
     def __init__(self, rgb = [1,1,1]):
@@ -48,6 +49,7 @@ class Scene:
     def __init__(self):
         self.objects = []
         self.lights = []
+        self.camera = jit_core.Camera(320, 240)
 
     def load(self):
         # create sphere
