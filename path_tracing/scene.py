@@ -19,8 +19,8 @@ class Sphere():
         self.material = Material([0.549, 1.0, 0.749])
 
 class PolygonSoup():
-    def __init__(self, vertices, triangle_indices, normals, diffuse=[0.91, 0.91, 0.5]):
-        self.tv = np.take(vertices, triangle_indices, axis=0) # triangle vertices
+    def __init__(self, triangle_vertices, normals, diffuse=[0.91, 0.91, 0.5]):
+        self.tv = triangle_vertices
         self.n = normals  # triangle normal
         self.material = Material(diffuse)
 
@@ -60,8 +60,8 @@ class Scene:
         sphere = Sphere(sphere_center, sphere_radius)
         self.objects.append(sphere)
         # create polygon soup
-        v, ti, n = geometry.create_test_triangle(-2)
-        polygon = PolygonSoup(v, ti, n)
+        tv, n = geometry.create_test_triangle(-2)
+        polygon = PolygonSoup(tv, n)
         self.objects.append(polygon)
         # create lights
         light = AreaLight()
@@ -69,26 +69,49 @@ class Scene:
 
     def load_cornell_box(self):
         # From http://www.graphics.cornell.edu/online/box/data.html
+        quad_v = [] # quad vertices
+        quad_m = [] # quad material
         # floor
-        v0, v1, v2, v3 = [552.8,0,0],[0,0,0],[0,0,559.2],[549.6,0,559.2]
-        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
-        self.objects.append(PolygonSoup(v, ti, n, [1,1,1]))
+        quad_v.append([[552.8,0,0],[0,0,0],[0,0,559.2],[549.6,0,559.2]])
+        quad_m.append([1,1,1])
         # left wall
-        v0, v1, v2, v3 = [552.8,0,0],[549.6,0,559.2],[556,548.8,559.2],[556,548.8,0]
-        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
-        self.objects.append(PolygonSoup(v, ti, n, [1,0,0]))
+        quad_v.append([[552.8,0,0],[549.6,0,559.2],[556,548.8,559.2],[556,548.8,0]])
+        quad_m.append([1,0,0])
         # right wall
-        v0, v1, v2, v3 = [0,0,559.2],[0,0,0],[0,548.8,0],[0,548.8,559.2]
-        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
-        self.objects.append(PolygonSoup(v, ti, n, [0,1,0]))
+        quad_v.append([[0,0,559.2],[0,0,0],[0,548.8,0],[0,548.8,559.2]])
+        quad_m.append([0,1,0])
         # back wall
-        v0, v1, v2, v3 = [549.6,0,559.2],[0,0,559.2],[0,548.8,559.2],[556,548.8,559.2]
-        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
-        self.objects.append(PolygonSoup(v, ti, n, [1,1,1]))
+        quad_v.append([[549.6,0,559.2],[0,0,559.2],[0,548.8,559.2],[556,548.8,559.2]])
+        quad_m.append([1,1,1])
         # ceiling
-        v0, v1, v2, v3 = [556,548.8,0],[556,548.8,559.2],[0,548.8,559.2],[0,548.8,0]
-        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
-        self.objects.append(PolygonSoup(v, ti, n, [1,1,1]))
+        quad_v.append([[556,548.8,0],[556,548.8,559.2],[0,548.8,559.2],[0,548.8,0]])
+        quad_m.append([1,1,1])
+        # short block
+        quad_v.append([[130,165,65],[82,165,225],[240,165,272],[290,165,114]])
+        quad_m.append([1,1,1])
+        quad_v.append([[290,0,114],[290,165,114],[240,165,272],[240,0,272]])
+        quad_m.append([1,1,1])
+        quad_v.append([[130,0,65],[130,165,65],[290,165,114],[290,0,114]])
+        quad_m.append([1,1,1])
+        quad_v.append([[82,0,225],[82,165,225],[130,165,65],[130,0,65]])
+        quad_m.append([1,1,1])
+        quad_v.append([[240,0,272],[240,165,272],[82,165,225],[82,0,225]])
+        quad_m.append([1,1,1])
+        # tall block
+        quad_v.append([[423,330,247],[265,330,296],[314,330,456],[472,330,406]])
+        quad_m.append([1,1,1])
+        quad_v.append([[423,0,247],[423,330,247],[472,330,406],[472,0,406]])
+        quad_m.append([1,1,1])
+        quad_v.append([[472,0,406],[472,330,406],[314,330,456],[314,0,456]])
+        quad_m.append([1,1,1])
+        quad_v.append([[314,0,456],[314,330,456],[265,330,296],[265,0,296]])
+        quad_m.append([1,1,1])
+        quad_v.append([[265,0,296],[265,330,296],[423,330,247],[423,0,247]])
+        quad_m.append([1,1,1])
+        # add quads
+        for i in range(len(quad_v)):
+            tv, n = geometry.create_quad(quad_v[i])
+            self.objects.append(PolygonSoup(tv, n, quad_m[i]))
         # create lights
         light = AreaLight()
         self.lights.append(light)
