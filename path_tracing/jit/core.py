@@ -7,16 +7,13 @@ import math
 import numpy as np
 import numba
 
-@numba.jitclass([('t', numba.float64),
-                 ('p', numba.float64[:]),
-                 ('n', numba.float64[:]),
-                 ('diffuse', numba.float64[:])])
+@numba.jitclass([('t', numba.float64), # ray distance as double
+                 ('p', numba.float64[:]), # hit positon as np.zeros(3)
+                 ('n', numba.float64[:]), # hit normal as np.zeros(3)
+                 ('diffuse', numba.float64[:])]) # diffuse material as np.zeros(3)
 class Hit:
-    def __init__(self, t = -1.0):
-        self.t = t # ray distance
-        self.p = np.zeros(3) # hit positon
-        self.n = np.zeros(3) # hit normal
-        self.diffuse = np.zeros(3) # diffuse material
+    def __init__(self):
+        self.t = -1.0 # ray distance
 
     def valid(self):
         if self.t >= 0.0:

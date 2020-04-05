@@ -94,7 +94,7 @@ def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
 @numba.njit
 def intersect(ray, details):
     min_t = np.finfo(numba.float64).max
-    hit = jit_core.Hit(-1.0)
+    hit = jit_core.Hit()
     tri_vertices = details[0]
     tri_normals = details[1]
     tri_materials = details[2]
