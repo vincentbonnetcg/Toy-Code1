@@ -51,7 +51,7 @@ def main():
     scene.load_cornell_box()
     details = scene.details()
     camera = scene.camera
-    camera.set_resolution(640, 480)
+    camera.set_resolution(512, 512)
     image = np.empty((camera.height, camera.width, 3))
     render(image, camera, details)
     show(image)

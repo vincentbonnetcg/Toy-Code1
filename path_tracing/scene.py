@@ -3,6 +3,7 @@
 @description : objects to describe a scene
 """
 
+import math
 import numpy as np
 import geometry
 from jit import core as jit_core
@@ -94,6 +95,9 @@ class Scene:
         # set camera
         np.copyto(self.camera.origin, [278, 273, -800])
         self.camera.dir_z = 1.0
+        focal_length = 35 # in mm
+        sensor_size = 25 # in mm (sensor width and height)
+        self.camera.fovx = math.atan(sensor_size*0.5/focal_length) * 2
 
     def details(self):
         # gather sphere, triangles and materials
