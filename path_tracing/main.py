@@ -38,7 +38,7 @@ def render(image, camera, details):
         for j in range(camera.height):
             for _ in range(NUM_SAMPLES):
                 ray = camera.ray(i, j)
-                image[camera.height-1-j, i] = trace(ray, details)
+                image[camera.height-1-j, camera.width-1-i] = trace(ray, details)
 
 @common.timeit
 def show(image):

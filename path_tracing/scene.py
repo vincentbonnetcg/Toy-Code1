@@ -9,19 +9,19 @@ from jit import core as jit_core
 
 class Material:
     def __init__(self, rgb = [1,1,1]):
-        self.d = np.asarray(rgb) / 255.0 # diffuse
+        self.d = np.asarray(rgb) # diffuse
 
 class Sphere():
     def __init__(self, center = np.zeros(3), radius = 1.0):
         self.c = center
         self.r = radius
-        self.material = Material([140, 255, 191])
+        self.material = Material([0.549, 1.0, 0.749])
 
 class PolygonSoup():
-    def __init__(self, vertices, triangle_indices, normals):
+    def __init__(self, vertices, triangle_indices, normals, diffuse=[0.91, 0.91, 0.5]):
         self.tv = np.take(vertices, triangle_indices, axis=0) # triangle vertices
         self.n = normals  # triangle normal
-        self.material = Material([232, 232, 128])
+        self.material = Material(diffuse)
 
     def get_triangles(self):
         result = []
@@ -67,14 +67,33 @@ class Scene:
         self.lights.append(light)
 
     def load_cornell_box(self):
-        # create polygon soup
-        v0, v1, v2, v3 = [-1,-1,-2],[-1,1,-2],[1,1,-2],[1,-1,-2]
+        # From http://www.graphics.cornell.edu/online/box/data.html
+        # floor
+        v0, v1, v2, v3 = [552.8,0,0],[0,0,0],[0,0,559.2],[549.6,0,559.2]
         v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
-        polygon = PolygonSoup(v, ti, n)
-        self.objects.append(polygon)
+        self.objects.append(PolygonSoup(v, ti, n, [1,1,1]))
+        # left wall
+        v0, v1, v2, v3 = [552.8,0,0],[549.6,0,559.2],[556,548.8,559.2],[556,548.8,0]
+        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
+        self.objects.append(PolygonSoup(v, ti, n, [1,0,0]))
+        # right wall
+        v0, v1, v2, v3 = [0,0,559.2],[0,0,0],[0,548.8,0],[0,548.8,559.2]
+        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
+        self.objects.append(PolygonSoup(v, ti, n, [0,1,0]))
+        # back wall
+        v0, v1, v2, v3 = [549.6,0,559.2],[0,0,559.2],[0,548.8,559.2],[556,548.8,559.2]
+        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
+        self.objects.append(PolygonSoup(v, ti, n, [1,1,1]))
+        # ceiling
+        v0, v1, v2, v3 = [556,548.8,0],[556,548.8,559.2],[0,548.8,559.2],[0,548.8,0]
+        v, ti, n = geometry.create_quadrilateral(v0, v1, v2, v3)
+        self.objects.append(PolygonSoup(v, ti, n, [1,1,1]))
         # create lights
         light = AreaLight()
         self.lights.append(light)
+        # set camera
+        np.copyto(self.camera.origin, [278, 273, -800])
+        self.camera.dir_z = 1.0
 
     def details(self):
         # gather sphere, triangles and materials

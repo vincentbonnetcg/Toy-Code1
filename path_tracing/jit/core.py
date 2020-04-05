@@ -37,13 +37,13 @@ class Ray:
 class Camera:
     def __init__(self, width : int, height : int):
         self.origin = np.zeros(3)
-        self.set_resolution(width, height)
+        self.fovx = np.pi / 2
         self.dir_z = -1.0
+        self.set_resolution(width, height)
 
     def set_resolution(self, width : int, height : int):
         self.width = width
         self.height = height
-        self.fovx = np.pi / 2
         self.fovy = float(self.height) / float(self.width) * self.fovx
         self.tan_fovx = math.tan(self.fovx*0.5)
         self.tan_fovy = math.tan(self.fovy*0.5)

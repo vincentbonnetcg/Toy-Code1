@@ -37,7 +37,3 @@ def create_quadrilateral(v0, v1, v2, v3):
     np.copyto(n[1], n1)
     return v, t, n
 
-def cornellBox():
-    # From : http://www.graphics.cornell.edu/online/box/data.html
-    pass
-
