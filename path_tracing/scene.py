@@ -4,10 +4,7 @@
 """
 
 import numpy as np
-
 import geometry
-from jit import core as jit_core
-from jit import maths as jit_maths
 
 class Material:
     def __init__(self, rgb = [1,1,1]):
@@ -18,16 +15,6 @@ class Sphere():
         self.c = center
         self.r = radius
         self.material = Material([140, 255, 191])
-
-    def intersect(self, ray : jit_core.Ray):
-        t = jit_maths.ray_sphere(ray.o, ray.d, self.c, self.r)
-        hit = jit_core.Hit(t)
-        if hit.valid():
-            hit.p = ray.o + (ray.d * t)
-            hit.n = (hit.p - self.c) / self.r
-            hit.diffuse = self.material.d
-
-        return hit
 
 class PolygonSoup():
     def __init__(self):
@@ -53,20 +40,6 @@ class PolygonSoup():
             result.append(triNormal)
         return result
 
-    def intersect(self, ray : jit_core.Ray):
-        min_t = np.finfo(np.float).max
-        hit = jit_core.Hit()
-        for i in range(len(self.tv)):
-            t = jit_maths.ray_triangle(ray.o, ray.d, self.tv[i])
-            if t > 0.0 and t < min_t:
-                hit.t = t
-                hit.p = ray.o + (ray.d * t)
-                hit.n = self.n[i]
-                hit.diffuse = self.material.d
-                min_t = t
-
-        return hit
-
 class AreaLight():
     def __init__(self):
         pass
@@ -78,25 +51,17 @@ class Scene:
 
     def load(self):
         # create sphere
-        #sphere_center = np.zeros(3)
-        #np.copyto(sphere_center, [0, -0.1, -2])
-        #sphere_radius = 0.5
-        #sphere = Sphere(sphere_center, sphere_radius)
-        #self.objects.append(sphere)
+        sphere_center = np.zeros(3)
+        np.copyto(sphere_center, [0, -0.1, -2])
+        sphere_radius = 0.5
+        sphere = Sphere(sphere_center, sphere_radius)
+        self.objects.append(sphere)
         # create polygon soup
         polygon = PolygonSoup()
         self.objects.append(polygon)
         # create lights
         light = AreaLight()
         self.lights.append(light)
-
-    def intersect(self, ray : jit_core.Ray):
-        hit = jit_core.Hit()  # intersection
-        for obj in self.objects:
-            obj_hit = obj.intersect(ray)
-            if (obj_hit.valid() and obj_hit.t < hit.t) or not hit.valid():
-                hit = obj_hit
-        return hit
 
     def details(self):
         # gather sphere, triangles and materials
@@ -113,7 +78,13 @@ class Scene:
                 triangle_materials.append(obj.material.d)
 
         # consolidate spheres in contiguous numpy array
-        # TODO
+        sphere_dtype = np.dtype([('c', np.float64, (3,)), ('r', np.float64)])
+        np_sph_params = np.zeros(len(spheres), dtype =sphere_dtype)
+        np_sph_materials = np.zeros((len(spheres),3))
+        for si in range(len(spheres)):
+            np_sph_params[si]['c'] = spheres[si].c
+            np_sph_params[si]['r'] = spheres[si].r
+            np_sph_materials[si] = spheres[si].material.d
 
         # consolidate triangles in contiguous numpy array
         np_tri_vertices= np.zeros((len(triangles),3,3))
@@ -127,5 +98,5 @@ class Scene:
         print('num_spheres ' , len(spheres))
         print('num_triangles ' , len(triangles))
 
-        details = (np_tri_vertices, np_tri_normals, np_tri_materials)
+        details = (np_tri_vertices, np_tri_normals, np_tri_materials, np_sph_params, np_sph_materials)
         return details

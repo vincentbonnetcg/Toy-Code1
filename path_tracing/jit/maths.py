@@ -98,6 +98,8 @@ def intersect(ray, details):
     tri_vertices = details[0]
     tri_normals = details[1]
     tri_materials = details[2]
+    sphere_params = details[3]
+    sphere_materials = details[4]
     # intersection test with triangles
     num_triangles = len(tri_vertices)
     for i in range(num_triangles):
@@ -108,7 +110,17 @@ def intersect(ray, details):
             hit.n = tri_normals[i]
             hit.diffuse = tri_materials[i]
             min_t = t
-    # intersection test with sphere
-    # TODO
+    # intersection test with spheres
+    num_spheres = len(sphere_params)
+    for i in range(num_spheres):
+        c = sphere_params[i].c
+        r = sphere_params[i].r
+        t = ray_sphere(ray.o, ray.d, c, r)
+        if t > 0.0 and t < min_t:
+            hit.t = t
+            hit.p = ray.o + (ray.d * t)
+            hit.n = (hit.p - c) / r
+            hit.diffuse = sphere_materials[i]
+            min_t = t
 
     return hit
