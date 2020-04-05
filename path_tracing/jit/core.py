@@ -6,6 +6,7 @@
 import math
 import numpy as np
 import numba
+from .maths import normalize
 
 @numba.jitclass([('t', numba.float64), # ray distance as double
                  ('p', numba.float64[:]), # hit positon as np.zeros(3)
@@ -57,11 +58,6 @@ class Camera:
         ray.d[0] = x
         ray.d[1] = y
         ray.d[2] = self.dir_z
-        invnorm = 1.0 / math.sqrt(ray.d[0]*ray.d[0]+
-                                  ray.d[1]*ray.d[1]+
-                                  ray.d[2]*ray.d[2])
-        ray.d[0] *= invnorm
-        ray.d[1] *= invnorm
-        ray.d[2] *= invnorm
+        normalize(ray.d)
         return ray
 
