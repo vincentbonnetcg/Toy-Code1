@@ -10,12 +10,25 @@ from . import core as jit_core
 from .maths import dot, isclose, triple_product
 
 @numba.njit
+def _subtract(a, b, out):
+    # squeeze some performance by skipping the generic np.subtract
+    out[0] = a[0] - b[0]
+    out[1] = a[1] - b[1]
+    out[2] = a[2] - b[2]
+
+@numba.njit
 def ray_triangle(ray_o, ray_d, tv):
     # Moller-Trumbore intersection algorithm
-    e1 = tv[1] - tv[0]
-    e2 = tv[2] - tv[0]
-    ed = ray_o - tv[0]
+    edges = np.empty((3, 3))
+
+    _subtract(tv[1], tv[0], edges[0]) # e1
+    _subtract(tv[2], tv[0], edges[1]) # e2
+    _subtract(ray_o, tv[0], edges[2]) # ed
+
     # explicit linear system (Ax=b) for debugging
+    #e1 = tv[1] - tv[0]
+    #e2 = tv[2] - tv[0]
+    #ed = ray_o - tv[0]
     #x = [t, u, v]
     #b = ray_o - tv[0]
     #A = np.zeros((3, 3), dtype=float)
@@ -25,22 +38,22 @@ def ray_triangle(ray_o, ray_d, tv):
     # solve the system with Cramer's rule
     # det(A) = dot(-ray_d, cross(e1,e2)) = tripleProduct(-ray_d, e1, e2)
     # also det(A) = tripleProduct(ray_d, e1, e2) = -tripleProduct(-ray_d, e1, e2)
-    detA = -triple_product(ray_d, e1, e2)
+    detA = -triple_product(ray_d, edges[0], edges[1])
     if isclose(detA, 0.0):
         # ray is parallel to the triangle
         return -1.0
 
     invDetA = 1.0 / detA
 
-    u = -triple_product(ray_d, ed, e2) * invDetA
+    u = -triple_product(ray_d, edges[2], edges[1]) * invDetA
     if (u < 0.0 or u > 1.0):
         return -1.0
 
-    v = -triple_product(ray_d, e1, ed) * invDetA
+    v = -triple_product(ray_d, edges[0], edges[2]) * invDetA
     if (v < 0.0 or u + v > 1.0):
         return -1.0
 
-    return triple_product(ed, e1, e2) * invDetA # t
+    return triple_product(edges[2], edges[0], edges[1]) * invDetA # t
 
 @numba.njit
 def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
