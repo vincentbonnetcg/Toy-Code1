@@ -84,16 +84,17 @@ def ray_details(ray, details):
     tri_materials = details[2]
     sphere_params = details[3]
     sphere_materials = details[4]
+    hit_type = -1
+    hit_id = -1
     # intersection test with triangles
     num_triangles = len(tri_vertices)
     for i in range(num_triangles):
         t = ray_triangle(ray.o, ray.d, tri_vertices[i])
         if t > 0.0 and t < min_t:
-            hit.t = t
-            hit.p = ray.o + (ray.d * t)
-            hit.n = tri_normals[i]
-            hit.diffuse = tri_materials[i]
             min_t = t
+            hit_type = 0
+            hit_id = i
+
     # intersection test with spheres
     num_spheres = len(sphere_params)
     for i in range(num_spheres):
@@ -101,11 +102,20 @@ def ray_details(ray, details):
         r = sphere_params[i].r
         t = ray_sphere(ray.o, ray.d, c, r)
         if t > 0.0 and t < min_t:
-            hit.t = t
-            hit.p = ray.o + (ray.d * t)
-            hit.n = (hit.p - c) / r
-            hit.diffuse = sphere_materials[i]
             min_t = t
+            hit_type = 1
+            hit_id = i
+
+    if hit_type == 0: # triangle hit
+        hit.t = min_t
+        hit.p = ray.o + (ray.d * min_t)
+        hit.n = tri_normals[hit_id]
+        hit.diffuse = tri_materials[hit_id]
+    elif hit_type == 1: # sphere hit
+        hit.t = min_t
+        hit.p = ray.o + (ray.d * min_t)
+        hit.n = (hit.p - sphere_params[hit_id].c) / sphere_params[hit_id].r
+        hit.diffuse = sphere_materials[hit_id]
 
     return hit
 
