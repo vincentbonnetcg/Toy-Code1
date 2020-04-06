@@ -16,6 +16,14 @@ import jit.pathtracer as pathtracer
 NUM_SAMPLES = 1 # number of sample per pixel
 
 @common.timeit
+def force_jit(image, camera, details):
+    # jit compilation by calling a tiny scene
+    width, height = camera.width, camera.height
+    camera.set_resolution(2, 2)
+    pathtracer.render(image, camera, details, NUM_SAMPLES)
+    camera.set_resolution(width, height)
+
+@common.timeit
 def render(image, camera, details):
     pathtracer.render(image, camera, details, NUM_SAMPLES)
 
@@ -32,6 +40,8 @@ def main():
     camera = scene.camera
     camera.set_resolution(512, 512)
     image = np.empty((camera.height, camera.width, 3))
+
+    force_jit(image, camera, details)
     render(image, camera, details)
     show(image)
 
