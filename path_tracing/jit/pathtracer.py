@@ -7,7 +7,7 @@ import math
 import numba
 import numpy as np
 from . import core as jit_core
-from .maths import cross, dot, isclose
+from .maths import dot, isclose, triple_product
 
 @numba.njit
 def ray_triangle(ray_o, ray_d, tv):
@@ -15,34 +15,32 @@ def ray_triangle(ray_o, ray_d, tv):
     e1 = tv[1] - tv[0]
     e2 = tv[2] - tv[0]
     ed = ray_o - tv[0]
-    tn = cross(e1, e2)
     # explicit linear system (Ax=b) for debugging
     #x = [t, u, v]
     #b = ray_o - tv[0]
     #A = np.zeros((3, 3), dtype=float)
     #A[:,0] = -ray_d
     #A[:,1] = e1
-
     #A[:,2] = e2
     # solve the system with Cramer's rule
-    # det(A) = tripleProduct(-ray_d, e1, e2) = dot(-ray_d, cross(e1,e2))
-    detA = dot(-ray_d, tn)
+    # det(A) = dot(-ray_d, cross(e1,e2)) = tripleProduct(-ray_d, e1, e2)
+    # also det(A) = tripleProduct(ray_d, e1, e2) = -tripleProduct(-ray_d, e1, e2)
+    detA = -triple_product(ray_d, e1, e2)
     if isclose(detA, 0.0):
         # ray is parallel to the triangle
         return -1.0
 
     invDetA = 1.0 / detA
 
-    u = dot(-ray_d, cross(ed, e2)) * invDetA
+    u = -triple_product(ray_d, ed, e2) * invDetA
     if (u < 0.0 or u > 1.0):
         return -1.0
 
-    v = dot(-ray_d, cross(e1, ed)) * invDetA
+    v = -triple_product(ray_d, e1, ed) * invDetA
     if (v < 0.0 or u + v > 1.0):
         return -1.0
 
-    t = dot(ed, tn)  * invDetA
-    return t
+    return triple_product(ed, e1, e2) * invDetA # t
 
 @numba.njit
 def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):

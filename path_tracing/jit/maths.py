@@ -8,6 +8,12 @@ import numba
 import math
 
 @numba.njit
+def triple_product(a, b, c):
+    return (a[0] * (b[1]*c[2]-b[2]*c[1]) +
+            a[1] * (b[2]*c[0]-b[0]*c[2]) +
+            a[2] * (b[0]*c[1]-b[1]*c[0]))
+
+@numba.njit
 def isclose(a, b, tol=1.e-8):
     return math.fabs(a - b) < tol
 
