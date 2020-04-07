@@ -9,18 +9,16 @@ import numpy as np
 from . import core as jit_core
 from .maths import dot, isclose, triple_product
 
-@numba.njit
+@numba.njit(inline='always')
 def _subtract(a, b, out):
     # squeeze some performance by skipping the generic np.subtract
     out[0] = a[0] - b[0]
     out[1] = a[1] - b[1]
     out[2] = a[2] - b[2]
 
-@numba.njit
-def ray_triangle(ray_o, ray_d, tv):
+@numba.njit(inline='always')
+def ray_triangle(ray_o, ray_d, tv, edges):
     # Moller-Trumbore intersection algorithm
-    edges = np.empty((3, 3))
-
     _subtract(tv[1], tv[0], edges[0]) # e1
     _subtract(tv[2], tv[0], edges[1]) # e2
     _subtract(ray_o, tv[0], edges[2]) # ed
@@ -55,7 +53,32 @@ def ray_triangle(ray_o, ray_d, tv):
 
     return triple_product(edges[2], edges[0], edges[1]) * invDetA # t
 
-@numba.njit
+@numba.njit(inline='always')
+def ray_quad(ray_o, ray_d, tv, edges):
+    # Moller-Trumbore intersection algorithm
+    # same than ray_triangle but different condition on v
+    _subtract(tv[1], tv[0], edges[0]) # e1
+    _subtract(tv[2], tv[0], edges[1]) # e2
+    _subtract(ray_o, tv[0], edges[2]) # ed
+
+    detA = -triple_product(ray_d, edges[0], edges[1])
+    if isclose(detA, 0.0):
+        # ray is parallel to the triangle
+        return -1.0
+
+    invDetA = 1.0 / detA
+
+    u = -triple_product(ray_d, edges[2], edges[1]) * invDetA
+    if (u < 0.0 or u > 1.0):
+        return -1.0
+
+    v = -triple_product(ray_d, edges[0], edges[2]) * invDetA
+    if (v < 0.0 or v > 1.0):
+        return -1.0
+
+    return triple_product(edges[2], edges[0], edges[1]) * invDetA # t
+
+@numba.njit(inline='always')
 def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
     o = ray_o - sphere_c
     a = dot(ray_d, ray_d)
@@ -92,20 +115,35 @@ def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
 def ray_details(ray, details):
     min_t = np.finfo(numba.float64).max
     hit = jit_core.Hit()
-    tri_vertices = details[0]
-    tri_normals = details[1]
-    tri_materials = details[2]
-    sphere_params = details[3]
-    sphere_materials = details[4]
+    quad_vertices = details[0]
+    quad_normals = details[1]
+    quad_materials = details[2]
+    tri_vertices = details[3]
+    tri_normals = details[4]
+    tri_materials = details[5]
+    sphere_params = details[6]
+    sphere_materials = details[7]
     hit_type = -1
     hit_id = -1
+    # edges is a preallocated cache to prevent memory allocation
+    # during the critical intersection part (twice faster)
+    edges = np.empty((3, 3))
     # intersection test with triangles
-    num_triangles = len(tri_vertices)
-    for i in range(num_triangles):
-        t = ray_triangle(ray.o, ray.d, tri_vertices[i])
+    num_quads = len(quad_vertices)
+    for i in range(num_quads):
+        t = ray_quad(ray.o, ray.d, quad_vertices[i], edges)
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 0
+            hit_id = i
+
+    # intersection test with triangles
+    num_triangles = len(tri_vertices)
+    for i in range(num_triangles):
+        t = ray_triangle(ray.o, ray.d, tri_vertices[i], edges)
+        if t > 0.0 and t < min_t:
+            min_t = t
+            hit_type = 1
             hit_id = i
 
     # intersection test with spheres
@@ -116,15 +154,20 @@ def ray_details(ray, details):
         t = ray_sphere(ray.o, ray.d, c, r)
         if t > 0.0 and t < min_t:
             min_t = t
-            hit_type = 1
+            hit_type = 2
             hit_id = i
 
-    if hit_type == 0: # triangle hit
+    if hit_type == 0: # quad hit
+        hit.t = min_t
+        hit.p = ray.o + (ray.d * min_t)
+        hit.n = quad_normals[hit_id]
+        hit.diffuse = quad_materials[hit_id]
+    elif hit_type == 1: # triangle hit
         hit.t = min_t
         hit.p = ray.o + (ray.d * min_t)
         hit.n = tri_normals[hit_id]
         hit.diffuse = tri_materials[hit_id]
-    elif hit_type == 1: # sphere hit
+    elif hit_type == 2: # sphere hit
         hit.t = min_t
         hit.p = ray.o + (ray.d * min_t)
         hit.n = (hit.p - sphere_params[hit_id].c) / sphere_params[hit_id].r

@@ -18,7 +18,7 @@ class Sphere():
         self.r = radius
         self.material = Material([0.549, 1.0, 0.749])
 
-class PolygonSoup():
+class TriangleSoup():
     def __init__(self, triangle_vertices, normals, diffuse=[0.91, 0.91, 0.5]):
         self.tv = triangle_vertices
         self.n = normals  # triangle normal
@@ -34,6 +34,30 @@ class PolygonSoup():
         result = []
         for triNormal in self.n:
             result.append(triNormal)
+        return result
+
+    def get_materials(self):
+        result = []
+        for _ in range(len(self.n)):
+            result.append(self.material.d)
+        return result
+
+class QuadSoup():
+    def __init__(self, quad_vertices, normals, diffuse=[0.91, 0.91, 0.5]):
+        self.qv = quad_vertices
+        self.n = normals  # triangle normal
+        self.material = Material(diffuse)
+
+    def get_quads(self):
+        result = []
+        for quadVertices in self.qv:
+            result.append(quadVertices)
+        return result
+
+    def get_normals(self):
+        result = []
+        for quadNormal in self.n:
+            result.append(quadNormal)
         return result
 
     def get_materials(self):
@@ -61,7 +85,7 @@ class Scene:
         self.objects.append(sphere)
         # create polygon soup
         tv, n = geometry.create_test_triangle(-2)
-        polygon = PolygonSoup(tv, n)
+        polygon = TriangleSoup(tv, n)
         self.objects.append(polygon)
         # create lights
         light = AreaLight()
@@ -113,8 +137,11 @@ class Scene:
         quad_m.append(white)
         # add quads
         for i in range(len(quad_v)):
+            # use quad : twice faster for this scene
+            #tv, n = geometry.create_tri_quad(quad_v[i])
+            #self.objects.append(TriangleSoup(tv, n, quad_m[i]))
             tv, n = geometry.create_quad(quad_v[i])
-            self.objects.append(PolygonSoup(tv, n, quad_m[i]))
+            self.objects.append(QuadSoup(tv, n, quad_m[i]))
         # create lights
         light = AreaLight()
         self.lights.append(light)
@@ -131,13 +158,20 @@ class Scene:
         triangles = []
         triangle_normals = []
         triangle_materials = []
+        quads = []
+        quad_normals = []
+        quad_materials = []
         for obj in self.objects:
             if isinstance(obj,Sphere):
                 spheres.append(obj)
-            elif isinstance(obj, PolygonSoup):
+            elif isinstance(obj, TriangleSoup):
                 triangles += obj.get_triangles()
                 triangle_normals += obj.get_normals()
                 triangle_materials += obj.get_materials()
+            elif isinstance(obj, QuadSoup):
+                quads += obj.get_quads()
+                quad_normals += obj.get_normals()
+                quad_materials += obj.get_materials()
 
         # consolidate spheres in contiguous numpy array
         sphere_dtype = np.dtype([('c', np.float64, (3,)), ('r', np.float64)])
@@ -157,8 +191,20 @@ class Scene:
             np_tri_normals[ti] = triangle_normals[ti]
             np_tri_materials[ti] = triangle_materials[ti]
 
+        # consolidate triangles in contiguous numpy array
+        np_quad_vertices= np.zeros((len(quads),3,3))
+        np_quad_normals = np.zeros((len(quads),3))
+        np_quad_materials = np.zeros((len(quads),3))
+        for qi in range(len(quads)):
+            np_quad_vertices[qi] = quads[qi]
+            np_quad_normals[qi] = quad_normals[qi]
+            np_quad_materials[qi] = quad_materials[qi]
+
         print('num_spheres ' , len(spheres))
         print('num_triangles ' , len(triangles))
+        print('num_quads ' , len(quads))
 
-        details = (np_tri_vertices, np_tri_normals, np_tri_materials, np_sph_params, np_sph_materials)
+        details = (np_quad_vertices, np_quad_normals,np_quad_materials,
+                    np_tri_vertices, np_tri_normals, np_tri_materials,
+                    np_sph_params, np_sph_materials)
         return details
