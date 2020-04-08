@@ -25,7 +25,8 @@ class Hit:
                  ('d', numba.float64[:])])
 class Ray:
     def __init__(self):
-        pass
+        self.o = np.empty(3)
+        self.d = np.empty(3)
 
 @numba.jitclass([('origin', numba.float64[:]),
                  ('width', numba.int32),
@@ -49,15 +50,13 @@ class Camera:
         self.tan_fovx = math.tan(self.fovx*0.5)
         self.tan_fovy = math.tan(self.fovy*0.5)
 
-    def ray(self, i : int, j : int):
+    def get_ray(self, i : int, j : int, ray):
         x = (2 * i - (self.width-1)) / (self.width-1) * self.tan_fovx
         y = (2 * j - (self.height-1)) / (self.height-1) * self.tan_fovy
-        ray = Ray()
-        ray.o = self.origin
-        ray.d = np.empty(3)
+        ray.o[0] = self.origin[0]
+        ray.o[1] = self.origin[1]
+        ray.o[2] = self.origin[2]
         ray.d[0] = x
         ray.d[1] = y
         ray.d[2] = self.dir_z
         normalize(ray.d)
-        return ray
-

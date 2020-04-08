@@ -190,8 +190,9 @@ def trace(ray : jit_core.Ray, details):
 
 @numba.njit
 def render(image, camera, details, num_samples):
-    for i in range(camera.width):
-        for j in range(camera.height):
+    ray = jit_core.Ray()
+    for j in range(camera.height):
+        for i in range(camera.width):
             for _ in range(num_samples):
-                ray = camera.ray(i, j)
+                camera.get_ray(i, j, ray)
                 image[camera.height-1-j, camera.width-1-i] = trace(ray, details)
