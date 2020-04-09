@@ -24,23 +24,8 @@ class TriangleSoup():
         self.n = normals  # triangle normal
         self.material = Material(diffuse)
 
-    def get_triangles(self):
-        result = []
-        for triVertices in self.tv:
-            result.append(triVertices)
-        return result
-
-    def get_normals(self):
-        result = []
-        for triNormal in self.n:
-            result.append(triNormal)
-        return result
-
-    def get_materials(self):
-        result = []
-        for _ in range(len(self.n)):
-            result.append(self.material.d)
-        return result
+    def num_triangles(self):
+        return len(self.n)
 
 class QuadSoup():
     def __init__(self, quad_vertices, normals, diffuse=[0.91, 0.91, 0.5]):
@@ -48,23 +33,8 @@ class QuadSoup():
         self.n = normals  # triangle normal
         self.material = Material(diffuse)
 
-    def get_quads(self):
-        result = []
-        for quadVertices in self.qv:
-            result.append(quadVertices)
-        return result
-
-    def get_normals(self):
-        result = []
-        for quadNormal in self.n:
-            result.append(quadNormal)
-        return result
-
-    def get_materials(self):
-        result = []
-        for _ in range(len(self.n)):
-            result.append(self.material.d)
-        return result
+    def num_quads(self):
+        return len(self.n)
 
 class AreaLight():
     def __init__(self):
@@ -76,7 +46,7 @@ class Scene:
         self.lights = []
         self.camera = jit_core.Camera(320, 240)
 
-    def load(self):
+    def load_simple_scene(self):
         # create sphere
         sphere_center = np.zeros(3)
         np.copyto(sphere_center, [0, -0.1, -2])
@@ -156,55 +126,50 @@ class Scene:
         # gather sphere, triangles and materials
         spheres = []
         triangles = []
-        triangle_normals = []
-        triangle_materials = []
         quads = []
-        quad_normals = []
-        quad_materials = []
         for obj in self.objects:
             if isinstance(obj,Sphere):
                 spheres.append(obj)
             elif isinstance(obj, TriangleSoup):
-                triangles += obj.get_triangles()
-                triangle_normals += obj.get_normals()
-                triangle_materials += obj.get_materials()
+                triangles.append(obj)
             elif isinstance(obj, QuadSoup):
-                quads += obj.get_quads()
-                quad_normals += obj.get_normals()
-                quad_materials += obj.get_materials()
+                quads.append(obj)
 
         # consolidate spheres in contiguous numpy array
+        num_spheres = len(spheres)
         sphere_dtype = np.dtype([('c', np.float64, (3,)), ('r', np.float64)])
-        np_sph_params = np.zeros(len(spheres), dtype =sphere_dtype)
-        np_sph_materials = np.zeros((len(spheres),3))
-        for si in range(len(spheres)):
-            np_sph_params[si]['c'] = spheres[si].c
-            np_sph_params[si]['r'] = spheres[si].r
-            np_sph_materials[si] = spheres[si].material.d
+        sph_params = np.zeros(num_spheres, dtype =sphere_dtype)
+        sph_materials = np.zeros((num_spheres,3))
+        for i, sph in enumerate(spheres):
+            sph_params[i]['c'] = sph.c
+            sph_params[i]['r'] = sph.r
+            sph_materials[i] = sph.material.d
 
         # consolidate triangles in contiguous numpy array
-        np_tri_vertices= np.zeros((len(triangles),3,3))
-        np_tri_normals = np.zeros((len(triangles),3))
-        np_tri_materials = np.zeros((len(triangles),3))
-        for ti in range(len(triangles)):
-            np_tri_vertices[ti] = triangles[ti]
-            np_tri_normals[ti] = triangle_normals[ti]
-            np_tri_materials[ti] = triangle_materials[ti]
+        num_triangles = len(triangles)
+        tri_vertices= np.zeros((num_triangles,3,3))
+        tri_normals = np.zeros((num_triangles,3))
+        tri_materials = np.zeros((num_triangles,3))
+        for i, tri in enumerate(triangles):
+            tri_vertices[i] = tri.tv
+            tri_normals[i] = tri.n
+            tri_materials[i] = tri.material.d
 
         # consolidate triangles in contiguous numpy array
-        np_quad_vertices= np.zeros((len(quads),3,3))
-        np_quad_normals = np.zeros((len(quads),3))
-        np_quad_materials = np.zeros((len(quads),3))
-        for qi in range(len(quads)):
-            np_quad_vertices[qi] = quads[qi]
-            np_quad_normals[qi] = quad_normals[qi]
-            np_quad_materials[qi] = quad_materials[qi]
+        num_quads = len(quads)
+        quad_vertices= np.zeros((num_quads,3,3))
+        quad_normals = np.zeros((num_quads,3))
+        quad_materials = np.zeros((num_quads,3))
+        for i, quad in enumerate(quads):
+            quad_vertices[i] = quad.qv
+            quad_normals[i] = quad.n
+            quad_materials[i] = quad.material.d
 
-        print('num_spheres ' , len(spheres))
-        print('num_triangles ' , len(triangles))
-        print('num_quads ' , len(quads))
+        print('num_spheres ' , num_spheres)
+        print('num_triangles ' , num_triangles)
+        print('num_quads ' , num_quads)
 
-        details = (np_quad_vertices, np_quad_normals,np_quad_materials,
-                    np_tri_vertices, np_tri_normals, np_tri_materials,
-                    np_sph_params, np_sph_materials)
+        details = (quad_vertices, quad_normals, quad_materials,
+                    tri_vertices, tri_normals, tri_materials,
+                    sph_params, sph_materials)
         return details
