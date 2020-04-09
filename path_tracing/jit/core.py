@@ -9,9 +9,10 @@ import numba
 from .maths import normalize
 
 @numba.jitclass([('t', numba.float64), # ray distance as double
-                 ('p', numba.float64[:]), # hit positon as np.zeros(3)
-                 ('n', numba.float64[:]), # hit normal as np.zeros(3)
-                 ('diffuse', numba.float64[:])]) # diffuse material as np.zeros(3)
+                 ('p', numba.float64[:]), # hit positon as np.empty(3)
+                 ('n', numba.float64[:]), # hit normal as np.empty(3)
+                 ('reflectance', numba.float64[:]), # reflectance as np.empty(3)
+                 ('emittance', numba.float64[:])]) # emittance as np.empty(3)
 class Hit:
     def __init__(self):
         self.t = -1.0 # ray distance
