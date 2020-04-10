@@ -11,11 +11,13 @@ from .maths import normalize
 @numba.jitclass([('t', numba.float64), # ray distance as double
                  ('p', numba.float64[:]), # hit positon as np.empty(3)
                  ('n', numba.float64[:]), # hit normal as np.empty(3)
+                 ('face_id', numba.int32), # face id
                  ('reflectance', numba.float64[:]), # reflectance as np.empty(3)
                  ('emittance', numba.float64[:])]) # emittance as np.empty(3)
 class Hit:
     def __init__(self):
         self.t = -1.0 # ray distance
+        self.face_id = -1
 
     def valid(self):
         if self.t >= 0.0:

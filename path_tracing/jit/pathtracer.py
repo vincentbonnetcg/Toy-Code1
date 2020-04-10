@@ -112,7 +112,7 @@ def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
     return t
 
 @numba.njit
-def ray_details(ray, details):
+def ray_details(ray, details, skip_face_id = -1):
     min_t = np.finfo(numba.float64).max
     hit = jit_core.Hit()
     quad_vertices = details[0]
@@ -131,6 +131,8 @@ def ray_details(ray, details):
     # intersection test with triangles
     num_quads = len(quad_vertices)
     for i in range(num_quads):
+        if i == skip_face_id:
+            continue
         t = ray_quad(ray.o, ray.d, quad_vertices[i], edges)
         if t > 0.0 and t < min_t:
             min_t = t
@@ -140,6 +142,8 @@ def ray_details(ray, details):
     # intersection test with triangles
     num_triangles = len(tri_vertices)
     for i in range(num_triangles):
+        if i == skip_face_id:
+            continue
         t = ray_triangle(ray.o, ray.d, tri_vertices[i], edges)
         if t > 0.0 and t < min_t:
             min_t = t
@@ -161,18 +165,21 @@ def ray_details(ray, details):
         hit.t = min_t
         hit.p = ray.o + (ray.d * min_t)
         hit.n = quad_normals[hit_id]
+        hit.face_id = hit_id
         hit.reflectance = quad_materials[hit_id][0]
         hit.emittance = quad_materials[hit_id][1]
     elif hit_type == 1: # triangle hit
         hit.t = min_t
         hit.p = ray.o + (ray.d * min_t)
         hit.n = tri_normals[hit_id]
+        hit.face_id = hit_id
         hit.reflectance = tri_materials[hit_id][0]
         hit.emittance = tri_materials[hit_id][1]
     elif hit_type == 2: # sphere hit
         hit.t = min_t
         hit.p = ray.o + (ray.d * min_t)
         hit.n = (hit.p - sphere_params[hit_id].c) / sphere_params[hit_id].r
+        hit.face_id = hit_id
         hit.reflectance = sphere_materials[hit_id][0]
         hit.emittance = sphere_materials[hit_id][1]
 
