@@ -39,7 +39,7 @@ def main():
     details = scene.details()
     camera = scene.camera
     camera.set_resolution(512, 512)
-    image = np.empty((camera.height, camera.width, 3))
+    image = np.zeros((camera.height, camera.width, 3))
 
     force_jit(image, camera, details)
     render(image, camera, details)

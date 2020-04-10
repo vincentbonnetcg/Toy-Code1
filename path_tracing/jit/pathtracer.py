@@ -205,4 +205,6 @@ def render(image, camera, details, num_samples):
         for i in range(camera.width):
             for _ in range(num_samples):
                 camera.get_ray(i, j, ray)
-                image[camera.height-1-j, camera.width-1-i] = trace(ray, details)
+                image[camera.height-1-j, camera.width-1-i] += trace(ray, details)
+
+            image[camera.height-1-j, camera.width-1-i] /= num_samples
