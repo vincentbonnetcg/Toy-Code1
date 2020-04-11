@@ -226,6 +226,12 @@ def ray_details(ray, details, skip_face_id = -1):
         hit.reflectance = sphere_materials[hit_id][0]
         hit.emittance = sphere_materials[hit_id][1]
 
+    # two-sided intersection
+    if hit.valid() and dot(ray.d, hit.n) > 0:
+        hit.n[0] *= -1
+        hit.n[1] *= -1
+        hit.n[2] *= -1
+
     return hit
 
 @numba.njit
@@ -261,3 +267,6 @@ def render(image, camera, details):
                 image[camera.height-1-j, camera.width-1-i] += pixel_shade
 
             image[camera.height-1-j, camera.width-1-i] /= NUM_SAMPLES
+
+        print((j+1) / camera.height * 100)
+
