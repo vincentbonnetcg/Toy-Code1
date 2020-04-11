@@ -4,10 +4,53 @@
 """
 
 import math
+import random
 import numba
 import numpy as np
 from . import core as jit_core
-from .maths import dot, isclose, triple_product
+from .maths import dot, isclose, triple_product, cross
+
+# pathtracer settings
+BLACK = np.zeros(3)
+MAX_DEPTH = 1 # max hit
+NUM_SAMPLES = 1 # number of sample per pixel
+RANDOM_SEED = 10
+INV_PDF =  2.0*math.pi; # inverse of probability density function
+
+@numba.njit(inline='always')
+def get_uniform_sample_around_normal(n):
+    # Unit hemisphere from spherical coordinates
+    # the unit  hemisphere is at origin and y is the up vector
+    # theta [0, 2*PI) and phi [0, PI/2]
+    # px = cos(theta)*sin(phi)
+    # py = sin(theta)*sin(phi)
+    # pz = cos(phi)
+    # A uniform distribution (avoid more samples at the pole)
+    # theta = 2*PI*rand()
+    # phi = acos(rand())  not phi = PI/2*rand() !
+    theta = 2*math.pi*random.random()
+    phi = math.acos(random.random())
+    v = [math.cos(theta)*math.sin(phi),
+         math.cos(phi),
+         math.sin(theta)*math.sin(phi)]
+    # compute local coordinate system
+    nt = [0.,0.,0.]
+    if abs(n[0]) > abs(n[1]):
+        ntdot = n[0]**2+n[2]**2
+        nt[0] = n[2]/ntdot
+        nt[2] = -n[0]/ntdot
+    else:
+        ntdot = n[1]**2+n[2]**2
+        nt[1] = -n[2]/ntdot
+        nt[2] = n[1]/ntdot
+    nb = cross(n, nt)
+    # compute the world sample
+    wv = [0., 0., 0.]
+    wv[0] = v[0]*nb[0] + v[1]*n[0] + v[2]*nt[0]
+    wv[1] = v[0]*nb[1] + v[1]*n[1] + v[2]*nt[1]
+    wv[2] = v[0]*nb[2] + v[1]*n[2] + v[2]*nt[2]
+
+    return np.asarray(wv)
 
 @numba.njit(inline='always')
 def _subtract(a, b, out):
@@ -185,26 +228,36 @@ def ray_details(ray, details, skip_face_id = -1):
 
     return hit
 
+@numba.njit
+def trace(ray : jit_core.Ray, details, count_depth=0, skip_face_id = -1):
+    if count_depth >= MAX_DEPTH:
+        return BLACK
+
+    hit = ray_details(ray, details, skip_face_id)
+    if not hit.valid():
+        return BLACK
+
+    # compute new ray from hit
+    new_ray = jit_core.Ray()
+    new_ray.o = hit.p
+    new_ray.d = get_uniform_sample_around_normal(hit.n)
+
+    # compute incoming light
+    incoming = trace(new_ray, details, count_depth+1, hit.face_id)
+
+    # compute rendering equation
+    brdf =  hit.reflectance / math.pi
+    return hit.emittance + (brdf * incoming * dot(new_ray.d, hit.n) * INV_PDF)
 
 @numba.njit
-def shade(ray : jit_core.Ray, hit : jit_core.Hit):
-    if hit.valid():
-        return hit.reflectance * math.fabs(dot(ray.d, hit.n))
-    # background colour
-    return np.asarray([10,10,10])/255.0
-
-@numba.njit
-def trace(ray : jit_core.Ray, details):
-    hit = ray_details(ray, details)
-    return shade(ray, hit)
-
-@numba.njit
-def render(image, camera, details, num_samples):
+def render(image, camera, details):
+    random.seed(RANDOM_SEED)
     ray = jit_core.Ray()
     for j in range(camera.height):
         for i in range(camera.width):
-            for _ in range(num_samples):
+            for _ in range(NUM_SAMPLES):
                 camera.get_ray(i, j, ray)
-                image[camera.height-1-j, camera.width-1-i] += trace(ray, details)
+                pixel_shade = trace(ray, details)
+                image[camera.height-1-j, camera.width-1-i] += pixel_shade
 
-            image[camera.height-1-j, camera.width-1-i] /= num_samples
+            image[camera.height-1-j, camera.width-1-i] /= NUM_SAMPLES
