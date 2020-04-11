@@ -20,6 +20,14 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Teschner, Matthias, Bruno Heidelberger, Matthias Muller, and Markus Gross. "A versatile and robust model for geometrically complex deformable solids." In Computer Graphics International, 2004. Proceedings, pp. 312-319. IEEE, 2004.
 
+## . Path Tracing
+**Folder** [path_tracing](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/path_tracing)<br>
+**Description** Path Tracer with Python and Numba
+
+![Monte Carlo Path Tracer](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/montecarlo_pathtracer.jpg)
+
+[1] Pharr, Matt, Wenzel Jakob, and Greg Humphreys. Physically based rendering: From theory to implementation. Morgan Kaufmann, 2016
+
 ## . Skeletal Subspace Deformation
 **Folder** [skinning](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/skinning)<br>
 **Description** Skeletal Subspace Deformation
@@ -59,12 +67,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 ![Fashion_MNIST](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/fashion_mnist_autoencoder.png)<br>
 
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
-
-## . Path Tracing (WIP)
-**Folder** [path_tracing](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/path_tracing)<br>
-**Description** Path Tracer with Python and Numba
-
-- PathTracing WIP
 
 ## . Lattice Boltzmann (WIP)
 **Folder** [lattice_boltzmann](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/lattice_boltzmann)<br>
