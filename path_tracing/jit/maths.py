@@ -34,3 +34,22 @@ def normalize(v):
     v[0] *= invnorm
     v[1] *= invnorm
     v[2] *= invnorm
+
+@numba.njit(inline='always')
+def compute_tangent(n):
+    tangent = [0.0,0.0,0.0]
+    if abs(n[0]) > abs(n[1]):
+        ntdot = n[0]**2+n[2]**2
+        tangent[0] = n[2]/ntdot
+        tangent[2] = -n[0]/ntdot
+    else:
+        ntdot = n[1]**2+n[2]**2
+        tangent[1] = -n[2]/ntdot
+        tangent[2] = n[1]/ntdot
+    return np.asarray(tangent)
+
+@numba.njit(inline='always')
+def compute_tangents_binormals(normals, tangents, binormals):
+    for i in range(len(normals)):
+        tangents[i] = compute_tangent(normals[i])
+        binormals[i] = cross(normals[i], tangents[i])

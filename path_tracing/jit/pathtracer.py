@@ -8,7 +8,7 @@ import random
 import numba
 import numpy as np
 from . import core as jit_core
-from .maths import dot, isclose, triple_product, cross
+from .maths import dot, isclose, triple_product, cross, compute_tangent
 
 # pathtracer settings
 BLACK = np.zeros(3)
@@ -18,7 +18,9 @@ RANDOM_SEED = 10
 INV_PDF =  2.0*math.pi; # inverse of probability density function
 
 @numba.njit(inline='always')
-def get_uniform_sample_around_normal(n):
+def update_ray_from_uniform_distribution(ray, hit):
+    ray.o = hit.p
+    # Find ray direction from uniform around hemisphere
     # Unit hemisphere from spherical coordinates
     # the unit  hemisphere is at origin and y is the up vector
     # theta [0, 2*PI) and phi [0, PI/2]
@@ -34,27 +36,13 @@ def get_uniform_sample_around_normal(n):
     theta = 2*math.pi*random.random()
     cos_phi = random.random()
     sin_phi = math.sqrt(1.0 - cos_phi**2)
-    v = [math.cos(theta)*sin_phi,
-         cos_phi,
-         math.sin(theta)*sin_phi]
-    # compute local coordinate system
-    nt = [0.,0.,0.]
-    if abs(n[0]) > abs(n[1]):
-        ntdot = n[0]**2+n[2]**2
-        nt[0] = n[2]/ntdot
-        nt[2] = -n[0]/ntdot
-    else:
-        ntdot = n[1]**2+n[2]**2
-        nt[1] = -n[2]/ntdot
-        nt[2] = n[1]/ntdot
-    nb = cross(n, nt)
+    v0 = math.cos(theta)*sin_phi
+    v1 = cos_phi
+    v2 = math.sin(theta)*sin_phi
     # compute the world sample
-    wv = [0., 0., 0.]
-    wv[0] = v[0]*nb[0] + v[1]*n[0] + v[2]*nt[0]
-    wv[1] = v[0]*nb[1] + v[1]*n[1] + v[2]*nt[1]
-    wv[2] = v[0]*nb[2] + v[1]*n[2] + v[2]*nt[2]
-
-    return np.asarray(wv)
+    ray.d[0] = v0*hit.bn[0] + v1*hit.n[0] + v2*hit.tn[0]
+    ray.d[1] = v0*hit.bn[1] + v1*hit.n[1] + v2*hit.tn[1]
+    ray.d[2] = v0*hit.bn[2] + v1*hit.n[2] + v2*hit.tn[2]
 
 @numba.njit(inline='always')
 def _subtract(a, b, out):
@@ -164,12 +152,16 @@ def ray_details(ray, details, skip_face_id = -1):
     hit = jit_core.Hit()
     quad_vertices = details[0]
     quad_normals = details[1]
-    quad_materials = details[2]
-    tri_vertices = details[3]
-    tri_normals = details[4]
-    tri_materials = details[5]
-    sphere_params = details[6]
-    sphere_materials = details[7]
+    quad_tangents = details[2]
+    quad_binormals = details[3]
+    quad_materials = details[4]
+    tri_vertices = details[5]
+    tri_normals = details[6]
+    tri_tangents = details[7]
+    tri_binormals = details[8]
+    tri_materials = details[9]
+    sphere_params = details[10]
+    sphere_materials = details[11]
     hit_type = -1
     hit_id = -1
     # edges is a preallocated cache to prevent memory allocation
@@ -212,6 +204,8 @@ def ray_details(ray, details, skip_face_id = -1):
         hit.t = min_t
         hit.p = ray.o + (ray.d * min_t)
         hit.n = quad_normals[hit_id]
+        hit.tn = quad_tangents[hit_id]
+        hit.bn = quad_binormals[hit_id]
         hit.face_id = hit_id
         hit.reflectance = quad_materials[hit_id][0]
         hit.emittance = quad_materials[hit_id][1]
@@ -219,6 +213,8 @@ def ray_details(ray, details, skip_face_id = -1):
         hit.t = min_t
         hit.p = ray.o + (ray.d * min_t)
         hit.n = tri_normals[hit_id]
+        hit.tn = tri_tangents[hit_id]
+        hit.bn = tri_binormals[hit_id]
         hit.face_id = hit_id
         hit.reflectance = tri_materials[hit_id][0]
         hit.emittance = tri_materials[hit_id][1]
@@ -226,6 +222,8 @@ def ray_details(ray, details, skip_face_id = -1):
         hit.t = min_t
         hit.p = ray.o + (ray.d * min_t)
         hit.n = (hit.p - sphere_params[hit_id].c) / sphere_params[hit_id].r
+        hit.tn = compute_tangent(hit.n)
+        hit.bn = cross(hit.n, hit.tn)
         hit.face_id = hit_id
         hit.reflectance = sphere_materials[hit_id][0]
         hit.emittance = sphere_materials[hit_id][1]
@@ -247,17 +245,16 @@ def trace(ray : jit_core.Ray, details, count_depth=0, skip_face_id = -1):
     if not hit.valid():
         return BLACK
 
-    # compute new ray from hit
-    new_ray = jit_core.Ray()
-    new_ray.o = hit.p
-    new_ray.d = get_uniform_sample_around_normal(hit.n)
+    # update ray and compute weakening factor
+    update_ray_from_uniform_distribution(ray, hit)
+    weakening_factor = dot(ray.d, hit.n)
 
     # compute incoming light
-    incoming = trace(new_ray, details, count_depth+1, hit.face_id)
+    incoming = trace(ray, details, count_depth+1, hit.face_id)
 
     # compute rendering equation
     brdf =  hit.reflectance / math.pi
-    return hit.emittance + (brdf * incoming * dot(new_ray.d, hit.n) * INV_PDF)
+    return hit.emittance + (brdf * incoming * weakening_factor * INV_PDF)
 
 @numba.njit
 def render(image, camera, details):

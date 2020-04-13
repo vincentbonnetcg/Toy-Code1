@@ -11,6 +11,8 @@ from .maths import normalize
 @numba.jitclass([('t', numba.float64), # ray distance as double
                  ('p', numba.float64[:]), # hit positon as np.empty(3)
                  ('n', numba.float64[:]), # hit normal as np.empty(3)
+                 ('tn', numba.float64[:]), # hit tangent as np.empty(3)
+                 ('bn', numba.float64[:]), # hit binormal as np.empty(3)
                  ('face_id', numba.int32), # face id
                  ('reflectance', numba.float64[:]), # reflectance as np.empty(3)
                  ('emittance', numba.float64[:])]) # emittance as np.empty(3)

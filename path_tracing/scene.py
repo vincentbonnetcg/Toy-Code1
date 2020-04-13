@@ -7,6 +7,7 @@ import math
 import numpy as np
 import geometry
 from jit import core as jit_core
+from jit import maths as jit_math
 
 class Material:
     def __init__(self, reflectance = [1,1,1], emittance = [0,0,0]):
@@ -22,7 +23,9 @@ class Sphere():
 class TriangleSoup():
     def __init__(self, triangle_vertices, normals, material):
         self.tv = triangle_vertices
-        self.n = normals  # triangle normal
+        self.n = normals  # triangle normals
+        self.t = None # triangle tangents
+        self.b = None # triangle binormals
         self.material = material
 
     def num_triangles(self):
@@ -31,7 +34,9 @@ class TriangleSoup():
 class QuadSoup():
     def __init__(self, quad_vertices, normals, material):
         self.qv = quad_vertices
-        self.n = normals  # triangle normal
+        self.n = normals  # quad normals
+        self.t = None # quad tangents
+        self.b = None # quad binormals
         self.material = material
 
     def num_quads(self):
@@ -75,9 +80,9 @@ class Scene:
         # back wall
         quad_v.append([[549.6,0,559.2],[0,0,559.2],[0,548.8,559.2],[556,548.8,559.2]])
         quad_m.append([white, black])
-        # ceiling
+        # ceiling (large light)
         quad_v.append([[556,548.8,0],[556,548.8,559.2],[0,548.8,559.2],[0,548.8,0]])
-        quad_m.append([white, black])
+        quad_m.append([black, white])
         # short block
         quad_v.append([[130,165,65],[82,165,225],[240,165,272],[290,165,114]])
         quad_m.append([white, black])
@@ -100,9 +105,10 @@ class Scene:
         quad_m.append([white, black])
         quad_v.append([[265,0,296],[265,330,296],[423,330,247],[423,0,247]])
         quad_m.append([white, black])
-        # light
-        quad_v.append([[343,548.79,227],[343,548.79,332],[213,548.79,332],[213,548.79,227]])
-        quad_m.append([black, white])
+        # small light
+        #quad_v.append([[343,548.79,227],[343,548.79,332],[213,548.79,332],[213,548.79,227]])
+        #quad_m.append([black, white])
+
         # add quads
         for i in range(len(quad_v)):
             # use quad : twice faster for this scene
@@ -146,29 +152,35 @@ class Scene:
         num_triangles = len(triangles)
         tri_vertices= np.zeros((num_triangles,3,3))
         tri_normals = np.zeros((num_triangles,3))
+        tri_tangents = np.zeros((num_triangles,3))
+        tri_binormals = np.zeros((num_triangles,3))
         tri_materials = np.zeros((num_triangles,2,3))
         for i, tri in enumerate(triangles):
             tri_vertices[i] = tri.tv
             tri_normals[i] = tri.n
             tri_materials[i][0] = tri.material.reflectance
             tri_materials[i][1] = tri.material.emittance
+        jit_math.compute_tangents_binormals(tri_normals, tri_tangents, tri_binormals)
 
         # consolidate triangles in contiguous numpy array
         num_quads = len(quads)
         quad_vertices= np.zeros((num_quads,3,3))
         quad_normals = np.zeros((num_quads,3))
+        quad_tangents = np.zeros((num_quads,3))
+        quad_binormals = np.zeros((num_quads,3))
         quad_materials = np.zeros((num_quads,2,3))
         for i, quad in enumerate(quads):
             quad_vertices[i] = quad.qv
             quad_normals[i] = quad.n
             quad_materials[i][0] = quad.material.reflectance
             quad_materials[i][1] = quad.material.emittance
+        jit_math.compute_tangents_binormals(quad_normals, quad_tangents, quad_binormals)
 
         print('num_spheres ' , num_spheres)
         print('num_triangles ' , num_triangles)
         print('num_quads ' , num_quads)
 
-        details = (quad_vertices, quad_normals, quad_materials,
-                    tri_vertices, tri_normals, tri_materials,
+        details = (quad_vertices, quad_normals, quad_tangents, quad_binormals, quad_materials,
+                    tri_vertices, tri_normals, tri_tangents, tri_binormals, tri_materials,
                     sph_params, sph_materials)
         return details
