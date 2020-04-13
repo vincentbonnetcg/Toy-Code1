@@ -28,11 +28,15 @@ def get_uniform_sample_around_normal(n):
     # A uniform distribution (avoid more samples at the pole)
     # theta = 2*PI*rand()
     # phi = acos(rand())  not phi = PI/2*rand() !
+    # Optimization
+    # cos(phi) = cos(acos(rand())) = rand()
+    # sin(phi) = sin(acos(rand())) = sqrt(1 - rand()^2)
     theta = 2*math.pi*random.random()
-    phi = math.acos(random.random())
-    v = [math.cos(theta)*math.sin(phi),
-         math.cos(phi),
-         math.sin(theta)*math.sin(phi)]
+    cos_phi = random.random()
+    sin_phi = math.sqrt(1.0 - cos_phi**2)
+    v = [math.cos(theta)*sin_phi,
+         cos_phi,
+         math.sin(theta)*sin_phi]
     # compute local coordinate system
     nt = [0.,0.,0.]
     if abs(n[0]) > abs(n[1]):
