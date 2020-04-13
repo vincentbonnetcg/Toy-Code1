@@ -52,11 +52,11 @@ def _subtract(a, b, out):
     out[2] = a[2] - b[2]
 
 @numba.njit(inline='always')
-def ray_triangle(ray_o, ray_d, tv, edges):
+def ray_triangle(ray_o, ray_d, tv, edges_pool):
     # Moller-Trumbore intersection algorithm
-    _subtract(tv[1], tv[0], edges[0]) # e1
-    _subtract(tv[2], tv[0], edges[1]) # e2
-    _subtract(ray_o, tv[0], edges[2]) # ed
+    _subtract(tv[1], tv[0], edges_pool[0]) # e1
+    _subtract(tv[2], tv[0], edges_pool[1]) # e2
+    _subtract(ray_o, tv[0], edges_pool[2]) # ed
 
     # explicit linear system (Ax=b) for debugging
     #e1 = tv[1] - tv[0]
@@ -71,47 +71,47 @@ def ray_triangle(ray_o, ray_d, tv, edges):
     # solve the system with Cramer's rule
     # det(A) = dot(-ray_d, cross(e1,e2)) = tripleProduct(-ray_d, e1, e2)
     # also det(A) = tripleProduct(ray_d, e1, e2) = -tripleProduct(-ray_d, e1, e2)
-    detA = -triple_product(ray_d, edges[0], edges[1])
+    detA = -triple_product(ray_d, edges_pool[0], edges_pool[1])
     if isclose(detA, 0.0):
         # ray is parallel to the triangle
         return -1.0
 
     invDetA = 1.0 / detA
 
-    u = -triple_product(ray_d, edges[2], edges[1]) * invDetA
+    u = -triple_product(ray_d, edges_pool[2], edges_pool[1]) * invDetA
     if (u < 0.0 or u > 1.0):
         return -1.0
 
-    v = -triple_product(ray_d, edges[0], edges[2]) * invDetA
+    v = -triple_product(ray_d, edges_pool[0], edges_pool[2]) * invDetA
     if (v < 0.0 or u + v > 1.0):
         return -1.0
 
-    return triple_product(edges[2], edges[0], edges[1]) * invDetA # t
+    return triple_product(edges_pool[2], edges_pool[0], edges_pool[1]) * invDetA # t
 
 @numba.njit(inline='always')
-def ray_quad(ray_o, ray_d, tv, edges):
+def ray_quad(ray_o, ray_d, tv, edges_pool):
     # Moller-Trumbore intersection algorithm
     # same than ray_triangle but different condition on v
-    _subtract(tv[1], tv[0], edges[0]) # e1
-    _subtract(tv[2], tv[0], edges[1]) # e2
-    _subtract(ray_o, tv[0], edges[2]) # ed
+    _subtract(tv[1], tv[0], edges_pool[0]) # e1
+    _subtract(tv[2], tv[0], edges_pool[1]) # e2
+    _subtract(ray_o, tv[0], edges_pool[2]) # ed
 
-    detA = -triple_product(ray_d, edges[0], edges[1])
+    detA = -triple_product(ray_d, edges_pool[0], edges_pool[1])
     if isclose(detA, 0.0):
         # ray is parallel to the triangle
         return -1.0
 
     invDetA = 1.0 / detA
 
-    u = -triple_product(ray_d, edges[2], edges[1]) * invDetA
+    u = -triple_product(ray_d, edges_pool[2], edges_pool[1]) * invDetA
     if (u < 0.0 or u > 1.0):
         return -1.0
 
-    v = -triple_product(ray_d, edges[0], edges[2]) * invDetA
+    v = -triple_product(ray_d, edges_pool[0], edges_pool[2]) * invDetA
     if (v < 0.0 or v > 1.0):
         return -1.0
 
-    return triple_product(edges[2], edges[0], edges[1]) * invDetA # t
+    return triple_product(edges_pool[2], edges_pool[0], edges_pool[1]) * invDetA # t
 
 @numba.njit(inline='always')
 def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
@@ -147,7 +147,7 @@ def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
     return t
 
 @numba.njit
-def ray_details(ray, details, skip_face_id = -1):
+def ray_details(ray, details, fixed_mem_pool, skip_face_id = -1):
     min_t = np.finfo(numba.float64).max
     hit = jit_core.Hit()
     quad_vertices = details[0]
@@ -164,15 +164,12 @@ def ray_details(ray, details, skip_face_id = -1):
     sphere_materials = details[11]
     hit_type = -1
     hit_id = -1
-    # edges is a preallocated cache to prevent memory allocation
-    # during the critical intersection part (twice faster)
-    edges = np.empty((3, 3))
     # intersection test with triangles
     num_quads = len(quad_vertices)
     for i in range(num_quads):
         if i == skip_face_id:
             continue
-        t = ray_quad(ray.o, ray.d, quad_vertices[i], edges)
+        t = ray_quad(ray.o, ray.d, quad_vertices[i], fixed_mem_pool)
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 0
@@ -183,7 +180,7 @@ def ray_details(ray, details, skip_face_id = -1):
     for i in range(num_triangles):
         if i == skip_face_id:
             continue
-        t = ray_triangle(ray.o, ray.d, tri_vertices[i], edges)
+        t = ray_triangle(ray.o, ray.d, tri_vertices[i], fixed_mem_pool)
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 1
@@ -237,11 +234,11 @@ def ray_details(ray, details, skip_face_id = -1):
     return hit
 
 @numba.njit
-def trace(ray : jit_core.Ray, details, count_depth=0, skip_face_id = -1):
+def trace(ray : jit_core.Ray, details, fixed_mem_pool, count_depth=0, skip_face_id=-1):
     if count_depth >= MAX_DEPTH:
         return BLACK
 
-    hit = ray_details(ray, details, skip_face_id)
+    hit = ray_details(ray, details, fixed_mem_pool, skip_face_id)
     if not hit.valid():
         return BLACK
 
@@ -250,7 +247,7 @@ def trace(ray : jit_core.Ray, details, count_depth=0, skip_face_id = -1):
     weakening_factor = dot(ray.d, hit.n)
 
     # compute incoming light
-    incoming = trace(ray, details, count_depth+1, hit.face_id)
+    incoming = trace(ray, details, fixed_mem_pool, count_depth+1, hit.face_id)
 
     # compute rendering equation
     brdf =  hit.reflectance / math.pi
@@ -258,13 +255,16 @@ def trace(ray : jit_core.Ray, details, count_depth=0, skip_face_id = -1):
 
 @numba.njit
 def render(image, camera, details):
+    # fixed memory pool to prevent memory allocation during
+    # the critical intersection algorithms
+    fixed_mem_pool = np.empty((3, 3))
     random.seed(RANDOM_SEED)
     ray = jit_core.Ray()
     for j in range(camera.height):
         for i in range(camera.width):
             for _ in range(NUM_SAMPLES):
                 camera.get_ray(i, j, ray)
-                pixel_shade = trace(ray, details)
+                pixel_shade = trace(ray, details, fixed_mem_pool)
                 image[camera.height-1-j, camera.width-1-i] += pixel_shade
 
             image[camera.height-1-j, camera.width-1-i] /= NUM_SAMPLES
