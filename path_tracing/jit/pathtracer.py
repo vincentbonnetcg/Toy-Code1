@@ -15,7 +15,8 @@ BLACK = np.zeros(3)
 MAX_DEPTH = 1 # max hit
 NUM_SAMPLES = 1 # number of sample per pixel
 RANDOM_SEED = 10
-INV_PDF =  2.0*math.pi; # inverse of probability density function
+INV_PDF = 2.0 * math.pi; # inverse of probability density function
+INV_PI = 1.0 / math.pi
 
 @numba.njit(inline='always')
 def update_ray_from_uniform_distribution(ray, hit):
@@ -234,7 +235,7 @@ def ray_details(ray, details, fixed_mem_pool, skip_face_id = -1):
     return hit
 
 @numba.njit
-def trace(ray : jit_core.Ray, details, fixed_mem_pool, count_depth=0, skip_face_id=-1):
+def recursive_trace(ray, details, fixed_mem_pool, count_depth=0, skip_face_id=-1):
     if count_depth >= MAX_DEPTH:
         return BLACK
 
@@ -247,11 +248,28 @@ def trace(ray : jit_core.Ray, details, fixed_mem_pool, count_depth=0, skip_face_
     weakening_factor = dot(ray.d, hit.n)
 
     # compute incoming light
-    incoming = trace(ray, details, fixed_mem_pool, count_depth+1, hit.face_id)
+    incoming = recursive_trace(ray, details, fixed_mem_pool, count_depth+1, hit.face_id)
 
     # compute rendering equation
-    brdf =  hit.reflectance / math.pi
-    return hit.emittance + (brdf * incoming * weakening_factor * INV_PDF)
+    #BRDF = hit.reflectance / math.pi
+    return hit.emittance + ((hit.reflectance * INV_PI) * incoming * weakening_factor * INV_PDF)
+
+@numba.njit
+def first_trace(hit, ray, details, fixed_mem_pool):
+    if MAX_DEPTH == 0:
+        return hit.reflectance
+
+    # update ray and compute weakening factor
+    update_ray_from_uniform_distribution(ray, hit)
+    weakening_factor = dot(ray.d, hit.n)
+
+    # compute incoming light
+    count_depth = 0
+    incoming = recursive_trace(ray, details, fixed_mem_pool, count_depth+1, hit.face_id)
+
+    # compute rendering equation
+    #BRDF =  hit.reflectance / math.pi
+    return hit.emittance + ((hit.reflectance * INV_PI) * incoming * weakening_factor * INV_PDF)
 
 @numba.njit
 def render(image, camera, details):
@@ -259,15 +277,19 @@ def render(image, camera, details):
     # the critical intersection algorithms
     fixed_mem_pool = np.empty((3, 3))
     random.seed(RANDOM_SEED)
-    ray = jit_core.Ray()
+    ray = jit_core.Ray() # preallocated ray
     for j in range(camera.height):
         for i in range(camera.width):
+            # compute first hit to the scene
+            camera.get_ray(i, j, ray)
+            hit = ray_details(ray, details, fixed_mem_pool)
+            if not hit.valid():
+                continue
+
             for _ in range(NUM_SAMPLES):
-                camera.get_ray(i, j, ray)
-                pixel_shade = trace(ray, details, fixed_mem_pool)
+                pixel_shade = first_trace(hit, ray, details, fixed_mem_pool)
                 image[camera.height-1-j, camera.width-1-i] += pixel_shade
 
             image[camera.height-1-j, camera.width-1-i] /= NUM_SAMPLES
 
         print((j+1) / camera.height * 100)
-
