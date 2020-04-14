@@ -112,11 +112,12 @@ class Scene:
         # add quads
         for i in range(len(quad_v)):
             # use quad : twice faster for this scene
-            #tv, n = geometry.create_tri_quad(quad_v[i])
-            #self.objects.append(TriangleSoup(tv, n, quad_m[i]))
-            tv, n = geometry.create_quad(quad_v[i])
+            tv, n = geometry.create_tri_quad(quad_v[i])
             material = Material(quad_m[i][0], quad_m[i][1])
-            self.objects.append(QuadSoup(tv, n, material))
+            self.objects.append(TriangleSoup(tv, n, material))
+            #tv, n = geometry.create_quad(quad_v[i])
+            #material = Material(quad_m[i][0], quad_m[i][1])
+            #self.objects.append(QuadSoup(tv, n, material))
         # set camera
         np.copyto(self.camera.origin, [278, 273, -800])
         self.camera.dir_z = 1.0
@@ -126,6 +127,8 @@ class Scene:
 
     def details(self):
         # gather sphere, triangles and materials
+        num_triangles = 0
+        num_quads = 0
         spheres = []
         triangles = []
         quads = []
@@ -133,8 +136,10 @@ class Scene:
             if isinstance(obj,Sphere):
                 spheres.append(obj)
             elif isinstance(obj, TriangleSoup):
+                num_triangles += obj.num_triangles()
                 triangles.append(obj)
             elif isinstance(obj, QuadSoup):
+                num_quads += obj.num_quads()
                 quads.append(obj)
 
         # consolidate spheres in contiguous numpy array
@@ -149,31 +154,35 @@ class Scene:
             sph_materials[i][1] = sph.material.emittance
 
         # consolidate triangles in contiguous numpy array
-        num_triangles = len(triangles)
         tri_vertices= np.zeros((num_triangles,3,3))
         tri_normals = np.zeros((num_triangles,3))
         tri_tangents = np.zeros((num_triangles,3))
         tri_binormals = np.zeros((num_triangles,3))
         tri_materials = np.zeros((num_triangles,2,3))
-        for i, tri in enumerate(triangles):
-            tri_vertices[i] = tri.tv
-            tri_normals[i] = tri.n
-            tri_materials[i][0] = tri.material.reflectance
-            tri_materials[i][1] = tri.material.emittance
+        index = 0
+        for tri in triangles:
+            for i in range(len(tri.tv)):
+                tri_vertices[index] = tri.tv[i]
+                tri_normals[index] = tri.n[i]
+                tri_materials[index][0] = tri.material.reflectance
+                tri_materials[index][1] = tri.material.emittance
+                index += 1
         jit_math.compute_tangents_binormals(tri_normals, tri_tangents, tri_binormals)
 
         # consolidate triangles in contiguous numpy array
-        num_quads = len(quads)
         quad_vertices= np.zeros((num_quads,3,3))
         quad_normals = np.zeros((num_quads,3))
         quad_tangents = np.zeros((num_quads,3))
         quad_binormals = np.zeros((num_quads,3))
         quad_materials = np.zeros((num_quads,2,3))
-        for i, quad in enumerate(quads):
-            quad_vertices[i] = quad.qv
-            quad_normals[i] = quad.n
-            quad_materials[i][0] = quad.material.reflectance
-            quad_materials[i][1] = quad.material.emittance
+        index = 0
+        for quad in quads:
+            for i in range(len(quad.qv)):
+                quad_vertices[index] = quad.qv[i]
+                quad_normals[index] = quad.n[i]
+                quad_materials[index][0] = quad.material.reflectance
+                quad_materials[index][1] = quad.material.emittance
+                index += 1
         jit_math.compute_tangents_binormals(quad_normals, quad_tangents, quad_binormals)
 
         print('num_spheres ' , num_spheres)
