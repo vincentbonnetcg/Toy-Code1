@@ -149,7 +149,7 @@ def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
     return t
 
 @numba.njit
-def ray_details(ray, details, fixed_mem_pool, skip_face_id = -1):
+def ray_details(ray, details, mempool, skip_face_id = -1):
     min_t = np.finfo(numba.float64).max
     hit = jit_core.Hit()
     quad_vertices = details[0]
@@ -171,7 +171,7 @@ def ray_details(ray, details, fixed_mem_pool, skip_face_id = -1):
     for i in range(num_quads):
         if i == skip_face_id:
             continue
-        t = ray_quad(ray.o, ray.d, quad_vertices[i], fixed_mem_pool)
+        t = ray_quad(ray.o, ray.d, quad_vertices[i], mempool.v)
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 0
@@ -182,7 +182,7 @@ def ray_details(ray, details, fixed_mem_pool, skip_face_id = -1):
     for i in range(num_triangles):
         if i == skip_face_id:
             continue
-        t = ray_triangle(ray.o, ray.d, tri_vertices[i], fixed_mem_pool)
+        t = ray_triangle(ray.o, ray.d, tri_vertices[i], mempool.v)
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 1
@@ -236,11 +236,11 @@ def ray_details(ray, details, fixed_mem_pool, skip_face_id = -1):
     return hit
 
 @numba.njit
-def recursive_trace(ray, details, fixed_mem_pool, count_depth=0, skip_face_id=-1):
+def recursive_trace(ray, details, mempool, count_depth=0, skip_face_id=-1):
     if count_depth >= MAX_DEPTH:
         return BLACK
 
-    hit = ray_details(ray, details, fixed_mem_pool, skip_face_id)
+    hit = ray_details(ray, details, mempool, skip_face_id)
     if not hit.valid():
         return BLACK
 
@@ -249,14 +249,14 @@ def recursive_trace(ray, details, fixed_mem_pool, count_depth=0, skip_face_id=-1
     weakening_factor = dot(ray.d, hit.n)
 
     # compute incoming light
-    incoming = recursive_trace(ray, details, fixed_mem_pool, count_depth+1, hit.face_id)
+    incoming = recursive_trace(ray, details, mempool, count_depth+1, hit.face_id)
 
     # compute rendering equation
     #BRDF = hit.reflectance / math.pi
     return hit.emittance + ((hit.reflectance * INV_PI) * incoming * weakening_factor * INV_PDF)
 
 @numba.njit
-def first_trace(hit, ray, details, fixed_mem_pool):
+def first_trace(hit, ray, details, mempool):
     if MAX_DEPTH == 0:
         return hit.reflectance
 
@@ -266,7 +266,7 @@ def first_trace(hit, ray, details, fixed_mem_pool):
 
     # compute incoming light
     count_depth = 0
-    incoming = recursive_trace(ray, details, fixed_mem_pool, count_depth+1, hit.face_id)
+    incoming = recursive_trace(ray, details, mempool, count_depth+1, hit.face_id)
 
     # compute rendering equation
     #BRDF =  hit.reflectance / math.pi
@@ -276,19 +276,19 @@ def first_trace(hit, ray, details, fixed_mem_pool):
 def render(image, camera, details, start_time):
     # fixed memory pool to prevent memory allocation during
     # the critical intersection algorithms
-    fixed_mem_pool = np.empty((3, 3))
+    mempool = jit_core.MemoryPool()
     random.seed(RANDOM_SEED)
     ray = jit_core.Ray() # preallocated ray
     for j in range(camera.height):
         for i in range(camera.width):
             # compute first hit to the scene
             camera.get_ray(i, j, ray)
-            hit = ray_details(ray, details, fixed_mem_pool)
+            hit = ray_details(ray, details, mempool)
             if not hit.valid():
                 continue
 
             for _ in range(NUM_SAMPLES):
-                pixel_shade = first_trace(hit, ray, details, fixed_mem_pool)
+                pixel_shade = first_trace(hit, ray, details, mempool)
                 image[camera.height-1-j, camera.width-1-i] += pixel_shade
 
             image[camera.height-1-j, camera.width-1-i] /= NUM_SAMPLES

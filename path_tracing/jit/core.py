@@ -6,7 +6,7 @@
 import math
 import numpy as np
 import numba
-from .maths import normalize
+from jit.maths import normalize
 
 @numba.jitclass([('t', numba.float64), # ray distance as double
                  ('p', numba.float64[:]), # hit positon as np.empty(3)
@@ -65,3 +65,13 @@ class Camera:
         ray.d[1] = y
         ray.d[2] = self.dir_z
         normalize(ray.d)
+
+@numba.jitclass([('v', numba.float64[:,:]),
+                 ('ray_o', numba.float64[:]),
+                 ('ray_d', numba.float64[:])])
+class MemoryPool:
+    def __init__(self):
+        self.v = np.empty((3,3)) # pool of vectors
+        self.ray_o = np.empty(3) # used for ray origin
+        self.ray_d = np.empty(3) # used for ray direction
+
