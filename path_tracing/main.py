@@ -8,6 +8,7 @@ import IPython.display
 import numpy as np
 import io
 import PIL
+import time
 
 import common
 from scene import Scene
@@ -18,12 +19,12 @@ def force_jit(image, camera, details):
     # jit compilation by calling a tiny scene
     width, height = camera.width, camera.height
     camera.set_resolution(2, 2)
-    pathtracer.render(image, camera, details)
+    pathtracer.render(image, camera, details, time.time())
     camera.set_resolution(width, height)
 
 @common.timeit
 def render(image, camera, details):
-    pathtracer.render(image, camera, details)
+    pathtracer.render(image, camera, details, time.time())
 
 @common.timeit
 def show(image):
@@ -32,8 +33,10 @@ def show(image):
     IPython.display.display(IPython.display.Image(data=buffer.getvalue()))
 
 def main():
-    pathtracer.MAX_DEPTH = 1 # max ray bounces
-    pathtracer.NUM_SAMPLES = 1 # number of sample per pixel
+    pathtracer.MAX_DEPTH = 5 # max ray bounces
+    pathtracer.NUM_SAMPLES = 50 # number of sample per pixel
+    pathtracer.RANDOM_SEED = 10
+
     scene = Scene()
     scene.load_cornell_box()
     details = scene.details()

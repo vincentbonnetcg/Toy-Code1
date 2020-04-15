@@ -3,6 +3,7 @@
 @description : basic render routines
 """
 
+import time
 import math
 import random
 import numba
@@ -272,7 +273,7 @@ def first_trace(hit, ray, details, fixed_mem_pool):
     return hit.emittance + ((hit.reflectance * INV_PI) * incoming * weakening_factor * INV_PDF)
 
 @numba.njit
-def render(image, camera, details):
+def render(image, camera, details, start_time):
     # fixed memory pool to prevent memory allocation during
     # the critical intersection algorithms
     fixed_mem_pool = np.empty((3, 3))
@@ -292,4 +293,10 @@ def render(image, camera, details):
 
             image[camera.height-1-j, camera.width-1-i] /= NUM_SAMPLES
 
-        print((j+1) / camera.height * 100)
+        with numba.objmode():
+            p = (j+1) / camera.height
+            print('. completed : %.2f' % (p * 100.0), ' %')
+            if time.time() != start_time:
+                t = time.time() - start_time
+                estimated_time_left = (1.0 - p) / p * t
+                print('    estimated time left: %.2f sec' % estimated_time_left)
