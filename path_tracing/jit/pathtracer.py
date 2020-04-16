@@ -172,6 +172,7 @@ def ray_details(details, mempool, skip_face_id = -1):
         if i == skip_face_id:
             continue
         t = ray_quad(mempool, quad_vertices[i])
+        mempool.total_intersection += 1
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 0
@@ -183,6 +184,7 @@ def ray_details(details, mempool, skip_face_id = -1):
         if i == skip_face_id:
             continue
         t = ray_triangle(mempool, tri_vertices[i])
+        mempool.total_intersection += 1
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 1
@@ -194,6 +196,7 @@ def ray_details(details, mempool, skip_face_id = -1):
         c = sphere_params[i].c
         r = sphere_params[i].r
         t = ray_sphere(mempool, c, r)
+        mempool.total_intersection += 1
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 2
@@ -208,6 +211,7 @@ def ray_details(details, mempool, skip_face_id = -1):
         hit.face_id = hit_id
         hit.reflectance = quad_materials[hit_id][0]
         hit.emittance = quad_materials[hit_id][1]
+        mempool.num_hit += 1
     elif hit_type == 1: # triangle hit
         hit.t = min_t
         hit.p = mempool.ray_o + (mempool.ray_d * min_t)
@@ -217,6 +221,7 @@ def ray_details(details, mempool, skip_face_id = -1):
         hit.face_id = hit_id
         hit.reflectance = tri_materials[hit_id][0]
         hit.emittance = tri_materials[hit_id][1]
+        mempool.num_hit += 1
     elif hit_type == 2: # sphere hit
         hit.t = min_t
         hit.p = mempool.ray_o + (mempool.ray_d * min_t)
@@ -226,6 +231,7 @@ def ray_details(details, mempool, skip_face_id = -1):
         hit.face_id = hit_id
         hit.reflectance = sphere_materials[hit_id][0]
         hit.emittance = sphere_materials[hit_id][1]
+        mempool.num_hit += 1
 
     # two-sided intersection
     if hit.valid() and dot(mempool.ray_d, hit.n) > 0:
@@ -285,6 +291,7 @@ def render(image, camera, details, start_time):
                 continue
 
             for _ in range(NUM_SAMPLES):
+                mempool.num_hit = 1
                 pixel_shade = first_trace(hit, details, mempool)
                 image[camera.height-1-j, camera.width-1-i] += pixel_shade
 
@@ -297,3 +304,5 @@ def render(image, camera, details, start_time):
                 t = time.time() - start_time
                 estimated_time_left = (1.0 - p) / p * t
                 #print('    estimated time left: %.2f sec' % estimated_time_left)
+    
+    print('Total intersection ', mempool.total_intersection)
