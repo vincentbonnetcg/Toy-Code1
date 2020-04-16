@@ -8,6 +8,20 @@ import numpy as np
 import numba
 from jit.maths import normalize
 
+# A per-thread fixed memory pool to prevent memory allocation  and contains
+# . pre-allocated arrays
+# . pre-allocated ray (origin, direction)
+# . pre_allocated hit
+@numba.jitclass([('v', numba.float64[:,:]),
+                 ('ray_o', numba.float64[:]),
+                 ('ray_d', numba.float64[:])])
+class MemoryPool:
+    def __init__(self):
+        self.v = np.empty((3,3)) # pool of vectors
+        self.ray_o = np.empty(3) # used for ray origin
+        self.ray_d = np.empty(3) # used for ray direction
+
+
 @numba.jitclass([('t', numba.float64), # ray distance as double
                  ('p', numba.float64[:]), # hit positon as np.empty(3)
                  ('n', numba.float64[:]), # hit normal as np.empty(3)
@@ -25,13 +39,6 @@ class Hit:
         if self.t >= 0.0:
             return True
         return False
-
-@numba.jitclass([('o', numba.float64[:]),
-                 ('d', numba.float64[:])])
-class Ray:
-    def __init__(self):
-        self.o = np.empty(3)
-        self.d = np.empty(3)
 
 @numba.jitclass([('origin', numba.float64[:]),
                  ('width', numba.int32),
@@ -55,23 +62,13 @@ class Camera:
         self.tan_fovx = math.tan(self.fovx*0.5)
         self.tan_fovy = math.tan(self.fovy*0.5)
 
-    def get_ray(self, i : int, j : int, ray):
+    def get_ray(self, i : int, j : int, mempool):
         x = (2 * i - (self.width-1)) / (self.width-1) * self.tan_fovx
         y = (2 * j - (self.height-1)) / (self.height-1) * self.tan_fovy
-        ray.o[0] = self.origin[0]
-        ray.o[1] = self.origin[1]
-        ray.o[2] = self.origin[2]
-        ray.d[0] = x
-        ray.d[1] = y
-        ray.d[2] = self.dir_z
-        normalize(ray.d)
-
-@numba.jitclass([('v', numba.float64[:,:]),
-                 ('ray_o', numba.float64[:]),
-                 ('ray_d', numba.float64[:])])
-class MemoryPool:
-    def __init__(self):
-        self.v = np.empty((3,3)) # pool of vectors
-        self.ray_o = np.empty(3) # used for ray origin
-        self.ray_d = np.empty(3) # used for ray direction
-
+        mempool.ray_o[0] = self.origin[0]
+        mempool.ray_o[1] = self.origin[1]
+        mempool.ray_o[2] = self.origin[2]
+        mempool.ray_d[0] = x
+        mempool.ray_d[1] = y
+        mempool.ray_d[2] = self.dir_z
+        normalize(mempool.ray_d)

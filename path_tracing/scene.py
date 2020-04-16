@@ -50,11 +50,11 @@ class Scene:
 
     def load_simple_scene(self):
         # create sphere
-        material = Material([0.549, 1.0, 0.749])
+        material = Material([0.0, 0.0, 0.0], [1,1,1])
         sphere = Sphere(center=[0,-0.1,-2], radius=0.5, material=material)
         self.objects.append(sphere)
         # create polygon soup
-        material = Material([0.91, 0.91, 0.5])
+        material = Material([0.91, 0.91, 0.5], [0,0,0])
         tv, n = geometry.create_test_triangle(-2)
         polygon = TriangleSoup(tv, n, material)
         self.objects.append(polygon)

@@ -20,8 +20,8 @@ INV_PDF = 2.0 * math.pi; # inverse of probability density function
 INV_PI = 1.0 / math.pi
 
 @numba.njit(inline='always')
-def update_ray_from_uniform_distribution(ray, hit):
-    ray.o = hit.p
+def update_ray_from_uniform_distribution(mempool, hit):
+    mempool.ray_o = hit.p
     # Find ray direction from uniform around hemisphere
     # Unit hemisphere from spherical coordinates
     # the unit  hemisphere is at origin and y is the up vector
@@ -42,9 +42,9 @@ def update_ray_from_uniform_distribution(ray, hit):
     v1 = cos_phi
     v2 = math.sin(theta)*sin_phi
     # compute the world sample
-    ray.d[0] = v0*hit.bn[0] + v1*hit.n[0] + v2*hit.tn[0]
-    ray.d[1] = v0*hit.bn[1] + v1*hit.n[1] + v2*hit.tn[1]
-    ray.d[2] = v0*hit.bn[2] + v1*hit.n[2] + v2*hit.tn[2]
+    mempool.ray_d[0] = v0*hit.bn[0] + v1*hit.n[0] + v2*hit.tn[0]
+    mempool.ray_d[1] = v0*hit.bn[1] + v1*hit.n[1] + v2*hit.tn[1]
+    mempool.ray_d[2] = v0*hit.bn[2] + v1*hit.n[2] + v2*hit.tn[2]
 
 @numba.njit(inline='always')
 def _subtract(a, b, out):
@@ -54,11 +54,11 @@ def _subtract(a, b, out):
     out[2] = a[2] - b[2]
 
 @numba.njit(inline='always')
-def ray_triangle(ray_o, ray_d, tv, edges_pool):
+def ray_triangle(mempool, tv):
     # Moller-Trumbore intersection algorithm
-    _subtract(tv[1], tv[0], edges_pool[0]) # e1
-    _subtract(tv[2], tv[0], edges_pool[1]) # e2
-    _subtract(ray_o, tv[0], edges_pool[2]) # ed
+    _subtract(tv[1], tv[0], mempool.v[0]) # e1
+    _subtract(tv[2], tv[0], mempool.v[1]) # e2
+    _subtract(mempool.ray_o, tv[0], mempool.v[2]) # ed
 
     # explicit linear system (Ax=b) for debugging
     #e1 = tv[1] - tv[0]
@@ -73,53 +73,53 @@ def ray_triangle(ray_o, ray_d, tv, edges_pool):
     # solve the system with Cramer's rule
     # det(A) = dot(-ray_d, cross(e1,e2)) = tripleProduct(-ray_d, e1, e2)
     # also det(A) = tripleProduct(ray_d, e1, e2) = -tripleProduct(-ray_d, e1, e2)
-    detA = -triple_product(ray_d, edges_pool[0], edges_pool[1])
+    detA = -triple_product(mempool.ray_d, mempool.v[0], mempool.v[1])
     if isclose(detA, 0.0):
         # ray is parallel to the triangle
         return -1.0
 
     invDetA = 1.0 / detA
 
-    u = -triple_product(ray_d, edges_pool[2], edges_pool[1]) * invDetA
+    u = -triple_product(mempool.ray_d, mempool.v[2], mempool.v[1]) * invDetA
     if (u < 0.0 or u > 1.0):
         return -1.0
 
-    v = -triple_product(ray_d, edges_pool[0], edges_pool[2]) * invDetA
+    v = -triple_product(mempool.ray_d, mempool.v[0], mempool.v[2]) * invDetA
     if (v < 0.0 or u + v > 1.0):
         return -1.0
 
-    return triple_product(edges_pool[2], edges_pool[0], edges_pool[1]) * invDetA # t
+    return triple_product(mempool.v[2], mempool.v[0], mempool.v[1]) * invDetA # t
 
 @numba.njit(inline='always')
-def ray_quad(ray_o, ray_d, tv, edges_pool):
+def ray_quad(mempool, tv):
     # Moller-Trumbore intersection algorithm
     # same than ray_triangle but different condition on v
-    _subtract(tv[1], tv[0], edges_pool[0]) # e1
-    _subtract(tv[2], tv[0], edges_pool[1]) # e2
-    _subtract(ray_o, tv[0], edges_pool[2]) # ed
+    _subtract(tv[1], tv[0], mempool.v[0]) # e1
+    _subtract(tv[2], tv[0], mempool.v[1]) # e2
+    _subtract(mempool.ray_o, tv[0], mempool.v[2]) # ed
 
-    detA = -triple_product(ray_d, edges_pool[0], edges_pool[1])
+    detA = -triple_product(mempool.ray_d, mempool.v[0], mempool.v[1])
     if isclose(detA, 0.0):
         # ray is parallel to the triangle
         return -1.0
 
     invDetA = 1.0 / detA
 
-    u = -triple_product(ray_d, edges_pool[2], edges_pool[1]) * invDetA
+    u = -triple_product(mempool.ray_d, mempool.v[2], mempool.v[1]) * invDetA
     if (u < 0.0 or u > 1.0):
         return -1.0
 
-    v = -triple_product(ray_d, edges_pool[0], edges_pool[2]) * invDetA
+    v = -triple_product(mempool.ray_d, mempool.v[0], mempool.v[2]) * invDetA
     if (v < 0.0 or v > 1.0):
         return -1.0
 
-    return triple_product(edges_pool[2], edges_pool[0], edges_pool[1]) * invDetA # t
+    return triple_product(mempool.v[2], mempool.v[0], mempool.v[1]) * invDetA # t
 
 @numba.njit(inline='always')
-def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
-    o = ray_o - sphere_c
-    a = dot(ray_d, ray_d)
-    b = dot(ray_d, o) * 2.0
+def ray_sphere(mempool, sphere_c, sphere_r):
+    o = mempool.ray_o - sphere_c
+    a = dot(mempool.ray_d, mempool.ray_d)
+    b = dot(mempool.ray_d, o) * 2.0
     c = dot(o, o) - sphere_r**2
     # solve ax**2 + bx + c = 0
     dis = b**2 - 4*a*c  # discriminant
@@ -149,7 +149,7 @@ def ray_sphere(ray_o, ray_d, sphere_c, sphere_r):
     return t
 
 @numba.njit
-def ray_details(ray, details, mempool, skip_face_id = -1):
+def ray_details(details, mempool, skip_face_id = -1):
     min_t = np.finfo(numba.float64).max
     hit = jit_core.Hit()
     quad_vertices = details[0]
@@ -171,7 +171,7 @@ def ray_details(ray, details, mempool, skip_face_id = -1):
     for i in range(num_quads):
         if i == skip_face_id:
             continue
-        t = ray_quad(ray.o, ray.d, quad_vertices[i], mempool.v)
+        t = ray_quad(mempool, quad_vertices[i])
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 0
@@ -182,7 +182,7 @@ def ray_details(ray, details, mempool, skip_face_id = -1):
     for i in range(num_triangles):
         if i == skip_face_id:
             continue
-        t = ray_triangle(ray.o, ray.d, tri_vertices[i], mempool.v)
+        t = ray_triangle(mempool, tri_vertices[i])
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 1
@@ -193,7 +193,7 @@ def ray_details(ray, details, mempool, skip_face_id = -1):
     for i in range(num_spheres):
         c = sphere_params[i].c
         r = sphere_params[i].r
-        t = ray_sphere(ray.o, ray.d, c, r)
+        t = ray_sphere(mempool, c, r)
         if t > 0.0 and t < min_t:
             min_t = t
             hit_type = 2
@@ -201,7 +201,7 @@ def ray_details(ray, details, mempool, skip_face_id = -1):
 
     if hit_type == 0: # quad hit
         hit.t = min_t
-        hit.p = ray.o + (ray.d * min_t)
+        hit.p = mempool.ray_o + (mempool.ray_d * min_t)
         hit.n = quad_normals[hit_id]
         hit.tn = quad_tangents[hit_id]
         hit.bn = quad_binormals[hit_id]
@@ -210,7 +210,7 @@ def ray_details(ray, details, mempool, skip_face_id = -1):
         hit.emittance = quad_materials[hit_id][1]
     elif hit_type == 1: # triangle hit
         hit.t = min_t
-        hit.p = ray.o + (ray.d * min_t)
+        hit.p = mempool.ray_o + (mempool.ray_d * min_t)
         hit.n = tri_normals[hit_id]
         hit.tn = tri_tangents[hit_id]
         hit.bn = tri_binormals[hit_id]
@@ -219,7 +219,7 @@ def ray_details(ray, details, mempool, skip_face_id = -1):
         hit.emittance = tri_materials[hit_id][1]
     elif hit_type == 2: # sphere hit
         hit.t = min_t
-        hit.p = ray.o + (ray.d * min_t)
+        hit.p = mempool.ray_o + (mempool.ray_d * min_t)
         hit.n = (hit.p - sphere_params[hit_id].c) / sphere_params[hit_id].r
         hit.tn = compute_tangent(hit.n)
         hit.bn = cross(hit.n, hit.tn)
@@ -228,7 +228,7 @@ def ray_details(ray, details, mempool, skip_face_id = -1):
         hit.emittance = sphere_materials[hit_id][1]
 
     # two-sided intersection
-    if hit.valid() and dot(ray.d, hit.n) > 0:
+    if hit.valid() and dot(mempool.ray_d, hit.n) > 0:
         hit.n[0] *= -1
         hit.n[1] *= -1
         hit.n[2] *= -1
@@ -236,37 +236,37 @@ def ray_details(ray, details, mempool, skip_face_id = -1):
     return hit
 
 @numba.njit
-def recursive_trace(ray, details, mempool, count_depth=0, skip_face_id=-1):
+def recursive_trace(details, mempool, count_depth=0, skip_face_id=-1):
     if count_depth >= MAX_DEPTH:
         return BLACK
 
-    hit = ray_details(ray, details, mempool, skip_face_id)
+    hit = ray_details(details, mempool, skip_face_id)
     if not hit.valid():
         return BLACK
 
     # update ray and compute weakening factor
-    update_ray_from_uniform_distribution(ray, hit)
-    weakening_factor = dot(ray.d, hit.n)
+    update_ray_from_uniform_distribution(mempool, hit)
+    weakening_factor = dot(mempool.ray_d, hit.n)
 
     # compute incoming light
-    incoming = recursive_trace(ray, details, mempool, count_depth+1, hit.face_id)
+    incoming = recursive_trace(details, mempool, count_depth+1, hit.face_id)
 
     # compute rendering equation
     #BRDF = hit.reflectance / math.pi
     return hit.emittance + ((hit.reflectance * INV_PI) * incoming * weakening_factor * INV_PDF)
 
 @numba.njit
-def first_trace(hit, ray, details, mempool):
+def first_trace(hit, details, mempool):
     if MAX_DEPTH == 0:
         return hit.reflectance
 
     # update ray and compute weakening factor
-    update_ray_from_uniform_distribution(ray, hit)
-    weakening_factor = dot(ray.d, hit.n)
+    update_ray_from_uniform_distribution(mempool, hit)
+    weakening_factor = dot(mempool.ray_d, hit.n)
 
     # compute incoming light
     count_depth = 0
-    incoming = recursive_trace(ray, details, mempool, count_depth+1, hit.face_id)
+    incoming = recursive_trace(details, mempool, count_depth+1, hit.face_id)
 
     # compute rendering equation
     #BRDF =  hit.reflectance / math.pi
@@ -274,29 +274,26 @@ def first_trace(hit, ray, details, mempool):
 
 @numba.njit
 def render(image, camera, details, start_time):
-    # fixed memory pool to prevent memory allocation during
-    # the critical intersection algorithms
     mempool = jit_core.MemoryPool()
     random.seed(RANDOM_SEED)
-    ray = jit_core.Ray() # preallocated ray
     for j in range(camera.height):
         for i in range(camera.width):
             # compute first hit to the scene
-            camera.get_ray(i, j, ray)
-            hit = ray_details(ray, details, mempool)
+            camera.get_ray(i, j, mempool)
+            hit = ray_details(details, mempool)
             if not hit.valid():
                 continue
 
             for _ in range(NUM_SAMPLES):
-                pixel_shade = first_trace(hit, ray, details, mempool)
+                pixel_shade = first_trace(hit, details, mempool)
                 image[camera.height-1-j, camera.width-1-i] += pixel_shade
 
             image[camera.height-1-j, camera.width-1-i] /= NUM_SAMPLES
 
         with numba.objmode():
             p = (j+1) / camera.height
-            print('. completed : %.2f' % (p * 100.0), ' %')
+            #print('. completed : %.2f' % (p * 100.0), ' %')
             if time.time() != start_time:
                 t = time.time() - start_time
                 estimated_time_left = (1.0 - p) / p * t
-                print('    estimated time left: %.2f sec' % estimated_time_left)
+                #print('    estimated time left: %.2f sec' % estimated_time_left)
