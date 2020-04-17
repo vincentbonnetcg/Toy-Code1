@@ -211,7 +211,6 @@ def ray_details(details, mempool, skip_face_id = -1):
         hit.face_id = hit_id
         hit.reflectance = quad_materials[hit_id][0]
         hit.emittance = quad_materials[hit_id][1]
-        mempool.num_hit += 1
     elif hit_type == 1: # triangle hit
         hit.t = min_t
         hit.p = mempool.ray_o + (mempool.ray_d * min_t)
@@ -221,7 +220,6 @@ def ray_details(details, mempool, skip_face_id = -1):
         hit.face_id = hit_id
         hit.reflectance = tri_materials[hit_id][0]
         hit.emittance = tri_materials[hit_id][1]
-        mempool.num_hit += 1
     elif hit_type == 2: # sphere hit
         hit.t = min_t
         hit.p = mempool.ray_o + (mempool.ray_d * min_t)
@@ -231,7 +229,6 @@ def ray_details(details, mempool, skip_face_id = -1):
         hit.face_id = hit_id
         hit.reflectance = sphere_materials[hit_id][0]
         hit.emittance = sphere_materials[hit_id][1]
-        mempool.num_hit += 1
 
     # two-sided intersection
     if hit.valid() and dot(mempool.ray_d, hit.n) > 0:
@@ -239,11 +236,13 @@ def ray_details(details, mempool, skip_face_id = -1):
         hit.n[1] *= -1
         hit.n[2] *= -1
 
+    mempool.depth += 1
+
     return hit
 
 @numba.njit
-def recursive_trace(details, mempool, count_depth=0, skip_face_id=-1):
-    if count_depth >= MAX_DEPTH:
+def recursive_trace(details, mempool, skip_face_id=-1):
+    if mempool.depth >= MAX_DEPTH:
         return BLACK
 
     hit = ray_details(details, mempool, skip_face_id)
@@ -255,7 +254,7 @@ def recursive_trace(details, mempool, count_depth=0, skip_face_id=-1):
     weakening_factor = dot(mempool.ray_d, hit.n)
 
     # compute incoming light
-    incoming = recursive_trace(details, mempool, count_depth+1, hit.face_id)
+    incoming = recursive_trace(details, mempool, hit.face_id)
 
     # compute rendering equation
     #BRDF = hit.reflectance / math.pi
@@ -266,13 +265,14 @@ def first_trace(hit, details, mempool):
     if MAX_DEPTH == 0:
         return hit.reflectance
 
+    mempool.depth = 0
+
     # update ray and compute weakening factor
     update_ray_from_uniform_distribution(mempool, hit)
     weakening_factor = dot(mempool.ray_d, hit.n)
 
     # compute incoming light
-    count_depth = 0
-    incoming = recursive_trace(details, mempool, count_depth+1, hit.face_id)
+    incoming = recursive_trace(details, mempool, hit.face_id)
 
     # compute rendering equation
     #BRDF =  hit.reflectance / math.pi
@@ -291,7 +291,6 @@ def render(image, camera, details, start_time):
                 continue
 
             for _ in range(NUM_SAMPLES):
-                mempool.num_hit = 1
                 pixel_shade = first_trace(hit, details, mempool)
                 image[camera.height-1-j, camera.width-1-i] += pixel_shade
 
@@ -304,5 +303,5 @@ def render(image, camera, details, start_time):
                 t = time.time() - start_time
                 estimated_time_left = (1.0 - p) / p * t
                 #print('    estimated time left: %.2f sec' % estimated_time_left)
-    
-    print('Total intersection ', mempool.total_intersection)
+
+    print('Total intersections ', mempool.total_intersection)

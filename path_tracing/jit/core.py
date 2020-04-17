@@ -15,14 +15,14 @@ from jit.maths import normalize
 @numba.jitclass([('v', numba.float64[:,:]),
                  ('ray_o', numba.float64[:]),
                  ('ray_d', numba.float64[:]),
-                 ('num_hit', numba.int32),
+                 ('depth', numba.int32),
                  ('total_intersection', numba.int32)])
 class MemoryPool:
     def __init__(self):
         self.v = np.empty((3,3)) # pool of vectors
         self.ray_o = np.empty(3) # used for ray origin
         self.ray_d = np.empty(3) # used for ray direction
-        self.num_hit = 0         # number hit stored in memory pool
+        self.depth = 0         # depth counter
         self.total_intersection = 0    # total number ray vs element intersection
 
 @numba.jitclass([('t', numba.float64), # ray distance as double
