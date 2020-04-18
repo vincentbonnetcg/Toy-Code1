@@ -16,17 +16,45 @@ from jit.maths import normalize
                  ('ray_o', numba.float64[:]),
                  ('ray_d', numba.float64[:]),
                  ('depth', numba.int32),
-                 ('total_intersection', numba.int32)])
+                 ('total_intersection', numba.int64),
+                 # hit data are stored for each hit (depth)
+                 ('hit_t', numba.float64[:]),  # ray distance as double
+                 ('hit_p', numba.float64[:,:]), # hit positon
+                 ('hit_n', numba.float64[:,:]), # hit normal
+                 ('hit_tn', numba.float64[:,:]), # hit tangent
+                 ('hit_bn', numba.float64[:,:]), # hit binormal
+                 ('hit_face_id', numba.int32[:]), # hit face id
+                 ('hit_reflectance', numba.float64[:,:]), # reflectance as np.empty(3)
+                 ('hit_emittance', numba.float64[:,:])]) # emittance as np.empty(3)
+
 class MemoryPool:
-    def __init__(self):
+    def __init__(self, num_samples):
         self.v = np.empty((3,3)) # pool of vectors
         self.ray_o = np.empty(3) # used for ray origin
         self.ray_d = np.empty(3) # used for ray direction
-        self.depth = 0         # depth counter
+        self.depth = -1         # depth counter
         self.total_intersection = 0    # total number ray vs element intersection
+        # hit
+        self.hit_t = np.empty(num_samples)
+        self.hit_p = np.empty((num_samples, 3))
+        self.hit_n = np.empty((num_samples, 3))
+        self.hit_tn = np.empty((num_samples, 3))
+        self.hit_bn = np.empty((num_samples, 3))
+        self.hit_face_id = np.empty(num_samples, np.int32)
+        self.hit_reflectance = np.empty((num_samples, 3))
+        self.hit_emittance = np.empty((num_samples, 3))
+
+    def valid_hit(self):
+        if self.hit_t[self.depth] >= 0.0:
+            return True
+        return False
+
+    def next_hit(self):
+        self.depth += 1
+        self.hit_t[self.depth] = -1 # make the hit invalid
 
 @numba.jitclass([('t', numba.float64), # ray distance as double
-                 ('p', numba.float64[:]), # hit positon as np.empty(3)
+                 ('p', numba.float64[:]),
                  ('n', numba.float64[:]), # hit normal as np.empty(3)
                  ('tn', numba.float64[:]), # hit tangent as np.empty(3)
                  ('bn', numba.float64[:]), # hit binormal as np.empty(3)
@@ -74,4 +102,5 @@ class Camera:
         mempool.ray_d[0] = x
         mempool.ray_d[1] = y
         mempool.ray_d[2] = self.dir_z
+        mempool.depth = -1 # no hit
         normalize(mempool.ray_d)

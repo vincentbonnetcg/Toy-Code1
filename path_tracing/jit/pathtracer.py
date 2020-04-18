@@ -20,8 +20,9 @@ INV_PDF = 2.0 * math.pi; # inverse of probability density function
 INV_PI = 1.0 / math.pi
 
 @numba.njit(inline='always')
-def update_ray_from_uniform_distribution(mempool, hit):
-    mempool.ray_o = hit.p
+def update_ray_from_uniform_distribution(mempool):
+    i = mempool.depth
+    mempool.ray_o = mempool.hit_p[i]
     # Find ray direction from uniform around hemisphere
     # Unit hemisphere from spherical coordinates
     # the unit  hemisphere is at origin and y is the up vector
@@ -42,9 +43,9 @@ def update_ray_from_uniform_distribution(mempool, hit):
     v1 = cos_phi
     v2 = math.sin(theta)*sin_phi
     # compute the world sample
-    mempool.ray_d[0] = v0*hit.bn[0] + v1*hit.n[0] + v2*hit.tn[0]
-    mempool.ray_d[1] = v0*hit.bn[1] + v1*hit.n[1] + v2*hit.tn[1]
-    mempool.ray_d[2] = v0*hit.bn[2] + v1*hit.n[2] + v2*hit.tn[2]
+    mempool.ray_d[0] = v0*mempool.hit_bn[i][0] + v1*mempool.hit_n[i][0] + v2*mempool.hit_tn[i][0]
+    mempool.ray_d[1] = v0*mempool.hit_bn[i][1] + v1*mempool.hit_n[i][1] + v2*mempool.hit_tn[i][1]
+    mempool.ray_d[2] = v0*mempool.hit_bn[i][2] + v1*mempool.hit_n[i][2] + v2*mempool.hit_tn[i][2]
 
 @numba.njit(inline='always')
 def _subtract(a, b, out):
@@ -150,8 +151,8 @@ def ray_sphere(mempool, sphere_c, sphere_r):
 
 @numba.njit
 def ray_details(details, mempool, skip_face_id = -1):
+    mempool.next_hit() # use the next allocated hit
     min_t = np.finfo(numba.float64).max
-    hit = jit_core.Hit()
     quad_vertices = details[0]
     quad_normals = details[1]
     quad_tangents = details[2]
@@ -203,105 +204,107 @@ def ray_details(details, mempool, skip_face_id = -1):
             hit_id = i
 
     if hit_type == 0: # quad hit
-        hit.t = min_t
-        hit.p = mempool.ray_o + (mempool.ray_d * min_t)
-        hit.n = quad_normals[hit_id]
-        hit.tn = quad_tangents[hit_id]
-        hit.bn = quad_binormals[hit_id]
-        hit.face_id = hit_id
-        hit.reflectance = quad_materials[hit_id][0]
-        hit.emittance = quad_materials[hit_id][1]
+        i = mempool.depth
+        mempool.hit_t[i] = min_t
+        mempool.hit_p[i] = mempool.ray_o + (mempool.ray_d * min_t)
+        mempool.hit_n[i] = quad_normals[hit_id]
+        mempool.hit_tn[i] = quad_tangents[hit_id]
+        mempool.hit_bn[i] = quad_binormals[hit_id]
+        mempool.hit_face_id[i] = hit_id
+        mempool.hit_reflectance[i] = quad_materials[hit_id][0]
+        mempool.hit_emittance[i] = quad_materials[hit_id][1]
     elif hit_type == 1: # triangle hit
-        hit.t = min_t
-        hit.p = mempool.ray_o + (mempool.ray_d * min_t)
-        hit.n = tri_normals[hit_id]
-        hit.tn = tri_tangents[hit_id]
-        hit.bn = tri_binormals[hit_id]
-        hit.face_id = hit_id
-        hit.reflectance = tri_materials[hit_id][0]
-        hit.emittance = tri_materials[hit_id][1]
+        i = mempool.depth
+        mempool.hit_t[i] = min_t
+        mempool.hit_p[i] = mempool.ray_o + (mempool.ray_d * min_t)
+        mempool.hit_n[i] = tri_normals[hit_id]
+        mempool.hit_tn[i] = tri_tangents[hit_id]
+        mempool.hit_bn[i] = tri_binormals[hit_id]
+        mempool.hit_face_id[i] = hit_id
+        mempool.hit_reflectance[i] = tri_materials[hit_id][0]
+        mempool.hit_emittance[i] = tri_materials[hit_id][1]
     elif hit_type == 2: # sphere hit
-        hit.t = min_t
-        hit.p = mempool.ray_o + (mempool.ray_d * min_t)
-        hit.n = (hit.p - sphere_params[hit_id].c) / sphere_params[hit_id].r
-        hit.tn = compute_tangent(hit.n)
-        hit.bn = cross(hit.n, hit.tn)
-        hit.face_id = hit_id
-        hit.reflectance = sphere_materials[hit_id][0]
-        hit.emittance = sphere_materials[hit_id][1]
+        i = mempool.depth
+        mempool.hit_t[i] = min_t
+        mempool.hit_p[i] = mempool.ray_o + (mempool.ray_d * min_t)
+        mempool.hit_n[i] = (mempool.hit_p[i] - sphere_params[hit_id].c) / sphere_params[hit_id].r
+        mempool.hit_tn[i] = compute_tangent(mempool.hit_n[i])
+        mempool.hit_bn[i] = cross(mempool.hit_n[i], mempool.hit_tn[i])
+        mempool.hit_face_id[i] = hit_id
+        mempool.hit_reflectance[i] = sphere_materials[hit_id][0]
+        mempool.hit_emittance[i] = sphere_materials[hit_id][1]
 
     # two-sided intersection
-    if hit.valid() and dot(mempool.ray_d, hit.n) > 0:
-        hit.n[0] *= -1
-        hit.n[1] *= -1
-        hit.n[2] *= -1
-
-    mempool.depth += 1
-
-    return hit
+    i = mempool.depth
+    if mempool.valid_hit() and dot(mempool.ray_d, mempool.hit_n[i]) > 0:
+        mempool.hit_n[i][0] *= -1
+        mempool.hit_n[i][1] *= -1
+        mempool.hit_n[i][2] *= -1
 
 @numba.njit
-def recursive_trace(details, mempool, skip_face_id=-1):
-    if mempool.depth >= MAX_DEPTH:
+def recursive_trace(details, mempool):
+    if mempool.depth + 1 >= MAX_DEPTH: # can another hit be allocated ?
         return BLACK
 
-    hit = ray_details(details, mempool, skip_face_id)
-    if not hit.valid():
+    skip_face_id = mempool.hit_face_id[mempool.depth]
+    ray_details(details, mempool, skip_face_id)
+    if not mempool.valid_hit():
         return BLACK
 
     # update ray and compute weakening factor
-    update_ray_from_uniform_distribution(mempool, hit)
-    weakening_factor = dot(mempool.ray_d, hit.n)
+    depth = mempool.depth
+    update_ray_from_uniform_distribution(mempool)
+    weakening_factor = dot(mempool.ray_d, mempool.hit_n[depth])
 
     # compute incoming light
-    incoming = recursive_trace(details, mempool, hit.face_id)
+    incoming = recursive_trace(details, mempool)
 
     # compute rendering equation
     #BRDF = hit.reflectance / math.pi
-    return hit.emittance + ((hit.reflectance * INV_PI) * incoming * weakening_factor * INV_PDF)
+    return mempool.hit_emittance[depth] + ((mempool.hit_reflectance[depth] * INV_PI) * incoming * weakening_factor * INV_PDF)
 
 @numba.njit
-def first_trace(hit, details, mempool):
+def first_trace(details, mempool):
     if MAX_DEPTH == 0:
-        return hit.reflectance
-
-    mempool.depth = 0
+        return mempool.hit_reflectance[0]
 
     # update ray and compute weakening factor
-    update_ray_from_uniform_distribution(mempool, hit)
-    weakening_factor = dot(mempool.ray_d, hit.n)
+    mempool.depth = 0
+    update_ray_from_uniform_distribution(mempool)
+    weakening_factor = dot(mempool.ray_d, mempool.hit_n[0])
 
     # compute incoming light
-    incoming = recursive_trace(details, mempool, hit.face_id)
+    incoming = recursive_trace(details, mempool)
 
     # compute rendering equation
     #BRDF =  hit.reflectance / math.pi
-    return hit.emittance + ((hit.reflectance * INV_PI) * incoming * weakening_factor * INV_PDF)
+    return mempool.hit_emittance[0] + ((mempool.hit_reflectance[0] * INV_PI) * incoming * weakening_factor * INV_PDF)
 
 @numba.njit
 def render(image, camera, details, start_time):
-    mempool = jit_core.MemoryPool()
+    mempool = jit_core.MemoryPool(NUM_SAMPLES)
     random.seed(RANDOM_SEED)
     for j in range(camera.height):
         for i in range(camera.width):
             # compute first hit to the scene
             camera.get_ray(i, j, mempool)
-            hit = ray_details(details, mempool)
-            if not hit.valid():
+            ray_details(details, mempool)
+
+            if mempool.valid_hit() == False:
                 continue
 
             for _ in range(NUM_SAMPLES):
-                pixel_shade = first_trace(hit, details, mempool)
+                pixel_shade = first_trace(details, mempool)
                 image[camera.height-1-j, camera.width-1-i] += pixel_shade
 
             image[camera.height-1-j, camera.width-1-i] /= NUM_SAMPLES
 
         with numba.objmode():
             p = (j+1) / camera.height
-            #print('. completed : %.2f' % (p * 100.0), ' %')
+            print('. completed : %.2f' % (p * 100.0), ' %')
             if time.time() != start_time:
                 t = time.time() - start_time
                 estimated_time_left = (1.0 - p) / p * t
-                #print('    estimated time left: %.2f sec' % estimated_time_left)
+                print('    estimated time left: %.2f sec' % estimated_time_left)
 
     print('Total intersections ', mempool.total_intersection)
