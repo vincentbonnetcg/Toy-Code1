@@ -92,6 +92,11 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 ![PCA](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation_covarianceMatrix.png)
 
+## . Markov Chain - Authors names generator
+**File** [markovChain.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/markov_chain/markov_chain.py)<br>
+**Description** Generate authors names by using Markov Chain
+- Use the Collection of Poems from Poetry Foundation to generate probability matrix
+
 ## . Interpolation and Regression
 **Folder** [interpolation_regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/interpolation_regression)<br>
 **Description** Interpolation and regression algorithms
