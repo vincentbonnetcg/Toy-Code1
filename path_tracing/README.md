@@ -1,5 +1,5 @@
 # Path Tracing
-ToyCode for Monte Carlo Path Tracing with Python/Numba
+ Monte Carlo Path Tracing using Numba and a memorypool for efficient computation
 
 ![Monte Carlo Path Tracer](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer.jpg)
 

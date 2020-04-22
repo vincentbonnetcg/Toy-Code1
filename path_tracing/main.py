@@ -39,7 +39,7 @@ def main():
 
     scene = Scene()
     scene.load_cornell_box()
-    details = scene.details()
+    details = scene.tri_details()
     camera = scene.camera
     camera.set_resolution(512, 512)
     image = np.zeros((camera.height, camera.width, 3))
