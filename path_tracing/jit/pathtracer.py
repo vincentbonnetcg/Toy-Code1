@@ -49,8 +49,11 @@ def update_ray_from_uniform_distribution(mempool):
     mempool.ray_d[2] = v0*mempool.hit_bn[i][2] + v1*mempool.hit_n[i][2] + v2*mempool.hit_tn[i][2]
 
 @numba.njit
-def ray_tri_details(details, mempool, skip_face_id = -1):
+def ray_tri_details(details, mempool):
     # details from Scene.tri_details()
+    skip_face_id = -1
+    if mempool.depth >= 0: # skip face based on previous hit
+        skip_face_id = mempool.hit_face_id[mempool.depth]
     mempool.next_hit() # use the next allocated hit
     min_t = np.finfo(numba.float64).max
     tri_vertices = details[0]
@@ -93,8 +96,7 @@ def recursive_trace(details, mempool):
     if mempool.depth + 1 >= MAX_DEPTH: # can another hit be allocated ?
         return BLACK
 
-    skip_face_id = mempool.hit_face_id[mempool.depth]
-    ray_tri_details(details, mempool, skip_face_id)
+    ray_tri_details(details, mempool)
     if not mempool.valid_hit():
         return BLACK
 

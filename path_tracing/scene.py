@@ -64,10 +64,11 @@ class Scene:
         quad_v = [] # quad vertices
         quad_m = [] # quad material
         white = [1,1,1]
-        red = [1,0,0]
-        green = [0,1,0]
+        red = [0.57,0.025,0.025]
+        green = [0.025,0.236,0.025]
         blue = [0,0,1]
         black = [0,0,0]
+        light_colour = [0.9,0.9,0.9]
         # floor
         quad_v.append([[552.8,0,0],[0,0,0],[0,0,559.2],[549.6,0,559.2]])
         quad_m.append([white, black])
@@ -82,7 +83,7 @@ class Scene:
         quad_m.append([white, black])
         # ceiling (large light)
         quad_v.append([[556,548.8,0],[556,548.8,559.2],[0,548.8,559.2],[0,548.8,0]])
-        quad_m.append([black, white])
+        quad_m.append([white, black])
         # short block
         quad_v.append([[130,165,65],[82,165,225],[240,165,272],[290,165,114]])
         quad_m.append([white, black])
@@ -106,8 +107,9 @@ class Scene:
         quad_v.append([[265,0,296],[265,330,296],[423,330,247],[423,0,247]])
         quad_m.append([white, black])
         # small light
-        #quad_v.append([[343,548.79,227],[343,548.79,332],[213,548.79,332],[213,548.79,227]])
-        #quad_m.append([black, white])
+        # added an offset from the cornell box from 548.8 to 548
+        quad_v.append([[343,548.79,227],[343,548.79,332],[213,548.79,332],[213,548.79,227]])
+        quad_m.append([black, light_colour])
 
         # add quads
         for i in range(len(quad_v)):
