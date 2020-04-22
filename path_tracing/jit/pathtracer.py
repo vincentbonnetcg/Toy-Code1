@@ -48,18 +48,30 @@ def update_ray_from_uniform_distribution(mempool):
     mempool.ray_d[2] = v0*mempool.hit_bn[i][2] + v1*mempool.hit_n[i][2] + v2*mempool.hit_tn[i][2]
 
 @numba.njit(inline='always')
-def _subtract(a, b, out):
+def asub(a, b, out):
     # squeeze some performance by skipping the generic np.subtract
     out[0] = a[0] - b[0]
     out[1] = a[1] - b[1]
     out[2] = a[2] - b[2]
 
 @numba.njit(inline='always')
+def axpy(a, x, y, out):
+    out[0] = y[0] + (x[0] * a)
+    out[1] = y[1] + (x[1] * a)
+    out[2] = y[2] + (x[2] * a)
+
+@numba.njit(inline='always')
+def copy(x, y):
+    x[0] = y[0]
+    x[1] = y[1]
+    x[2] = y[2]
+
+@numba.njit(inline='always')
 def ray_triangle(mempool, tv):
     # Moller-Trumbore intersection algorithm
-    _subtract(tv[1], tv[0], mempool.v[0]) # e1
-    _subtract(tv[2], tv[0], mempool.v[1]) # e2
-    _subtract(mempool.ray_o, tv[0], mempool.v[2]) # ed
+    asub(tv[1], tv[0], mempool.v[0]) # e1
+    asub(tv[2], tv[0], mempool.v[1]) # e2
+    asub(mempool.ray_o, tv[0], mempool.v[2]) # ed
 
     # explicit linear system (Ax=b) for debugging
     #e1 = tv[1] - tv[0]
@@ -95,9 +107,9 @@ def ray_triangle(mempool, tv):
 def ray_quad(mempool, tv):
     # Moller-Trumbore intersection algorithm
     # same than ray_triangle but different condition on v
-    _subtract(tv[1], tv[0], mempool.v[0]) # e1
-    _subtract(tv[2], tv[0], mempool.v[1]) # e2
-    _subtract(mempool.ray_o, tv[0], mempool.v[2]) # ed
+    asub(tv[1], tv[0], mempool.v[0]) # e1
+    asub(tv[2], tv[0], mempool.v[1]) # e2
+    asub(mempool.ray_o, tv[0], mempool.v[2]) # ed
 
     detA = -triple_product(mempool.ray_d, mempool.v[0], mempool.v[1])
     if isclose(detA, 0.0):
@@ -206,33 +218,33 @@ def ray_details(details, mempool, skip_face_id = -1):
     if hit_type == 0: # quad hit
         i = mempool.depth
         mempool.hit_t[i] = min_t
-        mempool.hit_p[i] = mempool.ray_o + (mempool.ray_d * min_t)
-        mempool.hit_n[i] = quad_normals[hit_id]
-        mempool.hit_tn[i] = quad_tangents[hit_id]
-        mempool.hit_bn[i] = quad_binormals[hit_id]
-        mempool.hit_face_id[i] = hit_id
-        mempool.hit_reflectance[i] = quad_materials[hit_id][0]
-        mempool.hit_emittance[i] = quad_materials[hit_id][1]
+        axpy(min_t, mempool.ray_d, mempool.ray_o, mempool.hit_p[i])
+        copy(mempool.hit_n[i], quad_normals[hit_id])
+        copy(mempool.hit_tn[i], quad_tangents[hit_id])
+        copy(mempool.hit_bn[i], quad_binormals[hit_id])
+        mempool.hit_face_id[i], hit_id
+        copy(mempool.hit_reflectance[i], quad_materials[hit_id][0])
+        copy(mempool.hit_emittance[i], quad_materials[hit_id][1])
     elif hit_type == 1: # triangle hit
         i = mempool.depth
         mempool.hit_t[i] = min_t
-        mempool.hit_p[i] = mempool.ray_o + (mempool.ray_d * min_t)
-        mempool.hit_n[i] = tri_normals[hit_id]
-        mempool.hit_tn[i] = tri_tangents[hit_id]
-        mempool.hit_bn[i] = tri_binormals[hit_id]
+        axpy(min_t, mempool.ray_d, mempool.ray_o, mempool.hit_p[i])
+        copy(mempool.hit_n[i], tri_normals[hit_id])
+        copy(mempool.hit_tn[i], tri_tangents[hit_id])
+        copy(mempool.hit_bn[i], tri_binormals[hit_id])
         mempool.hit_face_id[i] = hit_id
-        mempool.hit_reflectance[i] = tri_materials[hit_id][0]
-        mempool.hit_emittance[i] = tri_materials[hit_id][1]
+        copy(mempool.hit_reflectance[i], tri_materials[hit_id][0])
+        copy(mempool.hit_emittance[i], tri_materials[hit_id][1])
     elif hit_type == 2: # sphere hit
         i = mempool.depth
         mempool.hit_t[i] = min_t
-        mempool.hit_p[i] = mempool.ray_o + (mempool.ray_d * min_t)
+        axpy(min_t, mempool.ray_d, mempool.ray_o, mempool.hit_p[i])
         mempool.hit_n[i] = (mempool.hit_p[i] - sphere_params[hit_id].c) / sphere_params[hit_id].r
-        mempool.hit_tn[i] = compute_tangent(mempool.hit_n[i])
-        mempool.hit_bn[i] = cross(mempool.hit_n[i], mempool.hit_tn[i])
+        copy(mempool.hit_tn[i], compute_tangent(mempool.hit_n[i]))
+        copy(mempool.hit_bn[i], cross(mempool.hit_n[i], mempool.hit_tn[i]))
         mempool.hit_face_id[i] = hit_id
-        mempool.hit_reflectance[i] = sphere_materials[hit_id][0]
-        mempool.hit_emittance[i] = sphere_materials[hit_id][1]
+        copy(mempool.hit_reflectance[i], sphere_materials[hit_id][0])
+        copy(mempool.hit_emittance[i], sphere_materials[hit_id][1])
 
     # two-sided intersection
     i = mempool.depth
@@ -256,12 +268,11 @@ def recursive_trace(details, mempool):
     update_ray_from_uniform_distribution(mempool)
     weakening_factor = dot(mempool.ray_d, mempool.hit_n[depth])
 
-    # compute incoming light
-    incoming = recursive_trace(details, mempool)
-
     # compute rendering equation
     #BRDF = hit.reflectance / math.pi
-    return mempool.hit_emittance[depth] + ((mempool.hit_reflectance[depth] * INV_PI) * incoming * weakening_factor * INV_PDF)
+    return mempool.hit_emittance[depth] + ((mempool.hit_reflectance[depth] * INV_PI) *
+                                           recursive_trace(details, mempool) *
+                                           weakening_factor * INV_PDF)
 
 @numba.njit
 def first_trace(details, mempool):
@@ -273,12 +284,11 @@ def first_trace(details, mempool):
     update_ray_from_uniform_distribution(mempool)
     weakening_factor = dot(mempool.ray_d, mempool.hit_n[0])
 
-    # compute incoming light
-    incoming = recursive_trace(details, mempool)
-
     # compute rendering equation
     #BRDF =  hit.reflectance / math.pi
-    return mempool.hit_emittance[0] + ((mempool.hit_reflectance[0] * INV_PI) * incoming * weakening_factor * INV_PDF)
+    return mempool.hit_emittance[0] + ((mempool.hit_reflectance[0] * INV_PI) *
+                                       recursive_trace(details, mempool) *
+                                       weakening_factor * INV_PDF)
 
 @numba.njit
 def render(image, camera, details, start_time):
