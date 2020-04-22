@@ -20,9 +20,28 @@ INV_PDF = 2.0 * math.pi; # inverse of probability density function
 INV_PI = 1.0 / math.pi
 
 @numba.njit(inline='always')
+def asub(a, b, out):
+    # squeeze some performance by skipping the generic np.subtract
+    out[0] = a[0] - b[0]
+    out[1] = a[1] - b[1]
+    out[2] = a[2] - b[2]
+
+@numba.njit(inline='always')
+def axpy(a, x, y, out):
+    out[0] = y[0] + (x[0] * a)
+    out[1] = y[1] + (x[1] * a)
+    out[2] = y[2] + (x[2] * a)
+
+@numba.njit(inline='always')
+def copy(x, y):
+    x[0] = y[0]
+    x[1] = y[1]
+    x[2] = y[2]
+
+@numba.njit(inline='always')
 def update_ray_from_uniform_distribution(mempool):
     i = mempool.depth
-    mempool.ray_o = mempool.hit_p[i]
+    copy(mempool.ray_o, mempool.hit_p[i])
     # Find ray direction from uniform around hemisphere
     # Unit hemisphere from spherical coordinates
     # the unit  hemisphere is at origin and y is the up vector
@@ -46,25 +65,6 @@ def update_ray_from_uniform_distribution(mempool):
     mempool.ray_d[0] = v0*mempool.hit_bn[i][0] + v1*mempool.hit_n[i][0] + v2*mempool.hit_tn[i][0]
     mempool.ray_d[1] = v0*mempool.hit_bn[i][1] + v1*mempool.hit_n[i][1] + v2*mempool.hit_tn[i][1]
     mempool.ray_d[2] = v0*mempool.hit_bn[i][2] + v1*mempool.hit_n[i][2] + v2*mempool.hit_tn[i][2]
-
-@numba.njit(inline='always')
-def asub(a, b, out):
-    # squeeze some performance by skipping the generic np.subtract
-    out[0] = a[0] - b[0]
-    out[1] = a[1] - b[1]
-    out[2] = a[2] - b[2]
-
-@numba.njit(inline='always')
-def axpy(a, x, y, out):
-    out[0] = y[0] + (x[0] * a)
-    out[1] = y[1] + (x[1] * a)
-    out[2] = y[2] + (x[2] * a)
-
-@numba.njit(inline='always')
-def copy(x, y):
-    x[0] = y[0]
-    x[1] = y[1]
-    x[2] = y[2]
 
 @numba.njit(inline='always')
 def ray_triangle(mempool, tv):
