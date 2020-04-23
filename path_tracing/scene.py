@@ -68,7 +68,8 @@ class Scene:
         green = [0.025,0.236,0.025]
         blue = [0,0,1]
         black = [0,0,0]
-        light_colour = [0.9,0.9,0.9]
+        light_intensity = 10.0
+        light_colour = [1*light_intensity,0.73*light_intensity,0.4*light_intensity]
         # floor
         quad_v.append([[552.8,0,0],[0,0,0],[0,0,559.2],[549.6,0,559.2]])
         quad_m.append([white, black])

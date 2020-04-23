@@ -9,7 +9,7 @@ import random
 import numba
 import numpy as np
 from . import core as jit_core
-from .maths import dot, copy, axpy
+from .maths import dot, copy, axpy, gamma_correction, clamp
 from . import intersect
 
 # pathtracer settings
@@ -140,11 +140,15 @@ def render(image, camera, details, start_time):
             if mempool.valid_hit() == False:
                 continue
 
+            # compute shade
+            jj = camera.height-1-j
+            ii = camera.width-1-i
             for _ in range(NUM_SAMPLES):
                 pixel_shade = first_trace(details, mempool)
-                image[camera.height-1-j, camera.width-1-i] += pixel_shade
+                image[jj, ii] += pixel_shade
+            image[jj, ii] /= NUM_SAMPLES
 
-            image[camera.height-1-j, camera.width-1-i] /= NUM_SAMPLES
+            gamma_correction(image[jj, ii])
 
         with numba.objmode():
             p = (j+1) / camera.height

@@ -8,6 +8,21 @@ import numba
 import math
 
 @numba.njit(inline='always')
+def clamp(colour):
+    for i in range(3):
+        if colour[i] > 1.0:
+            colour[i] = 1.0
+        elif colour[i] < 0.0:
+            colour[i] = 0.0
+
+@numba.njit(inline='always')
+def gamma_correction(colour):
+    #standard encoding gamma is 1/2.2
+    clamp(colour)
+    for i in range(3):
+        colour[i] = math.pow(colour[i], 1/2.2)
+
+@numba.njit(inline='always')
 def asub(a, b, out):
     # squeeze some performance by skipping the generic np.subtract
     out[0] = a[0] - b[0]
