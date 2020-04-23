@@ -2,6 +2,8 @@
  Monte Carlo Path Tracing using Numba and a memorypool for efficient computation
 
 ![Monte Carlo Path Tracer](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer.jpg)
+- max depth : 15
+- samples per pixel : 5000
 
 ## Resources
 [1] Pharr, Matt, Wenzel Jakob, and Greg Humphreys. Physically based rendering: From theory to implementation. Morgan Kaufmann, 2016.
