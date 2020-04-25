@@ -20,6 +20,18 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Teschner, Matthias, Bruno Heidelberger, Matthias Muller, and Markus Gross. "A versatile and robust model for geometrically complex deformable solids." In Computer Graphics International, 2004. Proceedings, pp. 312-319. IEEE, 2004.
 
+## . Neural Network
+**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
+**Description** Neural Network study with Python and Keras
+
+- Non-linear deformation learning (See below)
+- Feed-forward neural network with numpy
+- Keras examples with different architectures (CNN, AE, VAE, ...)
+
+![Deep_Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/deepdeformation.gif)<br>
+
+[1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
+
 ## . Path Tracing
 **Folder** [path_tracing](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/path_tracing)<br>
 **Description** Path Tracer with Python and Numba
@@ -55,18 +67,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 [1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.
 
 [2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
-
-## . Neural Network
-**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
-**Description** Neural Network study with Python and Keras
-
-- Non-linear deformation learning (See below)
-- Feed-forward neural network with numpy
-- Keras examples with different architectures (CNN, AE, VAE, ...)
-
-![Deep_Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/deepdeformation.gif)<br>
-
-[1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
 ## . Lattice Boltzmann (WIP)
 **Folder** [lattice_boltzmann](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/lattice_boltzmann)<br>
