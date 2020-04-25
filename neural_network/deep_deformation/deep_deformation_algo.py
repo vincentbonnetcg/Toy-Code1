@@ -30,31 +30,51 @@ def load_example(file_id):
     smooth_skinning = npzfile['smooth_skinning']
     return bone_infos, rigid_skinning, smooth_skinning
 
-def load_dataset():
-    bone_infos, rigid_skinning, smooth_skinning = load_example(file_id=1)
+def normalize(data):
+    min_v = np.min(data)
+    max_v = np.max(data)
+    data -= min_v
+    data /= (max_v - min_v)
 
+def set_data(x, y, file_ids):
+    for i, file_id in enumerate(file_ids):
+        bone_infos, rigid_skinning, smooth_skinning = load_example(file_id+1)
+        x[i][:] = bone_infos.flatten()[:]
+        offsets = smooth_skinning - rigid_skinning
+        y[i][:] = offsets.flatten()[:]
+
+def load_dataset(percentage_test_from_dataset = 0.1):
+    # compute input and output shapes
+    bone_infos, rigid_skinning, smooth_skinning = load_example(file_id=1)
     in_shape = bone_infos.flatten().shape[0]
     out_shape = smooth_skinning.flatten().shape[0]
 
-    x_train = np.empty((NUM_EXAMPLES_IN_DATASET, in_shape))
-    y_train = np.empty((NUM_EXAMPLES_IN_DATASET, out_shape))
+    # pre-allocate tests and training data
+    example_ids = np.arange(NUM_EXAMPLES_IN_DATASET)
+    np.random.shuffle(example_ids)
+    num_test = int(NUM_EXAMPLES_IN_DATASET * percentage_test_from_dataset)
+    num_train = NUM_EXAMPLES_IN_DATASET - num_test
+    test_ids = example_ids[num_train:]
+    train_ids = example_ids[:num_train]
 
-    for file_id in range(NUM_EXAMPLES_IN_DATASET):
-        bone_infos, rigid_skinning, smooth_skinning = load_example(file_id+1)
-        x_train[file_id][:] = bone_infos.flatten()[:]
-        offsets = smooth_skinning - rigid_skinning
-        y_train[file_id][:] = offsets.flatten()[:]
+    x_train = np.empty((num_train, in_shape))
+    y_train = np.empty((num_train, out_shape))
+    x_test = np.empty((num_test, in_shape))
+    y_test = np.empty((num_test, out_shape))
 
-    # normalize inputs
-    x_min = np.min(x_train)
-    x_max = np.max(x_train)
-    x_train -= x_min
-    x_train /= (x_max - x_min)
+    # set data
+    set_data(x_train, y_train, train_ids)
+    set_data(x_test, y_test, test_ids)
 
-    return x_train, y_train
+    # normalize data
+    # TODO - add container to store the re-scaling parameters
+    #normalize(x_train)
+    #normalize(y_train)
+
+    return x_train, y_train, x_test, y_test
 
 def main():
-    x_train, y_train = load_dataset()
+    x_train, y_train, x_test, y_test = load_dataset()
     in_shape = x_train.shape[1]
     out_shape = y_train.shape[1]
 
@@ -72,15 +92,16 @@ def main():
 
     # Train data
     model.fit(x=x_train, y=y_train,
-              epochs=200,
+              epochs=100,
               batch_size=64,
-              shuffle=True)
-              #validation_data=(x_test, x_test)) # TODO
+              shuffle=True,
+              validation_data=(x_test, y_test))
 
     # Predict
-    x_test = x_train[1:2]
+    print(np.min(y_train), np.max(y_train))
+    x_test = x_train[10:11]
     predicted = model.predict(x_test)
-    diff = y_train[1]-predicted[0]
+    diff = y_train[10]-predicted[0]
     print(np.min(diff), np.max(diff))
 
 if __name__ == '__main__':
