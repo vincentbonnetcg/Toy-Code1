@@ -10,77 +10,53 @@ import keras
 import numpy as np
 import os
 
-#1. load_data split train and test data instead of single one (x_test, x_train, y_test, y_train)
-#2. use normalized data
-#3. use parameter from paper in optimizer
+NUM_EXAMPLES_IN_DATASET = 500
+KERAS_OUTPUT_FOLDER = 'keras_output/'
 
-
-KERAS_OUTPUT_FOLDER = "keras_output/"
-KERAS_MODEL_PLOT_FILE = "model.png"
-
-def export_model_to_file(model):
-    '''
-    Export model diagram into a folder
-    '''
+def export_model_to_png(model):
     os.makedirs(os.path.dirname(KERAS_OUTPUT_FOLDER), exist_ok=True)
-    plot_model(model, to_file=KERAS_OUTPUT_FOLDER + KERAS_MODEL_PLOT_FILE, show_shapes=True, show_layer_names=True)
+    plot_model(model, to_file=KERAS_OUTPUT_FOLDER + 'model.png', show_shapes=True, show_layer_names=True)
 
+def load_example(file_id):
+    dataset_folder = os.path.join(os.path.dirname(__file__), 'dataset')
+    file_path = os.path.join(dataset_folder, 'file' + str(file_id) + '.npz')
 
-def load_single_data(file_ID):
-    '''
-    Returns the rotation, undeformed and offset data
-    '''
-    training_path = os.path.dirname(__file__)
-    training_path += '/houdini_bridge/training/'
+    if not os.path.exists(file_path):
+        return None
 
-    file_path = 'file' + str(file_ID) + '.npz'
-    file_path = training_path + file_path
+    npzfile = np.load(file_path)
+    bone_infos = npzfile['bone_infos']
+    rigid_skinning = npzfile['rigid_skinning']
+    smooth_skinning = npzfile['smooth_skinning']
+    return bone_infos, rigid_skinning, smooth_skinning
 
-    offset = None
-    undeformed = None
-    bone_rotations = None
+def load_dataset():
+    bone_infos, rigid_skinning, smooth_skinning = load_example(file_id=1)
 
-    if os.path.exists(file_path):
-        npzfile = np.load(file_path)
-        offset = npzfile['offset']
-        undeformed = npzfile['undeformed']
-        bone_rotations = npzfile['bone_rotations']
+    in_shape = bone_infos.flatten().shape[0]
+    out_shape = smooth_skinning.flatten().shape[0]
 
-    # flatten numpy
-    out_shape = offset.shape[0] * offset.shape[1]
-    offset = offset.reshape(out_shape)
-    undeformed = undeformed.reshape(out_shape)
+    x_train = np.empty((NUM_EXAMPLES_IN_DATASET, in_shape))
+    y_train = np.empty((NUM_EXAMPLES_IN_DATASET, out_shape))
 
-    return undeformed, offset, bone_rotations
+    for file_id in range(NUM_EXAMPLES_IN_DATASET):
+        bone_infos, rigid_skinning, smooth_skinning = load_example(file_id+1)
+        x_train[file_id][:] = bone_infos.flatten()[:]
+        offsets = smooth_skinning - rigid_skinning
+        y_train[file_id][:] = offsets.flatten()[:]
 
-def load_data():
-    num_examples = 400
-    undeformed, offset, bone_rotations = load_single_data(file_ID=1)
-    in_shape = bone_rotations.shape[0]
-    out_shape = offset.shape[0]
+    # normalize inputs
+    x_min = np.min(x_train)
+    x_max = np.max(x_train)
+    x_train -= x_min
+    x_train /= (x_max - x_min)
 
-    bones = np.empty((num_examples, in_shape))
-    offsets = np.empty((num_examples, out_shape))
-
-    offsets[0][:] = offset[:]
-    bones[0][:] = bone_rotations[:]
-
-    for file_ID in range(2,num_examples):
-        _, offset, bone_rotations = load_single_data(file_ID)
-        offsets[file_ID-1][:] = offset[:]
-        bones[file_ID-1][:] = bone_rotations[:]
-
-    # normalize input (bones)
-    x_min = np.min(bones)
-    x_max = np.max(bones)
-    bones -= x_min
-    bones /= (x_max - x_min)
-
-    return undeformed, bones, offsets, in_shape, out_shape
+    return x_train, y_train
 
 def main():
-    # Get data
-    undeformed, x_train, y_train, in_shape, out_shape = load_data()
+    x_train, y_train = load_dataset()
+    in_shape = x_train.shape[1]
+    out_shape = y_train.shape[1]
 
     # Create NN model
     input_layer = Input(shape=(in_shape,))
@@ -89,15 +65,15 @@ def main():
     layer_2 = Dense(units=out_shape, activation='tanh', name='HiddenLayer2')(layer_1)
     model = Model(input_layer, layer_2)
 
-    optimizer = keras.optimizers.Adam(learning_rate=0.01, beta_1=0.9, beta_2=0.999, amsgrad=False)
+    optimizer = keras.optimizers.Adam(learning_rate=0.005, beta_1=0.9, beta_2=0.999, amsgrad=False)
     loss = keras.losses.mean_squared_error
     model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
-    export_model_to_file(model)
+    export_model_to_png(model)
 
     # Train data
     model.fit(x=x_train, y=y_train,
-              epochs=1,
-              batch_size=128,
+              epochs=200,
+              batch_size=64,
               shuffle=True)
               #validation_data=(x_test, x_test)) # TODO
 
