@@ -7,7 +7,7 @@ Neural Network Study (Python, Numpy and Keras)
 
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
-## . Deep Deformation (WIP)
+## . Deep Deformation
 **Folder** [deep_deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/deep_deformation/)<br>
 **Description** Fast and Deep Deformation Approximations
 
