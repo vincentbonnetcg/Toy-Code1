@@ -6,8 +6,10 @@ import numpy as np
 import os
 import hou
 
-def read_dataset_from_current_frame(working_dir):
+def read_dataset_from_current_frame(working_dir, prediction=False):
     dataset_dir = os.path.join(working_dir, 'dataset')
+    if prediction:
+        dataset_dir = os.path.join(working_dir, 'prediction')
     data_ID = hou.intFrame()
     file_path = 'file' + str(data_ID) + '.npz'
     file_path =  os.path.join(dataset_dir, file_path)
@@ -16,9 +18,11 @@ def read_dataset_from_current_frame(working_dir):
     if os.path.exists(file_path):
         npzfile = np.load(file_path)
 
-        bone_infos = npzfile['bone_infos']
-        rigid_skinning = npzfile['rigid_skinning']
+        #bone_infos = npzfile['bone_infos']
+        #rigid_skinning = npzfile['rigid_skinning']
         smooth_skinning = npzfile['smooth_skinning']
+        if prediction:
+            smooth_skinning = npzfile['predicted_smooth_skinning']
 
         node = hou.pwd()
         geo = node.geometry()
@@ -26,3 +30,4 @@ def read_dataset_from_current_frame(working_dir):
             point.setPosition(smooth_skinning[i])
     else:
         print('the file ', file_path, ' doesnt exist')
+

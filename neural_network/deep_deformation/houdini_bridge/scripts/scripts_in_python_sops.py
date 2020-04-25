@@ -28,5 +28,5 @@ import scripts.hou_evaluate_dataset as ev
 reload(ev)
 
 dataset_dir = os.path.dirname(working_dir)
-ev.read_dataset_from_current_frame(dataset_dir)
+ev.read_dataset_from_current_frame(dataset_dir, prediction=True)
 

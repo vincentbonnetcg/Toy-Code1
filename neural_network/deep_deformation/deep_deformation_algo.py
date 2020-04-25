@@ -17,8 +17,9 @@ def export_model_to_png(model):
     os.makedirs(os.path.dirname(KERAS_OUTPUT_FOLDER), exist_ok=True)
     plot_model(model, to_file=KERAS_OUTPUT_FOLDER + 'model.png', show_shapes=True, show_layer_names=True)
 
-def load_example(file_id):
+def load_example(example_id):
     dataset_folder = os.path.join(os.path.dirname(__file__), 'dataset')
+    file_id = example_id + 1
     file_path = os.path.join(dataset_folder, 'file' + str(file_id) + '.npz')
 
     if not os.path.exists(file_path):
@@ -36,16 +37,16 @@ def normalize(data):
     data -= min_v
     data /= (max_v - min_v)
 
-def set_data(x, y, file_ids):
-    for i, file_id in enumerate(file_ids):
-        bone_infos, rigid_skinning, smooth_skinning = load_example(file_id+1)
+def set_data(x, y, example_ids):
+    for i, example_id in enumerate(example_ids):
+        bone_infos, rigid_skinning, smooth_skinning = load_example(example_id)
         x[i][:] = bone_infos.flatten()[:]
         offsets = smooth_skinning - rigid_skinning
         y[i][:] = offsets.flatten()[:]
 
 def load_dataset(percentage_test_from_dataset = 0.1):
     # compute input and output shapes
-    bone_infos, rigid_skinning, smooth_skinning = load_example(file_id=1)
+    bone_infos, rigid_skinning, smooth_skinning = load_example(0)
     in_shape = bone_infos.flatten().shape[0]
     out_shape = smooth_skinning.flatten().shape[0]
 
@@ -71,10 +72,30 @@ def load_dataset(percentage_test_from_dataset = 0.1):
     #normalize(x_train)
     #normalize(y_train)
 
-    return x_train, y_train, x_test, y_test
+    return x_train, y_train, x_test, y_test, train_ids, test_ids
+
+def write_predicted(predicted_offsets, example_ids):
+    predict_folder = os.path.join(os.path.dirname(__file__), 'prediction')
+    if not os.path.exists(predict_folder):
+        os.makedirs(predict_folder)
+
+    for i, example_id in enumerate(example_ids):
+        bone_infos, rigid_skinning, smooth_skinning = load_example(example_id)
+        offsets = predicted_offsets[i].reshape((int(len(predicted_offsets[i])/3), 3))
+        predicted_smooth_skinning = rigid_skinning + offsets
+
+        out_file_path = 'file' + str(example_id+1)
+        out_file_path =  os.path.join(predict_folder, out_file_path)
+        output_attributes = {}
+        output_attributes['bone_infos'] = bone_infos
+        output_attributes['rigid_skinning'] = rigid_skinning
+        output_attributes['smooth_skinning'] = smooth_skinning
+        output_attributes['predicted_smooth_skinning'] = predicted_smooth_skinning
+        np.savez(out_file_path, **output_attributes)
+
 
 def main():
-    x_train, y_train, x_test, y_test = load_dataset()
+    x_train, y_train, x_test, y_test, train_ids, test_ids = load_dataset()
     in_shape = x_train.shape[1]
     out_shape = y_train.shape[1]
 
@@ -92,17 +113,19 @@ def main():
 
     # Train data
     model.fit(x=x_train, y=y_train,
-              epochs=100,
-              batch_size=64,
+              epochs=500,
+              batch_size=16,
               shuffle=True,
               validation_data=(x_test, y_test))
 
-    # Predict
-    print(np.min(y_train), np.max(y_train))
-    x_test = x_train[10:11]
-    predicted = model.predict(x_test)
-    diff = y_train[10]-predicted[0]
-    print(np.min(diff), np.max(diff))
+    # Predict from test
+    predicted_offsets = model.predict(x_test)
+    error = np.sqrt((y_test-predicted_offsets)**2)
+    print(np.min(error), np.max(error), np.average(error))
+    write_predicted(predicted_offsets, test_ids)
+
+    # Predicted from train
+    write_predicted(model.predict(x_train), train_ids)
 
 if __name__ == '__main__':
     main()
