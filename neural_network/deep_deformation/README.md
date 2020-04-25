@@ -4,7 +4,7 @@ Implementation of Fast and deep deformation approximations
 
 ## Houdini Bridge
 
-![Deep Deformation Bridge](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/deep_deformation/img/houdini_graph.png)
+![Deep Deformation Bridge](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/deep_deformation/img/houdini_graph.jpg)
 
 ## Training 
 
