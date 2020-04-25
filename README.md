@@ -60,11 +60,11 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 **Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
 **Description** Neural Network study with Python and Keras
 
-- Feed-Forward neural network from scratch
-- Convolution neural network on MNIST dataset
-- Autoencoder and Variational Autoencoder
+- Non-linear deformation learning (See below)
+- Feed-forward neural network with numpy
+- Keras examples with different architectures (CNN, AE, VAE, ...)
 
-![Fashion_MNIST](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/fashion_mnist_autoencoder.png)<br>
+![Deep_Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/deepdeformation.gif)<br>
 
 [1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
 
