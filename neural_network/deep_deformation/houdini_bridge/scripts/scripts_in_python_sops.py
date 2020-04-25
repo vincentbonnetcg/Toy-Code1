@@ -11,8 +11,9 @@ if not working_dir in sys.path:
 import scripts.hou_generate_dataset as gen
 reload(gen)
 
-gen.prepare_dataset_dir(working_dir)
-gen.export_data_from_current_frame(working_dir)
+dataset_dir = os.path.dirname(working_dir)
+gen.prepare_dataset_dir(dataset_dir)
+gen.export_data_from_current_frame(dataset_dir)
 
 
 ## Script to read dataset
@@ -26,5 +27,6 @@ if not working_dir in sys.path:
 import scripts.hou_evaluate_dataset as ev
 reload(ev)
 
-ev.read_dataset_from_current_frame(working_dir)
+dataset_dir = os.path.dirname(working_dir)
+ev.read_dataset_from_current_frame(dataset_dir)
 
