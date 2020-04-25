@@ -144,8 +144,7 @@ def render(image, camera, details, start_time):
             jj = camera.height-1-j
             ii = camera.width-1-i
             for _ in range(NUM_SAMPLES):
-                pixel_shade = first_trace(details, mempool)
-                image[jj, ii] += pixel_shade
+                image[jj, ii] += first_trace(details, mempool)
             image[jj, ii] /= NUM_SAMPLES
 
             gamma_correction(image[jj, ii])
