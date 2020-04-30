@@ -12,15 +12,19 @@ Stencil Codes written with Python and Numba
 ![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_laplace_equation.png)
 ![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_laplace_inpainting.png)
 
-## Cellular Automata and Image Processing
-**File** [numba_cuda_stencil_image.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/numba_cuda_stencil_image.py)<br>
+## Conway's game of life (GPU)
+**File** [game_of_life.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/game_of_life.py)<br>
 **Description** Numba image operations
 
-- Image Processing with 3x3 kernels
-- Cellular Automata
-
 ![Automata_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_cellularAutomata.gif)
-![ImageProcessing_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_image_processing.png)
+
+## Convolution matrix (GPU)
+**File** [convolution_matrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/convolution_matrix.py)<br>
+**Description** Numba image operations
+
+![ConvolutionMatrix_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_image_processing.png)
+
+## Resources
 
 [1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.
 
