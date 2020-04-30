@@ -14,13 +14,13 @@ Stencil Codes written with Python and Numba
 
 ## Conway's game of life (GPU)
 **File** [game_of_life.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/game_of_life.py)<br>
-**Description** Numba image operations
+**Description** Game of life with Numba/Cuda
 
 ![Automata_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_cellularAutomata.gif)
 
 ## Convolution matrix (GPU)
 **File** [convolution_matrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/convolution_matrix.py)<br>
-**Description** Numba image operations
+**Description** Apply convolution matrix with Numba/Cuda
 
 ![ConvolutionMatrix_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_image_processing.png)
 
