@@ -18,7 +18,7 @@ Stencil Codes written with Python and Numba
 **File** [game_of_life.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/game_of_life.py)<br>
 **Description** Game of life with Numba/Cuda
 
-![Automata](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/stencil_codes/numba_cellularAutomata.gif)
+![Automata](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_cellularAutomata.gif)
 
 ## Convolution matrix (GPU)
 **File** [convolution_matrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/convolution_matrix.py)<br>
