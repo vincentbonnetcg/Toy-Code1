@@ -2,27 +2,29 @@
 
 Stencil Codes written with Python and Numba
 
-## Laplace's Equation and Image Restoration (Laplace Inpainting)
-**File** [numba_laplace_equation.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/numba_laplace_equation.py)<br>
-**Description** Numba Jacobi iterative solver
+## Poisson Solver
+**File** [numba_poisson_solver.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/poisson_solver.py)<br>
+**Description** Jacobi poisson solver
 
-- CPU (multithreaded)
-- GPU(with shared memory)
+![Poisson_Solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_equation.png)
 
-![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_laplace_equation.png)
-![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_laplace_inpainting.png)
+## Laplace Inpainting
+**File** [numba_laplace_inpainting.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/laplace_inpainting.py)<br>
+**Description** Image recovery using Laplace inpainting
+
+![Laplace_Inpainting](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_inpainting.png)
 
 ## Conway's game of life (GPU)
 **File** [game_of_life.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/game_of_life.py)<br>
 **Description** Game of life with Numba/Cuda
 
-![Automata_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_cellularAutomata.gif)
+![Automata](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/stencil_codes/numba_cellularAutomata.gif)
 
 ## Convolution matrix (GPU)
 **File** [convolution_matrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/convolution_matrix.py)<br>
 **Description** Apply convolution matrix with Numba/Cuda
 
-![ConvolutionMatrix_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/numba_image_processing.png)
+![Convolution_Matrix](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_image_processing.png)
 
 ## Resources
 

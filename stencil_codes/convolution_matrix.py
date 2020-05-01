@@ -28,7 +28,7 @@ def apply_kernel(image, imageResult, Gx):
 
     imageResult[x, y] = value
 
-def image_processing_scene(image, kernels):
+def image_processing(image, kernels):
     # Setup images
     images = [None, None]
     images[0] = image.copy()
@@ -61,5 +61,5 @@ if __name__ == '__main__':
     embossKernel = np.array([[-2.0, -1.0, 0.0], [-1.0, 1.0, 1.0], [0.0, 1.0, 2.0]])
     '''
     # Execute
-    image_processing_scene(image, [sobelYKernel, gaussianBlurKernel])
+    image_processing(image, [sobelYKernel, gaussianBlurKernel])
 

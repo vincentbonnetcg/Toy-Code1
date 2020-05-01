@@ -38,7 +38,7 @@ def apply_cellular_automata_rules(image, imageResult):
             imageResult[x, y] = 1.0
 
 
-def conways_game_of_life_scene(image, iterations):
+def conways_game_of_life(image, iterations):
     # Setup images
     images = [None, None]
     images[0] = image
@@ -69,4 +69,4 @@ if __name__ == '__main__':
     image = skimage.img_as_float(color.rgb2gray(data.chelsea())).astype(np.float32)
     image = img_utils.resize_image_and_keep_ratio(image, 128, 128)
 
-    conways_game_of_life_scene(image, 50)
+    conways_game_of_life(image, 50)
