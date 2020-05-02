@@ -14,22 +14,15 @@ class Kinematic:
     Kinematic describes an animated object
     '''
     class State:
-        '''
-        State of a kinematic object
-        '''
+        # State of a kinematic object
         def __init__(self, position, rotation):
             self.position = np.zeros(2)
             self.rotation = np.float(0.0)
             self.linear_velocity = np.zeros(2)
             self.angular_velocity = np.float(0.0)
-            self.rotation_matrix = np.zeros((2,2))
-            self.inverse_rotation_matrix = np.zeros((2,2))
-            self.update_matrices(position, rotation)
+            self.update(position, rotation)
 
-        def update_velocities(self, position = (0.0, 0.0), rotation = 0.0, dt = 0.0):
-            '''
-            Updates the state
-            '''
+        def update(self, position = (0.0, 0.0), rotation = 0.0, dt = 0.0):
             # Updates linear and angular velocity
             if dt > 0.0:
                 inv_dt = 1.0 / dt
@@ -39,18 +32,9 @@ class Kinematic:
                     shortest_angle -= 360.0
                     self.angular_velocity = shortest_angle * inv_dt
 
-        def update_matrices(self, position = (0.0, 0.0), rotation = 0.0):
-            # Updates position and rotation
+            # update position and rotation
             self.position = np.asarray(position)
             self.rotation = np.float(rotation)
-
-            # Update rotation matrices
-            theta = np.radians(self.rotation)
-            c, s = np.cos(theta), np.sin(theta)
-            self.rotation_matrix = np.array(((c, -s), (s, c)))
-
-            c, s = np.cos(-theta), np.sin(-theta)
-            self.inverse_rotation_matrix = np.array(((c, -s), (s, c)))
 
     def __init__(self, details, shape, position = (0., 0.), rotation = 0.):
         self.state = Kinematic.State(position = position, rotation = rotation)
@@ -88,16 +72,19 @@ class Kinematic:
         return shape
 
     def update(self, details, position, rotation, dt = 0.0):
-        # Update state
-        self.state.update_velocities(position, rotation, dt)
-        self.state.update_matrices(position, rotation)
-        # Update vertices - TODO remove
-        np.dot(self.local_vertex, self.state.rotation_matrix, out=self.vertex)
+        # update state
+        self.state.update(position, rotation, dt)
+        # compute rotation matarix
+        theta = np.radians(self.state.rotation)
+        c, s = np.cos(theta), np.sin(theta)
+        rotation_matrix = np.array(((c, -s), (s, c)))
+        # update vertices - TODO remove
+        np.dot(self.local_vertex, rotation_matrix, out=self.vertex)
         np.add(self.vertex, self.state.position, out=self.vertex)
-        # Update vertices
+        # update vertices
         details.point.copyto('x', self.local_vertex, self.point_handles)
         cpn.simplex.transformPoint(details.point,
-                                   self.state.rotation_matrix,
+                                   rotation_matrix,
                                    self.state.position,
                                    self.point_handles)
 
