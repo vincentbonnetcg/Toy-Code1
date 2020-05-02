@@ -20,7 +20,7 @@ class ParametricPoint(object):
         self.position = np.zeros(2, dtype=np.float64)
         self.normal = np.zeros(2, dtype=np.float64)
 
-@numba.njit
+@numba.njit(inline='always')
 def is_inside(point, vertices, face_ids):
     for i in range(len(face_ids)):
         edge_vtx = [vertices[face_ids[i][0]],
@@ -46,7 +46,7 @@ def is_inside(point, vertices, face_ids):
 
     return False
 
-@numba.njit
+@numba.njit(inline='always')
 def get_closest_position(point, vertices, edge_ids, edge_normals):
     param = ParametricPoint(-1, 0.0)
     min_distance2 = np.finfo(np.float64).max
@@ -78,3 +78,9 @@ def get_closest_position(point, vertices, edge_ids, edge_normals):
     param.normal = edge_normals[param.index]
 
     return param
+
+@numba.njit(inline='always')
+def get_position_from_param(vertices, edge_ids, param):
+    v0 = edge_ids[param.index][0]
+    v1 = edge_ids[param.index][1]
+    return vertices[v0] * (1.0 - param.t) + vertices[v1] * param.t

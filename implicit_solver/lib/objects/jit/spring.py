@@ -72,7 +72,7 @@ AnchorSpring compute functions
 def pre_compute_anchor_spring(anchor_spring : AnchorSpring, scene, detail_nodes):
     kinematic = scene.kinematics[anchor_spring.kinematic_index]
     point_params = geo2d_lib.ParametricPoint(anchor_spring.kinematic_component_index, anchor_spring.kinematic_component_param)
-    anchor_spring.kinematic_component_pos = kinematic.get_position_from_parametric_point(point_params)
+    anchor_spring.kinematic_component_pos = kinematic.get_position_from_param(point_params)
 
 @generate.as_vectorized(block_handles=True)
 def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):

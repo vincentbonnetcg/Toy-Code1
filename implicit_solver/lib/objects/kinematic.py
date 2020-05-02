@@ -55,7 +55,7 @@ class Kinematic:
     def __init__(self, details, shape, position = (0., 0.), rotation = 0.):
         self.state = Kinematic.State(position = position, rotation = rotation)
         self.local_vertex = np.copy(shape.vertex)
-        # local memory - will be remove
+        # local memory - TODO remove
         self.vertex = np.copy(shape.vertex)
         self.surface_edge_ids, self.surface_edge_normals = shape.get_edge_surface_data()
         self.face_ids = np.copy(shape.face)
@@ -91,7 +91,7 @@ class Kinematic:
         # Update state
         self.state.update_velocities(position, rotation, dt)
         self.state.update_matrices(position, rotation)
-        # Update vertices - to remove
+        # Update vertices - TODO remove
         np.dot(self.local_vertex, self.state.rotation_matrix, out=self.vertex)
         np.add(self.vertex, self.state.position, out=self.vertex)
         # Update vertices
@@ -104,10 +104,8 @@ class Kinematic:
     def get_closest_position(self, point):
         return geo2d_lib.get_closest_position(point, self.vertex, self.surface_edge_ids, self.surface_edge_normals)
 
-    def get_position_from_parametric_point(self, param):
-        v0 = self.surface_edge_ids[param.index][0]
-        v1 = self.surface_edge_ids[param.index][1]
-        return self.vertex[v0] * (1.0 - param.t) + self.vertex[v1] * param.t
+    def get_position_from_param(self, param):
+        return geo2d_lib.get_position_from_param(self.vertex, self.surface_edge_ids, param)
 
     def is_inside(self, point):
         return geo2d_lib.is_inside(point, self.vertex, self.face_ids)

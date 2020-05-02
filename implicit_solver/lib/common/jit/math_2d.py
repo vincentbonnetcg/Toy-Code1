@@ -6,7 +6,7 @@ import math
 import numba
 import numpy as np
 
-@numba.njit
+@numba.njit(inline='always')
 def dot(u, v):
     '''
     Returns the dotproduct of a 2D vector
@@ -15,14 +15,14 @@ def dot(u, v):
     '''
     return (u[0] * v[0]) + (u[1] * v[1])
 
-@numba.njit
+@numba.njit(inline='always')
 def det(u, v):
     '''
     Returns the determinant of the matrix formed from the column vectors u and v
     '''
     return (u[0] * v[1]) - (u[1] * v[0])
 
-@numba.njit
+@numba.njit(inline='always')
 def norm(v):
     '''
     Returns the norm of a 2D vector
@@ -32,7 +32,7 @@ def norm(v):
     dot = (v[0] * v[0]) + (v[1] * v[1])
     return math.sqrt(dot)
 
-@numba.njit
+@numba.njit(inline='always')
 def is_close(v0, v1, tol=1.e-8):
     '''
     Returns whether two scalar are similar
@@ -41,7 +41,7 @@ def is_close(v0, v1, tol=1.e-8):
     '''
     return math.fabs(v0 - v1) < tol
 
-@numba.njit
+@numba.njit(inline='always')
 def distance(x0, x1):
     '''
     Returns distance between x0 and x1
@@ -49,7 +49,7 @@ def distance(x0, x1):
     distance = norm(x0 - x1)
     return distance
 
-@numba.njit
+@numba.njit(inline='always')
 def area(x0, x1, x2):
     '''
     Returns the area of the 2D triangle from x0, x1, x2
@@ -59,7 +59,7 @@ def area(x0, x1, x2):
     area = math.fabs(u[0]*v[1]-v[0]*u[1]) * 0.5
     return area
 
-@numba.njit
+@numba.njit(inline='always')
 def angle(x0, x1, x2):
     '''
     Returns the angle between the segment x0-x1 and x1-x2
@@ -78,7 +78,7 @@ def angle(x0, x1, x2):
     angle = math.atan2(det,dot)  # atan2 return range [-pi, pi]
     return angle
 
-@numba.njit
+@numba.njit(inline='always')
 def curvature(x0, x1, x2):
     '''
     Connect three points :
@@ -108,7 +108,7 @@ def curvature(x0, x1, x2):
 
     return curvature
 
-@numba.njit
+@numba.njit(inline='always')
 def copy(v):
     '''
     Fast copy of v
