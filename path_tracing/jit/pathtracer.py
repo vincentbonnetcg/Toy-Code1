@@ -155,7 +155,6 @@ def render(image, camera, details, start_time):
 
             gamma_correction(image[jj, ii])
 
-        '''
         with numba.objmode():
             p = (j+1) / camera.height
             print('. completed : %.2f' % (p * 100.0), ' %')
@@ -163,6 +162,5 @@ def render(image, camera, details, start_time):
                 t = time.time() - start_time
                 estimated_time_left = (1.0 - p) / p * t
                 print('    estimated time left: %.2f sec' % estimated_time_left)
-        '''
 
     print('Total intersections ', mempool.total_intersection)
