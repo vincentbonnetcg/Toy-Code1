@@ -90,44 +90,47 @@ def ray_tri_details(details, mempool):
 @numba.njit
 def recursive_trace(details, mempool):
     if mempool.depth + 1 >= MAX_DEPTH: # can another hit be allocated ?
-        return BLACK
+        copy(mempool.result, BLACK)
+        return
 
     ray_tri_details(details, mempool)
     if not mempool.valid_hit():
-        return BLACK
+        copy(mempool.result, BLACK)
+        return
 
     depth = mempool.depth
 
     if mempool.hit_materialtype[depth]==1: # light
-        return mempool.hit_material[depth]
+        mempool.result *= mempool.hit_material[depth]
+        return
 
     # update ray and compute weakening factor
     update_ray_from_uniform_distribution(mempool)
     weakening_factor = dot(mempool.ray_d, mempool.hit_n[depth])
 
-    # rendering equation
-    return (mempool.hit_material[depth] * INV_PI *
-            recursive_trace(details, mempool) *
-            weakening_factor * INV_PDF)
+    # rendering equation : emittance + (BRDF * incoming * cos_theta / pdf);
+    mempool.result *= mempool.hit_material[depth]
+    mempool.result *= INV_PI * weakening_factor * INV_PDF
+    recursive_trace(details, mempool)
 
 @numba.njit
 def first_trace(details, mempool):
-    if MAX_DEPTH == 0:
-        return mempool.hit_material[0]
+    if MAX_DEPTH == 0 or mempool.hit_materialtype[0]==1:
+        copy(mempool.result, mempool.hit_material[0])
+        return
 
     mempool.depth = 0
-
-    if mempool.hit_materialtype[0]==1: # light
-        return mempool.hit_material[0]
+    mempool.result[0:3] = 0.0
 
     # update ray and compute weakening factor
     update_ray_from_uniform_distribution(mempool)
     weakening_factor = dot(mempool.ray_d, mempool.hit_n[0])
 
-    # compute rendering equation
-    return ((mempool.hit_material[0] * INV_PI) *
-            recursive_trace(details, mempool) *
-            weakening_factor * INV_PDF)
+    # rendering equation : emittance + (BRDF * incoming * cos_theta / pdf);
+    copy(mempool.result, mempool.hit_material[0])
+    mempool.result *= INV_PI * weakening_factor * INV_PDF
+    recursive_trace(details, mempool)
+
 
 @numba.njit
 def render(image, camera, details, start_time):
@@ -146,11 +149,13 @@ def render(image, camera, details, start_time):
             jj = camera.height-1-j
             ii = camera.width-1-i
             for _ in range(NUM_SAMPLES):
-                image[jj, ii] += first_trace(details, mempool)
+                first_trace(details, mempool)
+                image[jj, ii] += mempool.result
             image[jj, ii] /= NUM_SAMPLES
 
             gamma_correction(image[jj, ii])
 
+        '''
         with numba.objmode():
             p = (j+1) / camera.height
             print('. completed : %.2f' % (p * 100.0), ' %')
@@ -158,5 +163,6 @@ def render(image, camera, details, start_time):
                 t = time.time() - start_time
                 estimated_time_left = (1.0 - p) / p * t
                 print('    estimated time left: %.2f sec' % estimated_time_left)
+        '''
 
     print('Total intersections ', mempool.total_intersection)

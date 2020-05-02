@@ -17,6 +17,7 @@ from jit.maths import normalize
                  ('ray_d', numba.float64[:]),
                  ('depth', numba.int32),
                  ('total_intersection', numba.int64),
+                 ('result', numba.float64[:]), # result of trace
                  # hit data are stored for each hit (depth)
                  ('hit_t', numba.float64[:]),  # ray distance as double
                  ('hit_p', numba.float64[:,:]), # hit positon
@@ -34,6 +35,7 @@ class MemoryPool:
         self.ray_d = np.empty(3) # used for ray direction
         self.depth = -1         # depth counter
         self.total_intersection = 0    # total number ray vs element intersection
+        self.result = np.empty(3)
         # hit
         self.hit_t = np.empty(num_samples)
         self.hit_p = np.empty((num_samples, 3))
