@@ -47,7 +47,7 @@ def is_inside(point, vertices, face_ids):
     return False
 
 @numba.njit(inline='always')
-def get_closest_position(point, vertices, edge_ids, edge_normals):
+def get_closest_param(point, vertices, edge_ids, edge_normals):
     param = ParametricPoint(-1, 0.0)
     min_distance2 = np.finfo(np.float64).max
 

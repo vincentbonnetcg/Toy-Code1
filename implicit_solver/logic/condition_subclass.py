@@ -93,7 +93,7 @@ class KinematicCollisionCondition(Condition):
             node_ids = [data_node_id[i]]
 
             if (kinematic.is_inside(node_pos)):
-                closest_pos = kinematic.get_closest_position(node_pos)
+                closest_pos = kinematic.get_closest_param(node_pos)
                 if (np.dot(closest_pos.normal, node_vel) < 0.0):
                     # add spring
                     spring = cpn.AnchorSpring()
@@ -138,7 +138,7 @@ class KinematicAttachmentCondition(Condition):
             node_pos = data_x[i]
             node_ids = [data_node_id[i]]
 
-            closest_pos = kinematic.get_closest_position(node_pos)
+            closest_pos = kinematic.get_closest_param(node_pos)
             direction = (closest_pos.position - node_pos)
             dist2 = np.inner(direction, direction)
             if dist2 < distance2:
