@@ -56,11 +56,8 @@ def ray_tri_details(details, mempool):
         skip_face_id = mempool.hit_face_id[mempool.depth]
     mempool.next_hit() # use the next allocated hit
     min_t = np.finfo(numba.float64).max
-    tri_vertices = details[0]
-    tri_normals = details[1]
-    tri_tangents = details[2]
-    tri_binormals = details[3]
-    tri_materials = details[4]
+    data = details[0]
+    tri_vertices = data.tri_vertices
     hit_id = -1
     # intersection test with triangles
     num_triangles = len(tri_vertices)
@@ -77,19 +74,18 @@ def ray_tri_details(details, mempool):
         i = mempool.depth
         mempool.hit_t[i] = min_t
         axpy(min_t, mempool.ray_d, mempool.ray_o, mempool.hit_p[i])
-        copy(mempool.hit_n[i], tri_normals[hit_id])
-        copy(mempool.hit_tn[i], tri_tangents[hit_id])
-        copy(mempool.hit_bn[i], tri_binormals[hit_id])
+        copy(mempool.hit_n[i], data.tri_normals[hit_id])
+        copy(mempool.hit_tn[i], data.tri_tangents[hit_id])
+        copy(mempool.hit_bn[i], data.tri_binormals[hit_id])
         mempool.hit_face_id[i] = hit_id
-        copy(mempool.hit_reflectance[i], tri_materials[hit_id][0])
-        copy(mempool.hit_emittance[i], tri_materials[hit_id][1])
+        copy(mempool.hit_reflectance[i], data.tri_materials[hit_id][0])
+        copy(mempool.hit_emittance[i], data.tri_materials[hit_id][1])
 
-    # two-sided intersection
-    i = mempool.depth
-    if mempool.valid_hit() and dot(mempool.ray_d, mempool.hit_n[i]) > 0:
-        mempool.hit_n[i][0] *= -1
-        mempool.hit_n[i][1] *= -1
-        mempool.hit_n[i][2] *= -1
+        # two-sided intersection
+        if dot(mempool.ray_d, mempool.hit_n[i]) > 0:
+            mempool.hit_n[i][0] *= -1
+            mempool.hit_n[i][1] *= -1
+            mempool.hit_n[i][2] *= -1
 
 @numba.njit
 def recursive_trace(details, mempool):

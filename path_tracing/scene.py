@@ -137,26 +137,35 @@ class Scene:
                 num_triangles += obj.num_triangles()
                 triangles.append(obj)
 
+        # numpy dtype to store structure of array
+        dtype_dict = {}
+        dtype_dict['names'] = ['tri_vertices', 'tri_normals', 'tri_tangents',
+                               'tri_binormals', 'tri_materials']
+        dtype_dict['formats'] = []
+        dtype_dict['formats'].append((np.float32, (num_triangles,3,3)))
+        dtype_dict['formats'].append((np.float32, (num_triangles,3)))
+        dtype_dict['formats'].append((np.float32, (num_triangles,3)))
+        dtype_dict['formats'].append((np.float32, (num_triangles,3)))
+        dtype_dict['formats'].append((np.float32, (num_triangles,2,3)))
+        tri_data = np.zeros(1, dtype=np.dtype(dtype_dict, align=True))
+
         # consolidate triangles in contiguous numpy array
-        tri_vertices= np.zeros((num_triangles,3,3))
-        tri_normals = np.zeros((num_triangles,3))
-        tri_tangents = np.zeros((num_triangles,3))
-        tri_binormals = np.zeros((num_triangles,3))
-        tri_materials = np.zeros((num_triangles,2,3))
         index = 0
         for tri in triangles:
+            data = tri_data[0]
             for i in range(len(tri.tv)):
-                tri_vertices[index] = tri.tv[i]
-                tri_normals[index] = tri.n[i]
-                tri_materials[index][0] = tri.material.reflectance
-                tri_materials[index][1] = tri.material.emittance
+                data['tri_vertices'][index] = tri.tv[i]
+                data['tri_normals'][index] = tri.n[i]
+                data['tri_materials'][index][0] = tri.material.reflectance
+                data['tri_materials'][index][1] = tri.material.emittance
                 index += 1
-        jit_math.compute_tangents_binormals(tri_normals, tri_tangents, tri_binormals)
+        jit_math.compute_tangents_binormals(tri_data[0]['tri_normals'],
+                                            tri_data[0]['tri_tangents'],
+                                            tri_data[0]['tri_binormals'])
 
         print('num_triangles ' , num_triangles)
 
-        details = (tri_vertices, tri_normals, tri_tangents, tri_binormals, tri_materials)
-        return details
+        return tri_data
 
     def mix_details(self):
         # gather sphere, triangles and materials
