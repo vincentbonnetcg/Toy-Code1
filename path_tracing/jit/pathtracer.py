@@ -78,8 +78,8 @@ def ray_tri_details(details, mempool):
         copy(mempool.hit_tn[i], data.tri_tangents[hit_id])
         copy(mempool.hit_bn[i], data.tri_binormals[hit_id])
         mempool.hit_face_id[i] = hit_id
-        copy(mempool.hit_reflectance[i], data.tri_materials[hit_id][0])
-        copy(mempool.hit_emittance[i], data.tri_materials[hit_id][1])
+        copy(mempool.hit_material[i], data.tri_materials[hit_id])
+        mempool.hit_materialtype[i] = data.tri_materialtype[hit_id]
 
         # two-sided intersection
         if dot(mempool.ray_d, mempool.hit_n[i]) > 0:
@@ -96,32 +96,38 @@ def recursive_trace(details, mempool):
     if not mempool.valid_hit():
         return BLACK
 
-    # update ray and compute weakening factor
     depth = mempool.depth
+
+    if mempool.hit_materialtype[depth]==1: # light
+        return mempool.hit_material[depth]
+
+    # update ray and compute weakening factor
     update_ray_from_uniform_distribution(mempool)
     weakening_factor = dot(mempool.ray_d, mempool.hit_n[depth])
 
-    # compute rendering equation
-    #BRDF = hit.reflectance / math.pi
-    return mempool.hit_emittance[depth] + ((mempool.hit_reflectance[depth] * INV_PI) *
-                                           recursive_trace(details, mempool) *
-                                           weakening_factor * INV_PDF)
+    # rendering equation
+    return (mempool.hit_material[depth] * INV_PI *
+            recursive_trace(details, mempool) *
+            weakening_factor * INV_PDF)
 
 @numba.njit
 def first_trace(details, mempool):
     if MAX_DEPTH == 0:
-        return mempool.hit_reflectance[0]
+        return mempool.hit_material[0]
+
+    mempool.depth = 0
+
+    if mempool.hit_materialtype[0]==1: # light
+        return mempool.hit_material[0]
 
     # update ray and compute weakening factor
-    mempool.depth = 0
     update_ray_from_uniform_distribution(mempool)
     weakening_factor = dot(mempool.ray_d, mempool.hit_n[0])
 
     # compute rendering equation
-    #BRDF =  hit.reflectance / math.pi
-    return mempool.hit_emittance[0] + ((mempool.hit_reflectance[0] * INV_PI) *
-                                       recursive_trace(details, mempool) *
-                                       weakening_factor * INV_PDF)
+    return ((mempool.hit_material[0] * INV_PI) *
+            recursive_trace(details, mempool) *
+            weakening_factor * INV_PDF)
 
 @numba.njit
 def render(image, camera, details, start_time):

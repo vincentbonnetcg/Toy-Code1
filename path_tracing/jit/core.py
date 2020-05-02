@@ -24,8 +24,8 @@ from jit.maths import normalize
                  ('hit_tn', numba.float64[:,:]), # hit tangent
                  ('hit_bn', numba.float64[:,:]), # hit binormal
                  ('hit_face_id', numba.int32[:]), # hit face id
-                 ('hit_reflectance', numba.float64[:,:]), # reflectance as np.empty(3)
-                 ('hit_emittance', numba.float64[:,:])]) # emittance as np.empty(3)
+                 ('hit_material', numba.float64[:,:]), # emittance/reflectance as np.empty(3)
+                 ('hit_materialtype', numba.int32[:])]) # material type
 
 class MemoryPool:
     def __init__(self, num_samples):
@@ -41,8 +41,8 @@ class MemoryPool:
         self.hit_tn = np.empty((num_samples, 3))
         self.hit_bn = np.empty((num_samples, 3))
         self.hit_face_id = np.empty(num_samples, np.int32)
-        self.hit_reflectance = np.empty((num_samples, 3))
-        self.hit_emittance = np.empty((num_samples, 3))
+        self.hit_material = np.empty((num_samples, 3))
+        self.hit_materialtype = np.empty(num_samples, np.int32)
 
     def valid_hit(self):
         if self.hit_t[self.depth] >= 0.0:
