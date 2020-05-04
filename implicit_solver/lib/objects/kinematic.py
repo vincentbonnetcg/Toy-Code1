@@ -89,7 +89,12 @@ class Kinematic:
                                    self.point_handles)
 
     def get_closest_param(self, point):
-        return geo2d_lib.get_closest_param(point, self.vertex, self.surface_edge_ids, self.surface_edge_normals)
+        param = geo2d_lib.ParametricPoint(-1, 0.0)
+        squaredDistance = np.finfo(np.float64).max
+        geo2d_lib.get_closest_param(point, self.vertex,
+                                    self.surface_edge_ids, self.surface_edge_normals,
+                                    param, squaredDistance)
+        return param
 
     def get_position_from_param(self, param):
         return geo2d_lib.get_position_from_param(self.vertex, self.surface_edge_ids, param)
