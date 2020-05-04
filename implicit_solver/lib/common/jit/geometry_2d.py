@@ -6,16 +6,18 @@
 import numba
 import numpy as np
 import lib.common.jit.math_2d as math2D
+import lib.common.jit.node_accessor as na
 
 parametricSpec = [('index', numba.int32), # simplex index
+                  ('points', numba.int32[:,:]), # two points
                   ('t', numba.float32), # parametric value
                   ('position', numba.float64[:]),  # position
                   ('normal', numba.float64[:])]  # normal
-
 @numba.jitclass(parametricSpec)
 class ParametricPoint(object):
     def __init__(self, index, t):
-        self.index = index
+        self.index = index # TODO - replace with self.points
+        self.points = na.empty_node_ids(2)
         self.t = t
         self.position = np.zeros(2, dtype=np.float64)
         self.normal = np.zeros(2, dtype=np.float64)
