@@ -44,7 +44,7 @@ class Kinematic:
         self.surface_edge_ids, self.surface_edge_normals = shape.get_edge_surface_data()
         self.face_ids = np.copy(shape.face)
         # append points
-        self.point_handles =  details.point.append_empty(len(self.local_vertex))
+        self.point_handles =  details.point.append_empty(len(self.vertex))
         details.point.copyto('x', shape.vertex, self.point_handles)
         point_ids = details.point.flatten('ID', self.point_handles)
         # append edges
@@ -88,12 +88,17 @@ class Kinematic:
                                    self.state.position,
                                    self.point_handles)
 
-    def get_closest_param(self, point):
+    def get_closest_param(self, details, position):
         param = geo2d_lib.ParametricPoint(-1, 0.0)
         squaredDistance = np.finfo(np.float64).max
-        geo2d_lib.get_closest_param(point, self.vertex,
+        geo2d_lib.get_closest_param(position, self.vertex,
                                     self.surface_edge_ids, self.surface_edge_normals,
                                     param, squaredDistance)
+        # Vectorized version
+        #cpn.simplex.get_closest_param(details.edge, details.point, position,
+        #                              param, squaredDistance,
+        #                              self.edge_handles)
+
         return param
 
     def get_position_from_param(self, param):
