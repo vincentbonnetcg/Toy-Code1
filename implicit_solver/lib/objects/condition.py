@@ -43,7 +43,7 @@ class Condition:
         if func and len(self.block_handles)>0:
             data = details.block_from_datatype(self.constraint_type)
             if scene:
-                func(data, scene, details.node, self.block_handles)
+                func(data, scene, details.node, details.point, self.block_handles)
             else:
                 func(data, details.node, self.block_handles)
 

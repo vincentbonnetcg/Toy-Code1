@@ -98,7 +98,7 @@ class KinematicCollisionCondition(Condition):
                     # add spring
                     spring = cpn.AnchorSpring()
                     spring.kinematic_index = np.uint32(kinematic.index)
-                    spring.kinematic_component_index =  np.uint32(closest_pos.index)
+                    spring.kinematic_component_IDs =  closest_pos.points
                     spring.kinematic_component_param = np.float64(closest_pos.t)
                     spring.kinematic_component_pos = closest_pos.position
                     spring.node_IDs = np.copy(node_ids)
@@ -145,7 +145,7 @@ class KinematicAttachmentCondition(Condition):
                 # add spring
                 spring = cpn.AnchorSpring()
                 spring.kinematic_index = np.uint32(kinematic.index)
-                spring.kinematic_component_index =  np.uint32(closest_pos.index)
+                spring.kinematic_component_IDs = closest_pos.points
                 spring.kinematic_component_param = np.float64(closest_pos.t)
                 spring.kinematic_component_pos = closest_pos.position
                 spring.node_IDs = np.copy(node_ids)

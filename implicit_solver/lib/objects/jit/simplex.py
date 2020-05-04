@@ -36,7 +36,7 @@ def transformPoint(point : Point, rotation_matrix, translate):
 
 @generate.as_vectorized(njit=True, block_handles=True)
 def get_closest_param(edge : Edge, points, position, o_param, o_squaredDistance):
-    # o_param = ParametricPoint(-1, 0.0)
+    # o_param = ParametricPoint()
     # o_squaredDistance = np.finfo(np.float64).max
     x0 = na.node_x(points, edge.point_IDs[0])
     x1 = na.node_x(points, edge.point_IDs[1])
@@ -51,7 +51,6 @@ def get_closest_param(edge : Edge, points, position, o_param, o_squaredDistance)
     squaredDistance = math2D.dot(vector_distance, vector_distance)
     # update the minimum distance
     if squaredDistance < o_squaredDistance:
-        o_param.index = 0 # TODO : remove that
         o_param.points = edge.point_IDs
         o_param.t = t
         o_squaredDistance = squaredDistance

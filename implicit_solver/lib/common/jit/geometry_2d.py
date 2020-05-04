@@ -15,10 +15,9 @@ parametricSpec = [('index', numba.int32), # simplex index
                   ('normal', numba.float64[:])]  # normal
 @numba.jitclass(parametricSpec)
 class ParametricPoint(object):
-    def __init__(self, index, t):
-        self.index = index # TODO - replace with self.points
+    def __init__(self):
         self.points = na.empty_node_ids(2)
-        self.t = t
+        self.t = 0.0
         self.position = np.zeros(2, dtype=np.float64)
         self.normal = np.zeros(2, dtype=np.float64)
 
@@ -49,37 +48,7 @@ def is_inside(point, vertices, face_ids):
     return False
 
 @numba.njit(inline='always')
-def get_closest_param(point, vertices, edge_ids, edge_normals, o_param, o_squaredDistance):
-    # o_param = ParametricPoint(-1, 0.0)
-    # o_squaredDistance = np.finfo(np.float64).max
-    for i in range(len(edge_ids)):
-        edge_vtx = [vertices[edge_ids[i][0]],
-                    vertices[edge_ids[i][1]]]
-
-        edge_dir = edge_vtx[1] - edge_vtx[0] # could be precomputed
-        edge_dir_square = math2D.dot(edge_dir, edge_dir) # could be precomputed
-        proj_p = math2D.dot(point - edge_vtx[0], edge_dir)
-        t = proj_p / edge_dir_square
-        t = max(min(t, 1.0), 0.0)
-        projected_point = edge_vtx[0] + edge_dir * t # correct the project point
-        vector_distance = (point - projected_point)
-        squaredDistance = math2D.dot(vector_distance, vector_distance)
-        # update the minimum distance
-        if squaredDistance < o_squaredDistance:
-            o_param.index = i
-            o_param.t = t
-            o_squaredDistance = squaredDistance
-
-    # set position
-    v0 = edge_ids[o_param.index][0]
-    v1 = edge_ids[o_param.index][1]
-    o_param.position = vertices[v0] * (1.0 - o_param.t) + vertices[v1] * o_param.t
-
-    # set normal
-    o_param.normal = edge_normals[o_param.index]
-
-@numba.njit(inline='always')
-def get_position_from_param(vertices, edge_ids, param):
-    v0 = edge_ids[param.index][0]
-    v1 = edge_ids[param.index][1]
-    return vertices[v0] * (1.0 - param.t) + vertices[v1] * param.t
+def get_position_from_param(details_points, param):
+    x0 = na.node_x(details_points, param.points[0])
+    x1 = na.node_x(details_points, param.points[1])
+    return x0 * (1.0 - param.t) + x1 * param.t
