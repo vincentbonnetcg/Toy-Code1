@@ -45,9 +45,3 @@ def is_inside(point, vertices, face_ids):
             return True
 
     return False
-
-@numba.njit(inline='always')
-def get_position_from_param(details_points, param):
-    x0 = na.node_x(details_points, param.points[0])
-    x1 = na.node_x(details_points, param.points[1])
-    return x0 * (1.0 - param.t) + x1 * param.t
