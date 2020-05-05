@@ -150,10 +150,7 @@ class KinematicAttachmentCondition(Condition):
                                           closest_param,
                                           kinematic.edge_handles)
 
-            direction = (closest_param.position - node_pos)
-            dist2 = np.inner(direction, direction)
-
-            if dist2 < distance2:
+            if closest_param.squared_distance < distance2:
                 # add spring
                 spring = cpn.AnchorSpring()
                 spring.kinematic_index = np.uint32(kinematic.index)
