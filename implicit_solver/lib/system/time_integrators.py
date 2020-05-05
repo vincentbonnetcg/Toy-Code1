@@ -55,7 +55,7 @@ class ImplicitSolver(TimeIntegrator):
 
         # Compute constraint forces and jacobians
         for condition in scene.conditions:
-            condition.pre_compute(scene, details)
+            condition.pre_compute(details)
             condition.compute_gradients(details)
             condition.compute_hessians(details)
 

@@ -95,9 +95,6 @@ class Kinematic:
                                       self.edge_handles)
         return param
 
-    def get_position_from_param(self, details_points, param):
-        return geo2d_lib.get_position_from_param(details_points, param)
-
     def is_inside(self, point):
         return geo2d_lib.is_inside(point, self.vertex, self.face_ids)
 

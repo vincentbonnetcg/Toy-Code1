@@ -39,16 +39,16 @@ class Condition:
     def update_constraints(self, scene, details):
         pass
 
-    def __call_func(self, func, details, scene = None):
+    def __call_func(self, func, details, use_point = False):
         if func and len(self.block_handles)>0:
             data = details.block_from_datatype(self.constraint_type)
-            if scene:
-                func(data, scene, details.node, details.point, self.block_handles)
+            if use_point:
+                func(data, details.node, details.point, self.block_handles)
             else:
                 func(data, details.node, self.block_handles)
 
-    def pre_compute(self, scene, details):
-        self.__call_func(self.constraint_type.pre_compute(), details, scene)
+    def pre_compute(self, details):
+        self.__call_func(self.constraint_type.pre_compute(), details, use_point=True)
 
     def compute_rest(self, details):
         self.__call_func(self.constraint_type.compute_rest(), details)

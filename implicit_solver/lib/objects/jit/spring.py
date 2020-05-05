@@ -68,13 +68,12 @@ class Spring(cpn.ConstraintBase):
 '''
 AnchorSpring compute functions
 '''
-@generate.as_vectorized(njit=False, block_handles=True)
-def pre_compute_anchor_spring(anchor_spring : AnchorSpring, scene, detail_nodes, details_points):
-    kinematic = scene.kinematics[anchor_spring.kinematic_index]
+@generate.as_vectorized(block_handles=True)
+def pre_compute_anchor_spring(anchor_spring : AnchorSpring, detail_nodes, details_points):
     point_params = geo2d_lib.ParametricPoint()
     point_params.t = anchor_spring.kinematic_component_param
     point_params.points = anchor_spring.kinematic_component_IDs
-    anchor_spring.kinematic_component_pos = kinematic.get_position_from_param(details_points, point_params)
+    anchor_spring.kinematic_component_pos = geo2d_lib.get_position_from_param(details_points, point_params)
 
 @generate.as_vectorized(block_handles=True)
 def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
