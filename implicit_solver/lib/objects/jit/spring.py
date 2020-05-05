@@ -9,7 +9,6 @@ import numba # required by lib.common.code_gen
 import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
 import lib.common.code_gen as generate
-import lib.common.jit.geometry_2d as geo2d_lib
 import lib.objects.jit.utils.spring_lib as spring_lib
 import lib.objects.jit as cpn
 

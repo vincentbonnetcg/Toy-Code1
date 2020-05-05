@@ -11,14 +11,16 @@ import lib.common.jit.node_accessor as na
 parametricSpec = [('points', numba.int32[:,:]), # two points
                   ('t', numba.float32), # parametric value
                   ('position', numba.float64[:]),  # position
-                  ('normal', numba.float64[:])]  # normal
+                  ('normal', numba.float64[:]),# normal
+                  ('squared_distance', numba.float64)] # parametric value
 @numba.jitclass(parametricSpec)
-class ParametricPoint(object):
+class ClosestResult(object):
     def __init__(self):
         self.points = na.empty_node_ids(2)
         self.t = 0.0
         self.position = np.zeros(2, dtype=np.float64)
         self.normal = np.zeros(2, dtype=np.float64)
+        self.squared_distance = np.finfo(np.float64).max
 
 @numba.njit(inline='always')
 def is_inside(point, vertices, face_ids):

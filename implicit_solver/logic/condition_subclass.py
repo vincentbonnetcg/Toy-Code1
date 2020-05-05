@@ -94,11 +94,10 @@ class KinematicCollisionCondition(Condition):
             node_ids = [data_node_id[i]]
 
             if (kinematic.is_inside(node_pos)):
-                closest_param = geo2d_lib.ParametricPoint()
-                squared_dist = np.finfo(np.float64).max
+                closest_param = geo2d_lib.ClosestResult()
                 cpn.simplex.get_closest_param(details.edge,
                                               details.point, node_pos,
-                                              closest_param, squared_dist,
+                                              closest_param,
                                               kinematic.edge_handles)
 
                 if (np.dot(closest_param.normal, node_vel) < 0.0):
@@ -145,11 +144,10 @@ class KinematicAttachmentCondition(Condition):
             node_pos = data_x[i]
             node_ids = [data_node_id[i]]
 
-            closest_param = geo2d_lib.ParametricPoint()
-            squared_dist = np.finfo(np.float64).max
+            closest_param = geo2d_lib.ClosestResult()
             cpn.simplex.get_closest_param(details.edge,
                                           details.point, node_pos,
-                                          closest_param, squared_dist,
+                                          closest_param,
                                           kinematic.edge_handles)
 
             direction = (closest_param.position - node_pos)
