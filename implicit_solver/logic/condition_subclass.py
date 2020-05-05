@@ -9,6 +9,7 @@ import lib.objects.jit as cpn
 from lib.objects import Condition
 import lib.common as common
 import lib.common.jit.block_utils as block_utils
+import lib.common.jit.geometry_2d as geo2d_lib
 from lib.system import Scene
 
 def initialize_condition_from_aos(condition, array_of_struct, details):
@@ -93,14 +94,20 @@ class KinematicCollisionCondition(Condition):
             node_ids = [data_node_id[i]]
 
             if (kinematic.is_inside(node_pos)):
-                closest_pos = kinematic.get_closest_param(details, node_pos)
-                if (np.dot(closest_pos.normal, node_vel) < 0.0):
+                closest_param = geo2d_lib.ParametricPoint()
+                squared_dist = np.finfo(np.float64).max
+                cpn.simplex.get_closest_param(details.edge,
+                                              details.point, node_pos,
+                                              closest_param, squared_dist,
+                                              kinematic.edge_handles)
+
+                if (np.dot(closest_param.normal, node_vel) < 0.0):
                     # add spring
                     spring = cpn.AnchorSpring()
                     spring.kinematic_index = np.uint32(kinematic.index)
-                    spring.kinematic_component_IDs =  closest_pos.points
-                    spring.kinematic_component_param = np.float64(closest_pos.t)
-                    spring.kinematic_component_pos = closest_pos.position
+                    spring.kinematic_component_IDs =  closest_param.points
+                    spring.kinematic_component_param = np.float64(closest_param.t)
+                    spring.kinematic_component_pos = closest_param.position
                     spring.node_IDs = np.copy(node_ids)
                     spring.stiffness = self.stiffness
                     spring.damping = self.damping
@@ -138,16 +145,23 @@ class KinematicAttachmentCondition(Condition):
             node_pos = data_x[i]
             node_ids = [data_node_id[i]]
 
-            closest_pos = kinematic.get_closest_param(details, node_pos)
-            direction = (closest_pos.position - node_pos)
+            closest_param = geo2d_lib.ParametricPoint()
+            squared_dist = np.finfo(np.float64).max
+            cpn.simplex.get_closest_param(details.edge,
+                                          details.point, node_pos,
+                                          closest_param, squared_dist,
+                                          kinematic.edge_handles)
+
+            direction = (closest_param.position - node_pos)
             dist2 = np.inner(direction, direction)
+
             if dist2 < distance2:
                 # add spring
                 spring = cpn.AnchorSpring()
                 spring.kinematic_index = np.uint32(kinematic.index)
-                spring.kinematic_component_IDs = closest_pos.points
-                spring.kinematic_component_param = np.float64(closest_pos.t)
-                spring.kinematic_component_pos = closest_pos.position
+                spring.kinematic_component_IDs = closest_param.points
+                spring.kinematic_component_param = np.float64(closest_param.t)
+                spring.kinematic_component_pos = closest_param.position
                 spring.node_IDs = np.copy(node_ids)
                 spring.stiffness = self.stiffness
                 spring.damping = self.damping

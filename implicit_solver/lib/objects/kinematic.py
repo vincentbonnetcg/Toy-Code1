@@ -70,6 +70,7 @@ class Kinematic:
         np.copyto(shape.edge, self.surface_edge_ids)
         np.copyto(shape.face, self.face_ids)
         return shape
+
     def update(self, details, position, rotation, dt = 0.0):
         # update state
         self.state.update(position, rotation, dt)
@@ -86,14 +87,6 @@ class Kinematic:
                                    rotation_matrix,
                                    self.state.position,
                                    self.point_handles)
-
-    def get_closest_param(self, details, position):
-        param = geo2d_lib.ParametricPoint()
-        squaredDistance = np.finfo(np.float64).max
-        cpn.simplex.get_closest_param(details.edge, details.point, position,
-                                      param, squaredDistance,
-                                      self.edge_handles)
-        return param
 
     def is_inside(self, point):
         return geo2d_lib.is_inside(point, self.vertex, self.face_ids)
