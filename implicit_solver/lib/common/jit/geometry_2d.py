@@ -8,8 +8,7 @@ import numpy as np
 import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
 
-parametricSpec = [('index', numba.int32), # simplex index
-                  ('points', numba.int32[:,:]), # two points
+parametricSpec = [('points', numba.int32[:,:]), # two points
                   ('t', numba.float32), # parametric value
                   ('position', numba.float64[:]),  # position
                   ('normal', numba.float64[:])]  # normal
