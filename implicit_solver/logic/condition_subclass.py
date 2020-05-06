@@ -88,12 +88,13 @@ class KinematicCollisionCondition(Condition):
         data_v = details.node.flatten('v', dynamic.block_handles)
         data_node_id = details.node.flatten('ID', dynamic.block_handles)
 
+        result = geo2d_lib.IsInsideResult()
         for i in range(dynamic.num_nodes()):
             node_pos = data_x[i]
             node_vel = data_v[i]
             node_ids = [data_node_id[i]]
 
-            result = geo2d_lib.IsInsideResult()
+            result.isInside = False
             cpn.simplex.is_inside(details.triangle,
                                   details.point,
                                   node_pos,
