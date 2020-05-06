@@ -28,13 +28,13 @@ class Tetrahedron:
     def __init__(self):
         self.point_IDs = na.empty_node_ids(4)
 
-@generate.as_vectorized(njit=True, block_handles=True)
+@generate.as_vectorized(block_handles=True)
 def transformPoint(point : Point, rotation_matrix, translate):
     #np.dot(point.x, rotation_matrix, out=point.x) #  not working with Numba0.45.1
     point.x = np.dot(point.x, rotation_matrix)
     point.x += translate
 
-@generate.as_vectorized(njit=True, block_handles=True)
+@generate.as_vectorized(block_handles=True)
 def get_closest_param(edge : Edge, points, position, o_param):
     # o_param = ClosestResult()
     x0 = na.node_x(points, edge.point_IDs[0])
@@ -55,3 +55,26 @@ def get_closest_param(edge : Edge, points, position, o_param):
         o_param.squared_distance = squared_distance
         o_param.position = x0 * (1.0 - t) + x1 * t
         o_param.normal = edge.normal
+
+@generate.as_vectorized(block_handles=True)
+def is_inside(face : Triangle, points, position, o_result):
+    # result = IsInsideResult()
+    x0 = na.node_x(points, face.point_IDs[0])
+    x1 = na.node_x(points, face.point_IDs[1])
+    x2 = na.node_x(points, face.point_IDs[2])
+    v0 = x2 - x0
+    v1 = x1 - x0
+    v2 = position - x0
+
+    dot00 = math2D.dot(v0, v0)
+    dot01 = math2D.dot(v0, v1)
+    dot02 = math2D.dot(v0, v2)
+    dot11 = math2D.dot(v1, v1)
+    dot12 = math2D.dot(v1, v2)
+
+    inv = 1.0 / (dot00 * dot11 - dot01 * dot01)
+    a = (dot11 * dot02 - dot01 * dot12) * inv
+    b = (dot00 * dot12 - dot01 * dot02) * inv
+    if a>=0 and b>=0 and a+b<=1:
+        o_result.isInside = True
+        return

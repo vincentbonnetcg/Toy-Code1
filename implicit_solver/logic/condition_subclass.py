@@ -93,7 +93,14 @@ class KinematicCollisionCondition(Condition):
             node_vel = data_v[i]
             node_ids = [data_node_id[i]]
 
-            if (kinematic.is_inside(node_pos)):
+            result = geo2d_lib.IsInsideResult()
+            cpn.simplex.is_inside(details.triangle,
+                                  details.point,
+                                  node_pos,
+                                  result,
+                                  kinematic.triangle_handles)
+
+            if (result.isInside):
                 closest_param = geo2d_lib.ClosestResult()
                 cpn.simplex.get_closest_param(details.edge,
                                               details.point, node_pos,

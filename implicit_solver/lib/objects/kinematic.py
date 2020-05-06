@@ -87,7 +87,3 @@ class Kinematic:
                                    rotation_matrix,
                                    self.state.position,
                                    self.point_handles)
-
-    def is_inside(self, point):
-        return geo2d_lib.is_inside(point, self.vertex, self.face_ids)
-
