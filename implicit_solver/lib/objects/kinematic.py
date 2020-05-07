@@ -6,7 +6,6 @@
 import math
 import numpy as np
 from lib.common import Shape
-import lib.common.jit.geometry_2d as geo2d_lib
 import lib.objects.jit as cpn
 
 class Kinematic:
@@ -38,23 +37,21 @@ class Kinematic:
 
     def __init__(self, details, shape, position = (0., 0.), rotation = 0.):
         self.state = Kinematic.State(position = position, rotation = rotation)
-        self.local_vertex = np.copy(shape.vertex)
-        # local memory - TODO remove
-        self.vertex = np.copy(shape.vertex)
-        self.surface_edge_ids, self.surface_edge_normals = shape.get_edge_surface_data()
-        self.face_ids = np.copy(shape.face)
         # append points
-        self.point_handles =  details.point.append_empty(len(self.vertex))
+        self.point_handles =  details.point.append_empty(len(shape.vertex))
+        details.point.copyto('local_x', shape.vertex, self.point_handles)
         details.point.copyto('x', shape.vertex, self.point_handles)
         point_ids = details.point.flatten('ID', self.point_handles)
         # append edges
-        self.edge_handles = details.edge.append_empty(len(self.surface_edge_ids))
-        edge_pids = np.take(point_ids, self.surface_edge_ids, axis=0)
-        details.edge.copyto('normal', self.surface_edge_normals, self.edge_handles)
+        surface_edge_ids, surface_edge_normals = shape.get_edge_surface_data()
+        edge_pids = np.take(point_ids, surface_edge_ids, axis=0)
+        self.edge_handles = details.edge.append_empty(len(surface_edge_ids))
+        details.edge.copyto('normal', surface_edge_normals, self.edge_handles)
         details.edge.copyto('point_IDs', edge_pids, self.edge_handles)
         # append triangles
-        self.triangle_handles = details.triangle.append_empty(len(self.face_ids))
+        self.face_ids = np.copy(shape.face)
         triangle_pids = np.take(point_ids, self.face_ids, axis=0)
+        self.triangle_handles = details.triangle.append_empty(len(self.face_ids))
         details.triangle.copyto('point_IDs', triangle_pids, self.triangle_handles)
         # update vertices
         self.update(details, position, rotation)
@@ -65,9 +62,9 @@ class Kinematic:
         self.index = index
 
     def get_as_shape(self, details):
-        shape = Shape(len(self.local_vertex), len(self.surface_edge_ids), len(self.face_ids))
-        np.copyto(shape.vertex, details.point.flatten('x', self.point_handles))
-        np.copyto(shape.edge, self.surface_edge_ids)
+        x = details.point.flatten('x', self.point_handles)
+        shape = Shape(len(x), 0, len(self.face_ids))
+        np.copyto(shape.vertex, x)
         np.copyto(shape.face, self.face_ids)
         return shape
 
@@ -78,11 +75,7 @@ class Kinematic:
         theta = np.radians(self.state.rotation)
         c, s = np.cos(theta), np.sin(theta)
         rotation_matrix = np.array(((c, -s), (s, c)))
-        # update vertices - TODO remove
-        np.dot(self.local_vertex, rotation_matrix, out=self.vertex)
-        np.add(self.vertex, self.state.position, out=self.vertex)
         # update vertices
-        details.point.copyto('x', self.local_vertex, self.point_handles)
         cpn.simplex.transformPoint(details.point,
                                    rotation_matrix,
                                    self.state.position,
