@@ -1,0 +1,13 @@
+"""
+@author: Vincent Bonnet
+@description : common functions for scenes
+"""
+
+import os
+
+def get_resources_folder():
+    return os.path.dirname(os.path.dirname(os.path.dirname(__file__))) + "/data/"
+
+def meta_data_render(width=1.0, color='grey', style='solid', alpha = 1.0):
+    return {'width':width, 'color':color, 'style':style, 'alpha' : alpha}
+

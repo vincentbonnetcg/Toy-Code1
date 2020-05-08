@@ -5,16 +5,16 @@
 
 import render as rn
 import lib.common as common
-import logic.scene_examples as scene_examples
 import host_app.rpc as rpc
+from logic.examples import wire_scene, beam_scene, multiwire_scene, cat_scene, rabbit_scene
 
 '''
  Global Constants
 '''
 START_TIME = 0
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
-NUM_SUBSTEP = 10 # number of substep per frame
-NUM_FRAMES = 100 # number of simulated frame (doesn't include initial frame)
+NUM_SUBSTEP = 12 # number of substep per frame
+NUM_FRAMES = 100  # number of simulated frame (doesn't include initial frame)
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 USE_REMOTE_SERVER = False # run the program locally or connect to a server
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
@@ -41,10 +41,11 @@ def main():
     cmd_dispatcher.run("set_context", time = START_TIME, frame_dt = FRAME_TIMESTEP,
                          num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
 
-    #scene_examples.init_rabbit_scene(cmd_dispatcher, render)
-    #scene_examples.init_cat_scene(cmd_dispatcher, render)
-    #scene_examples.init_beam_example(cmd_dispatcher, render)
-    scene_examples.init_wire_example(cmd_dispatcher, render)
+    #rabbit_scene.assemble(cmd_dispatcher, render)
+    #cat_scene.assemble(cmd_dispatcher, render)
+    #multiwire_scene.assemble(cmd_dispatcher, render)
+    #beam_scene.assemble(cmd_dispatcher, render)
+    wire_scene.assemble(cmd_dispatcher, render)
 
     # Simulate frames
     for frame_id in range(NUM_FRAMES+1):
@@ -59,7 +60,7 @@ def main():
         render.export_current_frame(str(frame_id).zfill(4) + " .png")
 
 
-        #profiler.print_logs()
+        profiler.print_logs()
 
     # Disconnect client from server
     if USE_REMOTE_SERVER:
