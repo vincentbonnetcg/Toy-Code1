@@ -19,7 +19,6 @@ class AnchorSpring(cpn.ConstraintBase):
     def __init__(self):
         cpn.ConstraintBase.__init__(self, num_nodes = 1)
         self.rest_length = np.float64(0.0)
-        self.kinematic_index = np.uint32(0)
         self.kinematic_component_IDs = na.empty_node_ids(2) # Point ids
         self.kinematic_component_param = np.float64(0.0)
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)

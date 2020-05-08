@@ -33,10 +33,10 @@ class Condition:
         '''
         return True
 
-    def init_constraints(self, scene, details):
+    def init_constraints(self, details):
         raise NotImplementedError(type(self).__name__ + " needs to implement the method 'init_constraints'")
 
-    def update_constraints(self, scene, details):
+    def update_constraints(self, details):
         pass
 
     def __call_func(self, func, details, use_point = False):

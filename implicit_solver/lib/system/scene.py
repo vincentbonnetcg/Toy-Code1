@@ -44,13 +44,13 @@ class Scene:
 
     def init_conditions(self, details):
         for condition in self.conditions:
-            condition.init_constraints(self, details)
+            condition.init_constraints(details)
 
     def update_conditions(self, details):
         for condition in self.conditions:
             # Only update the dynamic condition
             if condition.is_static() is False:
-                condition.update_constraints(self, details)
+                condition.update_constraints(details)
 
     # Force Functions #
     def add_force(self, force):
