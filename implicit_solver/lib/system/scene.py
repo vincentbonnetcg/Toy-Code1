@@ -14,11 +14,9 @@ class Scene:
 
     # Data Functions #
     def add_dynamic(self, dynamic):
-        dynamic.set_indexing(len(self.dynamics))
         self.dynamics.append(dynamic)
 
     def add_kinematic(self, kinematic, animator = None):
-        kinematic.set_indexing(len(self.kinematics))
         self.kinematics.append(kinematic)
         self.animators.append(animator)
 

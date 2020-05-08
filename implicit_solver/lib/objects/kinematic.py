@@ -55,11 +55,8 @@ class Kinematic:
         details.triangle.copyto('point_IDs', triangle_pids, self.triangle_handles)
         # update vertices
         self.update(details, position, rotation)
-        self.index = 0 # set after the object is added to the scene - index in the scene.kinematics[]
+        # metadata
         self.meta_data = {}
-
-    def set_indexing(self, index):
-        self.index = index
 
     def get_as_shape(self, details):
         x = details.point.flatten('x', self.point_handles)

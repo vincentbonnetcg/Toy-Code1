@@ -26,8 +26,6 @@ class Dynamic:
         # Initialize node connectivities
         self.edge_ids = np.copy(shape.edge)
         self.face_ids = np.copy(shape.face)
-        # Object index in the scene.dynamics[.]
-        self.index = 0
         # Metadata
         self.meta_data = {}
 
@@ -36,9 +34,6 @@ class Dynamic:
 
     def num_blocks(self) -> int:
         return len(self.block_handles)
-
-    def set_indexing(self, index):
-        self.index = index
 
     def get_node_id(self, vertex_index) -> int:
         return self.node_ids[vertex_index]
