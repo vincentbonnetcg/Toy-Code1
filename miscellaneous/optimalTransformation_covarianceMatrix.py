@@ -51,7 +51,7 @@ def covariance(pointArray, index0, index1):
 
     return cov / np.size(pointArray,0)
 
-def computeOrthogonalFrame(pointData, centroid):
+def computeBestRotation(pointData, centroid):
     # get direction
     localPoint = np.copy(pointData)
     np.subtract(localPoint, centroid, out=localPoint)
@@ -65,7 +65,12 @@ def computeOrthogonalFrame(pointData, centroid):
                                   [covXY, covYY]])
     # covariance decomposition
     w, v = np.linalg.eig(covarianceMatrix)
-    return v
+    rotationMatrix = v
+    det = np.linalg.det(rotationMatrix)
+    if det < 0.0:
+        # from reflection matrix to rotation matrix
+        rotationMatrix *= -1.0
+    return rotationMatrix
 
 def draw(pointData, centroid, rotationMatrix):
     '''
@@ -86,10 +91,10 @@ def draw(pointData, centroid, rotationMatrix):
 
     # draw the local frame
     # in ax.arrow(...)  vec.y and vec.x are reversed !
-    vec0x = frames.item(0,0)
-    vec0y = frames.item(0,1)
-    vec1x = frames.item(1,0)
-    vec1y = frames.item(1,1)
+    vec0x = rotationMatrix.item(0,0)
+    vec0y = rotationMatrix.item(0,1)
+    vec1x = rotationMatrix.item(1,0)
+    vec1y = rotationMatrix.item(1,1)
     ax.arrow(centroid[0], centroid[1], vec0y, vec0x, head_width=1.0, facecolor='red', edgecolor='black')
     ax.arrow(centroid[0], centroid[1], vec1y, vec1x, head_width=1.0, facecolor='green', edgecolor='black')
 
@@ -108,20 +113,12 @@ def draw(pointData, centroid, rotationMatrix):
     # show result
     plt.show()
 
-'''
- Execute
-'''
-pointData = np.array(np.random.rand(NUM_POINTS, 2) - 0.5)  # positions [-0.5, -0.5] [0.5, 0.5]
-transformPoints(pointData, ROTATION, SCALE, TRANSLATE)
+if __name__ == '__main__':
+    pointData = np.array(np.random.rand(NUM_POINTS, 2) - 0.5)  # positions [-0.5, -0.5] [0.5, 0.5]
+    transformPoints(pointData, ROTATION, SCALE, TRANSLATE)
 
-# compute best transform (rotation, centroid)
-centroid = computeCentroid(pointData)
-frames = computeOrthogonalFrame(pointData, centroid)
-det = np.linalg.det(frames)
-if det < 0.0:
-    # from reflection matrix to rotation matrix
-    frames *= -1.0
-rotationMatrix = frames
+    # compute best transform (rotation, centroid)
+    centroid = computeCentroid(pointData)
+    rotationMatrix = computeBestRotation(pointData, centroid)
 
-# draw
-draw(pointData, centroid, rotationMatrix)
+    draw(pointData, centroid, rotationMatrix)

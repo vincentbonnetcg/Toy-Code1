@@ -14,17 +14,11 @@ INITIAL_ANGLE_RANGE = 0.0 #  [-angle, angle] in degrees for initial segment angl
 INITIAL_SEGMENT_LENGTH = 1000.0 # length each segment
 TARGET_POS = (-500.0, 2000.0)
 
-JACOBIAN_METHOD = 'analytic' #  analytic / numerical
-INVERSE_METHOD = 'damped_least_square' #  pseudo_inverse / damped_least_square
 DAMPING_CONSTANT = 1.0 # used when INVERSE_METHOD == 'damped_least_square'
-
 NUM_ITERATIONS = 100
 MAX_STEP_SIZE = 100
 THRESHOLD = 1.0 # acceptable distance between the last vertex and target position
 
-'''
- Chain Class
-'''
 class Chain:
     def __init__(self):
         self.angles = np.ones(NUM_SEGMENTS) * INITIAL_ANGLE_RANGE
@@ -49,9 +43,6 @@ class Chain:
 
         return positions
 
-'''
- RenderChain Class
-'''
 class RenderChain(RenderHelper):
     def __init__(self, min_x, max_x, min_y, max_y):
         RenderHelper.__init__(self, min_x, max_x, min_y, max_y)
@@ -129,11 +120,10 @@ def computeDampedLeastSquare(jacobian):
     jacobiantInv = np.linalg.inv(jacobiantInv)
     return(jacobian.transpose() * jacobiantInv)
 
-'''
-Singular values analysis (Only for debugging)
-'''
+
 def print_singluar_values(matrix):
     '''
+    Singular values analysis (for debugging)
     Print the singular values to indicate whether the matrix inversion is stable
     Large singular values would make it unstable
     matrix is decompose into U.E.Vt
@@ -144,10 +134,11 @@ def print_singluar_values(matrix):
     print("-- singular_values --")
     print(singular_values)
 
-'''
- Inverse Kinematics
-'''
-def inverseKinematic(chain):
+
+def inverseKinematic(chain, jacobian_method, inverse_methd):
+    '''
+    Solve inverse kinematic problem
+    '''
     positions = chain.compute_positions()
     vec = np.subtract(TARGET_POS, positions[chain.numSegments])
     vecNorm = np.linalg.norm(vec)
@@ -155,15 +146,8 @@ def inverseKinematic(chain):
         vec /= vecNorm
         vec *= MAX_STEP_SIZE
 
-    if JACOBIAN_METHOD == 'analytic':
-        jacobian = computeAnalyticJacobian(chain)
-    else:
-        jacobian = computeNumericalJacobian(chain)
-
-    if INVERSE_METHOD == 'pseudo_inverse':
-        pseudoInverse = computePseudoInverse(jacobian)
-    else:
-        pseudoInverse = computeDampedLeastSquare(jacobian)
+    jacobian = jacobian_method(chain)
+    pseudoInverse = inverse_methd(jacobian)
 
     # Debugging
     #print_singluar_values(pseudoInverse)
@@ -172,29 +156,26 @@ def inverseKinematic(chain):
     for i in range(chain.numSegments):
         chain.angles[i] += deltaAngles[i]
 
-'''
- Function to determinate whether or not an 'acceptable' solution has been reached
-'''
 def hasReachTarget(chain):
+    '''
+    Return true if an 'acceptable' solution has been reached
+    '''
     positions = chain.compute_positions()
     diff = np.subtract(TARGET_POS, positions[chain.numSegments])
     if (np.linalg.norm(diff) <= THRESHOLD):
         return True
     return False
 
-'''
- Execute
-'''
-# prepare a chain
-render = RenderChain(-5000., 5000., 0., 10000.)
-chain = Chain()
-render.prepare_figure()
-render.show_figure(chain)
-# run inverse kinematic algorithm until convergence
-iterations = 1
-while iterations <= NUM_ITERATIONS and not hasReachTarget(chain):
-    inverseKinematic(chain)
-    print("IK : Iteration", iterations, "/", NUM_ITERATIONS )
+if __name__ == '__main__':
+    render = RenderChain(-5000., 5000., 0., 10000.)
+    chain = Chain()
     render.prepare_figure()
     render.show_figure(chain)
-    iterations += 1
+    # run inverse kinematic algorithm until convergence
+    iterations = 1
+    while iterations <= NUM_ITERATIONS and not hasReachTarget(chain):
+        inverseKinematic(chain, computeAnalyticJacobian, computeDampedLeastSquare)
+        print("IK : Iteration", iterations, "/", NUM_ITERATIONS )
+        render.prepare_figure()
+        render.show_figure(chain)
+        iterations += 1
