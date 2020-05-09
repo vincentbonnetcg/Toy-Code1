@@ -2,6 +2,7 @@
 @author: Vincent Bonnet
 @description : example scene with a cat ! 
 """
+import os
 import logic
 from . import common
 import host_app.rpc.shape_io as io_utils
@@ -19,7 +20,7 @@ def assemble(dispatcher, render):
     dispatcher.run('reset')
 
     # Load Data from file
-    filename = common.get_resources_folder() + file_path
+    filename = os.path.join(common.get_resources_folder(),file_path)
     shape = io_utils.create_shape_from_npz_file(filename)
 
     # Create collider 0
