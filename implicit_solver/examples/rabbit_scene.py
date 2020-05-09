@@ -40,9 +40,9 @@ def assemble(dispatcher, render):
     # Create collider 2
     anchor2_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
     anchor2_position, anchor_rotation = anchor2_shape.compute_best_transform()
-    anchor2_position[0] = 0
+    anchor2_position[0] = -5
     anchor2_position[1] = -30
-    anchor2_rotation = 45
+    anchor2_rotation = 70
 
     # Add objects to the solver
     collider0_handle = dispatcher.run('add_kinematic', shape = anchor0_shape,
@@ -86,5 +86,5 @@ def assemble(dispatcher, render):
                                        prefs = common.meta_data_render(1.0, 'orange', 'solid', 0.8))
 
 
-    render.set_viewport_limit(-20.0, -40.0, 20.0, 0.0)
+    render.set_viewport_limit(-35.0, -55.0, 35.0, -5.0)
 

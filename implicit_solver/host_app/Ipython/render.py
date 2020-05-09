@@ -49,7 +49,7 @@ class Render:
         # Reset figure and create subplot
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
-        self.ax.axis('equal')
+        #self.ax.axis('equal') # issue resize during simulation
         self.ax.margins(0.05)
         #self.ax.set_aspect('equal')
         self.ax.autoscale(enable=False)
@@ -64,8 +64,8 @@ class Render:
 
         # Set label
         plt.title('Implicit Solver - frame ' + str(frame_id), fontdict = self.font)
-        plt.xlabel('x (m)')
-        plt.ylabel('y (m)')
+        #plt.xlabel('x (m)')
+        #plt.ylabel('y (m)')
 
         # Draw constraints
         for condition_id, condition in enumerate(scene.conditions):
