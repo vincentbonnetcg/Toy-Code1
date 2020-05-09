@@ -6,7 +6,7 @@
 import render as rn
 import lib.common as common
 import host_app.rpc as rpc
-from logic.examples import wire_scene, beam_scene, multiwire_scene, cat_scene, rabbit_scene
+from examples import wire_scene, beam_scene, multiwire_scene, cat_scene, rabbit_scene
 
 '''
  Global Constants

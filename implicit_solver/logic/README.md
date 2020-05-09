@@ -6,5 +6,4 @@ Logic folder contains the following :
 - **Conditions** : *kinematic collision*, *dynamic attachment*, *wire bending*, *area preservation* etc.
 - **Force/Acceleration** : *gravity*
 - **Shape** : *wire*, *rectangle*, *beam*
-- **Scene examples** : *wire scene*, *beam scene*, *cat scene !*
 - **Resources** : bitmap and 2D meshes with 1 unit = 1 cm
