@@ -6,7 +6,8 @@
 import render as rn
 import lib.common as common
 import host_app.rpc as rpc
-from examples import wire_scene, beam_scene, multiwire_scene, cat_scene, rabbit_scene
+from examples import wire_scene, beam_scene, multiwire_scene
+from examples import cat_scene, rabbit_scene, rabbit_cat_scene
 
 '''
  Global Constants
@@ -45,7 +46,8 @@ def main():
     #cat_scene.assemble(cmd_dispatcher, render)
     #multiwire_scene.assemble(cmd_dispatcher, render)
     #beam_scene.assemble(cmd_dispatcher, render)
-    wire_scene.assemble(cmd_dispatcher, render)
+    #wire_scene.assemble(cmd_dispatcher, render)
+    rabbit_cat_scene.assemble(cmd_dispatcher, render)
 
     # Simulate frames
     for frame_id in range(NUM_FRAMES+1):
