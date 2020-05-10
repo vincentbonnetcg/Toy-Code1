@@ -132,11 +132,11 @@ def first_trace(details, mempool):
     recursive_trace(details, mempool)
 
 
-@numba.njit
-def render(image, camera, details, start_time):
+@numba.njit(nogil=True)
+def render(image, camera, details, start_time, row_start=0, row_step=1):
     mempool = jit_core.MemoryPool(NUM_SAMPLES)
     random.seed(RANDOM_SEED)
-    for j in range(camera.height):
+    for j in range(row_start, camera.height,row_step):
         for i in range(camera.width):
             # compute first hit to the scene
             camera.get_ray(i, j, mempool)
