@@ -268,25 +268,27 @@ class WireBendingCondition(Condition):
     def __init__(self, dynamics, stiffness, damping):
        Condition.__init__(self, stiffness, damping, cpn.Bending)
        self.dynamics = dynamics.copy()
+       self.node_ids = []
+       for dynamic in self.dynamics:
+           vtx_edges_dict = common.shape.vertex_ids_neighbours(dynamic.edge_ids)
+           for vtx_index, vtx_neighbour_index in vtx_edges_dict.items():
+               if (len(vtx_neighbour_index) == 2):
+                        node_ids = [dynamic.get_node_id(vtx_neighbour_index[0]),
+                                    dynamic.get_node_id(vtx_index),
+                                    dynamic.get_node_id(vtx_neighbour_index[1])]
+                        self.node_ids.append(node_ids)
+
+       self.node_ids = np.asarray(self.node_ids)
 
     def init_constraints(self, details):
         constraints = []
 
-        for dynamic in self.dynamics:
-            vertex_edges_dict = common.shape.vertex_ids_neighbours(dynamic.edge_ids)
-            if self.stiffness > 0.0:
-                for vertex_index, vertex_index_neighbour in vertex_edges_dict.items():
-                    if (len(vertex_index_neighbour) == 2):
-                        node_ids = [None, None, None]
-                        node_ids[0] = dynamic.get_node_id(vertex_index_neighbour[0])
-                        node_ids[1] = dynamic.get_node_id(vertex_index)
-                        node_ids[2] = dynamic.get_node_id(vertex_index_neighbour[1])
-
-                        # add bending constraint
-                        constraint = cpn.Bending()
-                        constraint.node_IDs = np.copy(node_ids)
-                        constraint.stiffness = self.stiffness
-                        constraint.damping = self.damping
-                        constraints.append(constraint)
+        for node_ids in self.node_ids:
+            # add bending constraint
+            constraint = cpn.Bending()
+            constraint.node_IDs = np.copy(node_ids)
+            constraint.stiffness = self.stiffness
+            constraint.damping = self.damping
+            constraints.append(constraint)
 
         initialize_condition_from_aos(self, constraints, details)
