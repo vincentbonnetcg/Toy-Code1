@@ -1,6 +1,8 @@
 # Numerical Bric-a-Brac
 Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Matplotlib ...)
 
+Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.com/vincentbonnetcg/Neural-Bric-a-Brac)
+
 ## . Implicit Soft-body Solver
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
 **Description** Implicit Solver.
