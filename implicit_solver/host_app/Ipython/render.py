@@ -49,13 +49,18 @@ class Render:
         # Reset figure and create subplot
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
-        #self.ax.axis('equal') # issue resize during simulation
+        #self.ax.axis('equal') # do not use : it resizes the viewport during simulation
         self.ax.margins(0.05)
-        #self.ax.set_aspect('equal')
+        #self.ax.set_aspect('equal') # break
         self.ax.autoscale(enable=False)
-        self.ax.set_xlim(self.min[0], self.max[0])
+        fig_size = self.fig.get_size_inches()
+        ratio = fig_size[0] / fig_size[1]
+        width = self.max[0]-self.min[0]
+        height = self.max[1]-self.min[1]
+        expected_width = height * ratio
+        offset = (expected_width - width) / 2
+        self.ax.set_xlim(self.min[0]-offset, self.max[0]+offset)
         self.ax.set_ylim(self.min[1], self.max[1])
-
         # Statistics for legend
         stats_total_constraints = 0
         stats_total_nodes = 0
