@@ -20,18 +20,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Teschner, Matthias, Bruno Heidelberger, Matthias Muller, and Markus Gross. "A versatile and robust model for geometrically complex deformable solids." In Computer Graphics International, 2004. Proceedings, pp. 312-319. IEEE, 2004.
 
-## . Neural Network
-**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
-**Description** Neural Network study with Python and Keras
-
-- Non-linear deformation learning (See below)
-- Feed-forward neural network with numpy
-- Keras examples with different architectures (CNN, AE, VAE, ...)
-
-![Deep_Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/deepdeformation.gif)<br>
-
-[1] LeCun, Yann, et al. "Gradient-based learning applied to document recognition." Proceedings of the IEEE 86.11 (1998): 2278-2324.
-
 ## . Path Tracing
 **Folder** [path_tracing](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/path_tracing)<br>
 **Description** Path Tracer with Python and Numba
@@ -67,12 +55,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 [1] Balasalle, James, Mario A. Lopez, and Matthew J. Rutherford. "Optimizing memory access patterns for cellular automata on GPUs." In GPU Computing Gems Jade Edition, pp. 67-75. 2011.
 
 [2] Gardner, Martin. "Mathematical games: The fantastic combinations of John Conway’s new solitaire game “life”." Scientific American 223, no. 4 (1970): 120-123.
-
-## . Lattice Boltzmann (WIP)
-**Folder** [lattice_boltzmann](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/lattice_boltzmann)<br>
-**Description** Lattice Boltzmann Evaluation
-
-![LBM](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/lattice_boltzmann_placeholder.png)<br>
 
 ## . Inverse Kinematics
 **File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/inverseKinematics_withJacobian.py)<br>
@@ -110,18 +92,6 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 
 [2] Powell, Michael JD. "The theory of radial basis function approximation in 1990." Advances in numerical analysis (1992): 105-210.
 
-## . Signed distance field (WIP)
-**File** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/miscellaneous/signed_distance_field.py)<br>
-**Description** Solve Eikonal Equation to compute signed distance field from 2D-polygon
-
-![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/distance_field.png)
-
-## . Load Balancing (WIP)
-**File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/load_balancing/graphColouring_greedyAlgorithm.py)<br>
-**Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
-
-![COLOURING](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/graphColouring_greedyAlgorithm.png)
-
 ## . Local Optimisations
 **File** [localOptimisation.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/localOptimisation.py)<br>
 **Description** Implementation of Gradient Descent and Newton-Raphson
@@ -151,3 +121,21 @@ Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Mat
 **Description** Evaluate simple 1D array operation with Numba
 
 ![Array_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_array.png)<br>
+
+## . Lattice Boltzmann (WIP)
+**Folder** [lattice_boltzmann](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/lattice_boltzmann)<br>
+**Description** Lattice Boltzmann Evaluation
+
+![LBM](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/lattice_boltzmann_placeholder.png)<br>
+
+## . Signed distance field (WIP)
+**File** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/miscellaneous/signed_distance_field.py)<br>
+**Description** Solve Eikonal Equation to compute signed distance field from 2D-polygon
+
+![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/distance_field.png)
+
+## . Load Balancing (WIP)
+**File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/load_balancing/graphColouring_greedyAlgorithm.py)<br>
+**Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
+
+![COLOURING](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/graphColouring_greedyAlgorithm.png)
