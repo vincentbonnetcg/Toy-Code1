@@ -53,10 +53,30 @@ def get_nodes_from_dynamic(scene, index, details):
 
 def get_shape_from_kinematic(scene, index, details):
     '''
-    Get points from kinematic
+    Get shape from kinematic
     '''
     kinematic = scene.kinematics[index]
     return kinematic.get_as_shape(details)
+
+def get_normals_from_kinematic(scene, index, details, normal_scale=0.2):
+    '''
+    Get normals from kinematic
+    '''
+    segs = []
+    kinematic = scene.kinematics[index]
+    normals = details.edge.flatten('normal', kinematic.edge_handles)
+    point_IDs = details.edge.flatten('point_IDs', kinematic.edge_handles)
+    num_normals = len(normals)
+
+    for i in range(num_normals):
+        x0 = na.node_x(details.point.blocks, point_IDs[i][0])
+        x1 = na.node_x(details.point.blocks, point_IDs[i][1])
+        points = [None, None]
+        points[0] = (x0+x1)*0.5
+        points[1] = points[0]+(normals[i]*normal_scale)
+        segs.append(points)
+
+    return segs
 
 def get_segments_from_constraint(scene, index, details):
     '''

@@ -117,6 +117,14 @@ class Render:
             if render_prefs is None:
                 continue
 
+            normals = dispatcher.run('get_normals_from_kinematic', index=kinematic_id)
+            line_normals = collections.LineCollection(normals,
+                                           linewidths=1,
+                                           colors=render_prefs['color'],
+                                           alpha=render_prefs['alpha'])
+
+            self.ax.add_collection(line_normals)
+
             triangles = []
             shape = dispatcher.run('get_shape_from_kinematic', index=kinematic_id)
             for face_id in shape.face:

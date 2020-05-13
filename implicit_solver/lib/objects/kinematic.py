@@ -73,7 +73,7 @@ class Kinematic:
         c, s = np.cos(theta), np.sin(theta)
         rotation_matrix = np.array(((c, -s), (s, c)))
         # update vertices
-        cpn.simplex.transformPoint(details.point,
+        cpn.simplex.transform_point(details.point,
                                    rotation_matrix,
                                    self.state.position,
                                    self.point_handles)

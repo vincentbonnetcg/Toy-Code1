@@ -30,7 +30,7 @@ class Tetrahedron:
         self.point_IDs = na.empty_node_ids(4)
 
 @generate.as_vectorized(block_handles=True)
-def transformPoint(point : Point, rotation_matrix, translate):
+def transform_point(point : Point, rotation_matrix, translate):
     #np.dot(point.x, rotation_matrix, out=point.x) #  not working with Numba0.45.1
     point.x = np.dot(point.local_x, rotation_matrix)
     point.x += translate
