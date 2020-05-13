@@ -19,6 +19,7 @@ class Point:
 class Edge:
     def __init__(self):
         self.point_IDs = na.empty_node_ids(2)
+        self.local_normal = np.zeros(2, dtype = np.float64)
         self.normal = np.zeros(2, dtype = np.float64)
 
 class Triangle:
@@ -34,6 +35,10 @@ def transform_point(point : Point, rotation_matrix, translate):
     #np.dot(point.x, rotation_matrix, out=point.x) #  not working with Numba0.45.1
     point.x = np.dot(point.local_x, rotation_matrix)
     point.x += translate
+
+@generate.as_vectorized(block_handles=True)
+def transform_normal(edge : Edge, rotation_matrix):
+    edge.normal = np.dot(edge.local_normal, rotation_matrix)
 
 @generate.as_vectorized(block_handles=True)
 def get_closest_param(edge : Edge, points, position, o_param):

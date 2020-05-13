@@ -46,6 +46,7 @@ class Kinematic:
         surface_edge_ids, surface_edge_normals = shape.get_edge_surface_data()
         edge_pids = np.take(point_ids, surface_edge_ids, axis=0)
         self.edge_handles = details.edge.append_empty(len(surface_edge_ids))
+        details.edge.copyto('local_normal', surface_edge_normals, self.edge_handles)
         details.edge.copyto('normal', surface_edge_normals, self.edge_handles)
         details.edge.copyto('point_IDs', edge_pids, self.edge_handles)
         # append triangles
@@ -72,8 +73,12 @@ class Kinematic:
         theta = np.radians(self.state.rotation)
         c, s = np.cos(theta), np.sin(theta)
         rotation_matrix = np.array(((c, -s), (s, c)))
-        # update vertices
+        # update kinematic
         cpn.simplex.transform_point(details.point,
                                    rotation_matrix,
                                    self.state.position,
                                    self.point_handles)
+
+        cpn.simplex.transform_normal(details.edge,
+                                   rotation_matrix,
+                                   self.edge_handles)
