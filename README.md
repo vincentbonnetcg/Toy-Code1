@@ -26,6 +26,11 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 **Folder** [path_tracing](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/path_tracing)<br>
 **Description** Path Tracer with Python and Numba
 
+- Multithreading
+- Memory pool per-thread 
+- Supersampling (Uniform jitter)
+
+
 ![Monte Carlo Path Tracer](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer_preview.jpg)
 
 [1] Pharr, Matt, Wenzel Jakob, and Greg Humphreys. Physically based rendering: From theory to implementation. Morgan Kaufmann, 2016
