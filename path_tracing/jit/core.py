@@ -7,6 +7,7 @@ import math
 import numpy as np
 import numba
 from jit.maths import normalize
+import random
 
 # A per-thread fixed memory pool to prevent memory allocation  and contains
 # . pre-allocated arrays
@@ -80,13 +81,15 @@ class Hit:
                  ('fovy', numba.float64),
                  ('tan_fovx', numba.float64),
                  ('tan_fovy', numba.float64),
-                 ('dir_z', numba.float64)])
+                 ('dir_z', numba.float64),
+                 ('supersampling', numba.int32)])
 class Camera:
     def __init__(self, width : int, height : int):
         self.origin = np.zeros(3)
         self.fovx = np.pi / 2
         self.dir_z = -1.0
         self.set_resolution(width, height)
+        self.set_supersampling(1)
 
     def set_resolution(self, width : int, height : int):
         self.width = width
@@ -95,9 +98,17 @@ class Camera:
         self.tan_fovx = math.tan(self.fovx*0.5)
         self.tan_fovy = math.tan(self.fovy*0.5)
 
-    def get_ray(self, i : int, j : int, mempool):
-        x = (2 * i - (self.width-1)) / (self.width-1) * self.tan_fovx
-        y = (2 * j - (self.height-1)) / (self.height-1) * self.tan_fovy
+    def set_supersampling(self, supersampling):
+        self.supersampling = supersampling
+
+    def get_ray(self, i : int, j : int, sx : int, sy : int, mempool):
+        # i, j : pixel position in the image
+        # sx, sy : subpixel location
+        # Jitter sampling
+        dx = ((random.random() + sx) / self.supersampling) - 0.5
+        dy = ((random.random() + sy) / self.supersampling) - 0.5
+        x = (2.0 * i - (self.width-1) + dx) / (self.width-1) * self.tan_fovx
+        y = (2.0 * j - (self.height-1) + dy) / (self.height-1) * self.tan_fovy
         mempool.ray_o[0] = self.origin[0]
         mempool.ray_o[1] = self.origin[1]
         mempool.ray_o[2] = self.origin[2]

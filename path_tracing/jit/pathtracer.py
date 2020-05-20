@@ -14,11 +14,14 @@ from . import intersect
 
 # pathtracer settings
 BLACK = np.zeros(3)
+WHITE = np.ones(3)
 MAX_DEPTH = 1 # max hit
 NUM_SAMPLES = 1 # number of sample per pixel
 RANDOM_SEED = 10
 INV_PDF = 2.0 * math.pi; # inverse of probability density function
 INV_PI = 1.0 / math.pi
+SUPERSAMPLING = 2 # supersampling 2x2
+CPU_COUNT = 4 # number of cpu
 
 @numba.njit(inline='always')
 def update_ray_from_uniform_distribution(mempool):
@@ -88,6 +91,17 @@ def ray_tri_details(details, mempool):
             mempool.hit_n[i][2] *= -1
 
 @numba.njit
+def rendering_equation(details, mempool):
+    # update ray and compute weakening factor
+    update_ray_from_uniform_distribution(mempool)
+    weakening_factor = dot(mempool.ray_d, mempool.hit_n[mempool.depth])
+
+    # rendering equation : emittance + (BRDF * incoming * cos_theta / pdf);
+    mempool.result *= mempool.hit_material[mempool.depth]
+    mempool.result *= INV_PI * weakening_factor * INV_PDF
+    recursive_trace(details, mempool)
+
+@numba.njit
 def recursive_trace(details, mempool):
     if mempool.depth + 1 >= MAX_DEPTH: # can another hit be allocated ?
         copy(mempool.result, BLACK)
@@ -98,60 +112,50 @@ def recursive_trace(details, mempool):
         copy(mempool.result, BLACK)
         return
 
-    depth = mempool.depth
-
-    if mempool.hit_materialtype[depth]==1: # light
-        mempool.result *= mempool.hit_material[depth]
+    if mempool.hit_materialtype[mempool.depth]==1: # light
+        mempool.result *= mempool.hit_material[mempool.depth]
         return
 
-    # update ray and compute weakening factor
-    update_ray_from_uniform_distribution(mempool)
-    weakening_factor = dot(mempool.ray_d, mempool.hit_n[depth])
-
-    # rendering equation : emittance + (BRDF * incoming * cos_theta / pdf);
-    mempool.result *= mempool.hit_material[depth]
-    mempool.result *= INV_PI * weakening_factor * INV_PDF
-    recursive_trace(details, mempool)
+    rendering_equation(details, mempool)
 
 @numba.njit
-def first_trace(details, mempool):
-    if MAX_DEPTH == 0 or mempool.hit_materialtype[0]==1:
+def start_trace(details, mempool):
+    ray_tri_details(details, mempool)
+    if not mempool.valid_hit():
+        copy(mempool.result, BLACK)
+        return
+
+    if MAX_DEPTH == 0 or mempool.hit_materialtype[0]==1: # light
         copy(mempool.result, mempool.hit_material[0])
         return
 
-    mempool.depth = 0
-    mempool.result[0:3] = 0.0
+    copy(mempool.result, WHITE)
 
-    # update ray and compute weakening factor
-    update_ray_from_uniform_distribution(mempool)
-    weakening_factor = dot(mempool.ray_d, mempool.hit_n[0])
-
-    # rendering equation : emittance + (BRDF * incoming * cos_theta / pdf);
-    copy(mempool.result, mempool.hit_material[0])
-    mempool.result *= INV_PI * weakening_factor * INV_PDF
-    recursive_trace(details, mempool)
-
+    rendering_equation(details, mempool)
 
 @numba.njit(nogil=True)
-def render(image, camera, details, start_time, row_start=0, row_step=1):
+def render(image, camera, details, start_time, thread_id=0):
     mempool = jit_core.MemoryPool(NUM_SAMPLES)
     random.seed(RANDOM_SEED)
+    row_step = CPU_COUNT
+    row_start = thread_id
     for j in range(row_start, camera.height,row_step):
         for i in range(camera.width):
-            # compute first hit to the scene
-            camera.get_ray(i, j, mempool)
-            ray_tri_details(details, mempool)
-
-            if mempool.valid_hit() == False:
-                continue
-
-            # compute shade
             jj = camera.height-1-j
             ii = camera.width-1-i
-            for _ in range(NUM_SAMPLES):
-                first_trace(details, mempool)
-                image[jj, ii] += mempool.result
-            image[jj, ii] /= NUM_SAMPLES
+
+            for sx in range(SUPERSAMPLING):
+                for sy in range(SUPERSAMPLING):
+
+                    # compute shade
+                    c = np.zeros(3)
+                    for _ in range(NUM_SAMPLES):
+                        mempool.result[0:3] = 0.0
+                        camera.get_ray(i, j, sx, sy, mempool)
+                        start_trace(details, mempool)
+                        c += mempool.result / NUM_SAMPLES
+                    clamp(c)
+                    image[jj, ii] += c / (SUPERSAMPLING * SUPERSAMPLING)
 
             gamma_correction(image[jj, ii])
 
@@ -161,6 +165,9 @@ def render(image, camera, details, start_time, row_start=0, row_step=1):
             if time.time() != start_time:
                 t = time.time() - start_time
                 estimated_time_left = (1.0 - p) / p * t
-                print('    estimated time left: %.2f sec' % estimated_time_left)
+                print('    estimated time left: %.2f sec (threadId %d)' % (estimated_time_left, thread_id))
 
-    print('Total intersections ', mempool.total_intersection)
+    with numba.objmode():
+        print('Total intersections : %d (threadId %d)' % (mempool.total_intersection, thread_id))
+
+    return mempool.total_intersection

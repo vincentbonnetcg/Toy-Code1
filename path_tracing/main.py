@@ -15,8 +15,6 @@ import common
 from scene import Scene
 import jit.pathtracer as pathtracer
 
-CPU_COUNT = 6
-
 @common.timeit
 def force_jit(image, camera, details):
     # jit compilation by calling a tiny scene
@@ -26,20 +24,19 @@ def force_jit(image, camera, details):
     camera.set_resolution(width, height)
 
 @common.timeit
-def render_MT(image, camera, details):
-    row_start = 0
-    row_step = CPU_COUNT
-    with ThreadPoolExecutor(max_workers=CPU_COUNT) as executor:
-        start_time = time.time()
-        for thread_id in range(CPU_COUNT):
-            row_start = thread_id
-            executor.submit(pathtracer.render, image, camera, details, start_time,
-                            row_start, row_step)
-
-@common.timeit
 def render(image, camera, details):
-    start_time = time.time()
-    pathtracer.render(image, camera, details, start_time)
+    futures = []
+    with ThreadPoolExecutor(max_workers=pathtracer.CPU_COUNT) as executor:
+        start_time = time.time()
+        for thread_id in range(pathtracer.CPU_COUNT):
+            future = executor.submit(pathtracer.render, image, camera,
+                                     details, start_time, thread_id)
+            futures.append(future)
+
+    total_intersections = 0
+    for future in futures:
+        total_intersections += future.result()
+    print('Total intersections : %d' % total_intersections)
 
 @common.timeit
 def show(image):
@@ -51,16 +48,20 @@ def main():
     pathtracer.MAX_DEPTH = 10 # max ray bounces
     pathtracer.NUM_SAMPLES = 50 # number of sample per pixel
     pathtracer.RANDOM_SEED = 10
+    pathtracer.SUPERSAMPLING = 1
+    pathtracer.CPU_COUNT = 6
 
     scene = Scene()
     scene.load_cornell_box()
     details = scene.tri_details()
     camera = scene.camera
     camera.set_resolution(512, 512)
+    camera.set_supersampling(pathtracer.SUPERSAMPLING)
     image = np.zeros((camera.height, camera.width, 3))
 
+    # Make sure the pathtracer.CONSTANTS are set before calling jitted functions
     force_jit(image, camera, details)
-    render_MT(image, camera, details)
+    render(image, camera, details)
     show(image)
 
 if __name__ == '__main__':
