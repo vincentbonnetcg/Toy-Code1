@@ -129,18 +129,6 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 
 ![Array_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_array.png)<br>
 
-## . Lattice Boltzmann (WIP)
-**Folder** [lattice_boltzmann](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/lattice_boltzmann)<br>
-**Description** Lattice Boltzmann Evaluation
-
-![LBM](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/lattice_boltzmann_placeholder.png)<br>
-
-## . Signed distance field (WIP)
-**File** [signed_distance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/miscellaneous/signed_distance_field.py)<br>
-**Description** Solve Eikonal Equation to compute signed distance field from 2D-polygon
-
-![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/distance_field.png)
-
 ## . Load Balancing (WIP)
 **File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/load_balancing/graphColouring_greedyAlgorithm.py)<br>
 **Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
