@@ -106,9 +106,9 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 - Gradient Descent (with or without normalized step)
 - Newton-Raphson iteration
 
-[1] Boyd, Stephen, and Lieven Vandenberghe. Convex optimization. Cambridge university press, 2004.
-
 ![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimisation_gradientDescent.png)
+
+[1] Boyd, Stephen, and Lieven Vandenberghe. Convex optimization. Cambridge university press, 2004.
 
 ## . Time Integration
 
