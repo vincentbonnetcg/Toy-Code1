@@ -66,8 +66,9 @@ class KinematicCollisionCondition(Condition):
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping):
         Condition.__init__(self, stiffness, damping, cpn.AnchorSpring)
-        self.dynamic = dynamic
-        self.kinematic = kinematic
+        self.dynamic_handles = dynamic.block_handles
+        self.triangle_handles = kinematic.triangle_handles
+        self.edge_handles = kinematic.edge_handles
 
     def is_static(self):
         '''
@@ -81,12 +82,12 @@ class KinematicCollisionCondition(Condition):
         '''
         springs = []
 
-        data_x = details.node.flatten('x', self.dynamic.block_handles)
-        data_v = details.node.flatten('v', self.dynamic.block_handles)
-        data_node_id = details.node.flatten('ID', self.dynamic.block_handles)
+        data_x = details.node.flatten('x', self.dynamic_handles)
+        data_v = details.node.flatten('v', self.dynamic_handles)
+        data_node_id = details.node.flatten('ID', self.dynamic_handles)
 
         result = geo2d_lib.IsInsideResult()
-        for i in range(self.dynamic.num_nodes()):
+        for i in range(len(data_x)):
             node_pos = data_x[i]
             node_vel = data_v[i]
             node_ids = [data_node_id[i]]
@@ -96,14 +97,14 @@ class KinematicCollisionCondition(Condition):
                                   details.point,
                                   node_pos,
                                   result,
-                                  self.kinematic.triangle_handles)
+                                  self.triangle_handles)
 
             if (result.isInside):
                 closest_param = geo2d_lib.ClosestResult()
                 cpn.simplex.get_closest_param(details.edge,
                                               details.point, node_pos,
                                               closest_param,
-                                              self.kinematic.edge_handles)
+                                              self.edge_handles)
 
                 if (np.dot(closest_param.normal, node_vel) < 0.0):
                     # add spring
@@ -128,8 +129,8 @@ class KinematicAttachmentCondition(Condition):
     def __init__(self, dynamic, kinematic, stiffness, damping, distance):
        Condition.__init__(self, stiffness, damping, cpn.AnchorSpring)
        self.distance = distance
-       self.dynamic = dynamic
-       self.kinematic = kinematic
+       self.dynamic_handles = dynamic.block_handles
+       self.edge_handles = kinematic.edge_handles
 
     def init_constraints(self, details):
         '''
@@ -137,12 +138,12 @@ class KinematicAttachmentCondition(Condition):
         '''
         springs = []
 
-        data_x = details.node.flatten('x', self.dynamic.block_handles)
-        data_node_id = details.node.flatten('ID', self.dynamic.block_handles)
+        data_x = details.node.flatten('x', self.dynamic_handles)
+        data_node_id = details.node.flatten('ID', self.dynamic_handles)
 
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
-        for i in range(self.dynamic.num_nodes()):
+        for i in range(len(data_x)):
             node_pos = data_x[i]
             node_ids = [data_node_id[i]]
 
@@ -150,7 +151,7 @@ class KinematicAttachmentCondition(Condition):
             cpn.simplex.get_closest_param(details.edge,
                                           details.point, node_pos,
                                           closest_param,
-                                          self.kinematic.edge_handles)
+                                          self.edge_handles)
 
             if closest_param.squared_distance < distance2:
                 # add spring
@@ -173,7 +174,8 @@ class DynamicAttachmentCondition(Condition):
     def __init__(self, dynamic0, dynamic1, stiffness, damping, distance):
        Condition.__init__(self, stiffness, damping, cpn.Spring)
        self.distance = distance
-       self.dynamics = [dynamic0, dynamic1]
+       self.dynamic0_handles = dynamic0.block_handles
+       self.dynamic1_handles = dynamic1.block_handles
 
     def init_constraints(self, details):
         '''
@@ -182,13 +184,13 @@ class DynamicAttachmentCondition(Condition):
         springs = []
         distance2 = self.distance * self.distance
 
-        data_x0 = details.node.flatten('x', self.dynamics[0].block_handles)
-        data_node_id0 = details.node.flatten('ID', self.dynamics[0].block_handles)
-        data_x1 = details.node.flatten('x', self.dynamics[1].block_handles)
-        data_node_id1 = details.node.flatten('ID', self.dynamics[1].block_handles)
+        data_x0 = details.node.flatten('x', self.dynamic0_handles)
+        data_node_id0 = details.node.flatten('ID', self.dynamic0_handles)
+        data_x1 = details.node.flatten('x', self.dynamic1_handles)
+        data_node_id1 = details.node.flatten('ID', self.dynamic1_handles)
 
-        for i in range(self.dynamics[0].num_nodes()):
-            for j in range(self.dynamics[1].num_nodes()):
+        for i in range(len(data_x0)):
+            for j in range(len(data_x1)):
                 x0 = data_x0[i]
                 x1 = data_x1[j]
                 direction = (x0 - x1)
