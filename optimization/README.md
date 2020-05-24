@@ -4,7 +4,7 @@ Various mathematical optimization techniques :
 - Gradient Descent
 - Newton's Methods
 
-![Optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimization/img/optimization_gradientDescent.jpg)
+![Optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization_gradientDescent.png)
 
 
 ## Resources

@@ -35,13 +35,13 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 [1] Pharr, Matt, Wenzel Jakob, and Greg Humphreys. Physically based rendering: From theory to implementation. Morgan Kaufmann, 2016
 
 ## . Optimizations
-**File** [optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimization)<br>
+**File** [optimizations](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations)<br>
 **Description** Implementation of Gradient Descent and Newton-Raphson
 
 - Gradient Descent (with or without normalized step)
 - Newton-Raphson iteration
 
-![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimization/img/optimization_gradientDescent.png)
+![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization_gradientDescent.png)
 
 [1] Boyd, Stephen, and Lieven Vandenberghe. Convex optimization. Cambridge university press, 2004.
 
