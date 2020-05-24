@@ -30,18 +30,9 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 - Memory pool per-thread 
 - Supersampling (Uniform jitter)
 
-
 ![Monte Carlo Path Tracer](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer_preview.jpg)
 
 [1] Pharr, Matt, Wenzel Jakob, and Greg Humphreys. Physically based rendering: From theory to implementation. Morgan Kaufmann, 2016
-
-## . Skeletal Subspace Deformation
-**Folder** [skinning](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/skinning)<br>
-**Description** Skeletal Subspace Deformation
-
-- Linear Blend Skinning [1]
-- Dual Quaternion Skinning (WIP)
-- Pose‐Space deformation (WIP)
 
 ## . Optimizations
 **File** [optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimization)<br>
@@ -53,6 +44,14 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 ![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimization/img/optimization_gradientDescent.png)
 
 [1] Boyd, Stephen, and Lieven Vandenberghe. Convex optimization. Cambridge university press, 2004.
+
+## . Skeletal Subspace Deformation
+**Folder** [skinning](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/skinning)<br>
+**Description** Skeletal Subspace Deformation
+
+- Linear Blend Skinning [1]
+- Dual Quaternion Skinning (WIP)
+- Pose‐Space deformation (WIP)
 
 ![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/linear_blend_skinning.gif)
 
