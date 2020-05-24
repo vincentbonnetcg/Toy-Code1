@@ -43,6 +43,17 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 - Dual Quaternion Skinning (WIP)
 - Pose‐Space deformation (WIP)
 
+## . Optimizations
+**File** [optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimization)<br>
+**Description** Implementation of Gradient Descent and Newton-Raphson
+
+- Gradient Descent (with or without normalized step)
+- Newton-Raphson iteration
+
+![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimization/img/optimization_gradientDescent.png)
+
+[1] Boyd, Stephen, and Lieven Vandenberghe. Convex optimization. Cambridge university press, 2004.
+
 ![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/linear_blend_skinning.gif)
 
 [1] Magnenat-Thalmann, Nadia, Richard Laperrire, and Daniel Thalmann. "Joint-dependent local deformations for hand animation and object grasping." In In Proceedings on Graphics interface’88. 1988.
@@ -98,17 +109,6 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 [1] Powell, Michael JD. "Radial basis functions for multivariable interpolation: a review." Algorithms for approximation (1987).
 
 [2] Powell, Michael JD. "The theory of radial basis function approximation in 1990." Advances in numerical analysis (1992): 105-210.
-
-## . Local Optimisations
-**File** [localOptimisation.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/localOptimisation.py)<br>
-**Description** Implementation of Gradient Descent and Newton-Raphson
-
-- Gradient Descent (with or without normalized step)
-- Newton-Raphson iteration
-
-![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimisation_gradientDescent.png)
-
-[1] Boyd, Stephen, and Lieven Vandenberghe. Convex optimization. Cambridge university press, 2004.
 
 ## . Time Integration
 
