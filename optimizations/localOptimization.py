@@ -32,6 +32,9 @@ class function1D():
 
     def inv_hessian(X):
         return np.array(1.0 / np.sin(X) * -1.0)
+    
+    def ranges():
+        return (2.1, -2.1), (2.1, 2.1)
 
 '''
  2D Function For Example
@@ -61,6 +64,9 @@ class function2D():
         hessian[0][1] = dfdxy
         hessian[1][0] = dfdxy
         return np.linalg.inv(hessian)
+
+    def ranges():
+        return (2.1, -2.1), (2.1, 2.1)
 
 '''
  Gradient Descent
@@ -179,6 +185,7 @@ def draw2D(optimiser):
     ax.view_init(65, 60)
 
     # display function
+    min_x, max_x = function2D.ranges()
     X = np.arange(-2.1, 2.1, 0.1)
     Y = np.arange(-2.1, 2.1, 0.1)
     X, Y = np.meshgrid(X, Y)
