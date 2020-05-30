@@ -4,13 +4,10 @@ Various mathematical optimization techniques :
 - Gradient Descent
 - Newton's Methods
 
-![Optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization_gradientDescent.png)
+![Optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization.png)
 
 
 ## Resources
-[1] Pharr, Matt, Wenzel Jakob, and Greg Humphreys. Physically based rendering: From theory to implementation. Morgan Kaufmann, 2016.
-(http://www.pbr-book.org/)
-
-[2] Jensen, Henrik Wann. Realistic image synthesis using photon mapping. AK Peters/CRC Press, 2001.
+[1] Boyd, Stephen, and Lieven Vandenberghe. Convex optimization. Cambridge university press, 2004.
 
 

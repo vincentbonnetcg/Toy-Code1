@@ -41,7 +41,7 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 - Gradient Descent (with or without normalized step)
 - Newton-Raphson iteration
 
-![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization_gradientDescent.png)
+![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization.png)
 
 [1] Boyd, Stephen, and Lieven Vandenberghe. Convex optimization. Cambridge university press, 2004.
 
@@ -61,11 +61,12 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 
 ## Stencil Codes
 **Folder** [stencil_codes](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes)<br>
-**Description** Evaluate stencil codes with Numba
+**Description** Evaluate stencil codes with Numba (CPU/GPU)
 
-- Laplace's Equation and Laplace Inpainting (CPU and GPU)
-- Cellular Automata GPU
-- Image Processing GPU
+- Poisson Solver
+- Laplace Inpainting
+- Conway's game of life
+- Convolution matrix
 
 ![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_equation.png)
 
@@ -109,6 +110,14 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 
 [2] Powell, Michael JD. "The theory of radial basis function approximation in 1990." Advances in numerical analysis (1992): 105-210.
 
+## . Graph Optimization
+**File** [graph_optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graph_optimization)<br>
+**Description** Greedy colouring algorithm
+
+![Colouring](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graph_optimization/img/graphColouring_greedyAlgorithm.png)
+
+[1] Fratarcangeli, Marco, Valentina Tibaldo, and Fabio Pellacini. "Vivace: A practical gauss-seidel method for stable soft body dynamics." ACM Transactions on Graphics (TOG) 35, no. 6 (2016): 1-9.
+
 ## . Time Integration
 
 **File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/spring1D_integrator.py)<br>
@@ -130,8 +139,3 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 
 ![Array_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_array.png)<br>
 
-## . Load Balancing (WIP)
-**File** [graphColouring_greedyAlgorithm.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/load_balancing/graphColouring_greedyAlgorithm.py)<br>
-**Description** Greedy colouring algorithm - useful to parallelize the solving process of Constrained Systems
-
-![COLOURING](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/graphColouring_greedyAlgorithm.png)
