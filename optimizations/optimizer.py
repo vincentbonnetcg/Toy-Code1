@@ -26,12 +26,12 @@ def GradientDescent(function):
     while not terminate:
         gradient = function.gradient(guess)
 
-        step = gradient
+        step = -gradient
         if NORMALIZED_STEP:
             step /= np.linalg.norm(step)
-
         step *= SCALE_STEP
-        guess -= step
+
+        guess += step
 
         # test termination conditions
         num_iterations += 1
@@ -46,20 +46,52 @@ def GradientDescent(function):
 '''
  QuasiNewton optimization
 '''
-def QuasiNewtonRaphson(function):
+def QuasiNewtonRaphson_BFGS(function):
     results = []
     guess = function.guess()
     results.append(np.copy(guess))
 
     terminate = False
     num_iterations = 0
+    I = np.identity(2)
+    H = np.identity(2) # approximate inverse hessian
+    y = np.zeros(2) # gradient@x+1 - gradient@x
 
     while not terminate:
         gradient = function.gradient(guess)
 
-        # TODO
+        step = -H.dot(gradient)
+        step *= SCALE_STEP
 
-        terminate = True
+        guess += step
+
+        # test termination conditions
+        num_iterations += 1
+        if np.linalg.norm(gradient) < THRESHOLD or num_iterations > MAX_ITERATIONS:
+            terminate = True
+
+        # update the inverse hessian matrix
+        next_gradient = function.gradient(guess)
+        y = next_gradient - gradient
+        ys = np.inner(y, step) # scalar
+
+        # early version
+        #next_H = (I - np.outer(step, y) / ys)
+        #next_H *= H
+        #next_H *= (I - np.outer(y, step) / ys)
+        #next_H += (np.outer(step, step) / ys)
+
+        #optimized version
+        Hy = np.dot(H, y) # vector
+        yHy = np.inner(y, Hy) # scalar
+        next_H = H
+        next_H += ((ys+yHy) * np.outer(step, step) / ys ** 2)
+        next_H -= (np.outer(Hy, step) + np.outer(step, Hy)) / ys
+
+        H = next_H
+
+        # store result
+        results.append(np.copy(guess))
 
     return results
 
@@ -78,8 +110,10 @@ def NewtonRaphson(function):
     while not terminate:
         gradient = function.gradient(guess)
 
-        step = function.inv_hessian(guess).dot(gradient) * SCALE_STEP
-        guess -= step
+        step = -function.inv_hessian(guess).dot(gradient)
+        step *= SCALE_STEP
+
+        guess += step
 
         # test termination conditions
         num_iterations += 1

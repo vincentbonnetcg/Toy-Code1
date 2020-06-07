@@ -139,6 +139,7 @@ def render(image, camera, details, start_time, thread_id=0):
     random.seed(RANDOM_SEED)
     row_step = CPU_COUNT
     row_start = thread_id
+
     for j in range(row_start, camera.height,row_step):
         for i in range(camera.width):
             jj = camera.height-1-j
@@ -153,9 +154,11 @@ def render(image, camera, details, start_time, thread_id=0):
                         mempool.result[0:3] = 0.0
                         camera.get_ray(i, j, sx, sy, mempool)
                         start_trace(details, mempool)
-                        c += mempool.result / NUM_SAMPLES
+                        mempool.result /= NUM_SAMPLES
+                        c += mempool.result
                     clamp(c)
-                    image[jj, ii] += c / (SUPERSAMPLING * SUPERSAMPLING)
+                    c /= (SUPERSAMPLING * SUPERSAMPLING)
+                    image[jj, ii] += c
 
             gamma_correction(image[jj, ii])
 

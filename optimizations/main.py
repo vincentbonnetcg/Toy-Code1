@@ -7,8 +7,9 @@ import convexFunctions
 import nonConvexFunctions
 import render
 import optimizer
+import linesearch
 
-if __name__ == '__main__':
+def main():
     # Step parameter
     optimizer.NORMALIZED_STEP = False  # Only Gradient Descent
     optimizer.SCALE_STEP = 0.1
@@ -16,16 +17,21 @@ if __name__ == '__main__':
     optimizer.MAX_ITERATIONS = 200
     optimizer.THRESHOLD = 1e-04
 
-    # Non convex functions
-    render.draw1D(nonConvexFunctions.trigonometry1D, optimizer.GradientDescent)
-    render.draw1D(nonConvexFunctions.trigonometry1D, optimizer.NewtonRaphson)
+    # Multivariable non-convex functions
     render.draw2D(nonConvexFunctions.trigonometry2D, optimizer.GradientDescent)
     render.draw2D(nonConvexFunctions.trigonometry2D, optimizer.NewtonRaphson)
-    
-    # Convex functions
-    render.draw2D(convexFunctions.BohachevskyN1, optimizer.GradientDescent)
-    render.draw2D(convexFunctions.BohachevskyN1, optimizer.NewtonRaphson)
+    render.draw2D(nonConvexFunctions.trigonometry2D, optimizer.QuasiNewtonRaphson_BFGS)
+
+    # Multivariable convex functions
+    #render.draw2D(convexFunctions.BohachevskyN1, optimizer.GradientDescent)
+    #render.draw2D(convexFunctions.BohachevskyN1, optimizer.NewtonRaphson)
+    #render.draw2D(convexFunctions.BohachevskyN1, optimizer.QuasiNewtonRaphson_BFGS)
     render.draw2D(convexFunctions.McCormick, optimizer.GradientDescent)
     render.draw2D(convexFunctions.McCormick, optimizer.NewtonRaphson)
+    render.draw2D(convexFunctions.McCormick, optimizer.QuasiNewtonRaphson_BFGS)
     render.draw2D(convexFunctions.Booth, optimizer.GradientDescent)
     render.draw2D(convexFunctions.Booth, optimizer.NewtonRaphson)
+    render.draw2D(convexFunctions.Booth, optimizer.QuasiNewtonRaphson_BFGS)
+
+if __name__ == '__main__':
+    main()

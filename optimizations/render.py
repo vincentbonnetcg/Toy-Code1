@@ -13,37 +13,6 @@ FONT = {'family': 'serif',
         'size': 14,
         }
 
-'''
- Show Result
-'''
-def draw1D(function, optimiser):
-
-    interface1D = lambda x : function.value(x)
-
-    # display function
-    min_arg, max_arg = function.ranges()
-    t = np.arange(min_arg, max_arg, 0.2)
-    plt.plot(t, interface1D(t), '-.', color="blue")
-
-    # display optimizer result
-    title = function.__name__
-    if optimiser:
-        results = np.asarray(optimiser(function))
-        title += ' - ' + optimiser.__name__
-        title += ' - iter(' + str(len(results)-1) + ')'
-        X = results
-        Y = function.value(results)
-        color = np.linspace([1,0,0], [0,1,0], num=len(results))
-        plt.scatter(X, Y, c=color, alpha=1.0, s=10)
-
-    plt.title(title, fontdict=FONT)
-    plt.xlabel('(x)')
-    plt.ylabel('f(x)')
-    plt.show()
-
-'''
- Show Result 2D
-'''
 def draw2D(function, optimiser):
 
     interface2D = lambda x, y : function.value([x, y])

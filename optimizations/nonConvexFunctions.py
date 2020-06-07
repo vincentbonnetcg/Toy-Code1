@@ -6,25 +6,6 @@
 import numpy as np
 
 '''
- 1D Function For Example
-'''
-class trigonometry1D:
-    def guess():
-        return np.array(3.0)
-
-    def value(X):
-        return np.sin(X)
-
-    def gradient(X):
-        return np.array(np.cos(X))
-
-    def inv_hessian(X):
-        return np.array(1.0 / np.sin(X) * -1.0)
-
-    def ranges():
-        return 0., 10.
-
-'''
  2D Function For Example
 '''
 class trigonometry2D:

@@ -14,12 +14,6 @@ class Material:
         self.material = np.asarray(material)
         self.materialtype = mtype # 0 reflectance, 1 : emittance
 
-class Sphere():
-    def __init__(self, center, radius, material):
-        self.c = np.asarray(center)
-        self.r = radius
-        self.material = material
-
 class TriangleSoup():
     def __init__(self, triangle_vertices, normals, material):
         self.tv = triangle_vertices
@@ -31,21 +25,9 @@ class TriangleSoup():
     def num_triangles(self):
         return len(self.n)
 
-class QuadSoup():
-    def __init__(self, quad_vertices, normals, material):
-        self.qv = quad_vertices
-        self.n = normals  # quad normals
-        self.t = None # quad tangents
-        self.b = None # quad binormals
-        self.material = material
-
-    def num_quads(self):
-        return len(self.n)
-
 class Scene:
     def __init__(self):
         self.objects = []
-        self.lights = []
         self.camera = jit_core.Camera(320, 240)
 
     def load_cornell_box(self):
@@ -113,14 +95,33 @@ class Scene:
         sensor_size = 25 # in mm (sensor width and height)
         self.camera.fovx = math.atan(sensor_size*0.5/focal_length) * 2
 
+    def load_teapot_scene(self):
+        # teapot
+        green = [0.025,0.236,0.025]
+        blue = [0.44,0.57,0.745]
+        tv, tn = geometry.load_obj('models/teapot.obj')
+        self.objects.append(TriangleSoup(tv, tn, Material(green, 0)))
+        floor = [[-50,-34.29,-50],[-50,-34.29,50],[50,-34.29,50],[50,-34.29,-50]]
+        tv, tn = geometry.create_tri_quad(floor)
+        self.objects.append(TriangleSoup(tv, tn, Material(blue, 0)))
+        # light
+        light_intensity = 1.0
+        light_colour = [0*light_intensity,0.63*light_intensity,0.909*light_intensity]
+        light_quad = [[-1000,80,-1000],[-1000,80,1000],[1000,80,1000],[1000,80,-1000]]
+        tv, tn = geometry.create_tri_quad(light_quad)
+        self.objects.append(TriangleSoup(tv, tn, Material(light_colour, 1)))
+        # set camera
+        np.copyto(self.camera.origin, [0, 0, 100])
+        self.camera.dir_z = -1.0
+        self.camera.fovx = np.pi / 2.5
+
+
+
     def tri_details(self):
-        # gather sphere, triangles and materials
+        # gather triangles and materials
         num_triangles = 0
-        triangles = []
         for obj in self.objects:
-            if isinstance(obj, TriangleSoup):
-                num_triangles += obj.num_triangles()
-                triangles.append(obj)
+            num_triangles += obj.num_triangles()
 
         # numpy dtype to store structure of array
         dtype_dict = {}
@@ -137,7 +138,7 @@ class Scene:
 
         # consolidate triangles in contiguous numpy array
         index = 0
-        for tri in triangles:
+        for tri in self.objects:
             data = tri_data[0]
             for i in range(len(tri.tv)):
                 data['tri_vertices'][index] = tri.tv[i]

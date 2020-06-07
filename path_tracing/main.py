@@ -48,12 +48,14 @@ def main():
     pathtracer.MAX_DEPTH = 10 # max ray bounces
     pathtracer.NUM_SAMPLES = 50 # number of sample per pixel
     pathtracer.RANDOM_SEED = 10
-    pathtracer.SUPERSAMPLING = 1
+    pathtracer.SUPERSAMPLING = 2
     pathtracer.CPU_COUNT = 6
 
     scene = Scene()
-    scene.load_cornell_box()
+    #scene.load_cornell_box()
+    scene.load_teapot_scene()
     details = scene.tri_details()
+
     camera = scene.camera
     camera.set_resolution(512, 512)
     camera.set_supersampling(pathtracer.SUPERSAMPLING)

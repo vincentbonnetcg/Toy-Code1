@@ -2,7 +2,8 @@
 Various mathematical optimization techniques :
 
 - Gradient Descent
-- Newton's Methods
+- Newton-Raphson
+- Quasi-Newton (BFGS)
 
 ![Optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization.png)
 
