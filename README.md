@@ -31,6 +31,7 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 - Supersampling (Uniform jitter)
 
 ![Monte Carlo Path Tracer](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer_preview.jpg)
+![Monte Carlo Path Tracer](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/teapot_pathtracer_preview.jpg)
 
 [1] Pharr, Matt, Wenzel Jakob, and Greg Humphreys. Physically based rendering: From theory to implementation. Morgan Kaufmann, 2016
 

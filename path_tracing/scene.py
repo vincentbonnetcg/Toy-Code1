@@ -15,9 +15,9 @@ class Material:
         self.materialtype = mtype # 0 reflectance, 1 : emittance
 
 class TriangleSoup():
-    def __init__(self, triangle_vertices, normals, material):
-        self.tv = triangle_vertices
-        self.n = normals  # triangle normals
+    def __init__(self, tri_vertices, tri_normals, material):
+        self.tv = tri_vertices
+        self.n = tri_normals  # triangle normals
         self.t = None # triangle tangents
         self.b = None # triangle binormals
         self.material = material
@@ -30,17 +30,15 @@ class Scene:
         self.objects = []
         self.camera = jit_core.Camera(320, 240)
 
-    def load_cornell_box(self):
-        # From http://www.graphics.cornell.edu/online/box/data.html
-        quad_v = [] # quad vertices
-        quad_m = [] # quad material
+    def add_cornell_box(self, large_light=False):
         white = [1,1,1]
         red = [0.57,0.025,0.025]
         green = [0.025,0.236,0.025]
-        blue = [0,0,1]
-        black = [0,0,0]
         light_intensity = 10.0
         light_colour = [1*light_intensity,0.73*light_intensity,0.4*light_intensity]
+        # From http://www.graphics.cornell.edu/online/box/data.html
+        quad_v = [] # quad vertices
+        quad_m = [] # quad material
         # floor
         quad_v.append([[552.8,0,0],[0,0,0],[0,0,559.2],[549.6,0,559.2]])
         quad_m.append([white, 0])
@@ -55,8 +53,31 @@ class Scene:
         quad_m.append([white, 0])
         # ceiling (large light)
         quad_v.append([[556,548.8,0],[556,548.8,559.2],[0,548.8,559.2],[0,548.8,0]])
-        quad_m.append([white, 0])
+        quad_m.append([white, int(large_light)])
+        # small light
+        if large_light==False:
+            # added an offset from the cornell box from 548.8 to 548
+            quad_v.append([[343,548.79,227],[343,548.79,332],[213,548.79,332],[213,548.79,227]])
+            quad_m.append([light_colour, 1])
+        # add floor/ceiling/walls
+        for i in range(len(quad_v)):
+            tv, tn = geometry.create_tri_quad(quad_v[i])
+            material = Material(quad_m[i][0], quad_m[i][1])
+            self.objects.append(TriangleSoup(tv, tn, material))
+        # set camera
+        np.copyto(self.camera.origin, [278, 273, -800])
+        self.camera.dir_z = 1.0
+        focal_length = 35 # in mm
+        sensor_size = 25 # in mm (sensor width and height)
+        self.camera.fovx = math.atan(sensor_size*0.5/focal_length) * 2
+
+    def load_original_cornell_box(self):
+        white = [1,1,1]
+        # From http://www.graphics.cornell.edu/online/box/data.html
+        self.add_cornell_box()
         # short block
+        quad_v = [] # quad vertices
+        quad_m = [] # quad material
         quad_v.append([[130,165,65],[82,165,225],[240,165,272],[290,165,114]])
         quad_m.append([white, 0])
         quad_v.append([[290,0,114],[290,165,114],[240,165,272],[240,0,272]])
@@ -78,44 +99,19 @@ class Scene:
         quad_m.append([white, 0])
         quad_v.append([[265,0,296],[265,330,296],[423,330,247],[423,0,247]])
         quad_m.append([white, 0])
-        # small light
-        # added an offset from the cornell box from 548.8 to 548
-        quad_v.append([[343,548.79,227],[343,548.79,332],[213,548.79,332],[213,548.79,227]])
-        quad_m.append([light_colour, 1])
-
-        # add quads
+        # add blocks
         for i in range(len(quad_v)):
             tv, n = geometry.create_tri_quad(quad_v[i])
             material = Material(quad_m[i][0], quad_m[i][1])
             self.objects.append(TriangleSoup(tv, n, material))
-        # set camera
-        np.copyto(self.camera.origin, [278, 273, -800])
-        self.camera.dir_z = 1.0
-        focal_length = 35 # in mm
-        sensor_size = 25 # in mm (sensor width and height)
-        self.camera.fovx = math.atan(sensor_size*0.5/focal_length) * 2
 
     def load_teapot_scene(self):
+        self.add_cornell_box(True)
         # teapot
-        green = [0.025,0.236,0.025]
-        blue = [0.44,0.57,0.745]
-        tv, tn = geometry.load_obj('models/teapot.obj')
-        self.objects.append(TriangleSoup(tv, tn, Material(green, 0)))
-        floor = [[-50,-34.29,-50],[-50,-34.29,50],[50,-34.29,50],[50,-34.29,-50]]
-        tv, tn = geometry.create_tri_quad(floor)
-        self.objects.append(TriangleSoup(tv, tn, Material(blue, 0)))
-        # light
-        light_intensity = 1.0
-        light_colour = [0*light_intensity,0.63*light_intensity,0.909*light_intensity]
-        light_quad = [[-1000,80,-1000],[-1000,80,1000],[1000,80,1000],[1000,80,-1000]]
-        tv, tn = geometry.create_tri_quad(light_quad)
-        self.objects.append(TriangleSoup(tv, tn, Material(light_colour, 1)))
-        # set camera
-        np.copyto(self.camera.origin, [0, 0, 100])
-        self.camera.dir_z = -1.0
-        self.camera.fovx = np.pi / 2.5
-
-
+        blue_grey = [0.44,0.57,0.745]
+        #tv, tn = geometry.load_obj('models/teapot.obj', smooth_normal=True)
+        tv, tn = geometry.load_obj('models/smooth_teapot.obj', smooth_normal=False)
+        self.objects.append(TriangleSoup(tv, tn, Material(blue_grey, 0)))
 
     def tri_details(self):
         # gather triangles and materials
@@ -128,12 +124,12 @@ class Scene:
         dtype_dict['names'] = ['tri_vertices', 'tri_normals', 'tri_tangents',
                                'tri_binormals', 'tri_materials', 'tri_materialtype']
         dtype_dict['formats'] = []
-        dtype_dict['formats'].append((np.float32, (num_triangles,3,3)))
-        dtype_dict['formats'].append((np.float32, (num_triangles,3)))
-        dtype_dict['formats'].append((np.float32, (num_triangles,3)))
-        dtype_dict['formats'].append((np.float32, (num_triangles,3)))
-        dtype_dict['formats'].append((np.float32, (num_triangles,3)))
-        dtype_dict['formats'].append((np.int32, num_triangles))
+        dtype_dict['formats'].append((np.float32, (num_triangles,3,3))) # tri_vertices
+        dtype_dict['formats'].append((np.float32, (num_triangles,3,3))) # tri_normals
+        dtype_dict['formats'].append((np.float32, (num_triangles,3,3))) # tri_tangents
+        dtype_dict['formats'].append((np.float32, (num_triangles,3,3))) # tri_binormals
+        dtype_dict['formats'].append((np.float32, (num_triangles,3))) # tri_materials
+        dtype_dict['formats'].append((np.int32, num_triangles)) # tri_materialtype
         tri_data = np.zeros(1, dtype=np.dtype(dtype_dict, align=True))
 
         # consolidate triangles in contiguous numpy array
@@ -150,6 +146,7 @@ class Scene:
         jit_math.compute_tangents_binormals(tri_data[0]['tri_normals'],
                                             tri_data[0]['tri_tangents'],
                                             tri_data[0]['tri_binormals'])
+
 
         print('num_triangles ' , num_triangles)
 

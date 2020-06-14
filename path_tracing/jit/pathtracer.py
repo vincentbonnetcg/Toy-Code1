@@ -9,7 +9,7 @@ import random
 import numba
 import numpy as np
 from . import core as jit_core
-from .maths import dot, copy, axpy, gamma_correction, clamp
+from .maths import dot, copy, axpy, gamma_correction, clamp, tri_interpolation
 from . import intersect
 
 # pathtracer settings
@@ -22,6 +22,7 @@ INV_PDF = 2.0 * math.pi; # inverse of probability density function
 INV_PI = 1.0 / math.pi
 SUPERSAMPLING = 2 # supersampling 2x2
 CPU_COUNT = 4 # number of cpu
+LIGHT_MATERIAL_ID = 1
 
 @numba.njit(inline='always')
 def update_ray_from_uniform_distribution(mempool):
@@ -58,7 +59,9 @@ def ray_tri_details(details, mempool):
     if mempool.depth >= 0: # skip face based on previous hit
         skip_face_id = mempool.hit_face_id[mempool.depth]
     mempool.next_hit() # use the next allocated hit
-    min_t = np.finfo(numba.float64).max
+    nearest_t = np.finfo(numba.float64).max
+    nearest_u = 0.0
+    nearest_v = 0.0
     data = details[0]
     tri_vertices = data.tri_vertices
     hit_id = -1
@@ -67,19 +70,25 @@ def ray_tri_details(details, mempool):
     for i in range(num_triangles):
         if i == skip_face_id:
             continue
-        t = intersect.ray_triangle(mempool, tri_vertices[i])
+        uvt = intersect.ray_triangle(mempool, tri_vertices[i])
         mempool.total_intersection += 1
-        if t > 0.0 and t < min_t:
-            min_t = t
+        if uvt[2] > 0.0 and uvt[2] < nearest_t:
+            nearest_t = uvt[2]
+            nearest_u = uvt[0]
+            nearest_v = uvt[1]
             hit_id = i
 
     if hit_id >= 0:
         i = mempool.depth
-        mempool.hit_t[i] = min_t
-        axpy(min_t, mempool.ray_d, mempool.ray_o, mempool.hit_p[i])
-        copy(mempool.hit_n[i], data.tri_normals[hit_id])
-        copy(mempool.hit_tn[i], data.tri_tangents[hit_id])
-        copy(mempool.hit_bn[i], data.tri_binormals[hit_id])
+        # store distance
+        mempool.hit_t[i] = nearest_t
+        # store hit point
+        axpy(nearest_t, mempool.ray_d, mempool.ray_o, mempool.hit_p[i])
+        # store normals/tangents/binormals
+        tri_interpolation(data.tri_normals[hit_id], nearest_u, nearest_v, mempool.hit_n[i])
+        tri_interpolation(data.tri_tangents[hit_id], nearest_u, nearest_v, mempool.hit_tn[i])
+        tri_interpolation(data.tri_binormals[hit_id], nearest_u, nearest_v, mempool.hit_bn[i])
+        # store faceid and material
         mempool.hit_face_id[i] = hit_id
         copy(mempool.hit_material[i], data.tri_materials[hit_id])
         mempool.hit_materialtype[i] = data.tri_materialtype[hit_id]
@@ -112,7 +121,7 @@ def recursive_trace(details, mempool):
         copy(mempool.result, BLACK)
         return
 
-    if mempool.hit_materialtype[mempool.depth]==1: # light
+    if mempool.hit_materialtype[mempool.depth]==LIGHT_MATERIAL_ID:
         mempool.result *= mempool.hit_material[mempool.depth]
         return
 
@@ -121,11 +130,17 @@ def recursive_trace(details, mempool):
 @numba.njit
 def start_trace(details, mempool):
     ray_tri_details(details, mempool)
+
     if not mempool.valid_hit():
         copy(mempool.result, BLACK)
         return
 
-    if MAX_DEPTH == 0 or mempool.hit_materialtype[0]==1: # light
+    if MAX_DEPTH == 0:
+        copy(mempool.result, mempool.hit_material[0])
+        mempool.result *= abs(dot(mempool.hit_n[0], mempool.ray_d))
+        return
+
+    if mempool.hit_materialtype[0]==LIGHT_MATERIAL_ID:
         copy(mempool.result, mempool.hit_material[0])
         return
 

@@ -32,19 +32,20 @@ def ray_triangle(mempool, tv):
     detA = -triple_product(mempool.ray_d, mempool.v[0], mempool.v[1])
     if isclose(detA, 0.0):
         # ray is parallel to the triangle
-        return -1.0
+        return 0.0,0.0,-1.0
 
     invDetA = 1.0 / detA
 
     u = -triple_product(mempool.ray_d, mempool.v[2], mempool.v[1]) * invDetA
     if (u < 0.0 or u > 1.0):
-        return -1.0
+        return 0.0,0.0,-1.0
 
     v = -triple_product(mempool.ray_d, mempool.v[0], mempool.v[2]) * invDetA
     if (v < 0.0 or u + v > 1.0):
-        return -1.0
+        return 0.0,0.0,-1.0
 
-    return triple_product(mempool.v[2], mempool.v[0], mempool.v[1]) * invDetA # t
+    t = triple_product(mempool.v[2], mempool.v[0], mempool.v[1]) * invDetA
+    return u, v, t
 
 @numba.njit(inline='always')
 def ray_quad(mempool, tv):
@@ -57,19 +58,20 @@ def ray_quad(mempool, tv):
     detA = -triple_product(mempool.ray_d, mempool.v[0], mempool.v[1])
     if isclose(detA, 0.0):
         # ray is parallel to the triangle
-        return -1.0
+        return 0.0,0.0,-1.0
 
     invDetA = 1.0 / detA
 
     u = -triple_product(mempool.ray_d, mempool.v[2], mempool.v[1]) * invDetA
     if (u < 0.0 or u > 1.0):
-        return -1.0
+        return 0.0,0.0,-1.0
 
     v = -triple_product(mempool.ray_d, mempool.v[0], mempool.v[2]) * invDetA
     if (v < 0.0 or v > 1.0):
-        return -1.0
+        return 0.0,0.0,-1.0
 
-    return triple_product(mempool.v[2], mempool.v[0], mempool.v[1]) * invDetA # t
+    t = triple_product(mempool.v[2], mempool.v[0], mempool.v[1]) * invDetA
+    return u, v, t
 
 @numba.njit(inline='always')
 def ray_sphere(mempool, sphere_c, sphere_r):
@@ -82,11 +84,11 @@ def ray_sphere(mempool, sphere_c, sphere_r):
 
     if dis < 0.0:
         # no solution
-        return -1.0
+        return 0.0,0.0,-1.0
 
     if isclose(dis, 0.0):
         # one solution
-        return -b / 2 * a
+        return 0.0, 0.0, -b / 2 * a
 
     # two solution
     sq = math.sqrt(dis)
@@ -94,7 +96,7 @@ def ray_sphere(mempool, sphere_c, sphere_r):
     s2 = (-b+sq) / 2*a # second solution
 
     if s1 < 0.0 and s2 < 0.0:
-        return False
+        return 0.0,0.0,-1.0
 
     t = s2
     if s1 > 0.0 and s2 > 0.0:
@@ -102,4 +104,4 @@ def ray_sphere(mempool, sphere_c, sphere_r):
     elif s1 > 0.0:
         t = s1
 
-    return t
+    return 0.0,0.0, t

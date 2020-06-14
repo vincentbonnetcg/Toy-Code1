@@ -22,6 +22,7 @@ def force_jit(image, camera, details):
     camera.set_resolution(2, 2)
     pathtracer.render(image, camera, details, time.time())
     camera.set_resolution(width, height)
+    image.fill(0.0)
 
 @common.timeit
 def render(image, camera, details):
@@ -45,14 +46,14 @@ def show(image):
     IPython.display.display(IPython.display.Image(data=buffer.getvalue()))
 
 def main():
-    pathtracer.MAX_DEPTH = 10 # max ray bounces
-    pathtracer.NUM_SAMPLES = 50 # number of sample per pixel
+    pathtracer.MAX_DEPTH = 5 # max ray bounces
+    pathtracer.NUM_SAMPLES = 5 # number of sample per pixel
     pathtracer.RANDOM_SEED = 10
-    pathtracer.SUPERSAMPLING = 2
+    pathtracer.SUPERSAMPLING = 1
     pathtracer.CPU_COUNT = 6
 
     scene = Scene()
-    #scene.load_cornell_box()
+    #scene.load_original_cornell_box()
     scene.load_teapot_scene()
     details = scene.tri_details()
 

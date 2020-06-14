@@ -8,6 +8,14 @@ import numba
 import math
 
 @numba.njit(inline='always')
+def tri_interpolation(V, u, v, out):
+    # V is shape (3,3)
+    uv = 1.0 - u - v
+    out[0] = u*V[1][0]+v*V[2][0]+uv*V[0][0]
+    out[1] = u*V[1][1]+v*V[2][1]+uv*V[0][1]
+    out[2] = u*V[1][2]+v*V[2][2]+uv*V[0][2]
+
+@numba.njit(inline='always')
 def clamp(colour):
     for i in range(3):
         if colour[i] > 1.0:
@@ -85,5 +93,6 @@ def compute_tangent(n):
 @numba.njit(inline='always')
 def compute_tangents_binormals(normals, tangents, binormals):
     for i in range(len(normals)):
-        tangents[i] = compute_tangent(normals[i])
-        binormals[i] = cross(normals[i], tangents[i])
+        for j in range(3):
+            tangents[i][j] = compute_tangent(normals[i][j])
+            binormals[i][j] = cross(normals[i][j], tangents[i][j])

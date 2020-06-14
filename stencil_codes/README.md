@@ -2,13 +2,13 @@
 
 Stencil Codes written with Python and Numba
 
-## Poisson Solver
+## Poisson Solver (GPU)
 **File** [poisson_solver.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/poisson_solver.py)<br>
 **Description** Jacobi poisson solver
 
 ![Poisson_Solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_equation.png)
 
-## Laplace Inpainting
+## Laplace Inpainting (CPU)
 **File** [laplace_inpainting.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/laplace_inpainting.py)<br>
 **Description** Image recovery using Laplace inpainting
 
