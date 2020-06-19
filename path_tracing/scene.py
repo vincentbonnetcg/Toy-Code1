@@ -109,8 +109,11 @@ class Scene:
         self.add_cornell_box(True)
         # teapot
         blue_grey = [0.44,0.57,0.745]
-        #tv, tn = geometry.load_obj('models/teapot.obj', smooth_normal=True)
-        tv, tn = geometry.load_obj('models/smooth_teapot.obj', smooth_normal=False)
+        scale = 1. / 250.
+        translate = [270., 200., 275.]
+        #tv, tn = geometry.load_obj('models/teapot.obj', scale, translate, smooth_normal=False)
+        tv, tn = geometry.load_obj('models/smooth_teapot.obj', scale, translate, smooth_normal=False)
+        #tv, tn = geometry.load_obj('models/sphere.obj', scale, translate, smooth_normal=False)
         self.objects.append(TriangleSoup(tv, tn, Material(blue_grey, 0)))
 
     def tri_details(self):
@@ -121,15 +124,16 @@ class Scene:
 
         # numpy dtype to store structure of array
         dtype_dict = {}
-        dtype_dict['names'] = ['tri_vertices', 'tri_normals', 'tri_tangents',
-                               'tri_binormals', 'tri_materials', 'tri_materialtype']
+        dtype_dict['names'] = ['tri_vertices', 'tri_normals', 'face_tangents',
+                               'face_binormals', 'face_materials', 'face_normals', 'face_materialtype']
         dtype_dict['formats'] = []
-        dtype_dict['formats'].append((np.float32, (num_triangles,3,3))) # tri_vertices
-        dtype_dict['formats'].append((np.float32, (num_triangles,3,3))) # tri_normals
-        dtype_dict['formats'].append((np.float32, (num_triangles,3,3))) # tri_tangents
-        dtype_dict['formats'].append((np.float32, (num_triangles,3,3))) # tri_binormals
-        dtype_dict['formats'].append((np.float32, (num_triangles,3))) # tri_materials
-        dtype_dict['formats'].append((np.int32, num_triangles)) # tri_materialtype
+        dtype_dict['formats'].append((np.float64, (num_triangles,3,3))) # tri_vertices
+        dtype_dict['formats'].append((np.float64, (num_triangles,3,3))) # tri_normals
+        dtype_dict['formats'].append((np.float64, (num_triangles,3))) # face_tangents
+        dtype_dict['formats'].append((np.float64, (num_triangles,3))) # face_binormals
+        dtype_dict['formats'].append((np.float64, (num_triangles,3))) # face_materials
+        dtype_dict['formats'].append((np.float64, (num_triangles,3))) # face_normals
+        dtype_dict['formats'].append((np.int32, num_triangles)) # face_materialtype
         tri_data = np.zeros(1, dtype=np.dtype(dtype_dict, align=True))
 
         # consolidate triangles in contiguous numpy array
@@ -139,13 +143,16 @@ class Scene:
             for i in range(len(tri.tv)):
                 data['tri_vertices'][index] = tri.tv[i]
                 data['tri_normals'][index] = tri.n[i]
-                data['tri_materialtype'][index] = tri.material.materialtype
-                data['tri_materials'][index] = tri.material.material
+                data['face_materialtype'][index] = tri.material.materialtype
+                data['face_materials'][index] = tri.material.material
                 index += 1
 
-        jit_math.compute_tangents_binormals(tri_data[0]['tri_normals'],
-                                            tri_data[0]['tri_tangents'],
-                                            tri_data[0]['tri_binormals'])
+        jit_math.compute_face_normals(tri_data[0]['tri_vertices'],
+                                      tri_data[0]['face_normals'])
+
+        jit_math.compute_tangents_binormals(tri_data[0]['face_normals'],
+                                            tri_data[0]['face_tangents'],
+                                            tri_data[0]['face_binormals'])
 
 
         print('num_triangles ' , num_triangles)

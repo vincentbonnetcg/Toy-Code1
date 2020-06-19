@@ -22,9 +22,10 @@ import random
                  # hit data are stored for each hit (depth)
                  ('hit_t', numba.float64[:]),  # ray distance as double
                  ('hit_p', numba.float64[:,:]), # hit positon
-                 ('hit_n', numba.float64[:,:]), # hit normal
-                 ('hit_tn', numba.float64[:,:]), # hit tangent
-                 ('hit_bn', numba.float64[:,:]), # hit binormal
+                 ('hit_in', numba.float64[:,:]), # hit interpolated normal
+                 ('hit_n', numba.float64[:,:]), # hit face normal
+                 ('hit_tn', numba.float64[:,:]), # hit face tangent
+                 ('hit_bn', numba.float64[:,:]), # hit face binormal
                  ('hit_face_id', numba.int32[:]), # hit face id
                  ('hit_material', numba.float64[:,:]), # emittance/reflectance as np.empty(3)
                  ('hit_materialtype', numba.int32[:])]) # material type
@@ -40,9 +41,10 @@ class MemoryPool:
         # hit
         self.hit_t = np.empty(num_samples)
         self.hit_p = np.empty((num_samples, 3))
-        self.hit_n = np.empty((num_samples, 3))
-        self.hit_tn = np.empty((num_samples, 3))
-        self.hit_bn = np.empty((num_samples, 3))
+        self.hit_in = np.empty((num_samples, 3)) # interpolated normal
+        self.hit_n = np.empty((num_samples, 3)) # face normal
+        self.hit_tn = np.empty((num_samples, 3)) # face tangent
+        self.hit_bn = np.empty((num_samples, 3)) # face binormal
         self.hit_face_id = np.empty(num_samples, np.int32)
         self.hit_material = np.empty((num_samples, 3))
         self.hit_materialtype = np.empty(num_samples, np.int32)

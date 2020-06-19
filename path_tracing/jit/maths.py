@@ -93,6 +93,15 @@ def compute_tangent(n):
 @numba.njit(inline='always')
 def compute_tangents_binormals(normals, tangents, binormals):
     for i in range(len(normals)):
-        for j in range(3):
-            tangents[i][j] = compute_tangent(normals[i][j])
-            binormals[i][j] = cross(normals[i][j], tangents[i][j])
+        tangents[i] = compute_tangent(normals[i])
+        binormals[i] = cross(normals[i], tangents[i])
+
+@numba.njit(inline='always')
+def compute_face_normals(tri_vertices, face_normals):
+    for i in range(len(tri_vertices)):
+        tv = tri_vertices[i]
+        u = tv[1] - tv[0]
+        v = tv[2] - tv[0]
+        n = cross(u,v)
+        normalize(n)
+        face_normals[i] = n

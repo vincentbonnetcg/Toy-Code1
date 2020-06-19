@@ -9,7 +9,7 @@ import random
 import numba
 import numpy as np
 from . import core as jit_core
-from .maths import dot, copy, axpy, gamma_correction, clamp, tri_interpolation
+from .maths import dot, copy, axpy, gamma_correction, clamp, tri_interpolation, normalize
 from . import intersect
 
 # pathtracer settings
@@ -84,26 +84,29 @@ def ray_tri_details(details, mempool):
         mempool.hit_t[i] = nearest_t
         # store hit point
         axpy(nearest_t, mempool.ray_d, mempool.ray_o, mempool.hit_p[i])
-        # store normals/tangents/binormals
-        tri_interpolation(data.tri_normals[hit_id], nearest_u, nearest_v, mempool.hit_n[i])
-        tri_interpolation(data.tri_tangents[hit_id], nearest_u, nearest_v, mempool.hit_tn[i])
-        tri_interpolation(data.tri_binormals[hit_id], nearest_u, nearest_v, mempool.hit_bn[i])
+        # store face normals/tangents/binormals
+        copy(mempool.hit_n[i], data.face_normals[hit_id])
+        copy(mempool.hit_tn[i], data.face_tangents[hit_id])
+        copy(mempool.hit_bn[i], data.face_binormals[hit_id])
+        # compute interpolated normal for shading
+        tri_interpolation(data.tri_normals[hit_id], nearest_u, nearest_v, mempool.hit_in[i])
+        normalize(mempool.hit_in[i])
         # store faceid and material
         mempool.hit_face_id[i] = hit_id
-        copy(mempool.hit_material[i], data.tri_materials[hit_id])
-        mempool.hit_materialtype[i] = data.tri_materialtype[hit_id]
+        copy(mempool.hit_material[i], data.face_materials[hit_id])
+        mempool.hit_materialtype[i] = data.face_materialtype[hit_id]
 
         # two-sided intersection
         if dot(mempool.ray_d, mempool.hit_n[i]) > 0:
-            mempool.hit_n[i][0] *= -1
-            mempool.hit_n[i][1] *= -1
-            mempool.hit_n[i][2] *= -1
+            mempool.hit_n[i] *= -1.0
+        if dot(mempool.ray_d, mempool.hit_in[i]) > 0:
+            mempool.hit_in[i] *= -1.0
 
 @numba.njit
 def rendering_equation(details, mempool):
     # update ray and compute weakening factor
     update_ray_from_uniform_distribution(mempool)
-    weakening_factor = dot(mempool.ray_d, mempool.hit_n[mempool.depth])
+    weakening_factor = dot(mempool.ray_d, mempool.hit_in[mempool.depth])
 
     # rendering equation : emittance + (BRDF * incoming * cos_theta / pdf);
     mempool.result *= mempool.hit_material[mempool.depth]
@@ -137,7 +140,7 @@ def start_trace(details, mempool):
 
     if MAX_DEPTH == 0:
         copy(mempool.result, mempool.hit_material[0])
-        mempool.result *= abs(dot(mempool.hit_n[0], mempool.ray_d))
+        mempool.result *= abs(dot(mempool.hit_in[0], mempool.ray_d))
         return
 
     if mempool.hit_materialtype[0]==LIGHT_MATERIAL_ID:

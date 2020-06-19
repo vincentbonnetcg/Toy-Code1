@@ -31,7 +31,7 @@ def create_tri_quad(quad_corners):
     np.copyto(tn[1][2], n1)
     return tv, tn
 
-def load_obj(path, smooth_normal = False):
+def load_obj(path, scale = 1.0, translate = [0.,0.,0.], smooth_normal = False):
     # this is not a fully functional obj-reader !
     with open(path) as f:
         content = f.readlines()
@@ -89,23 +89,23 @@ def load_obj(path, smooth_normal = False):
     vertices = np.asarray(vertices)
     normals = np.asarray(normals)
     # rescale
-    vertices /= 250.0
+    vertices *= scale
     # center
     min_v = np.min(vertices, axis=0)
     max_v = np.max(vertices, axis=0)
     center = (max_v + min_v)*0.5
     vertices -= center
     # rotation around y and x axis
-    ry = 3.1415 / 1.1
-    rx = -3.1415 / 10
-    mRotY = np.asarray([[np.cos(ry), 0, np.sin(ry)],[0,1,0],[-np.sin(ry), 0, np.cos(ry)]])
-    mRotX = np.asarray([[1, 0, 0],[0,np.cos(rx),-np.sin(rx)],[0, np.sin(rx), np.cos(rx)]])
+    #ry = 3.1415 / 1.1
+    #rx = -3.1415 / 10
+    #mRotY = np.asarray([[np.cos(ry), 0, np.sin(ry)],[0,1,0],[-np.sin(ry), 0, np.cos(ry)]])
+    #mRotX = np.asarray([[1, 0, 0],[0,np.cos(rx),-np.sin(rx)],[0, np.sin(rx), np.cos(rx)]])
     #vertices = vertices.dot(mRotY)
     #vertices = vertices.dot(mRotX)
     #normals = normals.dot(mRotY)
     #normals = normals.dot(mRotX)
     # translate
-    vertices += np.array([270., 200, 275.])
+    vertices += np.array(translate)
 
     if not smooth_normal:
         tv, tn = create_polygon_soup(num_triangles)

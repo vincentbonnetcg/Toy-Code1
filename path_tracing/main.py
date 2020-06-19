@@ -47,7 +47,7 @@ def show(image):
 
 def main():
     pathtracer.MAX_DEPTH = 5 # max ray bounces
-    pathtracer.NUM_SAMPLES = 5 # number of sample per pixel
+    pathtracer.NUM_SAMPLES = 200 # number of sample per pixel
     pathtracer.RANDOM_SEED = 10
     pathtracer.SUPERSAMPLING = 1
     pathtracer.CPU_COUNT = 6
