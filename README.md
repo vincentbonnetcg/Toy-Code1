@@ -39,9 +39,8 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 **File** [optimizations](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations)<br>
 **Description** Implementation of Gradient Descent and Newton's methods
 
-- Gradient Descent
-- Newton-Raphson
-- Quasi-Newton (BFGS)
+- Optimizer : Gradient Descent, Newton-Raphson, Quasi-Newton (BFGS) 
+- Line Search : Backtracking 
 
 ![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization.png)
 

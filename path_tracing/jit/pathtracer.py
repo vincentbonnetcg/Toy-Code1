@@ -70,6 +70,8 @@ def ray_tri_details(details, mempool):
     for i in range(num_triangles):
         if i == skip_face_id:
             continue
+        #if intersect.ray_aabb(mempool, tri_vertices[i])==False:
+        #    continue
         uvt = intersect.ray_triangle(mempool, tri_vertices[i])
         mempool.total_intersection += 1
         if uvt[2] > 0.0 and uvt[2] < nearest_t:

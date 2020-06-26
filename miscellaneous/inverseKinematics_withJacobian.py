@@ -167,7 +167,7 @@ def hasReachTarget(chain):
     return False
 
 if __name__ == '__main__':
-    render = RenderChain(-5000., 5000., 0., 10000.)
+    render = RenderChain(-5000., 5000., 0., 10500.)
     chain = Chain()
     render.prepare_figure()
     render.show_figure(chain)

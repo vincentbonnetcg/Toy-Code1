@@ -10,9 +10,9 @@ import optimizer
 import linesearch
 
 def main():
-    # Step parameter
-    optimizer.NORMALIZED_STEP = False  # Only Gradient Descent
-    optimizer.SCALE_STEP = 0.1
+    # optimizer and linesearch settings
+    linesearch.SCALE_STEP = 0.1
+    optimizer.LINE_SEARCH_ALGO = linesearch.backtracking
     # Termination condition
     optimizer.MAX_ITERATIONS = 200
     optimizer.THRESHOLD = 1e-04

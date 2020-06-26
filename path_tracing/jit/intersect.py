@@ -10,6 +10,71 @@ from .maths import dot, isclose, triple_product
 from .maths import asub
 
 @numba.njit(inline='always')
+def ray_aabb(mempool, tv):
+    # TODO  - replace tv with bounds
+    # bounds[0] # min bounds
+    # bounds[1] # max bound
+     # min bounds
+    min_x = min(min(tv[0][0], tv[1][0]), tv[2][0])
+    min_y = min(min(tv[0][1], tv[1][1]), tv[2][1])
+    min_z = min(min(tv[0][2], tv[1][2]), tv[2][2])
+    # max bounds
+    max_x = max(max(tv[0][0], tv[1][0]), tv[2][0])
+    max_y = max(max(tv[0][1], tv[1][1]), tv[2][1])
+    max_z = max(max(tv[0][2], tv[1][2]), tv[2][2])
+
+    # test if ray starts inside
+    if mempool.ray_o[0] >= min_x or mempool.ray_o[0] <= max_x:
+        return True
+
+    if mempool.ray_o[1] >= min_y or mempool.ray_o[1] <= max_y:
+        return True
+
+    if mempool.ray_o[2] >= min_z or mempool.ray_o[2] <= max_z:
+        return True
+
+    # compute t for each intersection plane
+    inv_dx = 1.0 / mempool.ray_d[0]
+    inv_dy = 1.0 / mempool.ray_d[1]
+    inv_dz = 1.0 / mempool.ray_d[2]
+
+    min_tx = (min_x - mempool.ray_o[0]) * inv_dx
+    max_tx = (max_x - mempool.ray_o[0]) * inv_dx
+
+    if (min_tx > max_tx): # make sure min is actually the minimum value
+        min_tx, max_tx = max_tx, min_tx
+
+    min_ty = (min_y - mempool.ray_o[1]) * inv_dy
+    max_ty = (max_y - mempool.ray_o[1]) * inv_dy
+
+    if (min_ty > max_ty):  # make sure min is actually the minimum value
+        min_ty, max_ty = max_ty, min_ty
+
+    if ((min_tx > max_ty) or (min_ty > max_tx)):
+        return False
+
+    # update min_ty and max_tx
+    if (min_ty > min_tx):
+        min_tx = min_ty
+
+    if (max_ty < max_tx):
+        max_tx = max_ty
+
+    min_tz = (min_z - mempool.ray_o[2]) * inv_dz
+    max_tz = (max_z - mempool.ray_o[2]) * inv_dz
+
+    if (min_tz > max_tz):  # make sure min is actually the minimum value
+        min_tz, max_tz = max_tz, min_tz
+
+    if ((min_tx > max_tz) or (min_tz > max_tx)):
+        return False
+
+    if (min_tz > min_tx):
+        min_tx = min_tz
+
+    return True
+
+@numba.njit(inline='always')
 def ray_triangle(mempool, tv):
     # Moller-Trumbore intersection algorithm
     asub(tv[1], tv[0], mempool.v[0]) # e1

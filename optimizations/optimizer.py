@@ -5,9 +5,9 @@
 
 import numpy as np
 
-# Step parameter
-NORMALIZED_STEP = True  # Only Gradient Descent
-SCALE_STEP = 0.02 # Newton Method and Gradient Descent
+# Line search
+LINE_SEARCH_ALGO = None
+
 # Termination condition
 MAX_ITERATIONS = 200
 THRESHOLD = 1e-07
@@ -27,19 +27,15 @@ def GradientDescent(function):
         gradient = function.gradient(guess)
 
         step = -gradient
-        if NORMALIZED_STEP:
-            step /= np.linalg.norm(step)
-        step *= SCALE_STEP
+        step *= LINE_SEARCH_ALGO(function, guess, step)
 
         guess += step
+        results.append(np.copy(guess))
 
         # test termination conditions
         num_iterations += 1
         if np.linalg.norm(gradient) < THRESHOLD or num_iterations > MAX_ITERATIONS:
             terminate = True
-
-        # store result
-        results.append(np.copy(guess))
 
     return results
 
@@ -61,14 +57,10 @@ def QuasiNewtonRaphson_BFGS(function):
         gradient = function.gradient(guess)
 
         step = -H.dot(gradient)
-        step *= SCALE_STEP
+        step *= LINE_SEARCH_ALGO(function, guess, step)
 
         guess += step
-
-        # test termination conditions
-        num_iterations += 1
-        if np.linalg.norm(gradient) < THRESHOLD or num_iterations > MAX_ITERATIONS:
-            terminate = True
+        results.append(np.copy(guess))
 
         # update the inverse hessian matrix
         next_gradient = function.gradient(guess)
@@ -90,8 +82,10 @@ def QuasiNewtonRaphson_BFGS(function):
 
         H = next_H
 
-        # store result
-        results.append(np.copy(guess))
+        # test termination conditions
+        num_iterations += 1
+        if np.linalg.norm(gradient) < THRESHOLD or num_iterations > MAX_ITERATIONS:
+            terminate = True
 
     return results
 
@@ -111,17 +105,15 @@ def NewtonRaphson(function):
         gradient = function.gradient(guess)
 
         step = -function.inv_hessian(guess).dot(gradient)
-        step *= SCALE_STEP
+        step *= LINE_SEARCH_ALGO(function, guess, step)
 
         guess += step
+        results.append(np.copy(guess))
 
         # test termination conditions
         num_iterations += 1
         if np.linalg.norm(gradient) < THRESHOLD or num_iterations > MAX_ITERATIONS:
             terminate = True
-
-        # store result
-        results.append(np.copy(guess))
 
     return results
 

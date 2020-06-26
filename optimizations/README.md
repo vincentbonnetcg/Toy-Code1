@@ -1,9 +1,8 @@
 # Mathematical Optimization
 Various mathematical optimization techniques :
 
-- Gradient Descent
-- Newton-Raphson
-- Quasi-Newton (BFGS)
+- Optimizer : Gradient Descent, Newton-Raphson, Quasi-Newton (BFGS) 
+- Line Search : Backtracking 
 
 ![Optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization.png)
 
