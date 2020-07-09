@@ -50,6 +50,14 @@ class Tests(unittest.TestCase):
         self.assertEqual(block0['field_0'][0], 1.5)
         self.assertTrue((block0['field_1'][0] == [[2.5, 2.5], [2.5, 2.5]]).all())
 
+    def test_flatten(self):
+        num_elements = 10
+        datablock = create_datablock(num_elements, block_size=3)
+        field0_data = datablock.flatten('field_0')
+        field1_data = datablock.flatten('field_1')
+        self.assertTrue((field0_data == 0.6).all())
+        self.assertTrue((field1_data == 0.5).all())
+
     def test_create_blocks(self):
         num_elements = 10
         datablock = create_datablock(num_elements, block_size=3)
@@ -64,18 +72,6 @@ class Tests(unittest.TestCase):
         self.assertTrue((datablock.block(1)['field_0'] == [3.,4.,5.]).all())
         self.assertTrue((datablock.block(2)['field_0'] == [6.,7.,8.]).all())
         self.assertTrue((datablock.block(3)['field_0'] == [9.,0.6,0.6]).all())
-
-    '''
-    DISABLE FOR NOW - NEED FIX
-    def test_remove_blocks(self):
-        num_elements = 10
-        datablock = create_datablock(num_elements, block_size=3)
-        datablock.copyto('field_0', range(num_elements))
-
-        datablock.remove([1,2]) # remove block 1 and 2
-        flat_array = datablock.flatten('field_0')
-        self.assertTrue((flat_array == [0.0,1.0,2.0,9.0]).all())
-    '''
 
     def test_inactive_block(self):
         num_elements = 10

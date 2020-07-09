@@ -9,7 +9,7 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 
 - Implicit / Semi-Implicit integrators
 - Spring / Area / Bending Constraint
-- Numerical Differentiations (Numerical Jacobian and Hessian) with high accuracy order
+- Numerical Differentiations
 - Kinematic Objects
 - Dynamic/Dynamic and Dynamic/Static attachment
 - Kinematic Collision

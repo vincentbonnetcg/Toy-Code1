@@ -20,6 +20,13 @@ def empty_block(block_dtype):
     return block
 
 @numba.njit
+def empty_like_block(blocks):
+    block = np.empty_like(blocks[0])
+    block[0]['blockInfo_active'] = False
+    block[0]['blockInfo_numElements'] = 0
+    return block
+
+@numba.njit
 def get_inactive_block_handles(blocks):
     handles = empty_block_handles()
     for block_index in range(len(blocks)):
@@ -46,7 +53,7 @@ def compute_num_elements(blocks, block_handles = None):
     return num_elements
 
 @numba.njit
-def append_blocks(blocks, block_dtype, reuse_inactive_block, num_elements, block_size):
+def append_blocks(blocks, reuse_inactive_block, num_elements, block_size):
     inactive_block_handles = empty_block_handles()
     block_handles = empty_block_handles()
 
@@ -68,7 +75,7 @@ def append_blocks(blocks, block_dtype, reuse_inactive_block, num_elements, block
         else:
             # allocate a new block
             block_handle = len(blocks)
-            block_container = empty_block(block_dtype)
+            block_container = empty_like_block(blocks)
             blocks.append(block_container)
 
         begin_index = block_index * block_size
@@ -82,10 +89,10 @@ def append_blocks(blocks, block_dtype, reuse_inactive_block, num_elements, block
     return block_handles
 
 @numba.njit
-def append_blocks_with_ID(blocks, block_dtype, reuse_inactive_block, num_elements, block_size):
+def append_blocks_with_ID(blocks, reuse_inactive_block, num_elements, block_size):
     global_element_id = compute_num_elements(blocks)
 
-    block_handles = append_blocks(blocks, block_dtype, reuse_inactive_block, num_elements, block_size)
+    block_handles = append_blocks(blocks, reuse_inactive_block, num_elements, block_size)
 
     num_blocks = len(block_handles)
     for i in range(num_blocks):

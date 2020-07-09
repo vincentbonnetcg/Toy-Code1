@@ -28,22 +28,14 @@ class DataBlock:
     def __init__(self, class_type, block_size = 100):
         # Data
         self.blocks = numba.typed.List()
-        # Data type : (x, y, ...)
-        self.dtype_dict = {}
-        self.dtype_dict['names'] = [] # list of names
-        self.dtype_dict['formats'] = [] # list of tuples (data_type, data_shape)
-        self.dtype_value = None
-        # Aosoa data type : (x, y, ...) becomes (self.block_size, x, y, ...)
-        self.dtype_block_dict = {}
-        self.dtype_block_dict['names'] = []
-        self.dtype_block_dict['formats'] = []
+        # Datatype
         self.dtype_block = None
         # Default values
         self.defaults = () #  heterogeneous tuple storing defaults value
         # Block size
         self.block_size = block_size
-        # class has an ID
-        self.hasID = False
+        # class has an ID (-1)
+        self.ID_field_index = -1
         # Set class
         self.__set_dtype(class_type)
         self.clear()
@@ -66,7 +58,8 @@ class DataBlock:
         block = block_utils.empty_block(block_dtype)
         self.blocks.append(block)
 
-    def __check_before_add(self, name):
+    @classmethod
+    def __check_before_add(cls, field_names, name):
         '''
         Raise exception if 'name' cannot be added
         '''
@@ -76,7 +69,7 @@ class DataBlock:
         if keyword.iskeyword(name):
             raise ValueError("field name cannot be a keyword: " + name)
 
-        if name in self.dtype_dict['names']:
+        if name in field_names:
             raise ValueError("field name already used : " + name)
 
     def __set_dtype(self, class_type):
@@ -85,55 +78,50 @@ class DataBlock:
         '''
         inst = class_type()
 
+        # Aosoa data type : (x, y, ...) becomes (self.block_size, x, y, ...)
+        block_type = {}
+        block_type['names'] = []
+        block_type['formats'] = []
+
         default_values = []
         for name, value in inst.__dict__.items():
-            self.__check_before_add(name)
-
-            self.dtype_block_dict['names'].append(name)
-            self.dtype_dict['names'].append(name)
+            DataBlock.__check_before_add(block_type['names'], name)
+            block_type['names'].append(name)
             default_values.append(value)
 
-            if name == 'ID':
-                self.hasID = True
-
+            data_format = None # tuple(data_type, data_shape)
             if np.isscalar(value):
-                data_type = type(value)
-                self.dtype_dict['formats'].append(data_type)
-                # The coma after (self.block_size,) is essential
+                # The coma in data_shape (self.block_size,) is essential
                 # In case field_shape == self.block_size == 1,
                 # it guarantees an array will be produced and not a single value
-                aosoa_field_shape = (self.block_size,)
-                self.dtype_block_dict['formats'].append((data_type, aosoa_field_shape))
+                data_format = (type(value), (self.block_size,))
             else:
                 data_type = value.dtype.type
-                data_shape = value.shape
-                self.dtype_dict['formats'].append((data_type, data_shape))
-                aosoa_field_shape = ([self.block_size] + list(data_shape))
-                self.dtype_block_dict['formats'].append((data_type, aosoa_field_shape))
+                data_shape = ([self.block_size] + list(value.shape))
+                data_format = (data_type, data_shape)
+
+            block_type['formats'].append(data_format)
 
         self.defaults = tuple(default_values)
 
         # add block info
-        self.dtype_block_dict['names'].append('blockInfo_numElements')
-        self.dtype_block_dict['names'].append('blockInfo_active')
-        self.dtype_block_dict['formats'].append(np.int64)
-        self.dtype_block_dict['formats'].append(np.bool)
+        block_type['names'].append('blockInfo_numElements')
+        block_type['names'].append('blockInfo_active')
+        block_type['formats'].append(np.int64)
+        block_type['formats'].append(np.bool)
 
         # create datatype
-        self.dtype_block = np.dtype(self.dtype_block_dict, align=True)
-        self.dtype_value = np.dtype(self.dtype_dict, align=True)
+        self.dtype_block = np.dtype(block_type, align=True)
+
+        # set the ID fieldindex (if it exists)
+        if 'ID' in block_type['names']:
+            self.ID_field_index = block_type['names'].index('ID')
 
     def get_block_dtype(self):
         '''
         Returns the the dtype of a block
         '''
         return self.dtype_block
-
-    def get_scalar_dtype(self):
-        '''
-        Returns the value dtype of the datablock
-        '''
-        return self.dtype_value
 
     def initialize(self, num_elements):
         '''
@@ -142,60 +130,41 @@ class DataBlock:
         self.clear()
         return self.append(num_elements, True)
 
-    def append(self, num_elements : int, reuse_inactive_block : bool = False):
+    def append(self, num_elements, reuse_inactive_block = False, set_defaults = True):
         '''
         Return a list of new blocks
         Initialize with default values
         '''
-        block_dtype = self.get_block_dtype()
         block_handles = None
 
-        if self.hasID:
-            block_handles = block_utils.append_blocks_with_ID(self.blocks, block_dtype,
+        if self.ID_field_index >= 0:
+            block_handles = block_utils.append_blocks_with_ID(self.blocks,
                                                       reuse_inactive_block,
                                                       num_elements, self.block_size)
         else:
-            block_handles = block_utils.append_blocks(self.blocks, block_dtype,
+            block_handles = block_utils.append_blocks(self.blocks,
                                                       reuse_inactive_block,
                                                       num_elements, self.block_size)
 
-        # set default values exept for the reserved attribute ID
+        if set_defaults==False:
+            return block_handles
+
         for block_handle in block_handles:
             block_container = self.blocks[block_handle]
             for field_id, default_value in enumerate(self.defaults):
-                if self.dtype_block_dict['names'][field_id] != 'ID':
-                    block_container[0][field_id][:] = default_value
+                if field_id == self.ID_field_index:
+                    continue
+
+                block_container[0][field_id][:] = default_value
 
         return block_handles
 
 
-    def append_empty(self, num_elements : int, reuse_inactive_block : bool = False):
+    def append_empty(self, num_elements, reuse_inactive_block = False):
         '''
         Return a list of uninitialized blocks
         '''
-        block_dtype = self.get_block_dtype()
-
-        if self.hasID:
-            return block_utils.append_blocks_with_ID(self.blocks, block_dtype,
-                                                      reuse_inactive_block,
-                                                      num_elements, self.block_size)
-
-        return block_utils.append_blocks(self.blocks, block_dtype,
-                                         reuse_inactive_block,
-                                         num_elements, self.block_size)
-
-    '''
-    DISABLE FOR NOW - NEED FIX
-    def remove(self, block_handles = None):
-        if block_handles is None:
-            return
-
-        if 'ID' in self.dtype_dict['names']:
-            raise ValueError("ID channel used by this datablock. Another datablock might references this one => cannot delete")
-
-        for block_handle in sorted(block_handles, reverse=True):
-            del(self.blocks[block_handle])
-    '''
+        return self.append(num_elements, reuse_inactive_block, False)
 
     def is_empty(self):
         return len(self.blocks)==0
@@ -244,15 +213,23 @@ class DataBlock:
             block_data = block_container[0]
             block_data[field_name].fill(value)
 
+    def _firstdata(self):
+        return self.blocks[0][0]
+
+    def get_field_names(self):
+        return self._firstdata().dtype.names
+
     def flatten(self, field_name, block_handles = None):
         '''
         Convert block of array into a single array
         '''
-        field_id = self.dtype_dict['names'].index(field_name)
-        field_dtype = self.dtype_dict['formats'][field_id]
-
+        field_id = self.get_field_names().index(field_name)
+        first_value = self._firstdata()[field_id][0]
+        field_type = first_value.dtype.type
+        field_shape = first_value.shape
+        field_format =(field_type, field_shape)
         num_elements = self.compute_num_elements(block_handles)
-        result = np.empty(num_elements, field_dtype)
+        result = np.empty(num_elements, field_format)
 
         num_elements = 0
         for block_container in self.get_blocks(block_handles):

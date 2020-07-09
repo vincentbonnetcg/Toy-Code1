@@ -3,6 +3,7 @@
 @description : Subclasses of the Condition class
 """
 
+import numba
 import numpy as np
 
 import lib.objects.jit as cpn
@@ -10,6 +11,7 @@ from lib.objects import Condition
 import lib.common as common
 import lib.common.jit.block_utils as block_utils
 import lib.common.jit.geometry_2d as geo2d_lib
+import lib.common.code_gen as generate
 
 def initialize_condition_from_aos(condition, array_of_struct, details):
     data = details.block_from_datatype(condition.constraint_type)
@@ -60,6 +62,25 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
     return True
 
 
+@generate.as_vectorized(njit=True, block_handles=True)
+def appendKinematicCollision(node : cpn.Node, points, edges, triangles, edge_handles, triangle_handles, is_inside_func, closest_param_func):
+    result = geo2d_lib.IsInsideResult()
+    result.isInside = False
+    is_inside_func(triangles, points, node.x, result, triangle_handles)
+    if (result.isInside):
+        closest_param = geo2d_lib.ClosestResult()
+        closest_param_func(edges, points, node.x, closest_param, edge_handles)
+
+        if np.dot(closest_param.normal, node.v) < 0.0:
+            pass
+            # TODO - before adding contact, remove those outside the stuff !
+            # TODO - add contacts - details.spring
+            #print('ADD contacts')
+            #block_id = 0
+            #data = spring_data[block_id]
+            #data0 = np.empty_like(data)
+
+
 class KinematicCollisionCondition(Condition):
     '''
     Creates collision constraint between one kinematic and one dynamic object
@@ -80,6 +101,18 @@ class KinematicCollisionCondition(Condition):
         '''
         Add zero-length springs into anchor spring details
         '''
+        '''
+        appendKinematicCollision(details.node,
+                                 details.point,
+                                 details.edge,
+                                 details.triangle,
+                                 self.edge_handles,
+                                 self.triangle_handles,
+                                 cpn.simplex.is_inside.function,
+                                 cpn.simplex.get_closest_param.function,
+                                 self.dynamic_handles)
+        '''
+
         springs = []
 
         data_x = details.node.flatten('x', self.dynamic_handles)
@@ -118,6 +151,8 @@ class KinematicCollisionCondition(Condition):
                     springs.append(spring)
 
         initialize_condition_from_aos(self, springs, details)
+
+
 
     def update_constraints(self, details):
         self.init_constraints(details)

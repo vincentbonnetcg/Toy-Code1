@@ -14,7 +14,7 @@ def empty_node_ids(num_nodes):
     return np.empty((num_nodes, ID_SIZE), dtype=np.int32)
 
 @numba.njit
-def emtpy_node_id():
+def empty_node_id():
     return np.empty(ID_SIZE, dtype=np.int32)
 
 @numba.njit

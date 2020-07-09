@@ -14,7 +14,7 @@ class Point:
     def __init__(self):
         self.local_x = np.zeros(2, dtype = np.float64)
         self.x = np.zeros(2, dtype = np.float64)
-        self.ID = na.emtpy_node_id()
+        self.ID = na.empty_node_id()
 
 class Edge:
     def __init__(self):
