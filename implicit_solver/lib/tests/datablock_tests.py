@@ -33,7 +33,7 @@ class Tests(unittest.TestCase):
         self.assertEqual('field_1' in datablock_type.names, True)
         self.assertEqual('field_c' in datablock_type.names, False)
         self.assertEqual(datablock_type.isalignedstruct, True)
-        self.assertEqual(datablock_type.itemsize, 4016)
+        self.assertEqual(datablock_type.itemsize, 4024)
 
     def test_default_values(self):
         datablock = create_datablock(num_elements=10)
@@ -64,10 +64,12 @@ class Tests(unittest.TestCase):
         datablock.copyto('field_0', range(num_elements))
 
         self.assertEqual(len(datablock.blocks), 4)
-        self.assertEqual(datablock.block(0)['blockInfo_numElements'], 3)
-        self.assertEqual(datablock.block(3)['blockInfo_numElements'], 1)
+        self.assertEqual(datablock.block(0)['blockInfo_size'], 3)
+        self.assertEqual(datablock.block(3)['blockInfo_size'], 1)
         self.assertEqual(datablock.block(0)['blockInfo_active'], True)
         self.assertEqual(datablock.block(3)['blockInfo_active'], True)
+        self.assertEqual(datablock.block(3)['blockInfo_capacity'], 3)
+        self.assertEqual(datablock.block(3)['blockInfo_capacity'], 3)
         self.assertTrue((datablock.block(0)['field_0'] == [0.,1.,2.]).all())
         self.assertTrue((datablock.block(1)['field_0'] == [3.,4.,5.]).all())
         self.assertTrue((datablock.block(2)['field_0'] == [6.,7.,8.]).all())

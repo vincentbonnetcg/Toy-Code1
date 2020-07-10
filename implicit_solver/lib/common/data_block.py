@@ -8,11 +8,13 @@ Single Block Memory Layout (with x, v, b as channels)
 | v[block_size](np.float)     |
 | b[block_size](np.int)       |
 |-----------------------------|
-|blockInfo_numElements (int64)|
-|blockInfo_active     (bool)  |
+|blockInfo_size        (int64)|
+|blockInfo_capacity    (int64)|
+|blockInfo_active      (bool) |
 |-----------------------------|
 
-blockInfo_numElements is the number of set elements in the Block
+blockInfo_size is the number of set elements in the Block
+blockInfo_capacity is the maximum numbe of element in the Block
 blockInfo_active defines whether or not the Block is active
 
 Datablock is a list of Blocks
@@ -54,8 +56,10 @@ class DataBlock:
         self.blocks = numba.typed.List()
         # append inactive block
         # it prevents to have empty list which would break the JIT compile to work
-        block_dtype = self.get_block_dtype()
-        block = block_utils.empty_block(block_dtype)
+        block = np.empty(1, dtype=self.dtype_block)
+        block[0]['blockInfo_active'] = False
+        block[0]['blockInfo_capacity'] = self.block_size
+        block[0]['blockInfo_size'] = 0
         self.blocks.append(block)
 
     @classmethod
@@ -63,7 +67,7 @@ class DataBlock:
         '''
         Raise exception if 'name' cannot be added
         '''
-        if name in ['blockInfo_numElements', 'blockInfo_active']:
+        if name in ['blockInfo_size', 'blockInfo_active', 'blockInfo_capacity']:
             raise ValueError("field name " + name + " is reserved ")
 
         if keyword.iskeyword(name):
@@ -105,8 +109,10 @@ class DataBlock:
         self.defaults = tuple(default_values)
 
         # add block info
-        block_type['names'].append('blockInfo_numElements')
+        block_type['names'].append('blockInfo_size')
+        block_type['names'].append('blockInfo_capacity')
         block_type['names'].append('blockInfo_active')
+        block_type['formats'].append(np.int64)
         block_type['formats'].append(np.int64)
         block_type['formats'].append(np.bool)
 
@@ -116,12 +122,6 @@ class DataBlock:
         # set the ID fieldindex (if it exists)
         if 'ID' in block_type['names']:
             self.ID_field_index = block_type['names'].index('ID')
-
-    def get_block_dtype(self):
-        '''
-        Returns the the dtype of a block
-        '''
-        return self.dtype_block
 
     def initialize(self, num_elements):
         '''
@@ -140,11 +140,11 @@ class DataBlock:
         if self.ID_field_index >= 0:
             block_handles = block_utils.append_blocks_with_ID(self.blocks,
                                                       reuse_inactive_block,
-                                                      num_elements, self.block_size)
+                                                      num_elements)
         else:
             block_handles = block_utils.append_blocks(self.blocks,
                                                       reuse_inactive_block,
-                                                      num_elements, self.block_size)
+                                                      num_elements)
 
         if set_defaults==False:
             return block_handles
@@ -203,7 +203,7 @@ class DataBlock:
         for block_container in self.get_blocks(block_handles):
             block_data = block_container[0]
             begin_index = num_elements
-            block_n_elements = block_data['blockInfo_numElements']
+            block_n_elements = block_data['blockInfo_size']
             num_elements += block_n_elements
             end_index = num_elements
             np.copyto(block_data[field_name][0:block_n_elements], values[begin_index:end_index])
@@ -213,18 +213,15 @@ class DataBlock:
             block_data = block_container[0]
             block_data[field_name].fill(value)
 
-    def _firstdata(self):
-        return self.blocks[0][0]
-
     def get_field_names(self):
-        return self._firstdata().dtype.names
+        return self.block(0).dtype.names
 
     def flatten(self, field_name, block_handles = None):
         '''
         Convert block of array into a single array
         '''
         field_id = self.get_field_names().index(field_name)
-        first_value = self._firstdata()[field_id][0]
+        first_value = self.block(0)[field_id][0]
         field_type = first_value.dtype.type
         field_shape = first_value.shape
         field_format =(field_type, field_shape)
@@ -235,7 +232,7 @@ class DataBlock:
         for block_container in self.get_blocks(block_handles):
             block_data = block_container[0]
             begin_index = num_elements
-            block_n_elements = block_data['blockInfo_numElements']
+            block_n_elements = block_data['blockInfo_size']
             num_elements += block_n_elements
             end_index = num_elements
             np.copyto(result[begin_index:end_index], block_data[field_id][0:block_n_elements])

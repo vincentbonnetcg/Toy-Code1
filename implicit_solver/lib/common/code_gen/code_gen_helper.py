@@ -135,7 +135,7 @@ class CodeGenHelper:
 
                 # add variable to access block info
                 master_argument = self.functions_args[0]
-                master_variable_name = master_argument + '_blocks[_handle][0][\'blockInfo_numElements\']'
+                master_variable_name = master_argument + '_blocks[_handle][0][\'blockInfo_size\']'
                 writer.append('_num_elements = ' + master_variable_name)
                 master_variable_name = master_argument + '_blocks[_handle][0][\'blockInfo_active\']'
                 writer.append('_active = ' + master_variable_name)

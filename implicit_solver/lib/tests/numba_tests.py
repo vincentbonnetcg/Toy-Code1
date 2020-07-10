@@ -16,7 +16,7 @@ class ComponentTest:
 
 def get_block_dtype(block_size = 100):
     datablock = common.DataBlock(ComponentTest, block_size)
-    return datablock.get_block_dtype()
+    return datablock.dtype_block
 
 @numba.njit
 def create_block(block_dtype):
@@ -28,7 +28,7 @@ def set_block(block_data, num_elements, active=True):
     item = block_data[0]
     item.field_0[:] = np.float64(0.5)
     item.field_1[:] = np.ones((2, 2), dtype = np.int64)
-    item['blockInfo_numElements'] = num_elements
+    item['blockInfo_size'] = num_elements
     item['blockInfo_active'] = active
 
 @numba.njit
@@ -65,7 +65,7 @@ def iterate_on_typed_list(array):
     for block_index in numba.prange(num_blocks):
         block_container = array[block_index]
         block_data = block_container[0]
-        block_data['blockInfo_numElements'] = 11
+        block_data['blockInfo_size'] = 11
 
 @numba.njit
 def take(values, indices = None):
@@ -87,14 +87,14 @@ class Tests(unittest.TestCase):
         # Test dummy/inactive block
         block_container = blocks[0]
         block_data = block_container[0]
-        self.assertEqual(block_data['blockInfo_numElements'], 0)
+        self.assertEqual(block_data['blockInfo_size'], 0)
         self.assertEqual(block_data['blockInfo_active'], False)
 
         # Test first active block
         block_container = blocks[1]
         block_data = block_container[0]
         componentTest = ComponentTest()
-        self.assertEqual(block_data['blockInfo_numElements'], 10)
+        self.assertEqual(block_data['blockInfo_size'], 10)
         self.assertEqual(block_data['blockInfo_active'], True)
         self.assertTrue(block_data['field_0'][0] == componentTest.field_0)
         self.assertTrue((block_data['field_1'][0] == componentTest.field_1).all())
@@ -111,7 +111,7 @@ class Tests(unittest.TestCase):
         iterate_on_typed_list(blocks)
         block_container = blocks[1]
         block_data = block_container[0]
-        self.assertEqual(block_data['blockInfo_numElements'], 11)
+        self.assertEqual(block_data['blockInfo_size'], 11)
 
     def test_overload(self):
         values = np.ones(10) * 1.5
