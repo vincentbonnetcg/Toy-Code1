@@ -7,7 +7,7 @@ import numpy as np
 
 import lib.common.jit.node_accessor as na
 
-class ConstraintBase:
+class Constraint:
     '''
     Describes the constraint base
     '''

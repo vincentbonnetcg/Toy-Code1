@@ -10,14 +10,14 @@ import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
 import lib.common.code_gen as generate
 import lib.objects.jit.utils.area_lib as area_lib
-import lib.objects.jit as cpn
+from lib.objects.jit import Constraint
 
-class Area(cpn.ConstraintBase):
+class Area(Constraint):
     '''
     Describes a 2D area constraint between three nodes
     '''
     def __init__(self):
-        cpn.ConstraintBase.__init__(self, num_nodes = 3)
+        Constraint.__init__(self, num_nodes = 3)
         self.rest_area = np.float64(0.0)
 
     @classmethod

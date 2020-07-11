@@ -10,14 +10,14 @@ import lib.common.jit.math_2d as math2D
 import lib.common.jit.node_accessor as na
 import lib.common.code_gen as generate
 import lib.objects.jit.utils.spring_lib as spring_lib
-import lib.objects.jit as cpn
+from lib.objects.jit import Constraint
 
-class AnchorSpring(cpn.ConstraintBase):
+class AnchorSpring(Constraint):
     '''
     Describes a 2D spring constraint between a node and point
     '''
     def __init__(self):
-        cpn.ConstraintBase.__init__(self, num_nodes = 1)
+        Constraint.__init__(self, num_nodes = 1)
         self.rest_length = np.float64(0.0)
         self.kinematic_component_IDs = na.empty_node_ids(2) # Point ids
         self.kinematic_component_param = np.float64(0.0)
@@ -39,12 +39,12 @@ class AnchorSpring(cpn.ConstraintBase):
     def compute_hessians(cls):
         return compute_anchor_spring_jacobians
 
-class Spring(cpn.ConstraintBase):
+class Spring(Constraint):
     '''
     Describes a 2D spring constraint between two nodes
     '''
     def __init__(self):
-        cpn.ConstraintBase.__init__(self, num_nodes = 2)
+        Constraint.__init__(self, num_nodes = 2)
         self.rest_length = np.float64(0.0)
 
     @classmethod

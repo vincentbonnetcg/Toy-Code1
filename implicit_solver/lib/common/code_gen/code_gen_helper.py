@@ -185,7 +185,7 @@ class CodeGenHelper:
         for param_name in function_signature.parameters:
 
             # A function argument is considered as a datablock
-            # when it is associated to an annotation (such as cpn.Node, cpn.ConstraintBased ...)
+            # when it is associated to an annotation (such as Node, Constraint ...)
             # it is not generic, but the code generation works with this assumption for now (december 2019)
             annotation_type = function_signature.parameters[param_name].annotation
             if annotation_type is not inspect._empty:

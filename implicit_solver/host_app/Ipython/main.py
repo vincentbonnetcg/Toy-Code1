@@ -6,8 +6,7 @@
 import render as rn
 import lib.common as common
 import host_app.rpc as rpc
-from examples import wire_scene, beam_scene, multiwire_scene
-from examples import cat_scene, rabbit_scene, rabbit_cat_scene
+import data.scenes as scenes
 
 '''
  Global Constants
@@ -42,12 +41,12 @@ def main():
     cmd_dispatcher.run("set_context", time = START_TIME, frame_dt = FRAME_TIMESTEP,
                          num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
 
-    #rabbit_scene.assemble(cmd_dispatcher, render)
-    #cat_scene.assemble(cmd_dispatcher, render)
-    #multiwire_scene.assemble(cmd_dispatcher, render)
-    #beam_scene.assemble(cmd_dispatcher, render)
-    #wire_scene.assemble(cmd_dispatcher, render)
-    rabbit_cat_scene.assemble(cmd_dispatcher, render)
+    #scenes.rabbit.assemble(cmd_dispatcher, render)
+    scenes.cat.assemble(cmd_dispatcher, render)
+    #scenes.multiwire.assemble(cmd_dispatcher, render)
+    #scenes.beam.assemble(cmd_dispatcher, render)
+    #scenes.wire.assemble(cmd_dispatcher, render)
+    #scenes.rabbit_cat.assemble(cmd_dispatcher, render)
 
     # Simulate frames
     for frame_id in range(NUM_FRAMES+1):
@@ -60,7 +59,6 @@ def main():
 
         render.show_current_frame(cmd_dispatcher, frame_id)
         render.export_current_frame(str(frame_id).zfill(4) + " .png")
-
 
         profiler.print_logs()
 

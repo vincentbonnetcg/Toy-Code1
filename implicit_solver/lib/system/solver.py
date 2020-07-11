@@ -4,7 +4,8 @@
 """
 
 import lib.common as cm
-import lib.objects.jit as cpn
+from lib.objects.jit import Node, Area, Bending, Spring, AnchorSpring
+from lib.objects.jit import Point, Edge, Triangle, Tetrahedron
 from lib.system import Scene
 
 class SolverContext:
@@ -27,23 +28,23 @@ class SolverDetails:
     def __init__(self):
         block_size = 100
         # dynamics
-        self.node = cm.DataBlock(cpn.Node, block_size) # nodes
+        self.node = cm.DataBlock(Node, block_size) # nodes
         # constraints
-        self.area = cm.DataBlock(cpn.Area, block_size) # area
-        self.bending = cm.DataBlock(cpn.Bending, block_size) # bending rod
-        self.spring = cm.DataBlock(cpn.Spring, block_size) # spring
-        self.anchorSpring = cm.DataBlock(cpn.AnchorSpring, block_size) # anchor spring
+        self.area = cm.DataBlock(Area, block_size) # area
+        self.bending = cm.DataBlock(Bending, block_size) # bending rod
+        self.spring = cm.DataBlock(Spring, block_size) # spring
+        self.anchorSpring = cm.DataBlock(AnchorSpring, block_size) # anchor spring
         # kinematics
-        self.point = cm.DataBlock(cpn.Point, block_size) # point
-        self.edge = cm.DataBlock(cpn.Edge, block_size) # edge
-        self.triangle = cm.DataBlock(cpn.Triangle, block_size) # triangle
-        self.tetrahedron = cm.DataBlock(cpn.Tetrahedron, block_size) # tetrahedron
+        self.point = cm.DataBlock(Point, block_size) # point
+        self.edge = cm.DataBlock(Edge, block_size) # edge
+        self.triangle = cm.DataBlock(Triangle, block_size) # triangle
+        self.tetrahedron = cm.DataBlock(Tetrahedron, block_size) # tetrahedron
 
     def block_from_datatype(self, datatype):
         blocks = [self.node, self.area, self.bending, self.spring, self.anchorSpring]
         blocks += [self.point, self.edge, self.triangle, self.tetrahedron]
-        datatypes = [cpn.Node, cpn.Area, cpn.Bending, cpn.Spring, cpn.AnchorSpring]
-        datatypes += [cpn.Point, cpn.Edge, cpn.Triangle, cpn.Tetrahedron]
+        datatypes = [Node, Area, Bending, Spring, AnchorSpring]
+        datatypes += [Point, Edge, Triangle, Tetrahedron]
         index = datatypes.index(datatype)
         return blocks[index]
 

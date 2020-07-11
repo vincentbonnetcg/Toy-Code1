@@ -8,60 +8,37 @@ import lib.common as cm
 import lib.common.jit.node_accessor as na
 
 def set_render_prefs(obj, prefs):
-    '''
-    Render preferences used by render.py
-    '''
+    # Render preferences used by render.py
     obj.meta_data['render_prefs'] = prefs
 
 def add_kinematic(scene, details, shape, position = (0., 0.), rotation = 0., animator = None):
-    '''
-    Add a Kinematic object
-    '''
     kinematic = objects.Kinematic(details, shape, position, rotation)
     scene.add_kinematic(kinematic, animator)
     return kinematic
 
 def add_dynamic(scene, details, shape, node_mass):
-    '''
-    Add a Dynamic object
-    '''
     dynamic = objects.Dynamic(details, shape, node_mass)
     scene.add_dynamic(dynamic)
     return dynamic
 
+def initialize(scene, solver, details, context):
+    solver.initialize(scene, details, context)
+
 @cm.timeit
 def solve_to_next_frame(scene, solver, details, context):
-    '''
-    Solve the scene and move to the next frame
-    '''
     for _ in range(context.num_substep):
         context.time += context.dt
         solver.solve_step(scene, details, context)
 
-def initialize(scene, solver, details, context):
-    '''
-    Initialize the solver
-    '''
-    solver.initialize(scene, details, context)
-
 def get_nodes_from_dynamic(scene, index, details):
-    '''
-    Get node position from dynamic object
-    '''
     dynamic = scene.dynamics[index]
     return details.node.flatten('x', dynamic.block_handles)
 
 def get_shape_from_kinematic(scene, index, details):
-    '''
-    Get shape from kinematic
-    '''
     kinematic = scene.kinematics[index]
     return kinematic.get_as_shape(details)
 
 def get_normals_from_kinematic(scene, index, details, normal_scale=0.2):
-    '''
-    Get normals from kinematic
-    '''
     segs = []
     kinematic = scene.kinematics[index]
     normals = details.edge.flatten('normal', kinematic.edge_handles)
@@ -79,9 +56,6 @@ def get_normals_from_kinematic(scene, index, details, normal_scale=0.2):
     return segs
 
 def get_segments_from_constraint(scene, index, details):
-    '''
-    Get position from constraint object
-    '''
     segs = []
 
     condition = scene.conditions[index]

@@ -10,8 +10,7 @@ import inspect
 import uuid
 import lib.system as system
 import lib.objects as lib_objects
-import logic.commands_lib as sim_cmds
-import logic.commands_subclass as subclass_cmds
+import logic
 
 class CommandDispatcher:
     '''
@@ -92,22 +91,22 @@ class CommandSolverDispatcher(CommandDispatcher):
         self.register_cmd(self._get_scene, 'get_scene')
         self.register_cmd(self._get_dynamic_handles, 'get_dynamic_handles')
         self.register_cmd(self._reset, 'reset')
-        self.register_cmd(sim_cmds.initialize)
-        self.register_cmd(sim_cmds.add_dynamic)
-        self.register_cmd(sim_cmds.add_kinematic)
-        self.register_cmd(sim_cmds.solve_to_next_frame)
-        self.register_cmd(sim_cmds.get_nodes_from_dynamic)
-        self.register_cmd(sim_cmds.get_shape_from_kinematic)
-        self.register_cmd(sim_cmds.get_normals_from_kinematic)
-        self.register_cmd(sim_cmds.get_segments_from_constraint)
-        self.register_cmd(sim_cmds.set_render_prefs)
-        self.register_cmd(subclass_cmds.add_gravity)
-        self.register_cmd(subclass_cmds.add_edge_constraint)
-        self.register_cmd(subclass_cmds.add_wire_bending_constraint)
-        self.register_cmd(subclass_cmds.add_face_constraint)
-        self.register_cmd(subclass_cmds.add_kinematic_attachment)
-        self.register_cmd(subclass_cmds.add_kinematic_collision)
-        self.register_cmd(subclass_cmds.add_dynamic_attachment)
+        self.register_cmd(logic.initialize)
+        self.register_cmd(logic.add_dynamic)
+        self.register_cmd(logic.add_kinematic)
+        self.register_cmd(logic.solve_to_next_frame)
+        self.register_cmd(logic.get_nodes_from_dynamic)
+        self.register_cmd(logic.get_shape_from_kinematic)
+        self.register_cmd(logic.get_normals_from_kinematic)
+        self.register_cmd(logic.get_segments_from_constraint)
+        self.register_cmd(logic.set_render_prefs)
+        self.register_cmd(logic.add_gravity)
+        self.register_cmd(logic.add_edge_constraint)
+        self.register_cmd(logic.add_wire_bending_constraint)
+        self.register_cmd(logic.add_face_constraint)
+        self.register_cmd(logic.add_kinematic_attachment)
+        self.register_cmd(logic.add_kinematic_collision)
+        self.register_cmd(logic.add_dynamic_attachment)
 
     def _add_object(self, obj):
         unique_id = uuid.uuid4()

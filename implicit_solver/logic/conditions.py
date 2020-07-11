@@ -6,7 +6,8 @@
 import numba
 import numpy as np
 
-import lib.objects.jit as cpn
+from lib.objects.jit import Node, AnchorSpring, Spring, Area, Bending
+import lib.objects.jit.simplex as simplex
 from lib.objects import Condition
 import lib.common as common
 import lib.common.jit.block_utils as block_utils
@@ -63,7 +64,7 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
 
 
 @generate.as_vectorized(njit=True, block_handles=True)
-def appendKinematicCollision(node : cpn.Node, points, edges, triangles, edge_handles, triangle_handles, is_inside_func, closest_param_func):
+def appendKinematicCollision(node : Node, points, edges, triangles, edge_handles, triangle_handles, is_inside_func, closest_param_func):
     result = geo2d_lib.IsInsideResult()
     result.isInside = False
     is_inside_func(triangles, points, node.x, result, triangle_handles)
@@ -86,7 +87,7 @@ class KinematicCollisionCondition(Condition):
     Creates collision constraint between one kinematic and one dynamic object
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping):
-        Condition.__init__(self, stiffness, damping, cpn.AnchorSpring)
+        Condition.__init__(self, stiffness, damping, AnchorSpring)
         self.dynamic_handles = dynamic.block_handles
         self.triangle_handles = kinematic.triangle_handles
         self.edge_handles = kinematic.edge_handles
@@ -108,8 +109,8 @@ class KinematicCollisionCondition(Condition):
                                  details.triangle,
                                  self.edge_handles,
                                  self.triangle_handles,
-                                 cpn.simplex.is_inside.function,
-                                 cpn.simplex.get_closest_param.function,
+                                 simplex.is_inside.function,
+                                 simplex.get_closest_param.function,
                                  self.dynamic_handles)
         '''
 
@@ -126,22 +127,22 @@ class KinematicCollisionCondition(Condition):
             node_ids = [data_node_id[i]]
 
             result.isInside = False
-            cpn.simplex.is_inside(details.triangle,
-                                  details.point,
-                                  node_pos,
-                                  result,
-                                  self.triangle_handles)
+            simplex.is_inside(details.triangle,
+                              details.point,
+                              node_pos,
+                              result,
+                              self.triangle_handles)
 
             if (result.isInside):
                 closest_param = geo2d_lib.ClosestResult()
-                cpn.simplex.get_closest_param(details.edge,
-                                              details.point, node_pos,
-                                              closest_param,
-                                              self.edge_handles)
+                simplex.get_closest_param(details.edge,
+                                          details.point, node_pos,
+                                          closest_param,
+                                          self.edge_handles)
 
                 if (np.dot(closest_param.normal, node_vel) < 0.0):
                     # add spring
-                    spring = cpn.AnchorSpring()
+                    spring = AnchorSpring()
                     spring.kinematic_component_IDs =  closest_param.points
                     spring.kinematic_component_param = np.float64(closest_param.t)
                     spring.kinematic_component_pos = closest_param.position
@@ -162,7 +163,7 @@ class KinematicAttachmentCondition(Condition):
     Creates attachment constraint between one kinematic and one dynamic object
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping, distance):
-       Condition.__init__(self, stiffness, damping, cpn.AnchorSpring)
+       Condition.__init__(self, stiffness, damping, AnchorSpring)
        self.distance = distance
        self.dynamic_handles = dynamic.block_handles
        self.edge_handles = kinematic.edge_handles
@@ -183,14 +184,14 @@ class KinematicAttachmentCondition(Condition):
             node_ids = [data_node_id[i]]
 
             closest_param = geo2d_lib.ClosestResult()
-            cpn.simplex.get_closest_param(details.edge,
-                                          details.point, node_pos,
-                                          closest_param,
-                                          self.edge_handles)
+            simplex.get_closest_param(details.edge,
+                                      details.point, node_pos,
+                                      closest_param,
+                                      self.edge_handles)
 
             if closest_param.squared_distance < distance2:
                 # add spring
-                spring = cpn.AnchorSpring()
+                spring = AnchorSpring()
                 spring.kinematic_component_IDs = closest_param.points
                 spring.kinematic_component_param = np.float64(closest_param.t)
                 spring.kinematic_component_pos = closest_param.position
@@ -207,7 +208,7 @@ class DynamicAttachmentCondition(Condition):
     Creates attachment constraint between two dynamic objects
     '''
     def __init__(self, dynamic0, dynamic1, stiffness, damping, distance):
-       Condition.__init__(self, stiffness, damping, cpn.Spring)
+       Condition.__init__(self, stiffness, damping, Spring)
        self.distance = distance
        self.dynamic0_handles = dynamic0.block_handles
        self.dynamic1_handles = dynamic1.block_handles
@@ -236,7 +237,7 @@ class DynamicAttachmentCondition(Condition):
                     node_ids = [node_id0, node_id1]
 
                     # add spring
-                    spring = cpn.Spring()
+                    spring = Spring()
                     spring.node_IDs = np.copy(node_ids)
                     spring.stiffness = self.stiffness
                     spring.damping = self.damping
@@ -250,7 +251,7 @@ class EdgeCondition(Condition):
     Replaces edges with Spring constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, stiffness, damping, cpn.Spring)
+       Condition.__init__(self, stiffness, damping, Spring)
        self.dynamics = dynamics.copy()
 
     def init_constraints(self, details):
@@ -262,7 +263,7 @@ class EdgeCondition(Condition):
                 node_ids[1] = dynamic.get_node_id(vertex_index[1])
 
                 # add spring
-                spring = cpn.Spring()
+                spring = Spring()
                 spring.node_IDs = np.copy(node_ids)
                 spring.stiffness = self.stiffness
                 spring.damping = self.damping
@@ -276,7 +277,7 @@ class AreaCondition(Condition):
     Replaces triangle with Area constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, stiffness, damping, cpn.Area)
+       Condition.__init__(self, stiffness, damping, Area)
        self.dynamics = dynamics.copy()
 
     def init_constraints(self, details):
@@ -290,7 +291,7 @@ class AreaCondition(Condition):
                 node_ids[2] = dynamic.get_node_id(vertex_index[2])
 
                 # add area constraint
-                constraint = cpn.Area()
+                constraint = Area()
                 constraint.node_IDs = np.copy(node_ids)
                 constraint.stiffness = self.stiffness
                 constraint.damping = self.damping
@@ -303,7 +304,7 @@ class WireBendingCondition(Condition):
     Creates Wire Bending constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, stiffness, damping, cpn.Bending)
+       Condition.__init__(self, stiffness, damping, Bending)
        self.dynamics = dynamics.copy()
        self.node_ids = []
        for dynamic in self.dynamics:
@@ -322,7 +323,7 @@ class WireBendingCondition(Condition):
 
         for node_ids in self.node_ids:
             # add bending constraint
-            constraint = cpn.Bending()
+            constraint = Bending()
             constraint.node_IDs = np.copy(node_ids)
             constraint.stiffness = self.stiffness
             constraint.damping = self.damping

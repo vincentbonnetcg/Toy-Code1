@@ -2,16 +2,15 @@
 @author: Vincent Bonnet
 @description : Demo file to init the solver
 """
+# TODO : Redo this example demonstrating the dispatcher
+
+"""
 import lib
 import host_app.rpc as rpc
 from host_app.Ipython.render import Render
 from logic import scene_examples, RectangleShape
 
 import time
-
-'''
- Global Constants
-'''
 START_TIME = 0
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 10 # number of substep per frame
@@ -29,9 +28,7 @@ def get_dispatcher(name):
     return cmd_dispatcher
 
 def stage_init_wire_scene(client_name):
-    '''
-    Initialize the remote solver with wire
-    '''
+    # Initialize the remote solver with wire
     cmd_dispatcher = get_dispatcher(client_name)
 
     cmd_dispatcher.run('set_context', context = context)
@@ -86,4 +83,4 @@ if __name__ == '__main__':
     time.sleep(3)
     stage_simulate_frames(150, 'My3DAppAgain')
     stage_close('Spyder')
-
+"""
