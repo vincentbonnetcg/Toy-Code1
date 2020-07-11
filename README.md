@@ -7,16 +7,12 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
 **Description** Implicit Solver.
 
-- Implicit / Semi-Implicit integrators
-- Spring / Area / Bending Constraint
+- Time Integrator : Baraff and Witkin's 
+- Spring / Area / Bending / Collision Constraint
 - Numerical Differentiations
-- Kinematic Objects
-- Dynamic/Dynamic and Dynamic/Static attachment
-- Kinematic Collision
 - Server-Client (IPC) to communicate solver with other processes
 
 ![Implicit Solver Beam](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/implicitSolver_cat.gif)
-![Implicit Solver Wire](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/implicitSolver_wire.gif)
 
 [1] Baraff, David, and Andrew Witkin. "Large steps in cloth simulation." Proceedings of the 25th annual conference on Computer graphics and interactive techniques. ACM, 1998.
 
