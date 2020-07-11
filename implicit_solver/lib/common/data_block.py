@@ -159,15 +159,11 @@ class DataBlock:
 
         return block_handles
 
-
     def append_empty(self, num_elements, reuse_inactive_block = False):
         '''
         Return a list of uninitialized blocks
         '''
         return self.append(num_elements, reuse_inactive_block, False)
-
-    def is_empty(self):
-        return len(self.blocks)==0
 
     def __len__(self):
         return len(self.blocks)
