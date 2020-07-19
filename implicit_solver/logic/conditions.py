@@ -9,7 +9,6 @@ import numpy as np
 from lib.objects.jit import Node, AnchorSpring, Spring, Area, Bending
 import lib.objects.jit.simplex as simplex
 from lib.objects import Condition
-import lib.common as common
 import lib.common.jit.block_utils as block_utils
 import lib.common.jit.geometry_2d as geo2d_lib
 import lib.common.code_gen as generate
@@ -308,8 +307,13 @@ class WireBendingCondition(Condition):
        self.dynamics = dynamics.copy()
        self.node_ids = []
        for dynamic in self.dynamics:
-           vtx_edges_dict = common.shape.vertex_ids_neighbours(dynamic.edge_ids)
-           for vtx_index, vtx_neighbour_index in vtx_edges_dict.items():
+           # create a dictionnary of neighbour
+           vtx_neighbours = {}
+           for vtx_ids in dynamic.edge_ids:
+               vtx_neighbours.setdefault(vtx_ids[0], []).append(vtx_ids[1])
+               vtx_neighbours.setdefault(vtx_ids[1], []).append(vtx_ids[0])
+           # create the node_ids
+           for vtx_index, vtx_neighbour_index in vtx_neighbours.items():
                if (len(vtx_neighbour_index) == 2):
                         node_ids = [dynamic.get_node_id(vtx_neighbour_index[0]),
                                     dynamic.get_node_id(vtx_index),

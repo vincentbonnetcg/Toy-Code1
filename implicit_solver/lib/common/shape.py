@@ -6,15 +6,6 @@
 import numpy as np
 import lib.common.jit.math_2d as math2D
 
-def vertex_ids_neighbours(vertex_ids):
-    result = {}
-    for component_id, vtx_ids in enumerate(vertex_ids):
-        for vtx_id0 in vtx_ids:
-            for vtx_id1 in vtx_ids:
-                if vtx_id0 != vtx_id1:
-                    result.setdefault(vtx_id0, []).append(vtx_id1)
-    return result
-
 class Shape:
     '''
     Shape contains a flat list of vertices and connectivities (edge,face)
