@@ -60,6 +60,7 @@ class DataBlock:
         block[0]['blockInfo_active'] = False
         block[0]['blockInfo_capacity'] = self.block_size
         block[0]['blockInfo_size'] = 0
+        block[0]['blockInfo_handle'] = -1
         self.blocks.append(block)
 
     @classmethod
@@ -67,7 +68,7 @@ class DataBlock:
         '''
         Raise exception if 'name' cannot be added
         '''
-        if name in ['blockInfo_size', 'blockInfo_active', 'blockInfo_capacity']:
+        if name in ['blockInfo_size', 'blockInfo_active', 'blockInfo_capacity', 'blockInfo_handle']:
             raise ValueError("field name " + name + " is reserved ")
 
         if keyword.iskeyword(name):
@@ -109,12 +110,8 @@ class DataBlock:
         self.defaults = tuple(default_values)
 
         # add block info
-        block_type['names'].append('blockInfo_size')
-        block_type['names'].append('blockInfo_capacity')
-        block_type['names'].append('blockInfo_active')
-        block_type['formats'].append(np.int64)
-        block_type['formats'].append(np.int64)
-        block_type['formats'].append(np.bool)
+        block_type['names'] += ['blockInfo_size', 'blockInfo_capacity', 'blockInfo_active', 'blockInfo_handle']
+        block_type['formats'] += [np.int64, np.int64, np.bool, np.int32]
 
         # create datatype
         self.dtype_block = np.dtype(block_type, align=True)
@@ -135,17 +132,14 @@ class DataBlock:
         Return a list of new blocks
         Initialize with default values
         '''
-        block_handles = None
-
+        init_block_func = block_utils.init_block
         if self.ID_field_index >= 0:
-            block_handles = block_utils.append_blocks_with_ID(self.blocks,
-                                                      reuse_inactive_block,
-                                                      num_elements)
-        else:
-            block_handles = block_utils.append_blocks(self.blocks,
-                                                      reuse_inactive_block,
-                                                      num_elements)
+            init_block_func = block_utils.init_block_with_ID
 
+        block_handles = block_utils.append_blocks(self.blocks,
+                                                  reuse_inactive_block,
+                                                  num_elements,
+                                                  init_block_func)
         if set_defaults==False:
             return block_handles
 

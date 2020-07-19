@@ -45,17 +45,17 @@ def get_inactive_block_indices(array):
     return indices
 
 @numba.njit
-def create_typed_list(block_dtype, num_blocks):
+def create_typed_list(block_dtype, num_blocks, set_func = set_block):
     array = numba.typed.List()
     # add dummy/inactive block
     block_data = create_block(block_dtype)
-    set_block(block_data, num_elements=0, active=False)
+    set_func(block_data, num_elements=0, active=False)
     array.append(block_data)
 
     # add active blocks
     for _ in range(num_blocks):
         block_data = create_block(block_dtype)
-        set_block(block_data, num_elements=10, active=True)
+        set_func(block_data, num_elements=10, active=True)
         append_block(array, block_data)
     return array
 
@@ -113,7 +113,7 @@ class Tests(unittest.TestCase):
         block_data = block_container[0]
         self.assertEqual(block_data['blockInfo_size'], 11)
 
-    def test_overload(self):
+    def test_optional_argument(self):
         values = np.ones(10) * 1.5
         indices = np.asarray([1,2,3])
         self.assertEqual(take(values), 15.0)

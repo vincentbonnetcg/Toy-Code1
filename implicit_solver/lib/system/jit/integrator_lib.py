@@ -7,7 +7,6 @@ import numpy as np
 
 import lib.common.jit.node_accessor as na
 import lib.common.code_gen as generate
-import lib.objects.jit as cpn
 from . import sparse_matrix_lib as sparse_lib
 from lib.objects.jit import Constraint, Node
 
@@ -15,6 +14,18 @@ def apply_external_forces_to_nodes(dynamics, forces):
     # this function is not vectorized but forces.apply_forces are vectorized
     for force in forces:
         force.apply_forces(dynamics)
+
+@generate.as_vectorized
+def set_system_index(node : Node, systemIndex=0):
+    node.systemIndex = systemIndex
+    systemIndex += 1
+
+@generate.as_vectorized
+def update_system_indices(constraint : Constraint, detail_nodes):
+    num_nodes = len(constraint.node_IDs)
+    for i in range(num_nodes):
+        si = na.node_systemIndex(detail_nodes, constraint.node_IDs[i])
+        constraint.systemIndices[i] = si
 
 @generate.as_vectorized
 def apply_constraint_forces_to_nodes(constraint : Constraint, detail_nodes):
@@ -26,22 +37,20 @@ def apply_constraint_forces_to_nodes(constraint : Constraint, detail_nodes):
 @generate.as_vectorized
 def advect(node : Node, delta_v, dt):
     # Can be threaded
-    node_index = na.node_global_index(node.ID)
-    node.v += delta_v[node_index]
+    node.v += delta_v[node.systemIndex]
     node.x += node.v * dt
 
 @generate.as_vectorized
 def assemble_fo_h_to_b(node : Node, dt, b):
     # Can be threaded
-    node_index = na.node_global_index(node.ID)
-    b[node_index] += node.f * dt
+    b[node.systemIndex] += node.f * dt
 
 @generate.as_vectorized
 def assemble_dfdx_v0_h2_to_b(constraint : Constraint, detail_nodes, dt, b):
     # Cannot be threaded yet
     num_nodes = len(constraint.node_IDs)
     for fi in range(num_nodes):
-        node_index = na.node_global_index(constraint.node_IDs[fi])
+        node_index = constraint.systemIndices[fi]
         for xi in range(num_nodes):
             Jx = constraint.dfdx[fi][xi]
             v = na.node_v(detail_nodes, constraint.node_IDs[xi])
@@ -50,10 +59,10 @@ def assemble_dfdx_v0_h2_to_b(constraint : Constraint, detail_nodes, dt, b):
 @generate.as_vectorized
 def assemble_mass_matrix_to_A(node : Node, A):
     # Can be threaded
-    node_index = na.node_global_index(node.ID)
+    system_index = node.systemIndex
     mass_matrix = np.zeros((2,2))
     np.fill_diagonal(mass_matrix, node.m)
-    sparse_lib.add(A, node_index, node_index, mass_matrix)
+    sparse_lib.add(A, system_index, system_index, mass_matrix)
 
 @generate.as_vectorized
 def assemble_constraint_forces_to_A(constraint : Constraint, dt, A):
@@ -64,8 +73,8 @@ def assemble_constraint_forces_to_A(constraint : Constraint, dt, A):
         for j in range(num_nodes):
             Jv = constraint.dfdv[fi][j]
             Jx = constraint.dfdx[fi][j]
-            global_fi_id = na.node_global_index(constraint.node_IDs[fi])
-            global_j_id = na.node_global_index(constraint.node_IDs[j])
+            global_fi_id = constraint.systemIndices[fi]
+            global_j_id = constraint.systemIndices[j]
             sparse_lib.add(A, global_fi_id, global_j_id, ((Jv * dt) + (Jx * dt * dt)) * -1.0)
 
 @numba.njit

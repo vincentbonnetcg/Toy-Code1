@@ -63,6 +63,10 @@ class ImplicitSolver(TimeIntegrator):
         integrator_lib.apply_external_forces_to_nodes(details.dynamics(), scene.forces)
         integrator_lib.apply_constraint_forces_to_nodes(details.conditions(), details.node)
 
+        # Set system index
+        integrator_lib.set_system_index(details.dynamics())
+        integrator_lib.update_system_indices(details.conditions(), details.node)
+
         # Store number of nodes
         self.num_nodes = details.node.compute_num_elements()
 

@@ -183,12 +183,13 @@ class CodeGenHelper:
         recorded_params = []
 
         for param_name in function_signature.parameters:
+            param = function_signature.parameters[param_name]
+            new_arg = param_name
 
-            # A function argument is considered as a datablock
-            # when it is associated to an annotation (such as Node, Constraint ...)
+            # An argument is considered as a datablock when associated to an annotation
+            # Annotation (node:Node, constraint:Constraint ...)
             # it is not generic, but the code generation works with this assumption for now (december 2019)
-            annotation_type = function_signature.parameters[param_name].annotation
-            if annotation_type is not inspect._empty:
+            if param.annotation is not inspect._empty:
                 # regular expression to check whether the argument has a format object.attr
                 param_attrs = re.findall(param_name+'[.][a-zA-Z0-9_]*', function_source)
                 for param_attr in param_attrs:
@@ -202,4 +203,8 @@ class CodeGenHelper:
                     attrs.append(attr)
                     self.obj_attrs_map[obj] = attrs
 
-            self.functions_args.append(param_name)
+            # An argument maintains its default values
+            if param.default is not inspect._empty:
+               new_arg = '{}={}'.format(param.name, str(param.default))
+
+            self.functions_args.append(new_arg)

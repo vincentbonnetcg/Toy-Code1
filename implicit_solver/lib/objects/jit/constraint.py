@@ -20,6 +20,9 @@ class Constraint:
         # Node ids involved in the constraint
         self.node_IDs = na.empty_node_ids(num_nodes)
 
+        # system indices of the nodes
+        self.systemIndices = np.zeros(num_nodes, dtype = np.int32)
+
         # Precomputed forces/jacobians.
         self.f = np.zeros((num_nodes, 2), dtype = np.float64)
         self.dfdx = np.zeros((num_nodes, num_nodes, 2, 2), dtype = np.float64)

@@ -27,7 +27,7 @@ def GradientDescent(function):
         gradient = function.gradient(guess)
 
         step = -gradient
-        step *= LINE_SEARCH_ALGO(function, guess, step)
+        step *= LINE_SEARCH_ALGO(function, guess, gradient, step)
 
         guess += step
         results.append(np.copy(guess))
@@ -57,7 +57,7 @@ def QuasiNewtonRaphson_BFGS(function):
         gradient = function.gradient(guess)
 
         step = -H.dot(gradient)
-        step *= LINE_SEARCH_ALGO(function, guess, step)
+        step *= LINE_SEARCH_ALGO(function, guess, gradient, step)
 
         guess += step
         results.append(np.copy(guess))
@@ -105,7 +105,7 @@ def NewtonRaphson(function):
         gradient = function.gradient(guess)
 
         step = -function.inv_hessian(guess).dot(gradient)
-        step *= LINE_SEARCH_ALGO(function, guess, step)
+        step *= LINE_SEARCH_ALGO(function, guess, gradient, step)
 
         guess += step
         results.append(np.copy(guess))
