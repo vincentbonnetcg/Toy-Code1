@@ -12,7 +12,7 @@ closestResultSpec = [('points', numba.int32[:,:]), # two points
                   ('position', numba.float64[:]),  # position
                   ('normal', numba.float64[:]),# normal
                   ('squared_distance', numba.float64)] # parametric value
-@numba.jitclass(closestResultSpec)
+@numba.experimental.jitclass(closestResultSpec)
 class ClosestResult(object):
     def __init__(self):
         self.points = na.empty_node_ids(2)
@@ -22,7 +22,7 @@ class ClosestResult(object):
         self.squared_distance = np.finfo(np.float64).max
 
 insideResultSpec = [('isInside', numba.boolean)]
-@numba.jitclass(insideResultSpec)
+@numba.experimental.jitclass(insideResultSpec)
 class IsInsideResult(object):
     def __init__(self):
         self.isInside = False
