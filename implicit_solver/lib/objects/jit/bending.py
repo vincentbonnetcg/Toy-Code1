@@ -37,11 +37,11 @@ class Bending(Constraint):
 
     @classmethod
     def compute_gradients(cls):
-        return compute_bending_forces
+        return compute_bending_gradients
 
     @classmethod
     def compute_hessians(cls):
-        return compute_bending_jacobians
+        return compute_bending_hessians
 
 @generate.as_vectorized(block_handles=True)
 def compute_bending_rest(bending : Bending, detail_nodes):
@@ -51,7 +51,7 @@ def compute_bending_rest(bending : Bending, detail_nodes):
     bending.rest_angle = np.float64(math2D.angle(x0, x1, x2))
 
 @generate.as_vectorized(block_handles=True)
-def compute_bending_forces(bending : Bending, detail_nodes):
+def compute_bending_gradients(bending : Bending, detail_nodes):
     x0 = na.node_x(detail_nodes, bending.node_IDs[0])
     x1 = na.node_x(detail_nodes, bending.node_IDs[1])
     x2 = na.node_x(detail_nodes, bending.node_IDs[2])
@@ -61,7 +61,7 @@ def compute_bending_forces(bending : Bending, detail_nodes):
     bending.f[2] = forces[2]
 
 @generate.as_vectorized(block_handles=True)
-def compute_bending_jacobians(bending : Bending, detail_nodes):
+def compute_bending_hessians(bending : Bending, detail_nodes):
     x0 = na.node_x(detail_nodes, bending.node_IDs[0])
     x1 = na.node_x(detail_nodes, bending.node_IDs[1])
     x2 = na.node_x(detail_nodes, bending.node_IDs[2])

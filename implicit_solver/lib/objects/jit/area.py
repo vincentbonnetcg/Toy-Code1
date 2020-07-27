@@ -30,11 +30,11 @@ class Area(Constraint):
 
     @classmethod
     def compute_gradients(cls):
-        return compute_area_forces
+        return compute_area_gradients
 
     @classmethod
     def compute_hessians(cls):
-        return compute_area_jacobians
+        return compute_area_hessians
 
 @generate.as_vectorized(block_handles=True)
 def compute_area_rest(area : Area, detail_nodes):
@@ -44,7 +44,7 @@ def compute_area_rest(area : Area, detail_nodes):
     area.rest_area = np.float64(math2D.area(x0, x1, x2))
 
 @generate.as_vectorized(block_handles=True)
-def compute_area_forces(area : Area, detail_nodes):
+def compute_area_gradients(area : Area, detail_nodes):
     x0 = na.node_x(detail_nodes, area.node_IDs[0])
     x1 = na.node_x(detail_nodes, area.node_IDs[1])
     x2 = na.node_x(detail_nodes, area.node_IDs[2])
@@ -54,7 +54,7 @@ def compute_area_forces(area : Area, detail_nodes):
     area.f[2] = forces[2]
 
 @generate.as_vectorized(block_handles=True)
-def compute_area_jacobians(area : Area, detail_nodes):
+def compute_area_hessians(area : Area, detail_nodes):
     x0 = na.node_x(detail_nodes, area.node_IDs[0])
     x1 = na.node_x(detail_nodes, area.node_IDs[1])
     x2 = na.node_x(detail_nodes, area.node_IDs[2])

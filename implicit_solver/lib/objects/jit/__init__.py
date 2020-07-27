@@ -1,7 +1,8 @@
 # in __init__.py
 
 from lib.objects.jit.constraint import Constraint
-from lib.objects.jit.spring import Spring, AnchorSpring
+from lib.objects.jit.spring import Spring
+from lib.objects.jit.anchor_spring import AnchorSpring
 from lib.objects.jit.bending import Bending
 from lib.objects.jit.area import Area
 from lib.objects.jit.node import Node

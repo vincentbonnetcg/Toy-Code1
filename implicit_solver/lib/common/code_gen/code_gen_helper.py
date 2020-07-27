@@ -203,6 +203,12 @@ class CodeGenHelper:
                     attrs.append(attr)
                     self.obj_attrs_map[obj] = attrs
 
+            # the code generator does a simple search/replace on the source code
+            # the attributes has to be sorted from longest to shortest
+            # example : {'spring': ['f', 'fv']} => {'spring': [fv', 'f']}
+            for obj, attrs in self.obj_attrs_map.items():
+                attrs.sort(key=len, reverse=True)
+
             # An argument maintains its default values
             if param.default is not inspect._empty:
                new_arg = '{}={}'.format(param.name, str(param.default))
