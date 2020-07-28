@@ -47,15 +47,27 @@ class Condition:
             else:
                 func(data, details.node, self.block_handles)
 
+    # initialization functions
     def pre_compute(self, details):
         self.__call_func(self.constraint_type.pre_compute(), details, use_point=True)
 
     def compute_rest(self, details):
         self.__call_func(self.constraint_type.compute_rest(), details)
 
+    # constraint functions (cost, gradients, hessians)
+    def compute_cost(self, details):
+        self.__call_func(self.constraint_type.compute_cost(), details)
+
     def compute_gradients(self, details):
         self.__call_func(self.constraint_type.compute_gradients(), details)
 
     def compute_hessians(self, details):
         self.__call_func(self.constraint_type.compute_hessians(), details)
+
+    # force functions (forces and their jacobians)
+    def compute_forces(self, details):
+        self.__call_func(self.constraint_type.compute_forces(), details)
+
+    def compute_force_jacobians(self, details):
+        self.__call_func(self.constraint_type.compute_force_jacobians(), details)
 

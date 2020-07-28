@@ -20,6 +20,7 @@ class Spring(Constraint):
         Constraint.__init__(self, num_nodes = 2)
         self.rest_length = np.float64(0.0)
 
+    # initialization functions
     @classmethod
     def pre_compute(cls):
         return None
@@ -28,13 +29,27 @@ class Spring(Constraint):
     def compute_rest(cls):
         return compute_spring_rest
 
+    # constraint functions (cost, gradients, hessians)
+    @classmethod
+    def compute_cost(cls):
+        return None # TODO
+
     @classmethod
     def compute_gradients(cls):
-        return compute_spring_gradients
+        return None # TODO
 
     @classmethod
     def compute_hessians(cls):
-        return compute_spring_hessians
+        return None # TODO
+
+    # force functions (forces and their jacobians)
+    @classmethod
+    def compute_forces(cls):
+        return compute_spring_forces
+
+    @classmethod
+    def compute_force_jacobians(cls):
+        return compute_spring_force_jacobians
 
 @generate.as_vectorized(block_handles=True)
 def compute_spring_rest(spring : Spring, detail_nodes):
@@ -43,7 +58,7 @@ def compute_spring_rest(spring : Spring, detail_nodes):
     spring.rest_length = np.float64(math2D.distance(x0, x1))
 
 @generate.as_vectorized(block_handles=True)
-def compute_spring_gradients(spring : Spring, detail_nodes):
+def compute_spring_forces(spring : Spring, detail_nodes):
     x0, v0 = na.node_xv(detail_nodes, spring.node_IDs[0])
     x1, v1 = na.node_xv(detail_nodes, spring.node_IDs[1])
     force = spring_lib.spring_stretch_force(x0, x1, spring.rest_length, spring.stiffness)
@@ -52,7 +67,7 @@ def compute_spring_gradients(spring : Spring, detail_nodes):
     spring.f[1] = force * -1.0
 
 @generate.as_vectorized(block_handles=True)
-def compute_spring_hessians(spring : Spring, detail_nodes):
+def compute_spring_force_jacobians(spring : Spring, detail_nodes):
     x0, v0 = na.node_xv(detail_nodes, spring.node_IDs[0])
     x1, v1 = na.node_xv(detail_nodes, spring.node_IDs[1])
     dfdx = spring_lib.spring_stretch_jacobian(x0, x1, spring.rest_length, spring.stiffness)

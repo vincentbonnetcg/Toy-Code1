@@ -1,8 +1,7 @@
 """
 @author: Vincent Bonnet
-@description : symplectic and backward Euler integrators
+@description : Backward Euler time integrator
 """
-
 import numpy as np
 import scipy
 import scipy.sparse
@@ -10,23 +9,9 @@ import scipy.sparse.linalg
 
 import lib.common as cm
 import lib.system.jit.integrator_lib as integrator_lib
-import lib.system.jit.sparse_matrix_lib as sparse_lib
+from lib.system.time_integrators import TimeIntegrator
 
-class TimeIntegrator:
-    '''
-    Base class for time integrator
-    '''
-    def prepare_system(self, scene, details, dt):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'prepare_system'")
-
-    def assemble_system(self, details, dt):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'assemble_system'")
-
-    def solve_system(self, details, dt):
-        raise NotImplementedError(type(self).__name__ + " needs to implement the method 'solve_system'")
-
-
-class ImplicitSolver(TimeIntegrator):
+class BackwardEulerIntegrator(TimeIntegrator):
     '''
      Implicit Step
      Solve :
@@ -58,6 +43,8 @@ class ImplicitSolver(TimeIntegrator):
             condition.pre_compute(details)
             condition.compute_gradients(details)
             condition.compute_hessians(details)
+            condition.compute_forces(details)
+            condition.compute_force_jacobians(details)
 
         # Add forces to dynamics
         integrator_lib.apply_external_forces_to_nodes(details.dynamics(), scene.forces)
@@ -148,37 +135,3 @@ class ImplicitSolver(TimeIntegrator):
     def _advect(self, details, delta_v, dt):
         integrator_lib.advect(details.dynamics(), delta_v, dt)
 
-'''
-NEED TO RE-IMPLEMENT
-class SemiImplicitSolver(TimeIntegrator):
-    def __init__(self):
-        Solver.__init__(self)
-
-    @cm.timeit
-    def prepare_system(self, scene, details, dt):
-        # Reset forces
-        for dynamic in scene.dynamics:
-            dynamic.data.fill('f', 0.0)
-
-        # Apply external forces
-        for force in scene.forces:
-            force.apply_forces(scene.dynamics)
-
-        # Apply internal forces
-        for condition in scene.conditions:
-            condition.compute_gradients(scene)
-
-        apply_constraint_forces_to_nodes(details.conditions(), details.node)
-
-    @cm.timeit
-    def assemble_system(self, details, dt):
-        pass
-
-    @cm.timeit
-    def solve_system(self, details, dt):
-        # Integrator
-        for dynamic in scene.dynamics:
-            for i in range(dynamic.num_nodes()):
-                dynamic.v[i] += dynamic.f[i] * dynamic.im[i] * dt
-                dynamic.x[i] += dynamic.v[i] * dt
-'''

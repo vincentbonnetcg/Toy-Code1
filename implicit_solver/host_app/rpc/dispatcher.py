@@ -75,7 +75,7 @@ class CommandSolverDispatcher(CommandDispatcher):
         CommandDispatcher.__init__(self)
         # data
         self._scene = system.Scene()
-        self._solver = system.Solver(system.ImplicitSolver())
+        self._solver = system.Solver(system.BackwardEulerIntegrator())
         self._details = system.SolverDetails()
         self._context = system.SolverContext()
         # map hash_value with objects (dynamic, kinematic, condition, force)

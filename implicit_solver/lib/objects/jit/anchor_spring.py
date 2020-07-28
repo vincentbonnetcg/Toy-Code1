@@ -23,6 +23,7 @@ class AnchorSpring(Constraint):
         self.kinematic_component_param = np.float64(0.0)
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 
+    # initialization functions
     @classmethod
     def pre_compute(cls):
         return pre_compute_anchor_spring
@@ -31,13 +32,27 @@ class AnchorSpring(Constraint):
     def compute_rest(cls):
         return compute_anchor_spring_rest
 
+    # constraint functions (cost, gradients, hessians)
+    @classmethod
+    def compute_cost(cls):
+        return None # TODO
+
     @classmethod
     def compute_gradients(cls):
-        return compute_anchor_spring_gradients
+        return None # TODO
 
     @classmethod
     def compute_hessians(cls):
-        return compute_anchor_spring_hessians
+        return None # TODO
+
+    # force functions (forces and their jacobians)
+    @classmethod
+    def compute_forces(cls):
+        return compute_anchor_spring_forces
+
+    @classmethod
+    def compute_force_jacobians(cls):
+        return compute_anchor_spring_force_jacobians
 
 @generate.as_vectorized(block_handles=True)
 def pre_compute_anchor_spring(anchor_spring : AnchorSpring, detail_nodes, details_points):
@@ -52,7 +67,7 @@ def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
     anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
 
 @generate.as_vectorized(block_handles=True)
-def compute_anchor_spring_gradients(anchor_spring : AnchorSpring, detail_nodes):
+def compute_anchor_spring_forces(anchor_spring : AnchorSpring, detail_nodes):
     x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
     target_pos = anchor_spring.kinematic_component_pos
@@ -61,7 +76,7 @@ def compute_anchor_spring_gradients(anchor_spring : AnchorSpring, detail_nodes):
     anchor_spring.f = force
 
 @generate.as_vectorized(block_handles=True)
-def compute_anchor_spring_hessians(anchor_spring : AnchorSpring, detail_nodes):
+def compute_anchor_spring_force_jacobians(anchor_spring : AnchorSpring, detail_nodes):
     x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
     target_pos = anchor_spring.kinematic_component_pos
