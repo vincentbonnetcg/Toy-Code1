@@ -124,3 +124,8 @@ def assemble_A(node_blocks,
 
     return num_entries_per_row, column_indices, data
 
+@generate.as_vectorized
+def euler_integration(node : Node, dt):
+    # Can be threaded
+    node.v += node.f * node.im * dt
+    node.x += node.v * dt

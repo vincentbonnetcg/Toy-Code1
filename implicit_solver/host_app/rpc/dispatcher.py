@@ -9,6 +9,7 @@ import inspect
 # import for CommandSolverDispatcher
 import uuid
 import lib.system as system
+import lib.system.time_integrators as integrator
 import lib.objects as lib_objects
 import logic
 
@@ -75,7 +76,8 @@ class CommandSolverDispatcher(CommandDispatcher):
         CommandDispatcher.__init__(self)
         # data
         self._scene = system.Scene()
-        self._solver = system.Solver(system.BackwardEulerIntegrator())
+        self._solver = system.Solver(integrator.BackwardEulerIntegrator())
+        #self._solver = system.Solver(integrator.SymplecticEulerIntegrator())
         self._details = system.SolverDetails()
         self._context = system.SolverContext()
         # map hash_value with objects (dynamic, kinematic, condition, force)

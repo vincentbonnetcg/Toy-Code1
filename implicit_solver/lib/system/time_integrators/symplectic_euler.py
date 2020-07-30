@@ -1,10 +1,11 @@
 """
 @author: Vincent Bonnet
-@description : Symplectic Euler time integrator (placeholder)
+@description : Symplectic Euler time integrator
 """
 
 import lib.common as cm
 from lib.system.time_integrators import TimeIntegrator
+import lib.system.jit.integrator_lib as integrator_lib
 
 class SymplecticEulerIntegrator(TimeIntegrator):
     def __init__(self):
@@ -12,33 +13,23 @@ class SymplecticEulerIntegrator(TimeIntegrator):
 
     @cm.timeit
     def prepare_system(self, scene, details, dt):
-        '''
-        # TODO
         # Reset forces
-        for dynamic in scene.dynamics:
-            dynamic.data.fill('f', 0.0)
+        details.node.fill('f', 0.0)
 
-        # Apply external forces
-        for force in scene.forces:
-            force.apply_forces(scene.dynamics)
-
-        # Apply internal forces
+        # Compute constraint forces and jacobians
         for condition in scene.conditions:
-            condition.compute_gradients(scene)
+            condition.pre_compute(details)
+            condition.compute_forces(details)
 
-        apply_constraint_forces_to_nodes(details.conditions(), details.node)
-        '''
+        # Add forces to dynamics
+        integrator_lib.apply_external_forces_to_nodes(details.dynamics(), scene.forces)
+        integrator_lib.apply_constraint_forces_to_nodes(details.conditions(), details.node)
 
     @cm.timeit
     def assemble_system(self, details, dt):
+        # no system to assemble
         pass
 
     @cm.timeit
     def solve_system(self, details, dt):
-        '''
-        # TODO
-        for dynamic in scene.dynamics:
-            for i in range(dynamic.num_nodes()):
-                dynamic.v[i] += dynamic.f[i] * dynamic.im[i] * dt
-                dynamic.x[i] += dynamic.v[i] * dt
-        '''
+        integrator_lib.euler_integration(details.dynamics(), dt)
