@@ -5,7 +5,7 @@
 
 import numba
 import numpy as np
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 
 closestResultSpec = [('points', numba.int32[:,:]), # two points
                   ('t', numba.float32), # parametric value
@@ -15,7 +15,7 @@ closestResultSpec = [('points', numba.int32[:,:]), # two points
 @numba.experimental.jitclass(closestResultSpec)
 class ClosestResult(object):
     def __init__(self):
-        self.points = na.empty_node_ids(2)
+        self.points = db.empty_data_ids(2)
         self.t = 0.0
         self.position = np.zeros(2, dtype=np.float64)
         self.normal = np.zeros(2, dtype=np.float64)

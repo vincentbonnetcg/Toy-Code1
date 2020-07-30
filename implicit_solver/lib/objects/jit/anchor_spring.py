@@ -7,7 +7,7 @@ import numpy as np
 import numba # required by lib.common.code_gen
 
 import lib.common.jit.math_2d as math2D
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 import lib.common.code_gen as generate
 import lib.objects.jit.utils.spring_lib as spring_lib
 from lib.objects.jit import Constraint
@@ -19,7 +19,7 @@ class AnchorSpring(Constraint):
     def __init__(self):
         Constraint.__init__(self, num_nodes = 1)
         self.rest_length = np.float64(0.0)
-        self.kinematic_component_IDs = na.empty_node_ids(2) # Point ids
+        self.kinematic_component_IDs = db.empty_data_ids(2) # Point ids
         self.kinematic_component_param = np.float64(0.0)
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 
@@ -57,18 +57,18 @@ class AnchorSpring(Constraint):
 @generate.as_vectorized(block_handles=True)
 def pre_compute_anchor_spring(anchor_spring : AnchorSpring, detail_nodes, details_points):
     t = anchor_spring.kinematic_component_param
-    x0 = na.node_x(details_points, anchor_spring.kinematic_component_IDs[0])
-    x1 = na.node_x(details_points, anchor_spring.kinematic_component_IDs[1])
+    x0 = db.x(details_points, anchor_spring.kinematic_component_IDs[0])
+    x1 = db.x(details_points, anchor_spring.kinematic_component_IDs[1])
     anchor_spring.kinematic_component_pos = x0 * (1.0 - t) + x1 * t
 
 @generate.as_vectorized(block_handles=True)
 def compute_anchor_spring_rest(anchor_spring : AnchorSpring, detail_nodes):
-    x = na.node_x(detail_nodes, anchor_spring.node_IDs[0])
+    x = db.x(detail_nodes, anchor_spring.node_IDs[0])
     anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
 
 @generate.as_vectorized(block_handles=True)
 def compute_anchor_spring_forces(anchor_spring : AnchorSpring, detail_nodes):
-    x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
+    x, v = db.xv(detail_nodes, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
     target_pos = anchor_spring.kinematic_component_pos
     force = spring_lib.spring_stretch_force(x, target_pos, anchor_spring.rest_length, anchor_spring.stiffness)
@@ -77,7 +77,7 @@ def compute_anchor_spring_forces(anchor_spring : AnchorSpring, detail_nodes):
 
 @generate.as_vectorized(block_handles=True)
 def compute_anchor_spring_force_jacobians(anchor_spring : AnchorSpring, detail_nodes):
-    x, v = na.node_xv(detail_nodes, anchor_spring.node_IDs[0])
+    x, v = db.xv(detail_nodes, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
     target_pos = anchor_spring.kinematic_component_pos
     dfdx = spring_lib.spring_stretch_jacobian(x, target_pos, anchor_spring.rest_length, anchor_spring.stiffness)

@@ -5,7 +5,7 @@
 
 import lib.objects as objects
 import lib.common as cm
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 
 def set_render_prefs(obj, prefs):
     # Render preferences used by render.py
@@ -46,8 +46,8 @@ def get_normals_from_kinematic(scene, index, details, normal_scale=0.2):
     num_normals = len(normals)
 
     for i in range(num_normals):
-        x0 = na.node_x(details.point.blocks, point_IDs[i][0])
-        x1 = na.node_x(details.point.blocks, point_IDs[i][1])
+        x0 = db.x(details.point.blocks, point_IDs[i][0])
+        x1 = db.x(details.point.blocks, point_IDs[i][1])
         points = [None, None]
         points[0] = (x0+x1)*0.5
         points[1] = points[0]+(normals[i]*normal_scale)
@@ -68,7 +68,7 @@ def get_segments_from_constraint(scene, index, details):
         if num_nodes == 2:
             points = []
             for node_index in range (num_nodes):
-                x = na.node_x(details.node.blocks, node_ids[ct_index][node_index])
+                x = db.x(details.node.blocks, node_ids[ct_index][node_index])
                 points.append(x)
             segs.append(points)
 

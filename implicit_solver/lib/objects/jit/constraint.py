@@ -5,7 +5,7 @@
 
 import numpy as np
 
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 
 class Constraint:
     '''
@@ -18,7 +18,7 @@ class Constraint:
         self.damping = np.float64(0.0)
 
         # Node ids involved in the constraint
-        self.node_IDs = na.empty_node_ids(num_nodes)
+        self.node_IDs = db.empty_data_ids(num_nodes)
 
         # system indices of the nodes
         self.systemIndices = np.zeros(num_nodes, dtype = np.int32)

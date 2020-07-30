@@ -6,7 +6,7 @@
 import math
 import numba
 import numpy as np
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 
 @numba.njit
 def empty_block_handles():
@@ -58,7 +58,7 @@ def init_block_with_ID(block, block_size, block_handle):
     init_block(block, block_size, block_handle)
     data_ID = block[0]['ID']
     for node_id in range(block_size):
-        na.set_node_id(data_ID[node_id],
+        db.set_data_id(data_ID[node_id],
                        block_handle,
                        node_id)
 

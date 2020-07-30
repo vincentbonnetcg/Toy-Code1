@@ -5,7 +5,7 @@
 import numba # required by lib.common.code_gen
 import numpy as np
 
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 import lib.common.code_gen as generate
 from . import sparse_matrix_lib as sparse_lib
 from lib.objects.jit import Constraint, Node
@@ -24,7 +24,7 @@ def set_system_index(node : Node, systemIndex=0):
 def update_system_indices(constraint : Constraint, detail_nodes):
     num_nodes = len(constraint.node_IDs)
     for i in range(num_nodes):
-        si = na.node_systemIndex(detail_nodes, constraint.node_IDs[i])
+        si = db.systemIndex(detail_nodes, constraint.node_IDs[i])
         constraint.systemIndices[i] = si
 
 @generate.as_vectorized
@@ -32,7 +32,7 @@ def apply_constraint_forces_to_nodes(constraint : Constraint, detail_nodes):
     # Cannot be threaded yet to prevent different threads to write on the same node
     num_nodes = len(constraint.node_IDs)
     for i in range(num_nodes):
-        na.node_add_f(detail_nodes,  constraint.node_IDs[i], constraint.f[i])
+        db.add_f(detail_nodes,  constraint.node_IDs[i], constraint.f[i])
 
 @generate.as_vectorized
 def advect(node : Node, delta_v, dt):
@@ -53,7 +53,7 @@ def assemble_dfdx_v0_h2_to_b(constraint : Constraint, detail_nodes, dt, b):
         node_index = constraint.systemIndices[fi]
         for xi in range(num_nodes):
             Jx = constraint.dfdx[fi][xi]
-            v = na.node_v(detail_nodes, constraint.node_IDs[xi])
+            v = db.v(detail_nodes, constraint.node_IDs[xi])
             b[node_index] += np.dot(v, Jx) * dt * dt
 
 @generate.as_vectorized

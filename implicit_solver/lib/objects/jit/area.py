@@ -7,7 +7,7 @@ import numpy as np
 import numba # required by lib.common.code_gen
 
 import lib.common.jit.math_2d as math2D
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 import lib.common.code_gen as generate
 import lib.objects.jit.utils.area_lib as area_lib
 from lib.objects.jit import Constraint
@@ -53,16 +53,16 @@ class Area(Constraint):
 
 @generate.as_vectorized(block_handles=True)
 def compute_area_rest(area : Area, detail_nodes):
-    x0 = na.node_x(detail_nodes, area.node_IDs[0])
-    x1 = na.node_x(detail_nodes, area.node_IDs[1])
-    x2 = na.node_x(detail_nodes, area.node_IDs[2])
+    x0 = db.x(detail_nodes, area.node_IDs[0])
+    x1 = db.x(detail_nodes, area.node_IDs[1])
+    x2 = db.x(detail_nodes, area.node_IDs[2])
     area.rest_area = np.float64(math2D.area(x0, x1, x2))
 
 @generate.as_vectorized(block_handles=True)
 def compute_area_forces(area : Area, detail_nodes):
-    x0 = na.node_x(detail_nodes, area.node_IDs[0])
-    x1 = na.node_x(detail_nodes, area.node_IDs[1])
-    x2 = na.node_x(detail_nodes, area.node_IDs[2])
+    x0 = db.x(detail_nodes, area.node_IDs[0])
+    x1 = db.x(detail_nodes, area.node_IDs[1])
+    x2 = db.x(detail_nodes, area.node_IDs[2])
     forces = area_lib.elastic_area_forces(x0, x1, x2, area.rest_area, area.stiffness, (True, True, True))
     area.f[0] = forces[0]
     area.f[1] = forces[1]
@@ -70,9 +70,9 @@ def compute_area_forces(area : Area, detail_nodes):
 
 @generate.as_vectorized(block_handles=True)
 def compute_area_force_jacobians(area : Area, detail_nodes):
-    x0 = na.node_x(detail_nodes, area.node_IDs[0])
-    x1 = na.node_x(detail_nodes, area.node_IDs[1])
-    x2 = na.node_x(detail_nodes, area.node_IDs[2])
+    x0 = db.x(detail_nodes, area.node_IDs[0])
+    x1 = db.x(detail_nodes, area.node_IDs[1])
+    x2 = db.x(detail_nodes, area.node_IDs[2])
     jacobians = area_lib.elastic_area_numerical_jacobians(x0, x1, x2, area.rest_area, area.stiffness)
     area.dfdx[0][0] = jacobians[0]
     area.dfdx[1][1] = jacobians[1]

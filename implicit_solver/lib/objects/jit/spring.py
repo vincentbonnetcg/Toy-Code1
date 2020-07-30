@@ -7,7 +7,7 @@ import numpy as np
 import numba # required by lib.common.code_gen
 
 import lib.common.jit.math_2d as math2D
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 import lib.common.code_gen as generate
 import lib.objects.jit.utils.spring_lib as spring_lib
 from lib.objects.jit import Constraint
@@ -53,14 +53,14 @@ class Spring(Constraint):
 
 @generate.as_vectorized(block_handles=True)
 def compute_spring_rest(spring : Spring, detail_nodes):
-    x0 = na.node_x(detail_nodes, spring.node_IDs[0])
-    x1 = na.node_x(detail_nodes, spring.node_IDs[1])
+    x0 = db.x(detail_nodes, spring.node_IDs[0])
+    x1 = db.x(detail_nodes, spring.node_IDs[1])
     spring.rest_length = np.float64(math2D.distance(x0, x1))
 
 @generate.as_vectorized(block_handles=True)
 def compute_spring_forces(spring : Spring, detail_nodes):
-    x0, v0 = na.node_xv(detail_nodes, spring.node_IDs[0])
-    x1, v1 = na.node_xv(detail_nodes, spring.node_IDs[1])
+    x0, v0 = db.xv(detail_nodes, spring.node_IDs[0])
+    x1, v1 = db.xv(detail_nodes, spring.node_IDs[1])
     force = spring_lib.spring_stretch_force(x0, x1, spring.rest_length, spring.stiffness)
     force += spring_lib.spring_damping_force(x0, x1, v0, v1, spring.damping)
     spring.f[0] = force
@@ -68,8 +68,8 @@ def compute_spring_forces(spring : Spring, detail_nodes):
 
 @generate.as_vectorized(block_handles=True)
 def compute_spring_force_jacobians(spring : Spring, detail_nodes):
-    x0, v0 = na.node_xv(detail_nodes, spring.node_IDs[0])
-    x1, v1 = na.node_xv(detail_nodes, spring.node_IDs[1])
+    x0, v0 = db.xv(detail_nodes, spring.node_IDs[0])
+    x1, v1 = db.xv(detail_nodes, spring.node_IDs[1])
     dfdx = spring_lib.spring_stretch_jacobian(x0, x1, spring.rest_length, spring.stiffness)
     dfdv = spring_lib.spring_damping_jacobian(x0, x1, v0, v1, spring.damping)
     spring.dfdx[0][0] = spring.dfdx[1][1] = dfdx

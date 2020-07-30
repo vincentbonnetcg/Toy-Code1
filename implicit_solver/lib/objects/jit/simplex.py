@@ -7,28 +7,28 @@ import numpy as np
 import numba # required by lib.common.code_gen
 
 import lib.common.jit.math_2d as math2D
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 import lib.common.code_gen as generate
 
 class Point:
     def __init__(self):
         self.local_x = np.zeros(2, dtype = np.float64)
         self.x = np.zeros(2, dtype = np.float64)
-        self.ID = na.empty_node_id()
+        self.ID = db.empty_data_id()
 
 class Edge:
     def __init__(self):
-        self.point_IDs = na.empty_node_ids(2)
+        self.point_IDs = db.empty_data_ids(2)
         self.local_normal = np.zeros(2, dtype = np.float64)
         self.normal = np.zeros(2, dtype = np.float64)
 
 class Triangle:
     def __init__(self):
-        self.point_IDs = na.empty_node_ids(3)
+        self.point_IDs = db.empty_data_ids(3)
 
 class Tetrahedron:
     def __init__(self):
-        self.point_IDs = na.empty_node_ids(4)
+        self.point_IDs = db.empty_data_ids(4)
 
 @generate.as_vectorized(block_handles=True)
 def transform_point(point : Point, rotation_matrix, translate):
@@ -43,8 +43,8 @@ def transform_normal(edge : Edge, rotation_matrix):
 @generate.as_vectorized(block_handles=True)
 def get_closest_param(edge : Edge, points, position, o_param):
     # o_param = ClosestResult()
-    x0 = na.node_x(points, edge.point_IDs[0])
-    x1 = na.node_x(points, edge.point_IDs[1])
+    x0 = db.x(points, edge.point_IDs[0])
+    x1 = db.x(points, edge.point_IDs[1])
 
     edge_dir = x1 - x0 # could be precomputed
     edge_dir_square = math2D.dot(edge_dir, edge_dir) # could be precomputed
@@ -65,9 +65,9 @@ def get_closest_param(edge : Edge, points, position, o_param):
 @generate.as_vectorized(block_handles=True)
 def is_inside(face : Triangle, points, position, o_result):
     # result = IsInsideResult()
-    x0 = na.node_x(points, face.point_IDs[0])
-    x1 = na.node_x(points, face.point_IDs[1])
-    x2 = na.node_x(points, face.point_IDs[2])
+    x0 = db.x(points, face.point_IDs[0])
+    x1 = db.x(points, face.point_IDs[1])
+    x2 = db.x(points, face.point_IDs[2])
     v0 = x2 - x0
     v1 = x1 - x0
     v2 = position - x0

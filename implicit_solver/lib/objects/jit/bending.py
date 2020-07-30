@@ -7,7 +7,7 @@ import numpy as np
 import numba # required by lib.common.code_gen
 
 import lib.common.jit.math_2d as math2D
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 import lib.common.code_gen as generate
 import lib.objects.jit.utils.bending_lib as bending_lib
 from lib.objects.jit import Constraint
@@ -60,16 +60,16 @@ class Bending(Constraint):
 
 @generate.as_vectorized(block_handles=True)
 def compute_bending_rest(bending : Bending, detail_nodes):
-    x0 = na.node_x(detail_nodes, bending.node_IDs[0])
-    x1 = na.node_x(detail_nodes, bending.node_IDs[1])
-    x2 = na.node_x(detail_nodes, bending.node_IDs[2])
+    x0 = db.x(detail_nodes, bending.node_IDs[0])
+    x1 = db.x(detail_nodes, bending.node_IDs[1])
+    x2 = db.x(detail_nodes, bending.node_IDs[2])
     bending.rest_angle = np.float64(math2D.angle(x0, x1, x2))
 
 @generate.as_vectorized(block_handles=True)
 def compute_bending_forces(bending : Bending, detail_nodes):
-    x0 = na.node_x(detail_nodes, bending.node_IDs[0])
-    x1 = na.node_x(detail_nodes, bending.node_IDs[1])
-    x2 = na.node_x(detail_nodes, bending.node_IDs[2])
+    x0 = db.x(detail_nodes, bending.node_IDs[0])
+    x1 = db.x(detail_nodes, bending.node_IDs[1])
+    x2 = db.x(detail_nodes, bending.node_IDs[2])
     forces = bending_lib.elastic_bending_forces(x0, x1, x2, bending.rest_angle, bending.stiffness, (True, True, True))
     bending.f[0] = forces[0]
     bending.f[1] = forces[1]
@@ -77,9 +77,9 @@ def compute_bending_forces(bending : Bending, detail_nodes):
 
 @generate.as_vectorized(block_handles=True)
 def compute_bending_force_jacobians(bending : Bending, detail_nodes):
-    x0 = na.node_x(detail_nodes, bending.node_IDs[0])
-    x1 = na.node_x(detail_nodes, bending.node_IDs[1])
-    x2 = na.node_x(detail_nodes, bending.node_IDs[2])
+    x0 = db.x(detail_nodes, bending.node_IDs[0])
+    x1 = db.x(detail_nodes, bending.node_IDs[1])
+    x2 = db.x(detail_nodes, bending.node_IDs[2])
     dfdx = bending_lib.elastic_bending_numerical_jacobians(x0, x1, x2, bending.rest_angle, bending.stiffness)
     bending.dfdx[0][0] = dfdx[0]
     bending.dfdx[1][1] = dfdx[1]

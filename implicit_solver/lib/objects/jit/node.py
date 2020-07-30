@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import lib.common.jit.node_accessor as na
+import lib.common.jit.data_accessor as db
 
 class Node:
     def __init__(self):
@@ -14,4 +14,4 @@ class Node:
         self.m = np.float64(0.0)
         self.im = np.float64(0.0)
         self.systemIndex = np.int32(0)
-        self.ID = na.empty_node_id()
+        self.ID = db.empty_data_id()
