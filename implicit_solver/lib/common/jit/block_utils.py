@@ -57,10 +57,10 @@ def init_block(block, block_size, block_handle):
 def init_block_with_ID(block, block_size, block_handle):
     init_block(block, block_size, block_handle)
     data_ID = block[0]['ID']
-    for node_id in range(block_size):
-        db.set_data_id(data_ID[node_id],
+    for index in range(block_size):
+        db.set_data_id(data_ID[index],
                        block_handle,
-                       node_id)
+                       index)
 
 @numba.njit
 def append_blocks(blocks, reuse_inactive_block, num_elements, init_func = init_block):

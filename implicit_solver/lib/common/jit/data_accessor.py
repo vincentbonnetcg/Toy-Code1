@@ -19,42 +19,42 @@ def empty_data_id():
     return np.empty(ID_SIZE, dtype=np.int32)
 
 @numba.njit
-def set_data_id(node_id, block_handle, block_node_id):
-    node_id[0] = block_handle
-    node_id[1] = block_node_id
+def set_data_id(ID, block_handle, index):
+    ID[0] = block_handle
+    ID[1] = index
 
 @numba.njit
-def x(node_blocks, node_id):
-    block_handle = node_id[0]
-    block_node_id = node_id[1]
-    return node_blocks[block_handle][0]['x'][block_node_id]
+def x(node_blocks, ID):
+    block_handle = ID[0]
+    index = ID[1]
+    return node_blocks[block_handle][0]['x'][index]
 
 @numba.njit
-def v(node_blocks, node_id):
-    block_handle = node_id[0]
-    block_node_id = node_id[1]
-    return node_blocks[block_handle][0]['v'][block_node_id]
+def v(node_blocks, ID):
+    block_handle = ID[0]
+    index = ID[1]
+    return node_blocks[block_handle][0]['v'][index]
 
 @numba.njit
-def xv(node_blocks, node_id):
-    block_handle = node_id[0]
-    block_node_id = node_id[1]
+def xv(node_blocks, ID):
+    block_handle = ID[0]
+    index = ID[1]
 
-    x = node_blocks[block_handle][0]['x'][block_node_id]
-    v = node_blocks[block_handle][0]['v'][block_node_id]
+    x = node_blocks[block_handle][0]['x'][index]
+    v = node_blocks[block_handle][0]['v'][index]
     return (x, v)
 
 @numba.njit
-def add_f(node_blocks, node_id, force):
-    block_handle = node_id[0]
-    block_node_id = node_id[1]
+def add_f(node_blocks, ID, force):
+    block_handle = ID[0]
+    index = ID[1]
 
-    f = node_blocks[block_handle][0]['f'][block_node_id]
+    f = node_blocks[block_handle][0]['f'][index]
     f += force
 
 @numba.njit
-def systemIndex(node_blocks, node_id):
-    block_handle = node_id[0]
-    block_node_id = node_id[1]
-    return node_blocks[block_handle][0]['systemIndex'][block_node_id]
+def systemIndex(node_blocks, ID):
+    block_handle = ID[0]
+    index = ID[1]
+    return node_blocks[block_handle][0]['systemIndex'][index]
 
