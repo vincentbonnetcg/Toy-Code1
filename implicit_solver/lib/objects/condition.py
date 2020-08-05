@@ -54,9 +54,9 @@ class Condition:
     def compute_rest(self, details):
         self.__call_func(self.constraint_type.compute_rest(), details)
 
-    # constraint functions (cost, gradients, hessians)
-    def compute_cost(self, details):
-        self.__call_func(self.constraint_type.compute_cost(), details)
+    # constraint functions (function, gradients, hessians)
+    def compute_function(self, details):
+        self.__call_func(self.constraint_type.compute_function(), details)
 
     def compute_gradients(self, details):
         self.__call_func(self.constraint_type.compute_gradients(), details)

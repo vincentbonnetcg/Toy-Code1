@@ -32,9 +32,9 @@ class AnchorSpring(Constraint):
     def compute_rest(cls):
         return compute_anchor_spring_rest
 
-    # constraint functions (cost, gradients, hessians)
+    # constraint functions (function, gradients, hessians)
     @classmethod
-    def compute_cost(cls):
+    def compute_function(cls):
         return None # TODO
 
     @classmethod

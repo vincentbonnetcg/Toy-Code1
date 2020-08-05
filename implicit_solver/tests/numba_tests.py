@@ -79,7 +79,27 @@ def take(values, indices = None):
 
     return result
 
+'''
+Waiting for feature on numba => already requested
+see : https://github.com/numba/numba/issues/1469
+@numba.njit
+def zero_shape_array(block_dtype):
+    array = numba.typed.List()
+    block_data = np.zeros((), dtype=block_dtype)
+    array.append(block_data)
+    array[0]['field_0'][:] = 0.5
+    print(array[0]['field_0'])
+    return array
+'''
+
 class Tests(unittest.TestCase):
+
+    '''
+    def test_zero_shape_array(self):
+        block_dtype = get_block_dtype(block_size = 100)
+        zero_shape_array(block_dtype)
+    '''
+
     def test_typed_list(self):
         block_dtype = get_block_dtype(block_size = 100)
         blocks = create_typed_list(block_dtype, num_blocks = 15)
