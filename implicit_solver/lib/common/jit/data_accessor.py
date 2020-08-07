@@ -24,37 +24,37 @@ def set_data_id(ID, block_handle, index):
     ID[1] = index
 
 @numba.njit
-def x(node_blocks, ID):
+def x(blocks, ID):
     block_handle = ID[0]
     index = ID[1]
-    return node_blocks[block_handle][0]['x'][index]
+    return blocks[block_handle][0]['x'][index]
 
 @numba.njit
-def v(node_blocks, ID):
+def v(blocks, ID):
     block_handle = ID[0]
     index = ID[1]
-    return node_blocks[block_handle][0]['v'][index]
+    return blocks[block_handle][0]['v'][index]
 
 @numba.njit
-def xv(node_blocks, ID):
+def xv(blocks, ID):
     block_handle = ID[0]
     index = ID[1]
 
-    x = node_blocks[block_handle][0]['x'][index]
-    v = node_blocks[block_handle][0]['v'][index]
+    x = blocks[block_handle][0]['x'][index]
+    v = blocks[block_handle][0]['v'][index]
     return (x, v)
 
 @numba.njit
-def add_f(node_blocks, ID, force):
+def add_f(blocks, ID, force):
     block_handle = ID[0]
     index = ID[1]
 
-    f = node_blocks[block_handle][0]['f'][index]
+    f = blocks[block_handle][0]['f'][index]
     f += force
 
 @numba.njit
-def systemIndex(node_blocks, ID):
+def systemIndex(blocks, ID):
     block_handle = ID[0]
     index = ID[1]
-    return node_blocks[block_handle][0]['systemIndex'][index]
+    return blocks[block_handle][0]['systemIndex'][index]
 

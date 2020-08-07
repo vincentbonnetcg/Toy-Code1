@@ -63,7 +63,7 @@ def compute_area_forces(area : Area, detail_nodes):
     x0 = db.x(detail_nodes, area.node_IDs[0])
     x1 = db.x(detail_nodes, area.node_IDs[1])
     x2 = db.x(detail_nodes, area.node_IDs[2])
-    forces = area_lib.elastic_area_forces(x0, x1, x2, area.rest_area, area.stiffness, (True, True, True))
+    forces = area_lib.elastic_area_forces(x0, x1, x2, area.rest_area, area.stiffness)
     area.f[0] = forces[0]
     area.f[1] = forces[1]
     area.f[2] = forces[2]

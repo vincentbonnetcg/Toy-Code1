@@ -6,11 +6,11 @@
 import numba
 import numpy as np
 
+from lib.objects import Condition
 from lib.objects.jit import Node, AnchorSpring, Spring, Area, Bending
 import lib.objects.jit.simplex as simplex
-from lib.objects import Condition
+import lib.objects.jit.utils.simplex_lib as simplex_lib
 import lib.common.jit.block_utils as block_utils
-import lib.common.jit.geometry_2d as geo2d_lib
 import lib.common.code_gen as generate
 
 def initialize_condition_from_aos(condition, array_of_struct, details):
@@ -64,11 +64,11 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
 
 @generate.as_vectorized(njit=True, block_handles=True)
 def appendKinematicCollision(node : Node, points, edges, triangles, edge_handles, triangle_handles, is_inside_func, closest_param_func):
-    result = geo2d_lib.IsInsideResult()
+    result = simplex_lib.IsInsideResult()
     result.isInside = False
     is_inside_func(triangles, points, node.x, result, triangle_handles)
     if (result.isInside):
-        closest_param = geo2d_lib.ClosestResult()
+        closest_param = simplex_lib.ClosestResult()
         closest_param_func(edges, points, node.x, closest_param, edge_handles)
 
         if np.dot(closest_param.normal, node.v) < 0.0:
@@ -119,7 +119,7 @@ class KinematicCollisionCondition(Condition):
         data_v = details.node.flatten('v', self.dynamic_handles)
         data_node_id = details.node.flatten('ID', self.dynamic_handles)
 
-        result = geo2d_lib.IsInsideResult()
+        result = simplex_lib.IsInsideResult()
         for i in range(len(data_x)):
             node_pos = data_x[i]
             node_vel = data_v[i]
@@ -133,7 +133,7 @@ class KinematicCollisionCondition(Condition):
                               self.triangle_handles)
 
             if (result.isInside):
-                closest_param = geo2d_lib.ClosestResult()
+                closest_param = simplex_lib.ClosestResult()
                 simplex.get_closest_param(details.edge,
                                           details.point, node_pos,
                                           closest_param,
@@ -182,7 +182,7 @@ class KinematicAttachmentCondition(Condition):
             node_pos = data_x[i]
             node_ids = [data_node_id[i]]
 
-            closest_param = geo2d_lib.ClosestResult()
+            closest_param = simplex_lib.ClosestResult()
             simplex.get_closest_param(details.edge,
                                       details.point, node_pos,
                                       closest_param,

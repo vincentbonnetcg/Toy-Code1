@@ -1,6 +1,6 @@
 """
 @author: Vincent Bonnet
-@description : Geometry methods
+@description : simplex classes and methods
 """
 
 import numba

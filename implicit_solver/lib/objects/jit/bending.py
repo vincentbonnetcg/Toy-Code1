@@ -70,7 +70,7 @@ def compute_bending_forces(bending : Bending, detail_nodes):
     x0 = db.x(detail_nodes, bending.node_IDs[0])
     x1 = db.x(detail_nodes, bending.node_IDs[1])
     x2 = db.x(detail_nodes, bending.node_IDs[2])
-    forces = bending_lib.elastic_bending_forces(x0, x1, x2, bending.rest_angle, bending.stiffness, (True, True, True))
+    forces = bending_lib.elastic_bending_forces(x0, x1, x2, bending.rest_angle, bending.stiffness)
     bending.f[0] = forces[0]
     bending.f[1] = forces[1]
     bending.f[2] = forces[2]
