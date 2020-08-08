@@ -60,120 +60,132 @@ class CodeGenHelper:
         '''
         generated_function_name = 'generated_' + function.__name__
 
-        # Get code
+        # get source code
         function_source = inspect.getsource(function)
         function_signature = inspect.signature(function)
-
-        # Check arguments
-        self.__prepare_arguments(function_source, function_signature)
-
-        # Generate source code
         code_lines = function_source.splitlines()
         writer = CodeGenWriter()
 
-        for code in code_lines:
+        # check arguments
+        self.__prepare_arguments(function_source, function_signature)
 
-            # empty line
-            if not code:
-                writer.append(code)
-                continue
-
-            # remove decorators
-            if code[0] == '@':
-                continue
-
+        # find the beginning of the function body : just after 'def'
+        function_body_line = 0
+        for line_id, code in enumerate(code_lines):
             if code[0:4] == 'def ':
-                # add njit
-                if self.options.njit:
-                    numba_arguments = ('parallel','fastmath', 'debug')
-                    numba_default_options = (False, False, False)
-                    codegen_options = (self.options.parallel,
-                                       self.options.fastmath,
-                                       self.options.debug)
+                function_body_line = line_id + 1
 
-                    args = []
-                    for i in range(len(codegen_options)):
-                        if numba_default_options[i] != codegen_options[i]:
-                            arg = numba_arguments[i]+'='+str(codegen_options[i])
-                            args.append(arg)
+        # generate
+        if self.options.njit:
+            numba_arguments = ('parallel','fastmath', 'debug')
+            numba_default_options = (False, False, False)
+            codegen_options = (self.options.parallel,
+                               self.options.fastmath,
+                               self.options.debug)
 
-                    if len(args)>0:
-                        arg = ','.join(args)
-                        writer.append('@numba.njit('+arg+')')
-                    else:
-                        writer.append('@numba.njit')
+            args = []
+            for i in range(len(codegen_options)):
+                if numba_default_options[i] != codegen_options[i]:
+                    arg = numba_arguments[i]+'='+str(codegen_options[i])
+                    args.append(arg)
 
-                # rename the function arguments associated with an object
-                new_functions_args = self.functions_args.copy()
-                for argId, arg in enumerate(new_functions_args):
-                    if arg in self.obj_attrs_map:
-                        new_functions_args[argId] += '_blocks'
-
-                # replace function
-                if self.options.block_handles:
-                    writer.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +', block_handles):')
-                else:
-                    writer.append('def '+generated_function_name+'('+ ', '.join(new_functions_args) +'):')
-
-                # loop over the blocks (list/tuple of numpy array)
-                writer.indent += 1
-                if self.options.block_handles:
-                    writer.append('_num_blocks = len(block_handles)' )
-                else:
-                    writer.append('_num_blocks = len(' + new_functions_args[0]  + ')' )
-
-                if self.options.parallel:
-                    writer.append('for _j in numba.prange(_num_blocks):')
-                else:
-                    writer.append('for _j in range(_num_blocks):')
-
-                writer.indent += 1
-                if self.options.block_handles:
-                    writer.append('_handle = block_handles[_j]')
-                else:
-                    writer.append('_handle = _j')
-
-                # add variable to access block info
-                master_argument = self.functions_args[0]
-                master_variable_name = master_argument + '_blocks[_handle][0][\'blockInfo_size\']'
-                writer.append('_num_elements = ' + master_variable_name)
-                master_variable_name = master_argument + '_blocks[_handle][0][\'blockInfo_active\']'
-                writer.append('_active = ' + master_variable_name)
-                writer.append('if not _active:')
-                writer.indent += 1
-                writer.append('continue')
-                writer.indent -= 1
-
-                # add variable to access block data
-                for obj, attrs in self.obj_attrs_map.items():
-                    for attr in attrs:
-                        variable_name = '_' + obj + '_' + attr
-                        variable_accessor = obj +'_blocks[_handle][0][\'' + attr + '\']'
-                        variable_code = variable_name + ' = ' + variable_accessor
-                        writer.append(variable_code)
-
-                # loop over the elements (numpy array)
-                writer.append('for _i in range(_num_elements):')
-
-                # generate the variable remap
-                self.variable_remap = {}
-                for obj, attrs in self.obj_attrs_map.items():
-                    for attr in attrs:
-                        original_name = obj + '.' + attr
-                        variable_name = '_' + obj + '_' + attr
-                        self.variable_remap[original_name] = variable_name
+            if len(args)>0:
+                arg = ','.join(args)
+                writer.append('@numba.njit('+arg+')')
             else:
-                # prevent certain variables - cheap solution for now but could be improved
-                if 'block_handles' in code:
-                    raise ValueError("Cannot use the reserved 'block_handles' variables")
+                writer.append('@numba.njit')
 
-                for key, value in self.variable_remap.items():
-                    code = code.replace(key, value+'[_i]')
+        # create arguments for the vectorized function
+        vec_functions_args = self.functions_args.copy()
+        for argId, arg in enumerate(vec_functions_args):
+            if arg in self.obj_attrs_map:
+                vec_functions_args[argId] += '_blocks'
 
-                writer.append(code)
+        # create arguments for the inner kernel
+        inner_kernel_args = self.functions_args.copy()
+        for argId, arg in enumerate(inner_kernel_args):
+            if arg in self.obj_attrs_map:
+                inner_kernel_args[argId] += '_block'
+
+        # replace function
+        if self.options.block_handles:
+            writer.append('def '+generated_function_name+'('+ ', '.join(vec_functions_args) +', block_handles):')
+        else:
+            writer.append('def '+generated_function_name+'('+ ', '.join(vec_functions_args) +'):')
+        writer.indent += 1
+
+        #  generate the Kernel function #
+        writer.append('def kernel('+', '.join(inner_kernel_args) +'):')
+        writer.indent += 1
+        # add variable to access block data
+        for obj, attrs in self.obj_attrs_map.items():
+            for attr in attrs:
+                variable_name = '_' + obj + '_' + attr
+                variable_accessor = obj +'_block[0][\'' + attr + '\']'
+                variable_code = variable_name + ' = ' + variable_accessor
+                writer.append(variable_code)
+
+        master_variable_name = inner_kernel_args[0] + '[0][\'blockInfo_size\']'
+        writer.append('_num_elements = ' + master_variable_name)
+
+        # generate the variable remap - TODO : can do better
+        self.variable_remap = {}
+        for obj, attrs in self.obj_attrs_map.items():
+            for attr in attrs:
+                original_name = obj + '.' + attr
+                variable_name = '_' + obj + '_' + attr
+                self.variable_remap[original_name] = variable_name
+
+        # loop over the elements (numpy array)
+        writer.append('for _i in range(_num_elements):')
+        writer.indent += 1
+        for code in code_lines[function_body_line:]:
+            # prevent certain variables - cheap solution for now but could be improved
+            if 'block_handles' in code:
+                raise ValueError("Cannot use the reserved 'block_handles' variables")
+
+            for key, value in self.variable_remap.items():
+                code = code.replace(key, value+'[_i]')
+
+            writer.append(code)
+        writer.indent -= 1
+        writer.indent -= 1
+
+        writer.append('\n')
+        #  Generate code to loop over blocks #
+        # loop over the blocks (list/tuple of numpy array)
+        if self.options.block_handles:
+            writer.append('_num_blocks = len(block_handles)' )
+        else:
+            writer.append('_num_blocks = len(' + vec_functions_args[0]  + ')' )
+
+        if self.options.parallel:
+            writer.append('for _j in numba.prange(_num_blocks):')
+        else:
+            writer.append('for _j in range(_num_blocks):')
+
+        writer.indent += 1
+        if self.options.block_handles:
+            writer.append('_handle = block_handles[_j]')
+        else:
+            writer.append('_handle = _j')
+
+        # add variable to access block info
+        master_variable_name = vec_functions_args[0] + '[_handle][0][\'blockInfo_active\']'
+        writer.append('_active = ' + master_variable_name)
+        writer.append('if not _active:')
+        writer.indent += 1
+        writer.append('continue')
+        writer.indent -= 1
+
+        # add kernel call
+        inner_kernel_call_args = vec_functions_args.copy()
+        for argId, arg in enumerate(self.functions_args):
+            if arg in self.obj_attrs_map:
+                inner_kernel_call_args[argId] = vec_functions_args[argId] + '[_handle]'
+        writer.append('kernel('+', '.join(inner_kernel_call_args) +')')
 
         # Set generated function name and source
-
         self.generated_function_name = generated_function_name
         self.generated_function_source = writer.source()
 

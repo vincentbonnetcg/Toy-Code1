@@ -69,15 +69,18 @@ def iterate_on_typed_list(array):
 
 @numba.njit
 def take(values, indices = None):
-    result = 0
+    def add(array, value):
+        array[0] += value
+
+    result = np.zeros(1)
     if indices is None:
         for value in values:
-            result += value
+            add(result, value)
     else:
         for index in indices:
-            result += values[index]
+            add(result, values[index])
 
-    return result
+    return result[0]
 
 '''
 Waiting for feature on numba => already requested
