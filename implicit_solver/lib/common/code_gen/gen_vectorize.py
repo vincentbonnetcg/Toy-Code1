@@ -79,12 +79,12 @@ def as_vectorized(function=None, local={} , **options):
                 execute.function(*arg_list)
         elif isinstance(first_argument, (list, tuple)):
             for datablock in first_argument:
-                if isDatablock(datablock):
-                    if len(datablock) > 0:
-                        arg_list[0] = convert_argument(datablock)
-                        execute.function(*arg_list)
-                else:
+                if not isDatablock(datablock):
                     raise ValueError("The first argument should be a datablock")
+
+                if len(datablock) > 0:
+                    arg_list[0] = convert_argument(datablock)
+                    execute.function(*arg_list)
         else:
             raise ValueError("The first argument should be a datablock or a list of datablocks")
 

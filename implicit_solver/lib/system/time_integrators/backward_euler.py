@@ -51,7 +51,8 @@ class BackwardEulerIntegrator(TimeIntegrator):
         integrator_lib.apply_constraint_forces_to_nodes(details.conditions(), details.node)
 
         # Set system index
-        integrator_lib.set_system_index(details.dynamics())
+        system_index_counter = np.zeros(1) # should pass value as reference hence use an array
+        integrator_lib.set_system_index(details.dynamics(), system_index_counter)
         integrator_lib.update_system_indices(details.conditions(), details.node)
 
         # Store number of nodes

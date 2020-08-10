@@ -16,9 +16,10 @@ def apply_external_forces_to_nodes(dynamics, forces):
         force.apply_forces(dynamics)
 
 @generate.as_vectorized
-def set_system_index(node : Node, systemIndex=0):
-    node.systemIndex = systemIndex
-    systemIndex += 1
+def set_system_index(node : Node, system_index_counter):
+    # system_index_counter = np.zeros(1)
+    node.systemIndex = system_index_counter[0]
+    system_index_counter[0] += 1
 
 @generate.as_vectorized
 def update_system_indices(constraint : Constraint, detail_nodes):

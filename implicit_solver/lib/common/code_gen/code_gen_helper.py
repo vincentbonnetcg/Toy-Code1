@@ -47,7 +47,8 @@ class CodeGenHelper:
         # Arguments
         self.obj_attrs_map = {} # dictionnary to map object with all attributes
         self.variable_remap = {} # dictionnary mapping 'object.attr' with 'object_attr'
-        self.functions_args = [] # original functions arguments
+        self.functions_args = [] # original function arguments
+        self.functions_defaults = [] # original function defaults
         # Options
         self.options = options
         # Test whether or not it makes sense
@@ -97,9 +98,14 @@ class CodeGenHelper:
 
         # create arguments for the vectorized function
         vec_functions_args = self.functions_args.copy()
+        vec_functions_interface = self.functions_args.copy() # argument + defaults
         for argId, arg in enumerate(vec_functions_args):
             if arg in self.obj_attrs_map:
                 vec_functions_args[argId] += '_blocks'
+                vec_functions_interface[argId] += '_blocks'
+
+            if self.functions_defaults[argId]:
+                vec_functions_interface[argId] += '='+self.functions_defaults[argId]
 
         # create arguments for the inner kernel
         inner_kernel_args = self.functions_args.copy()
@@ -109,9 +115,9 @@ class CodeGenHelper:
 
         # replace function
         if self.options.block_handles:
-            writer.append('def '+generated_function_name+'('+ ', '.join(vec_functions_args) +', block_handles):')
+            writer.append('def '+generated_function_name+'('+ ', '.join(vec_functions_interface) +', block_handles):')
         else:
-            writer.append('def '+generated_function_name+'('+ ', '.join(vec_functions_args) +'):')
+            writer.append('def '+generated_function_name+'('+ ', '.join(vec_functions_interface) +'):')
         writer.indent += 1
 
         #  generate the Kernel function #
@@ -173,17 +179,15 @@ class CodeGenHelper:
         # add variable to access block info
         master_variable_name = vec_functions_args[0] + '[_handle][0][\'blockInfo_active\']'
         writer.append('_active = ' + master_variable_name)
-        writer.append('if not _active:')
+        writer.append('if _active:')
         writer.indent += 1
-        writer.append('continue')
-        writer.indent -= 1
-
         # add kernel call
         inner_kernel_call_args = vec_functions_args.copy()
         for argId, arg in enumerate(self.functions_args):
             if arg in self.obj_attrs_map:
                 inner_kernel_call_args[argId] = vec_functions_args[argId] + '[_handle]'
         writer.append('kernel('+', '.join(inner_kernel_call_args) +')')
+        writer.indent -= 1
 
         # Set generated function name and source
         self.generated_function_name = generated_function_name
@@ -192,11 +196,13 @@ class CodeGenHelper:
     def __prepare_arguments(self, function_source, function_signature):
         self.obj_attrs_map = {}
         self.functions_args = []
+        self.functions_defaults = []
         recorded_params = []
 
         for param_name in function_signature.parameters:
             param = function_signature.parameters[param_name]
-            new_arg = param_name
+            arg_name = param_name
+            arg_default = ''
 
             # An argument is considered as a datablock when associated to an annotation
             # Annotation (node:Node, constraint:Constraint ...)
@@ -223,6 +229,7 @@ class CodeGenHelper:
 
             # An argument maintains its default values
             if param.default is not inspect._empty:
-               new_arg = '{}={}'.format(param.name, str(param.default))
+                arg_default = str(param.default)
 
-            self.functions_args.append(new_arg)
+            self.functions_args.append(arg_name)
+            self.functions_defaults.append(arg_default)
