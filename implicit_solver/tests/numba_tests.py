@@ -69,15 +69,26 @@ def iterate_on_typed_list(array):
 
 @numba.njit
 def take(values, indices = None):
-    result = 0
+    def add(array, value):
+        array[0] += value
+
+    result = np.zeros(1)
     if indices is None:
         for value in values:
-            result += value
+            add(result, value)
     else:
         for index in indices:
-            result += values[index]
+            add(result, values[index])
 
-    return result
+
+    return result[0]
+
+@numba.njit
+def test_value_as_reference(refValue, increase):
+    def increment(refValue, increase):
+        refValue[0] += 10
+    increment(refValue, increase)
+    return refValue
 
 '''
 Waiting for feature on numba => already requested
@@ -91,7 +102,6 @@ def zero_shape_array(block_dtype):
     print(array[0]['field_0'])
     return array
 '''
-
 class Tests(unittest.TestCase):
 
     '''
@@ -99,6 +109,9 @@ class Tests(unittest.TestCase):
         block_dtype = get_block_dtype(block_size = 100)
         zero_shape_array(block_dtype)
     '''
+    def test_value_as_reference(self):
+        value = test_value_as_reference(np.ones(1), 10)
+        self.assertEqual(value[0], 11.0)
 
     def test_typed_list(self):
         block_dtype = get_block_dtype(block_size = 100)
