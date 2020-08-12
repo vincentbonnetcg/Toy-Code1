@@ -59,7 +59,7 @@ class CodeGenHelper:
         '''
         Generate the source code of the function as a vectorized function
         '''
-        generated_function_name = 'generated_' + function.__name__
+        vectorized_function_name = 'vectorized_' + function.__name__
 
         # get source code
         function_source = inspect.getsource(function)
@@ -115,9 +115,9 @@ class CodeGenHelper:
 
         # replace function
         if self.options.block_handles:
-            writer.append('def '+generated_function_name+'('+ ', '.join(vec_functions_interface) +', block_handles):')
+            writer.append('def '+vectorized_function_name+'('+ ', '.join(vec_functions_interface) +', block_handles):')
         else:
-            writer.append('def '+generated_function_name+'('+ ', '.join(vec_functions_interface) +'):')
+            writer.append('def '+vectorized_function_name+'('+ ', '.join(vec_functions_interface) +'):')
         writer.indent += 1
 
         #  generate the Kernel function #
@@ -190,7 +190,7 @@ class CodeGenHelper:
         writer.indent -= 1
 
         # Set generated function name and source
-        self.generated_function_name = generated_function_name
+        self.generated_function_name = vectorized_function_name
         self.generated_function_source = writer.source()
 
     def __prepare_arguments(self, function_source, function_signature):
