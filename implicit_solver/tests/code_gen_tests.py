@@ -29,12 +29,12 @@ def create_datablock(num_elements=10):
 '''
 Functions to vectorize
 '''
-@generate.as_vectorized
+@generate.vectorize
 def add_values(v0 : Vertex, v1 : Vertex, other_value):
     v0.x += v1.x + other_value
     v0.y += v1.y + other_value
 
-@generate.as_vectorized(njit=False)
+@generate.vectorize(njit=False)
 def add_values_to_list(v0 : Vertex, v1 : Vertex, out_list):
     out_list.append(v0.x + v1.x)
 

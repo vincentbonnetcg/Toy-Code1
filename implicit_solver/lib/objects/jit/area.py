@@ -51,14 +51,14 @@ class Area(Constraint):
     def compute_force_jacobians(cls):
         return compute_area_force_jacobians
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def compute_area_rest(area : Area, detail_nodes):
     x0 = db.x(detail_nodes, area.node_IDs[0])
     x1 = db.x(detail_nodes, area.node_IDs[1])
     x2 = db.x(detail_nodes, area.node_IDs[2])
     area.rest_area = np.float64(math2D.area(x0, x1, x2))
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def compute_area_forces(area : Area, detail_nodes):
     x0 = db.x(detail_nodes, area.node_IDs[0])
     x1 = db.x(detail_nodes, area.node_IDs[1])
@@ -68,7 +68,7 @@ def compute_area_forces(area : Area, detail_nodes):
     area.f[1] = forces[1]
     area.f[2] = forces[2]
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def compute_area_force_jacobians(area : Area, detail_nodes):
     x0 = db.x(detail_nodes, area.node_IDs[0])
     x1 = db.x(detail_nodes, area.node_IDs[1])

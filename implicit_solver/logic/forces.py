@@ -10,7 +10,7 @@ from lib.objects import Force
 from lib.objects.jit import Node
 import lib.common.code_gen as generate
 
-@generate.as_vectorized
+@generate.vectorize
 def apply_gravity(node : Node, gravity):
     node.f += gravity * node.m
 

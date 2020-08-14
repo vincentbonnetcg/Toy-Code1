@@ -8,16 +8,14 @@ import re
 class CodeGenOptions:
     def __init__(self, options):
         self.njit = options.get('njit', True)
-        self.parallel = options.get('parallel', False)
+        self.parallel = options.get('parallel', False) # Unused
         self.debug = options.get('debug', False)
         self.fastmath = options.get('fastmath', False)
-        self.block_handles = options.get('block_handles', False)
 
     def __str__(self):
         result = 'njit ' + str(self.njit) + '\n'
         result += 'parallel ' + str(self.parallel) + '\n'
-        result += 'debug ' + str(self.debug) + '\n'
-        result += 'block_handles ' + str(self.block_handles)
+        result += 'debug ' + str(self.debug)
 
         return result
 
@@ -106,6 +104,7 @@ class CodeGenHelper:
 
             if self.functions_defaults[argId]:
                 vec_functions_interface[argId] += '='+self.functions_defaults[argId]
+        vec_functions_interface.append('_block_handles=None')
 
         # create arguments for the inner kernel
         inner_kernel_args = self.functions_args.copy()
@@ -114,10 +113,7 @@ class CodeGenHelper:
                 inner_kernel_args[argId] += '_block'
 
         # replace function
-        if self.options.block_handles:
-            writer.append('def '+vectorized_function_name+'('+ ', '.join(vec_functions_interface) +', block_handles):')
-        else:
-            writer.append('def '+vectorized_function_name+'('+ ', '.join(vec_functions_interface) +'):')
+        writer.append('def '+vectorized_function_name+'('+ ', '.join(vec_functions_interface) + '):')
         writer.indent += 1
 
         #  generate the Kernel function #
@@ -146,10 +142,6 @@ class CodeGenHelper:
         writer.append('for _i in range(_num_elements):')
         writer.indent += 1
         for code in code_lines[function_body_line:]:
-            # prevent certain variables - cheap solution for now but could be improved
-            if 'block_handles' in code:
-                raise ValueError("Cannot use the reserved 'block_handles' variables")
-
             for key, value in self.variable_remap.items():
                 code = code.replace(key, value+'[_i]')
 
@@ -160,23 +152,11 @@ class CodeGenHelper:
         writer.append('\n')
         #  Generate code to loop over blocks #
         # loop over the blocks (list/tuple of numpy array)
-        if self.options.block_handles:
-            writer.append('_num_blocks = len(block_handles)' )
-        else:
-            writer.append('_num_blocks = len(' + vec_functions_args[0]  + ')' )
-
-        if self.options.parallel:
-            writer.append('for _j in numba.prange(_num_blocks):')
-        else:
-            writer.append('for _j in range(_num_blocks):')
-
+        writer.append('if _block_handles is None:' )
         writer.indent += 1
-        if self.options.block_handles:
-            writer.append('_handle = block_handles[_j]')
-        else:
-            writer.append('_handle = _j')
-
-        # add variable to access block info
+        writer.append('_num_blocks = len(' + vec_functions_args[0]  + ')' )
+        writer.append('for _handle in range(_num_blocks):')
+        writer.indent += 1
         master_variable_name = vec_functions_args[0] + '[_handle][0][\'blockInfo_active\']'
         writer.append('_active = ' + master_variable_name)
         writer.append('if _active:')
@@ -188,6 +168,25 @@ class CodeGenHelper:
                 inner_kernel_call_args[argId] = vec_functions_args[argId] + '[_handle]'
         writer.append('kernel('+', '.join(inner_kernel_call_args) +')')
         writer.indent -= 1
+        writer.indent -= 1
+        writer.indent -= 1
+        writer.append('else:')
+        writer.indent += 1
+        writer.append('_num_blocks = len(_block_handles)' )
+        writer.append('for _i in range(_num_blocks):')
+        writer.indent += 1
+        writer.append('_handle = _block_handles[_i]')
+        master_variable_name = vec_functions_args[0] + '[_handle][0][\'blockInfo_active\']'
+        writer.append('_active = ' + master_variable_name)
+        writer.append('if _active:')
+        writer.indent += 1
+        # add kernel call
+        inner_kernel_call_args = vec_functions_args.copy()
+        for argId, arg in enumerate(self.functions_args):
+            if arg in self.obj_attrs_map:
+                inner_kernel_call_args[argId] = vec_functions_args[argId] + '[_handle]'
+        writer.append('kernel('+', '.join(inner_kernel_call_args) +')')
+
 
         # Set generated function name and source
         self.generated_function_name = vectorized_function_name

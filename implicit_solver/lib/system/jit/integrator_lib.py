@@ -15,38 +15,38 @@ def apply_external_forces_to_nodes(dynamics, forces):
     for force in forces:
         force.apply_forces(dynamics)
 
-@generate.as_vectorized
+@generate.vectorize
 def set_system_index(node : Node, system_index_counter):
     # system_index_counter = np.zeros(1)
     node.systemIndex = system_index_counter[0]
     system_index_counter[0] += 1
 
-@generate.as_vectorized
+@generate.vectorize
 def update_system_indices(constraint : Constraint, detail_nodes):
     num_nodes = len(constraint.node_IDs)
     for i in range(num_nodes):
         si = db.systemIndex(detail_nodes, constraint.node_IDs[i])
         constraint.systemIndices[i] = si
 
-@generate.as_vectorized
+@generate.vectorize
 def apply_constraint_forces_to_nodes(constraint : Constraint, detail_nodes):
     # Cannot be threaded yet to prevent different threads to write on the same node
     num_nodes = len(constraint.node_IDs)
     for i in range(num_nodes):
         db.add_f(detail_nodes,  constraint.node_IDs[i], constraint.f[i])
 
-@generate.as_vectorized
+@generate.vectorize
 def advect(node : Node, delta_v, dt):
     # Can be threaded
     node.v += delta_v[node.systemIndex]
     node.x += node.v * dt
 
-@generate.as_vectorized
+@generate.vectorize
 def assemble_fo_h_to_b(node : Node, dt, b):
     # Can be threaded
     b[node.systemIndex] += node.f * dt
 
-@generate.as_vectorized
+@generate.vectorize
 def assemble_dfdx_v0_h2_to_b(constraint : Constraint, detail_nodes, dt, b):
     # Cannot be threaded yet
     num_nodes = len(constraint.node_IDs)
@@ -57,7 +57,7 @@ def assemble_dfdx_v0_h2_to_b(constraint : Constraint, detail_nodes, dt, b):
             v = db.v(detail_nodes, constraint.node_IDs[xi])
             b[node_index] += np.dot(v, Jx) * dt * dt
 
-@generate.as_vectorized
+@generate.vectorize
 def assemble_mass_matrix_to_A(node : Node, A):
     # Can be threaded
     system_index = node.systemIndex
@@ -65,7 +65,7 @@ def assemble_mass_matrix_to_A(node : Node, A):
     np.fill_diagonal(mass_matrix, node.m)
     sparse_lib.add(A, system_index, system_index, mass_matrix)
 
-@generate.as_vectorized
+@generate.vectorize
 def assemble_constraint_forces_to_A(constraint : Constraint, dt, A):
     # Substract (h * df/dv + h^2 * df/dx)
     # Cannot be threaded yet
@@ -125,7 +125,7 @@ def assemble_A(node_blocks,
 
     return num_entries_per_row, column_indices, data
 
-@generate.as_vectorized
+@generate.vectorize
 def euler_integration(node : Node, dt):
     # Can be threaded
     node.v += node.f * node.im * dt

@@ -30,17 +30,17 @@ class Tetrahedron:
     def __init__(self):
         self.point_IDs = db.empty_data_ids(4)
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def transform_point(point : Point, rotation_matrix, translate):
     #np.dot(point.x, rotation_matrix, out=point.x) #  not working with Numba0.45.1
     point.x = np.dot(point.local_x, rotation_matrix)
     point.x += translate
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def transform_normal(edge : Edge, rotation_matrix):
     edge.normal = np.dot(edge.local_normal, rotation_matrix)
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def get_closest_param(edge : Edge, points, position, o_param):
     # o_param = ClosestResult()
     x0 = db.x(points, edge.point_IDs[0])
@@ -62,7 +62,7 @@ def get_closest_param(edge : Edge, points, position, o_param):
         o_param.position = x0 * (1.0 - t) + x1 * t
         o_param.normal = edge.normal
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def is_inside(face : Triangle, points, position, o_result):
     # result = IsInsideResult()
     x0 = db.x(points, face.point_IDs[0])

@@ -39,13 +39,13 @@ def convert_argument(arg):
 
     return arg
 
-def as_vectorized(function=None, local={} , **options):
+def vectorize(function=None, local={} , **options):
     '''
     Decorator with arguments to vectorize a function
     '''
     gen_options = gen.CodeGenOptions(options)
     if function is None:
-        return functools.partial(as_vectorized, **options)
+        return functools.partial(vectorize, **options)
 
     def isDatablock(value):
         '''

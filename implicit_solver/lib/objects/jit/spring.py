@@ -51,13 +51,13 @@ class Spring(Constraint):
     def compute_force_jacobians(cls):
         return compute_spring_force_jacobians
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def compute_spring_rest(spring : Spring, detail_nodes):
     x0 = db.x(detail_nodes, spring.node_IDs[0])
     x1 = db.x(detail_nodes, spring.node_IDs[1])
     spring.rest_length = np.float64(math2D.distance(x0, x1))
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def compute_spring_forces(spring : Spring, detail_nodes):
     x0, v0 = db.xv(detail_nodes, spring.node_IDs[0])
     x1, v1 = db.xv(detail_nodes, spring.node_IDs[1])
@@ -66,7 +66,7 @@ def compute_spring_forces(spring : Spring, detail_nodes):
     spring.f[0] = force
     spring.f[1] = force * -1.0
 
-@generate.as_vectorized(block_handles=True)
+@generate.vectorize
 def compute_spring_force_jacobians(spring : Spring, detail_nodes):
     x0, v0 = db.xv(detail_nodes, spring.node_IDs[0])
     x1, v1 = db.xv(detail_nodes, spring.node_IDs[1])

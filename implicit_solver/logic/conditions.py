@@ -62,7 +62,7 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
     return True
 
 
-@generate.as_vectorized(njit=True, block_handles=True)
+@generate.vectorize(njit=True)
 def appendKinematicCollision(node : Node, points, edges, triangles, edge_handles, triangle_handles, is_inside_func, closest_param_func):
     result = simplex_lib.IsInsideResult()
     result.isInside = False
