@@ -102,14 +102,17 @@ def assemble_A(node_blocks,
     constraint_matrix_assembly_func(anchorSpring_blocks, dt, A)
 
     # allocate and set number of entries per row
-    num_entries_per_row = np.zeros(num_rows, dtype=np.int32)
+    row_indptr = np.empty(num_rows+1, dtype=np.int32)
+    row_indptr[0] = 0
+    total_entries = 0
     for row_id in range(num_rows):
-        num_entries_per_row[row_id] = len(A[row_id])
+        num_entries = len(A[row_id])
+        total_entries += num_entries
+        row_indptr[row_id+1] = total_entries
 
     # allocate column indices and array of matrix
-    total_entries = np.sum(num_entries_per_row)
-    data = np.zeros((total_entries, sub_size, sub_size))
-    column_indices = np.zeros(total_entries, dtype=np.int32)
+    data = np.empty((total_entries, sub_size, sub_size))
+    column_indices = np.empty(total_entries, dtype=np.int32)
 
     # set column indices and array of matrix
     idx = 0
@@ -123,7 +126,7 @@ def assemble_A(node_blocks,
             data[idx] = matrix
             idx += 1
 
-    return num_entries_per_row, column_indices, data
+    return data, column_indices, row_indptr
 
 @generate.vectorize
 def euler_integration(node : Node, dt):

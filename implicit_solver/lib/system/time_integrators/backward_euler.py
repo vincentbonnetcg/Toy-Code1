@@ -100,7 +100,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         spring_blocks = details.spring.blocks
         anchorSpring_blocks = details.anchorSpring.blocks
 
-        num_entries_per_row, column_indices, data = integrator_lib.assemble_A(node_blocks,
+        data, column_indices, row_indptr = integrator_lib.assemble_A(node_blocks,
                                                    area_blocks,
                                                    bending_blocks,
                                                    spring_blocks,
@@ -109,11 +109,6 @@ class BackwardEulerIntegrator(TimeIntegrator):
                                                    dt,
                                                    integrator_lib.assemble_mass_matrix_to_A.function,
                                                    integrator_lib.assemble_constraint_forces_to_A.function)
-
-        # allocate row indices
-        row_indptr = np.zeros(num_rows+1, dtype=np.int32)
-        row_indptr[0] = 0 # minimum entry exists at [0,0] due to mass matrix
-        np.add.accumulate(num_entries_per_row, out=row_indptr[1:num_rows+1])
 
         self.A = scipy.sparse.bsr_matrix((data, column_indices, row_indptr))
 

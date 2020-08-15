@@ -29,13 +29,13 @@ class Dynamic:
         # Metadata
         self.meta_data = {}
 
-    def num_nodes(self) -> int:
+    def num_nodes(self):
         return self.total_nodes
 
-    def num_blocks(self) -> int:
+    def num_blocks(self):
         return len(self.block_handles)
 
-    def get_node_id(self, vertex_index) -> int:
+    def get_node_id(self, vertex_index):
         return self.node_ids[vertex_index]
 
     def get_as_shape(self, details):
