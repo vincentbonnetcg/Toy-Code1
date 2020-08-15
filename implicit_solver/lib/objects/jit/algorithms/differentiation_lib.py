@@ -8,6 +8,23 @@ import numpy as np
 import lib.common.jit.math_2d as math2D
 
 @numba.njit
+def forces_from_energy(x0, x1, x2, rest_value, stiffness, energy_func):
+    forces = np.zeros(shape=(3, 2))
+    STENCIL_SIZE = 1e-6
+    X = [math2D.copy(x0), math2D.copy(x1), math2D.copy(x2)] # TODO - slow
+    for force_id in range(3):
+        for arg_id in range(2):
+            tmp = X[force_id][arg_id]
+            X[force_id][arg_id] = tmp-(STENCIL_SIZE*0.5)
+            e0 = energy_func(X, rest_value, stiffness)
+            X[force_id][arg_id] = tmp+(STENCIL_SIZE*0.5)
+            e1 = energy_func(X, rest_value, stiffness)
+            forces[force_id][arg_id] = -(e1-e0) / STENCIL_SIZE
+            X[force_id][arg_id] = tmp # reset
+
+    return forces
+
+@numba.njit
 def force_jacobians_from_energy(x0, x1, x2, rest_value, stiffness, energy_func):
     '''
     Returns the six jacobians matrices in the following order
