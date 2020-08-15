@@ -6,7 +6,7 @@
 import math
 import numpy as np
 from lib.common import Shape
-import lib.objects.jit.simplex as simplex
+import lib.objects.jit.algorithms.simplex_lib as simplex_lib
 
 class Kinematic:
     '''
@@ -74,11 +74,11 @@ class Kinematic:
         c, s = np.cos(theta), np.sin(theta)
         rotation_matrix = np.array(((c, -s), (s, c)))
         # update kinematic
-        simplex.transform_point(details.point,
+        simplex_lib.transform_point(details.point,
                                 rotation_matrix,
                                 self.state.position,
                                 self.point_handles)
 
-        simplex.transform_normal(details.edge,
+        simplex_lib.transform_normal(details.edge,
                                  rotation_matrix,
                                  self.edge_handles)

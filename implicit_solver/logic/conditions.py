@@ -7,9 +7,8 @@ import numba
 import numpy as np
 
 from lib.objects import Condition
-from lib.objects.jit import Node, AnchorSpring, Spring, Area, Bending
-import lib.objects.jit.simplex as simplex
-import lib.objects.jit.utils.simplex_lib as simplex_lib
+from lib.objects.jit.data import Node, AnchorSpring, Spring, Area, Bending
+import lib.objects.jit.algorithms as algo
 import lib.common.jit.block_utils as block_utils
 import lib.common.code_gen as generate
 
@@ -64,11 +63,11 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
 
 @generate.vectorize(njit=True)
 def appendKinematicCollision(node : Node, points, edges, triangles, edge_handles, triangle_handles, is_inside_func, closest_param_func):
-    result = simplex_lib.IsInsideResult()
+    result = algo.simplex_lib.IsInsideResult()
     result.isInside = False
     is_inside_func(triangles, points, node.x, result, triangle_handles)
     if (result.isInside):
-        closest_param = simplex_lib.ClosestResult()
+        closest_param = algo.simplex_lib.ClosestResult()
         closest_param_func(edges, points, node.x, closest_param, edge_handles)
 
         if np.dot(closest_param.normal, node.v) < 0.0:
@@ -87,9 +86,18 @@ class KinematicCollisionCondition(Condition):
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping):
         Condition.__init__(self, stiffness, damping, AnchorSpring)
+        # data
         self.dynamic_handles = dynamic.block_handles
         self.triangle_handles = kinematic.triangle_handles
         self.edge_handles = kinematic.edge_handles
+        # functions
+        self.func.pre_compute = algo.anchor_spring_lib.pre_compute
+        self.func.compute_rest = algo.anchor_spring_lib.compute_rest
+        self.func.compute_function = None
+        self.func.compute_gradients = None
+        self.func.compute_hessians = None
+        self.func.compute_forces = algo.anchor_spring_lib.compute_forces
+        self.func.compute_force_jacobians = algo.anchor_spring_lib.compute_force_jacobians
 
     def is_static(self):
         '''
@@ -108,8 +116,8 @@ class KinematicCollisionCondition(Condition):
                                  details.triangle,
                                  self.edge_handles,
                                  self.triangle_handles,
-                                 simplex.is_inside.function,
-                                 simplex.get_closest_param.function,
+                                 simplex_lib.is_inside.function,
+                                 simplex_lib.get_closest_param.function,
                                  self.dynamic_handles)
         '''
 
@@ -119,25 +127,25 @@ class KinematicCollisionCondition(Condition):
         data_v = details.node.flatten('v', self.dynamic_handles)
         data_node_id = details.node.flatten('ID', self.dynamic_handles)
 
-        result = simplex_lib.IsInsideResult()
+        result = algo.simplex_lib.IsInsideResult()
         for i in range(len(data_x)):
             node_pos = data_x[i]
             node_vel = data_v[i]
             node_ids = [data_node_id[i]]
 
             result.isInside = False
-            simplex.is_inside(details.triangle,
-                              details.point,
-                              node_pos,
-                              result,
-                              self.triangle_handles)
+            algo.simplex_lib.is_inside(details.triangle,
+                                       details.point,
+                                       node_pos,
+                                       result,
+                                       self.triangle_handles)
 
             if (result.isInside):
-                closest_param = simplex_lib.ClosestResult()
-                simplex.get_closest_param(details.edge,
-                                          details.point, node_pos,
-                                          closest_param,
-                                          self.edge_handles)
+                closest_param = algo.simplex_lib.ClosestResult()
+                algo.simplex_lib.get_closest_param(details.edge,
+                                                   details.point, node_pos,
+                                                   closest_param,
+                                                   self.edge_handles)
 
                 if (np.dot(closest_param.normal, node_vel) < 0.0):
                     # add spring
@@ -162,10 +170,19 @@ class KinematicAttachmentCondition(Condition):
     Creates attachment constraint between one kinematic and one dynamic object
     '''
     def __init__(self, dynamic, kinematic, stiffness, damping, distance):
-       Condition.__init__(self, stiffness, damping, AnchorSpring)
-       self.distance = distance
-       self.dynamic_handles = dynamic.block_handles
-       self.edge_handles = kinematic.edge_handles
+        Condition.__init__(self, stiffness, damping, AnchorSpring)
+        # data
+        self.distance = distance
+        self.dynamic_handles = dynamic.block_handles
+        self.edge_handles = kinematic.edge_handles
+        # functions
+        self.func.pre_compute = algo.anchor_spring_lib.pre_compute
+        self.func.compute_rest = algo.anchor_spring_lib.compute_rest
+        self.func.compute_function = None
+        self.func.compute_gradients = None
+        self.func.compute_hessians = None
+        self.func.compute_forces = algo.anchor_spring_lib.compute_forces
+        self.func.compute_force_jacobians = algo.anchor_spring_lib.compute_force_jacobians
 
     def init_constraints(self, details):
         '''
@@ -182,11 +199,11 @@ class KinematicAttachmentCondition(Condition):
             node_pos = data_x[i]
             node_ids = [data_node_id[i]]
 
-            closest_param = simplex_lib.ClosestResult()
-            simplex.get_closest_param(details.edge,
-                                      details.point, node_pos,
-                                      closest_param,
-                                      self.edge_handles)
+            closest_param = algo.simplex_lib.ClosestResult()
+            algo.simplex_lib.get_closest_param(details.edge,
+                                               details.point, node_pos,
+                                               closest_param,
+                                               self.edge_handles)
 
             if closest_param.squared_distance < distance2:
                 # add spring
@@ -209,8 +226,17 @@ class DynamicAttachmentCondition(Condition):
     def __init__(self, dynamic0, dynamic1, stiffness, damping, distance):
        Condition.__init__(self, stiffness, damping, Spring)
        self.distance = distance
+       # data
        self.dynamic0_handles = dynamic0.block_handles
        self.dynamic1_handles = dynamic1.block_handles
+       # functions
+       self.func.pre_compute = None
+       self.func.compute_rest = algo.spring_lib.compute_rest
+       self.func.compute_function = None
+       self.func.compute_gradients = None
+       self.func.compute_hessians = None
+       self.func.compute_forces = algo.spring_lib.compute_forces
+       self.func.compute_force_jacobians = algo.spring_lib.compute_force_jacobians
 
     def init_constraints(self, details):
         '''
@@ -252,6 +278,14 @@ class EdgeCondition(Condition):
     def __init__(self, dynamics, stiffness, damping):
        Condition.__init__(self, stiffness, damping, Spring)
        self.dynamics = dynamics.copy()
+       # functions
+       self.func.pre_compute = None
+       self.func.compute_rest = algo.spring_lib.compute_rest
+       self.func.compute_function = None
+       self.func.compute_gradients = None
+       self.func.compute_hessians = None
+       self.func.compute_forces = algo.spring_lib.compute_forces
+       self.func.compute_force_jacobians = algo.spring_lib.compute_force_jacobians
 
     def init_constraints(self, details):
         springs = []
@@ -278,6 +312,14 @@ class AreaCondition(Condition):
     def __init__(self, dynamics, stiffness, damping):
        Condition.__init__(self, stiffness, damping, Area)
        self.dynamics = dynamics.copy()
+       # functions
+       self.func.pre_compute = None
+       self.func.compute_rest = algo.area_lib.compute_rest
+       self.func.compute_function = None
+       self.func.compute_gradients = None
+       self.func.compute_hessians = None
+       self.func.compute_forces = algo.area_lib.compute_forces
+       self.func.compute_force_jacobians = algo.area_lib.compute_force_jacobians
 
     def init_constraints(self, details):
         constraints = []
@@ -321,6 +363,14 @@ class WireBendingCondition(Condition):
                         self.node_ids.append(node_ids)
 
        self.node_ids = np.asarray(self.node_ids)
+       # functions
+       self.func.pre_compute = None
+       self.func.compute_rest = algo.bending_lib.compute_rest
+       self.func.compute_function = None
+       self.func.compute_gradients = None
+       self.func.compute_hessians = None
+       self.func.compute_forces = algo.bending_lib.compute_forces
+       self.func.compute_force_jacobians = algo.bending_lib.compute_force_jacobians
 
     def init_constraints(self, details):
         constraints = []

@@ -6,8 +6,42 @@
 import math
 import numpy as np
 import numba
+
+from lib.objects.jit.data import Bending
+import lib.common.code_gen as generate
+import lib.common.jit.data_accessor as db
 import lib.common.jit.math_2d as math2D
-from lib.objects.jit.utils.differentiation_lib import force_jacobians_from_energy
+from lib.objects.jit.algorithms.differentiation_lib import force_jacobians_from_energy
+
+@generate.vectorize
+def compute_rest(bending : Bending, detail_nodes):
+    x0 = db.x(detail_nodes, bending.node_IDs[0])
+    x1 = db.x(detail_nodes, bending.node_IDs[1])
+    x2 = db.x(detail_nodes, bending.node_IDs[2])
+    bending.rest_angle = np.float64(math2D.angle(x0, x1, x2))
+
+@generate.vectorize
+def compute_forces(bending : Bending, detail_nodes):
+    x0 = db.x(detail_nodes, bending.node_IDs[0])
+    x1 = db.x(detail_nodes, bending.node_IDs[1])
+    x2 = db.x(detail_nodes, bending.node_IDs[2])
+    forces = elastic_bending_forces(x0, x1, x2, bending.rest_angle, bending.stiffness)
+    bending.f[0] = forces[0]
+    bending.f[1] = forces[1]
+    bending.f[2] = forces[2]
+
+@generate.vectorize
+def compute_force_jacobians(bending : Bending, detail_nodes):
+    x0 = db.x(detail_nodes, bending.node_IDs[0])
+    x1 = db.x(detail_nodes, bending.node_IDs[1])
+    x2 = db.x(detail_nodes, bending.node_IDs[2])
+    dfdx = elastic_bending_numerical_jacobians(x0, x1, x2, bending.rest_angle, bending.stiffness)
+    bending.dfdx[0][0] = dfdx[0]
+    bending.dfdx[1][1] = dfdx[1]
+    bending.dfdx[2][2] = dfdx[2]
+    bending.dfdx[0][1] = bending.dfdx[1][0] = dfdx[3]
+    bending.dfdx[0][2] = bending.dfdx[2][0] = dfdx[4]
+    bending.dfdx[1][2] = bending.dfdx[2][1] = dfdx[5]
 
 @numba.njit
 def elastic_bending_energy(X, rest_angle, stiffness):

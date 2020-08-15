@@ -9,6 +9,16 @@ class Condition:
     '''
     Base of a condition
     '''
+    class FunctionBundle:
+        def __init__(self):
+            self.pre_compute = None
+            self.compute_rest = None
+            self.compute_function = None
+            self.compute_gradients = None
+            self.compute_hessians = None
+            self.compute_forces = None
+            self.compute_force_jacobians = None
+
     def __init__(self, stiffness, damping, constraint_type):
         self.block_handles = block_utils.empty_block_handles()
         self.constraint_type = constraint_type
@@ -18,6 +28,8 @@ class Condition:
         # Metadata
         self.meta_data = {}
         self.total_constraints = 0
+        # Function bundle
+        self.func = Condition.FunctionBundle()
 
     def num_constraints(self) -> int:
         return self.total_constraints
@@ -49,25 +61,25 @@ class Condition:
 
     # initialization functions
     def pre_compute(self, details):
-        self.__call_func(self.constraint_type.pre_compute(), details, use_point=True)
+        self.__call_func(self.func.pre_compute, details, use_point=True)
 
     def compute_rest(self, details):
-        self.__call_func(self.constraint_type.compute_rest(), details)
+        self.__call_func(self.func.compute_rest, details)
 
     # constraint functions (function, gradients, hessians)
     def compute_function(self, details):
-        self.__call_func(self.constraint_type.compute_function(), details)
+        self.__call_func(self.func.compute_function, details)
 
     def compute_gradients(self, details):
-        self.__call_func(self.constraint_type.compute_gradients(), details)
+        self.__call_func(self.func.compute_gradients, details)
 
     def compute_hessians(self, details):
-        self.__call_func(self.constraint_type.compute_hessians(), details)
+        self.__call_func(self.func.compute_hessians, details)
 
     # force functions (forces and their jacobians)
     def compute_forces(self, details):
-        self.__call_func(self.constraint_type.compute_forces(), details)
+        self.__call_func(self.func.compute_forces, details)
 
     def compute_force_jacobians(self, details):
-        self.__call_func(self.constraint_type.compute_force_jacobians(), details)
+        self.__call_func(self.func.compute_force_jacobians, details)
 

@@ -8,7 +8,7 @@ import numpy as np
 import lib.common.jit.data_accessor as db
 import lib.common.code_gen as generate
 import lib.system.jit.sparse_matrix_lib as sparse_lib
-from lib.objects.jit import Constraint, Node
+from lib.objects.jit.data import Constraint, Node
 
 def apply_external_forces_to_nodes(dynamics, forces):
     # this function is not vectorized but forces.apply_forces are vectorized

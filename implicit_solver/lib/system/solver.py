@@ -4,8 +4,8 @@
 """
 
 import lib.common as cm
-from lib.objects.jit import Node, Area, Bending, Spring, AnchorSpring
-from lib.objects.jit import Point, Edge, Triangle, Tetrahedron
+from lib.objects.jit.data import Node, Area, Bending, Spring, AnchorSpring
+from lib.objects.jit.data import Point, Edge, Triangle, Tetrahedron
 from lib.system import Scene
 
 class SolverContext:

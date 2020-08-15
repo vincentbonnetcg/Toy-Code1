@@ -1,34 +1,35 @@
 """
 @author: Vincent Bonnet
-@description : Simplices to store point, edge, triangle, tetrahedron
+@description : simplex classes and methods
 """
 
 import numpy as np
-import numba # required by lib.common.code_gen
+import numba
 
-import lib.common.jit.math_2d as math2D
-import lib.common.jit.data_accessor as db
+from lib.objects.jit.data import Point, Edge, Triangle
 import lib.common.code_gen as generate
+import lib.common.jit.data_accessor as db
+import lib.common.jit.math_2d as math2D
 
-class Point:
+closestResultSpec = [('points', numba.int32[:,:]), # two points
+                  ('t', numba.float32), # parametric value
+                  ('position', numba.float64[:]),  # position
+                  ('normal', numba.float64[:]),# normal
+                  ('squared_distance', numba.float64)] # parametric value
+@numba.experimental.jitclass(closestResultSpec)
+class ClosestResult(object):
     def __init__(self):
-        self.local_x = np.zeros(2, dtype = np.float64)
-        self.x = np.zeros(2, dtype = np.float64)
-        self.ID = db.empty_data_id()
+        self.points = db.empty_data_ids(2)
+        self.t = 0.0
+        self.position = np.zeros(2, dtype=np.float64)
+        self.normal = np.zeros(2, dtype=np.float64)
+        self.squared_distance = np.finfo(np.float64).max
 
-class Edge:
+insideResultSpec = [('isInside', numba.boolean)]
+@numba.experimental.jitclass(insideResultSpec)
+class IsInsideResult(object):
     def __init__(self):
-        self.point_IDs = db.empty_data_ids(2)
-        self.local_normal = np.zeros(2, dtype = np.float64)
-        self.normal = np.zeros(2, dtype = np.float64)
-
-class Triangle:
-    def __init__(self):
-        self.point_IDs = db.empty_data_ids(3)
-
-class Tetrahedron:
-    def __init__(self):
-        self.point_IDs = db.empty_data_ids(4)
+        self.isInside = False
 
 @generate.vectorize
 def transform_point(point : Point, rotation_matrix, translate):

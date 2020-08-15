@@ -7,7 +7,7 @@ import numpy as np
 import numba # required by lib.common.code_gen
 
 from lib.objects import Force
-from lib.objects.jit import Node
+from lib.objects.jit.data import Node
 import lib.common.code_gen as generate
 
 @generate.vectorize
