@@ -7,6 +7,7 @@ import lib.common as cm
 from lib.objects.jit.data import Node, Area, Bending, Spring, AnchorSpring
 from lib.objects.jit.data import Point, Edge, Triangle, Tetrahedron
 from lib.system import Scene
+from collections import namedtuple
 
 class SolverContext:
     '''
@@ -23,36 +24,44 @@ class SolverContext:
 
 class SolverDetails:
     '''
-    List of datablocks
+    Details contains the datablocks
     '''
     def __init__(self):
-        block_size = 100
-        # dynamics
-        self.node = cm.DataBlock(Node, block_size) # nodes
-        # constraints
-        self.area = cm.DataBlock(Area, block_size) # area
-        self.bending = cm.DataBlock(Bending, block_size) # bending rod
-        self.spring = cm.DataBlock(Spring, block_size) # spring
-        self.anchorSpring = cm.DataBlock(AnchorSpring, block_size) # anchor spring
-        # kinematics
-        self.point = cm.DataBlock(Point, block_size) # point
-        self.edge = cm.DataBlock(Edge, block_size) # edge
-        self.triangle = cm.DataBlock(Triangle, block_size) # triangle
-        self.tetrahedron = cm.DataBlock(Tetrahedron, block_size) # tetrahedron
+        system_types = [Node, Area, Bending, Spring, AnchorSpring]
+        system_types += [Point, Edge, Triangle, Tetrahedron]
 
-    def block_from_datatype(self, datatype):
-        blocks = [self.node, self.area, self.bending, self.spring, self.anchorSpring]
-        blocks += [self.point, self.edge, self.triangle, self.tetrahedron]
-        datatypes = [Node, Area, Bending, Spring, AnchorSpring]
-        datatypes += [Point, Edge, Triangle, Tetrahedron]
-        index = datatypes.index(datatype)
-        return blocks[index]
+        self.attribute_names = []
+        self.datablocks = []
+
+        # create datablock
+        block_size = 100
+        for datatype in system_types:
+            datablock = cm.DataBlock(datatype, block_size)
+            setattr(self, datatype.name(), datablock) # TODO : will be removed in the future !
+            self.attribute_names.append(datatype.name())
+            self.datablocks.append(datablock)
+
+        # create bundle (namedtuple) accessible by numba
+        blocks = [data.blocks for data in self.datablocks]
+        self.bundleType = namedtuple('solveDetails', self.attribute_names)
+        self.bundle = self.bundleType(*blocks)
+
+        # create groups (subset of bundle)
+        # TODO - replace with a nametuple
+        group = lambda types : [self.datablocks[system_types.index(datatype)].blocks
+                                for datatype in types]
+        self.dynamic_group = group([Node])
+        self.condition_group = group([Area, Bending, Spring, AnchorSpring])
+
+    def block_from_datatype(self, typename):
+        index = self.attribute_names.index(typename)
+        return self.datablocks[index]
 
     def dynamics(self):
-        return [self.node]
+        return self.dynamic_group
 
     def conditions(self):
-        return [self.area, self.bending, self.spring, self.anchorSpring]
+        return self.condition_group
 
 class Solver:
     '''

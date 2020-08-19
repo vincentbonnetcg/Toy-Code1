@@ -6,9 +6,6 @@
 import lib.common.jit.block_utils as block_utils
 
 class Condition:
-    '''
-    Base of a condition
-    '''
     class FunctionBundle:
         def __init__(self):
             self.pre_compute = None
@@ -21,7 +18,7 @@ class Condition:
 
     def __init__(self, stiffness, damping, constraint_type):
         self.block_handles = block_utils.empty_block_handles()
-        self.constraint_type = constraint_type
+        self.typename = constraint_type.name()
         # Parameters
         self.stiffness = stiffness
         self.damping = damping
@@ -51,17 +48,14 @@ class Condition:
     def update_constraints(self, details):
         pass
 
-    def __call_func(self, func, details, use_point = False):
+    def __call_func(self, func, details):
         if func and len(self.block_handles)>0:
-            data = details.block_from_datatype(self.constraint_type)
-            if use_point:
-                func(data, details.node, details.point, self.block_handles)
-            else:
-                func(data, details.node, self.block_handles)
+            blocks = getattr(details, self.typename)
+            func.function(blocks, details, self.block_handles)
 
     # initialization functions
     def pre_compute(self, details):
-        self.__call_func(self.func.pre_compute, details, use_point=True)
+        self.__call_func(self.func.pre_compute, details)
 
     def compute_rest(self, details):
         self.__call_func(self.func.compute_rest, details)

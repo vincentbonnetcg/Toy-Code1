@@ -14,27 +14,27 @@ import lib.common.jit.math_2d as math2D
 from lib.objects.jit.algorithms.differentiation_lib import force_jacobians_from_energy
 
 @generate.vectorize
-def compute_rest(area : Area, detail_nodes):
-    x0 = db.x(detail_nodes, area.node_IDs[0])
-    x1 = db.x(detail_nodes, area.node_IDs[1])
-    x2 = db.x(detail_nodes, area.node_IDs[2])
+def compute_rest(area : Area, details):
+    x0 = db.x(details.node, area.node_IDs[0])
+    x1 = db.x(details.node, area.node_IDs[1])
+    x2 = db.x(details.node, area.node_IDs[2])
     area.rest_area = np.float64(math2D.area(x0, x1, x2))
 
 @generate.vectorize
-def compute_forces(area : Area, detail_nodes):
-    x0 = db.x(detail_nodes, area.node_IDs[0])
-    x1 = db.x(detail_nodes, area.node_IDs[1])
-    x2 = db.x(detail_nodes, area.node_IDs[2])
+def compute_forces(area : Area, details):
+    x0 = db.x(details.node, area.node_IDs[0])
+    x1 = db.x(details.node, area.node_IDs[1])
+    x2 = db.x(details.node, area.node_IDs[2])
     forces = elastic_area_forces(x0, x1, x2, area.rest_area, area.stiffness)
     area.f[0] = forces[0]
     area.f[1] = forces[1]
     area.f[2] = forces[2]
 
 @generate.vectorize
-def compute_force_jacobians(area : Area, detail_nodes):
-    x0 = db.x(detail_nodes, area.node_IDs[0])
-    x1 = db.x(detail_nodes, area.node_IDs[1])
-    x2 = db.x(detail_nodes, area.node_IDs[2])
+def compute_force_jacobians(area : Area, details):
+    x0 = db.x(details.node, area.node_IDs[0])
+    x1 = db.x(details.node, area.node_IDs[1])
+    x2 = db.x(details.node, area.node_IDs[2])
     jacobians = elastic_area_numerical_jacobians(x0, x1, x2, area.rest_area, area.stiffness)
     area.dfdx[0][0] = jacobians[0]
     area.dfdx[1][1] = jacobians[1]

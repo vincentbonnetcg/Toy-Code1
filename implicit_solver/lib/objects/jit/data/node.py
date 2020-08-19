@@ -15,3 +15,7 @@ class Node:
         self.im = np.float64(0.0)
         self.systemIndex = np.int32(0)
         self.ID = db.empty_data_id()
+
+    @staticmethod
+    def name():
+        return "node"

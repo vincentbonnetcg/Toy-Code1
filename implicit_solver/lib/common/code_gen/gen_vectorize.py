@@ -55,8 +55,8 @@ def vectorize(function=None, local={} , **options):
         if isinstance(value, common.DataBlock):
             return True
 
-        if isinstance(value,(list, tuple)):
-            return isinstance(value[0], numpy.void)
+        if isinstance(value,numba.typed.List):
+            return isinstance(value[0], (numpy.ndarray, numpy.generic))
 
         return False
 

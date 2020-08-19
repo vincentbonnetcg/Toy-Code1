@@ -37,10 +37,18 @@ class AnchorSpring(Constraint):
         self.kinematic_component_param = np.float64(0.0)
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 
+    @staticmethod
+    def name():
+        return "anchorSpring"
+
 class Spring(Constraint):
     def __init__(self):
         Constraint.__init__(self, num_nodes = 2)
         self.rest_length = np.float64(0.0)
+
+    @staticmethod
+    def name():
+        return "spring"
 
 class Bending(Constraint):
     def __init__(self):
@@ -48,7 +56,15 @@ class Bending(Constraint):
         Constraint.__init__(self, num_nodes = 3)
         self.rest_angle = np.float64(0.0)
 
+    @staticmethod
+    def name():
+        return "bending"
+
 class Area(Constraint):
     def __init__(self):
         Constraint.__init__(self, num_nodes = 3)
         self.rest_area = np.float64(0.0)
+
+    @staticmethod
+    def name():
+        return "area"

@@ -7,15 +7,20 @@ import numba
 import unittest
 import numpy as np
 import lib.common as common
+from collections import namedtuple
 
-class ComponentTest:
-
+class ComponentField:
     def __init__(self):
         self.field_0 = np.float64(0.5)
         self.field_1 = np.ones((2, 2), dtype = np.int64)
 
+class ComponentNode:
+    def __init__(self):
+        self.x = np.zeros(2)
+        self.v = np.zeros(2)
+
 def get_block_dtype(block_size = 100):
-    datablock = common.DataBlock(ComponentTest, block_size)
+    datablock = common.DataBlock(ComponentField, block_size)
     return datablock.dtype_block
 
 @numba.njit
@@ -90,6 +95,12 @@ def test_value_as_reference(refValue, increase):
     increment(refValue, increase)
     return refValue
 
+@numba.njit
+def set_bundle(bundle, block_id, value):
+    block_container = bundle.node0[block_id]
+    block_data = block_container[0]
+    block_data.x[:] = value
+
 '''
 Waiting for feature on numba => already requested
 see : https://github.com/numba/numba/issues/1469
@@ -126,11 +137,11 @@ class Tests(unittest.TestCase):
         # Test first active block
         block_container = blocks[1]
         block_data = block_container[0]
-        componentTest = ComponentTest()
+        componentField = ComponentField()
         self.assertEqual(block_data['blockInfo_size'], 10)
         self.assertEqual(block_data['blockInfo_active'], True)
-        self.assertTrue(block_data['field_0'][0] == componentTest.field_0)
-        self.assertTrue((block_data['field_1'][0] == componentTest.field_1).all())
+        self.assertTrue(block_data['field_0'][0] == componentField.field_0)
+        self.assertTrue((block_data['field_1'][0] == componentField.field_1).all())
 
     def test_inactive(self):
         block_dtype = get_block_dtype(block_size = 100)
@@ -151,6 +162,21 @@ class Tests(unittest.TestCase):
         indices = np.asarray([1,2,3])
         self.assertEqual(take(values), 15.0)
         self.assertEqual(take(values, indices), 4.5)
+
+    def test_named_tuple(self):
+        block_size = 10
+        db0 = common.DataBlock(ComponentField, block_size)
+        db1 = common.DataBlock(ComponentNode, block_size)
+        db2 = common.DataBlock(ComponentNode, block_size)
+        db0.initialize(2000)
+        db1.initialize(1500)
+        db2.initialize(800)
+        block_id = 10
+        value = 2.2
+        bundle = namedtuple('bundle', ['field', 'node0', 'node1'])
+        set_bundle(bundle(db0.blocks, db1.blocks, db2.blocks), block_id, value)
+        self.assertTrue((db1.block(block_id)['x'] == value).all())
+        self.assertTrue((db1.block(block_id+1)['x'] == 0.0).all())
 
     def setUp(self):
         print(" Numba Test:", self._testMethodName)

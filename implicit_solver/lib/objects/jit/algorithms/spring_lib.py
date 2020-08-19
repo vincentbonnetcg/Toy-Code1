@@ -12,24 +12,24 @@ import lib.common.jit.data_accessor as db
 import lib.common.jit.math_2d as math2D
 
 @generate.vectorize
-def compute_rest(spring : Spring, detail_nodes):
-    x0 = db.x(detail_nodes, spring.node_IDs[0])
-    x1 = db.x(detail_nodes, spring.node_IDs[1])
+def compute_rest(spring : Spring, details):
+    x0 = db.x(details.node, spring.node_IDs[0])
+    x1 = db.x(details.node, spring.node_IDs[1])
     spring.rest_length = np.float64(math2D.distance(x0, x1))
 
 @generate.vectorize
-def compute_forces(spring : Spring, detail_nodes):
-    x0, v0 = db.xv(detail_nodes, spring.node_IDs[0])
-    x1, v1 = db.xv(detail_nodes, spring.node_IDs[1])
+def compute_forces(spring : Spring, details):
+    x0, v0 = db.xv(details.node, spring.node_IDs[0])
+    x1, v1 = db.xv(details.node, spring.node_IDs[1])
     force = spring_stretch_force(x0, x1, spring.rest_length, spring.stiffness)
     force += spring_damping_force(x0, x1, v0, v1, spring.damping)
     spring.f[0] = force
     spring.f[1] = force * -1.0
 
 @generate.vectorize
-def compute_force_jacobians(spring : Spring, detail_nodes):
-    x0, v0 = db.xv(detail_nodes, spring.node_IDs[0])
-    x1, v1 = db.xv(detail_nodes, spring.node_IDs[1])
+def compute_force_jacobians(spring : Spring, details):
+    x0, v0 = db.xv(details.node, spring.node_IDs[0])
+    x1, v1 = db.xv(details.node, spring.node_IDs[1])
     dfdx = spring_stretch_jacobian(x0, x1, spring.rest_length, spring.stiffness)
     dfdv = spring_damping_jacobian(x0, x1, v0, v1, spring.damping)
     spring.dfdx[0][0] = spring.dfdx[1][1] = dfdx

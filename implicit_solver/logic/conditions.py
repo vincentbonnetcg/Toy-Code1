@@ -13,7 +13,7 @@ import lib.common.jit.block_utils as block_utils
 import lib.common.code_gen as generate
 
 def initialize_condition_from_aos(condition, array_of_struct, details):
-    data = details.block_from_datatype(condition.constraint_type)
+    data = details.block_from_datatype(condition.typename)
 
     # disable previous allocated blocks
     num_constraints = len(array_of_struct)
@@ -56,7 +56,7 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
         data.copyto(field_name, new_array, condition.block_handles)
 
     # compute constraint rest
-    condition.compute_rest(details)
+    condition.compute_rest(details.bundle)
 
     return True
 

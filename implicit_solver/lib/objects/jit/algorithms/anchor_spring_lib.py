@@ -12,20 +12,20 @@ import lib.common.jit.data_accessor as db
 import lib.common.jit.math_2d as math2D
 
 @generate.vectorize
-def pre_compute(anchor_spring : AnchorSpring, detail_nodes, details_points):
+def pre_compute(anchor_spring : AnchorSpring, details):
     t = anchor_spring.kinematic_component_param
-    x0 = db.x(details_points, anchor_spring.kinematic_component_IDs[0])
-    x1 = db.x(details_points, anchor_spring.kinematic_component_IDs[1])
+    x0 = db.x(details.point, anchor_spring.kinematic_component_IDs[0])
+    x1 = db.x(details.point, anchor_spring.kinematic_component_IDs[1])
     anchor_spring.kinematic_component_pos = x0 * (1.0 - t) + x1 * t
 
 @generate.vectorize
-def compute_rest(anchor_spring : AnchorSpring, detail_nodes):
-    x = db.x(detail_nodes, anchor_spring.node_IDs[0])
+def compute_rest(anchor_spring : AnchorSpring, details):
+    x = db.x(details.node, anchor_spring.node_IDs[0])
     anchor_spring.rest_length = np.float64(math2D.distance(anchor_spring.kinematic_component_pos, x))
 
 @generate.vectorize
-def compute_forces(anchor_spring : AnchorSpring, detail_nodes):
-    x, v = db.xv(detail_nodes, anchor_spring.node_IDs[0])
+def compute_forces(anchor_spring : AnchorSpring, details):
+    x, v = db.xv(details.node, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
     target_pos = anchor_spring.kinematic_component_pos
     force = spring_lib.spring_stretch_force(x, target_pos, anchor_spring.rest_length, anchor_spring.stiffness)
@@ -33,8 +33,8 @@ def compute_forces(anchor_spring : AnchorSpring, detail_nodes):
     anchor_spring.f = force
 
 @generate.vectorize
-def compute_force_jacobians(anchor_spring : AnchorSpring, detail_nodes):
-    x, v = db.xv(detail_nodes, anchor_spring.node_IDs[0])
+def compute_force_jacobians(anchor_spring : AnchorSpring, details):
+    x, v = db.xv(details.node, anchor_spring.node_IDs[0])
     kinematic_vel = np.zeros(2)
     target_pos = anchor_spring.kinematic_component_pos
     dfdx = spring_lib.spring_stretch_jacobian(x, target_pos, anchor_spring.rest_length, anchor_spring.stiffness)

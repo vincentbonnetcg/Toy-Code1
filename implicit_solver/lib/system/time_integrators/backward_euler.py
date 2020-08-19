@@ -40,11 +40,11 @@ class BackwardEulerIntegrator(TimeIntegrator):
 
         # Compute constraint forces and jacobians
         for condition in scene.conditions:
-            condition.pre_compute(details)
-            condition.compute_gradients(details)
-            condition.compute_hessians(details)
-            condition.compute_forces(details)
-            condition.compute_force_jacobians(details)
+            condition.pre_compute(details.bundle)
+            condition.compute_gradients(details.bundle)
+            condition.compute_hessians(details.bundle)
+            condition.compute_forces(details.bundle)
+            condition.compute_force_jacobians(details.bundle)
 
         # Add forces to dynamics
         integrator_lib.apply_external_forces_to_nodes(details.dynamics(), scene.forces)
@@ -66,7 +66,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         if (self.num_nodes == 0):
             return
 
-        self._assemble_A(details, dt)
+        self._assemble_A(details.bundle, dt)
         self._assemble_b(details, dt)
 
     @cm.timeit
@@ -92,23 +92,10 @@ class BackwardEulerIntegrator(TimeIntegrator):
         '''
         # create empty sparse matrix A
         num_rows = self.num_nodes
-
-        # TODO : SuperUgly but issue when using Numba 0.48.0 to lower details class
-        node_blocks = details.node.blocks
-        area_blocks = details.area.blocks
-        bending_blocks = details.bending.blocks
-        spring_blocks = details.spring.blocks
-        anchorSpring_blocks = details.anchorSpring.blocks
-
-        data, column_indices, row_indptr = integrator_lib.assemble_A(node_blocks,
-                                                   area_blocks,
-                                                   bending_blocks,
-                                                   spring_blocks,
-                                                   anchorSpring_blocks,
-                                                   num_rows,
-                                                   dt,
-                                                   integrator_lib.assemble_mass_matrix_to_A.function,
-                                                   integrator_lib.assemble_constraint_forces_to_A.function)
+        data, column_indices, row_indptr = integrator_lib.assemble_A(details,
+                                                    num_rows, dt,
+                                                    integrator_lib.assemble_mass_matrix_to_A.function,
+                                                    integrator_lib.assemble_constraint_forces_to_A.function)
 
         self.A = scipy.sparse.bsr_matrix((data, column_indices, row_indptr))
 

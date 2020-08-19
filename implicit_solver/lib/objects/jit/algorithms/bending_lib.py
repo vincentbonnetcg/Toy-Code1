@@ -14,27 +14,27 @@ import lib.common.jit.math_2d as math2D
 from lib.objects.jit.algorithms.differentiation_lib import force_jacobians_from_energy
 
 @generate.vectorize
-def compute_rest(bending : Bending, detail_nodes):
-    x0 = db.x(detail_nodes, bending.node_IDs[0])
-    x1 = db.x(detail_nodes, bending.node_IDs[1])
-    x2 = db.x(detail_nodes, bending.node_IDs[2])
+def compute_rest(bending : Bending, details):
+    x0 = db.x(details.node, bending.node_IDs[0])
+    x1 = db.x(details.node, bending.node_IDs[1])
+    x2 = db.x(details.node, bending.node_IDs[2])
     bending.rest_angle = np.float64(math2D.angle(x0, x1, x2))
 
 @generate.vectorize
-def compute_forces(bending : Bending, detail_nodes):
-    x0 = db.x(detail_nodes, bending.node_IDs[0])
-    x1 = db.x(detail_nodes, bending.node_IDs[1])
-    x2 = db.x(detail_nodes, bending.node_IDs[2])
+def compute_forces(bending : Bending, details):
+    x0 = db.x(details.node, bending.node_IDs[0])
+    x1 = db.x(details.node, bending.node_IDs[1])
+    x2 = db.x(details.node, bending.node_IDs[2])
     forces = elastic_bending_forces(x0, x1, x2, bending.rest_angle, bending.stiffness)
     bending.f[0] = forces[0]
     bending.f[1] = forces[1]
     bending.f[2] = forces[2]
 
 @generate.vectorize
-def compute_force_jacobians(bending : Bending, detail_nodes):
-    x0 = db.x(detail_nodes, bending.node_IDs[0])
-    x1 = db.x(detail_nodes, bending.node_IDs[1])
-    x2 = db.x(detail_nodes, bending.node_IDs[2])
+def compute_force_jacobians(bending : Bending, details):
+    x0 = db.x(details.node, bending.node_IDs[0])
+    x1 = db.x(details.node, bending.node_IDs[1])
+    x2 = db.x(details.node, bending.node_IDs[2])
     dfdx = elastic_bending_numerical_jacobians(x0, x1, x2, bending.rest_angle, bending.stiffness)
     bending.dfdx[0][0] = dfdx[0]
     bending.dfdx[1][1] = dfdx[1]

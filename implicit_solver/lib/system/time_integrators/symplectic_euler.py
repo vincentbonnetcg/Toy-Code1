@@ -18,8 +18,8 @@ class SymplecticEulerIntegrator(TimeIntegrator):
 
         # Compute constraint forces and jacobians
         for condition in scene.conditions:
-            condition.pre_compute(details)
-            condition.compute_forces(details)
+            condition.pre_compute(details.bundle)
+            condition.compute_forces(details.bundle)
 
         # Add forces to dynamics
         integrator_lib.apply_external_forces_to_nodes(details.dynamics(), scene.forces)
