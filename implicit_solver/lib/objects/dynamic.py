@@ -13,15 +13,15 @@ class Dynamic:
     def __init__(self, details, shape, node_mass):
         # Allocate node data
         self.total_nodes = shape.num_vertices()
-        self.block_handles = details.node.append_empty(self.total_nodes)
-        self.node_ids = details.node.flatten('ID', self.block_handles)
+        db_nodes = details.db['node']
+        self.block_handles = db_nodes.append_empty(self.total_nodes)
+        self.node_ids = db_nodes.flatten('ID', self.block_handles)
 
         # Set node data
-        details.node.copyto('x', shape.vertex, self.block_handles)
-        details.node.fill('v', 0.0, self.block_handles)
-        details.node.fill('m', node_mass, self.block_handles)
-        details.node.fill('im', 1.0 / node_mass, self.block_handles)
-        details.node.fill('f', 0.0, self.block_handles)
+        db_nodes.copyto('x', shape.vertex, self.block_handles)
+        db_nodes.fill('v', 0.0, self.block_handles)
+        db_nodes.fill('m', node_mass, self.block_handles)
+        db_nodes.fill('im', 1.0 / node_mass, self.block_handles)
 
         # Initialize node connectivities
         self.edge_ids = np.copy(shape.edge)
@@ -47,7 +47,7 @@ class Dynamic:
         num_edges = len(self.edge_ids)
         num_faces = len(self.face_ids)
         shape = common.Shape(num_vertices, num_edges, num_faces)
-        shape.vertex = details.node.flatten('x', self.block_handles)
+        shape.vertex = details.db['node'].flatten('x', self.block_handles)
         shape.edge = np.copy(self.edge_ids)
         shape.face = np.copy(self.face_ids)
 

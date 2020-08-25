@@ -7,6 +7,15 @@ import math
 import numba
 import numpy as np
 import lib.common.jit.data_accessor as db
+import lib.common.code_gen as generate
+
+@generate.vectorize_block
+def set_active(block, active):
+    block.blockInfo_active = active
+
+@generate.vectorize_block
+def _compute_num_elements(block, ref_counter):
+    ref_counter += block.blockInfo_size
 
 @numba.njit
 def empty_block_handles():
@@ -30,22 +39,10 @@ def get_inactive_block_handles(blocks):
     return handles
 
 @numba.njit
-def compute_num_elements(blocks, block_handles = None):
-    num_elements = 0
-
-    if block_handles is None:
-        for block_container in blocks:
-            block_data = block_container[0]
-            if block_data['blockInfo_active']:
-                num_elements += block_data['blockInfo_size']
-    else:
-        for block_handle in block_handles:
-            block_container = blocks[block_handle]
-            block_data = block_container[0]
-            if block_data['blockInfo_active']:
-                num_elements += block_data['blockInfo_size']
-
-    return num_elements
+def compute_num_elements(blocks, block_handles = None, func=_compute_num_elements.function):
+    counter = np.zeros(1, dtype = np.int32) # use array to pass value as reference
+    func(blocks, counter, block_handles)
+    return counter[0]
 
 @numba.njit
 def init_block(block, block_size, block_handle):

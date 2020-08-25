@@ -1,3 +1,3 @@
 # in __init__.py
 
-from lib.common.code_gen.gen_vectorize import vectorize
+from lib.common.code_gen.decorators import vectorize, vectorize_block

@@ -32,7 +32,7 @@ def solve_to_next_frame(scene, solver, details, context):
 
 def get_nodes_from_dynamic(scene, index, details):
     dynamic = scene.dynamics[index]
-    return details.node.flatten('x', dynamic.block_handles)
+    return details.db['node'].flatten('x', dynamic.block_handles)
 
 def get_shape_from_kinematic(scene, index, details):
     kinematic = scene.kinematics[index]
@@ -41,13 +41,13 @@ def get_shape_from_kinematic(scene, index, details):
 def get_normals_from_kinematic(scene, index, details, normal_scale=0.2):
     segs = []
     kinematic = scene.kinematics[index]
-    normals = details.edge.flatten('normal', kinematic.edge_handles)
-    point_IDs = details.edge.flatten('point_IDs', kinematic.edge_handles)
+    normals = details.db['edge'].flatten('normal', kinematic.edge_handles)
+    point_IDs = details.db['edge'].flatten('point_IDs', kinematic.edge_handles)
     num_normals = len(normals)
 
     for i in range(num_normals):
-        x0 = db.x(details.point.blocks, point_IDs[i][0])
-        x1 = db.x(details.point.blocks, point_IDs[i][1])
+        x0 = db.x(details.point, point_IDs[i][0])
+        x1 = db.x(details.point, point_IDs[i][1])
         points = [None, None]
         points[0] = (x0+x1)*0.5
         points[1] = points[0]+(normals[i]*normal_scale)
@@ -59,7 +59,7 @@ def get_segments_from_constraint(scene, index, details):
     segs = []
 
     condition = scene.conditions[index]
-    condition_data = details.block_from_datatype(condition.typename)
+    condition_data = details.datablock_from_typename(condition.typename)
 
     node_ids = condition_data.flatten('node_IDs', condition.block_handles)
     num_constraints = len(node_ids)
@@ -68,7 +68,7 @@ def get_segments_from_constraint(scene, index, details):
         if num_nodes == 2:
             points = []
             for node_index in range (num_nodes):
-                x = db.x(details.node.blocks, node_ids[ct_index][node_index])
+                x = db.x(details.node, node_ids[ct_index][node_index])
                 points.append(x)
             segs.append(points)
 

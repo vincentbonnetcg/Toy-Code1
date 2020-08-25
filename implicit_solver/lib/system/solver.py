@@ -28,40 +28,39 @@ class SolverDetails:
     '''
     def __init__(self):
         system_types = [Node, Area, Bending, Spring, AnchorSpring]
-        system_types += [Point, Edge, Triangle, Tetrahedron]
+        system_types += [Point, Edge, Triangle]
 
-        self.attribute_names = []
-        self.datablocks = []
+        self.db = {} # dictionnary of datablocks
 
         # create datablock
         block_size = 100
         for datatype in system_types:
-            datablock = cm.DataBlock(datatype, block_size)
-            setattr(self, datatype.name(), datablock) # TODO : will be removed in the future !
-            self.attribute_names.append(datatype.name())
-            self.datablocks.append(datablock)
+            self.db[datatype.name()] = cm.DataBlock(datatype, block_size)
 
-        # create bundle (namedtuple) accessible by numba
-        blocks = [data.blocks for data in self.datablocks]
-        self.bundleType = namedtuple('solveDetails', self.attribute_names)
-        self.bundle = self.bundleType(*blocks)
+        # add blocks as attributes
+        for system_type in system_types:
+            self.add_attribute(system_type.name(), system_type)
 
-        # create groups (subset of bundle)
-        # TODO - replace with a nametuple
-        group = lambda types : [self.datablocks[system_types.index(datatype)].blocks
+        # add bundles as attributes
+        self.add_attribute('dynamics', [Node])
+        self.add_attribute('constraints', [Area, Bending, Spring, AnchorSpring])
+        self.add_attribute('geometries', [Point, Edge, Triangle])
+        self.add_attribute('bundle', system_types)
+
+    def add_attribute(self, name, datatype):
+        get_blocks = lambda types : [self.db[datatype.name()].blocks
                                 for datatype in types]
-        self.dynamic_group = group([Node])
-        self.condition_group = group([Area, Bending, Spring, AnchorSpring])
+        get_names = lambda types : [datatype.name() for datatype in types]
 
-    def block_from_datatype(self, typename):
-        index = self.attribute_names.index(typename)
-        return self.datablocks[index]
+        if isinstance(datatype, (list, tuple)):
+            typename = name+'BundleType'
+            setattr(self, typename, namedtuple(typename, get_names(datatype)))
+            setattr(self, name, getattr(self, typename)(*get_blocks(datatype)))
+        else:
+            setattr(self, name, self.db[datatype.name()].blocks)
 
-    def dynamics(self):
-        return self.dynamic_group
-
-    def conditions(self):
-        return self.condition_group
+    def datablock_from_typename(self, typename):
+        return self.db[typename]
 
 class Solver:
     '''

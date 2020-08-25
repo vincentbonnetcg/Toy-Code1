@@ -3,7 +3,7 @@
 @description : Code Generation to convert function into numba friendly function
 """
 
-# Package used by gen_vectorize.py
+# Package used by decorators.py
 import inspect
 import functools
 import numpy
@@ -98,4 +98,9 @@ def vectorize(function=None, local={} , **options):
 
     return execute
 
-
+def vectorize_block(*args, **kwargs):
+    '''
+    Equivalent to vectorize(block=True)
+    '''
+    kwargs.update({'block': True})
+    return vectorize(*args, **kwargs)

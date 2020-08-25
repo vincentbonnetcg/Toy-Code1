@@ -6,6 +6,7 @@
 import unittest
 import lib.common as common
 import numpy as np
+import lib.common.jit.block_utils as block_utils
 
 '''
 Datablock Functions
@@ -79,12 +80,16 @@ class Tests(unittest.TestCase):
         num_elements = 10
         datablock = create_datablock(num_elements, block_size=3)
         datablock.copyto('field_0', range(num_elements))
-        datablock.set_active(False, [1,3])
+        block_handles = block_utils.empty_block_handles()
+        block_handles.append(1)
+        block_handles.append(3)
+        block_utils.set_active(datablock, False, block_handles)
+        num_elements = block_utils.compute_num_elements(datablock.blocks)
         self.assertEqual(datablock.block(0)['blockInfo_active'], True)
         self.assertEqual(datablock.block(1)['blockInfo_active'], False)
         self.assertEqual(datablock.block(2)['blockInfo_active'], True)
         self.assertEqual(datablock.block(3)['blockInfo_active'], False)
-        self.assertEqual(datablock.compute_num_elements(), 6)
+        self.assertEqual(num_elements, 6)
 
     def test_reuse_inactive_block(self):
         num_elements = 10
@@ -92,7 +97,10 @@ class Tests(unittest.TestCase):
         self.assertEqual(len(datablock.blocks), 4)
 
         # disable two blocks [1, 2] and reuse those blocks
-        datablock.set_active(False, [1,2])
+        block_handles = block_utils.empty_block_handles()
+        block_handles.append(1)
+        block_handles.append(2)
+        block_utils.set_active(datablock, False, block_handles)
         datablock.append(num_elements = 6, reuse_inactive_block=True)
         self.assertEqual(len(datablock.blocks), 4)
 

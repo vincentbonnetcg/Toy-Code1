@@ -162,6 +162,9 @@ class DataBlock:
     def __len__(self):
         return len(self.blocks)
 
+    def get_field_names(self):
+        return self.block(0).dtype.names
+
     '''
     Vectorize Functions on blocks
     '''
@@ -184,9 +187,6 @@ class DataBlock:
 
         return self.__take_with_id(block_handles)
 
-    def compute_num_elements(self, block_handles = None):
-        return block_utils.compute_num_elements(self.blocks, block_handles)
-
     def copyto(self, field_name, values, block_handles = None):
         num_elements = 0
 
@@ -203,9 +203,6 @@ class DataBlock:
             block_data = block_container[0]
             block_data[field_name].fill(value)
 
-    def get_field_names(self):
-        return self.block(0).dtype.names
-
     def flatten(self, field_name, block_handles = None):
         '''
         Convert block of array into a single array
@@ -215,7 +212,7 @@ class DataBlock:
         field_type = first_value.dtype.type
         field_shape = first_value.shape
         field_format =(field_type, field_shape)
-        num_elements = self.compute_num_elements(block_handles)
+        num_elements = block_utils.compute_num_elements(self.blocks, block_handles)
         result = np.empty(num_elements, field_format)
 
         num_elements = 0
@@ -228,8 +225,3 @@ class DataBlock:
             np.copyto(result[begin_index:end_index], block_data[field_id][0:block_n_elements])
 
         return result
-
-    def set_active(self, active, block_handles = None):
-        for block_container in self.get_blocks(block_handles):
-            block_data = block_container[0]
-            block_data['blockInfo_active'] = active

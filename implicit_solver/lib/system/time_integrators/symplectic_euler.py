@@ -14,7 +14,7 @@ class SymplecticEulerIntegrator(TimeIntegrator):
     @cm.timeit
     def prepare_system(self, scene, details, dt):
         # Reset forces
-        details.node.fill('f', 0.0)
+        integrator_lib.reset_forces(details.dynamics)
 
         # Compute constraint forces and jacobians
         for condition in scene.conditions:
@@ -22,8 +22,8 @@ class SymplecticEulerIntegrator(TimeIntegrator):
             condition.compute_forces(details.bundle)
 
         # Add forces to dynamics
-        integrator_lib.apply_external_forces_to_nodes(details.dynamics(), scene.forces)
-        integrator_lib.apply_constraint_forces_to_nodes(details.conditions(), details.node)
+        integrator_lib.apply_external_forces_to_nodes(details.dynamics, scene.forces)
+        integrator_lib.apply_constraint_forces_to_nodes(details.constraints, details.node)
 
     @cm.timeit
     def assemble_system(self, details, dt):
@@ -32,4 +32,4 @@ class SymplecticEulerIntegrator(TimeIntegrator):
 
     @cm.timeit
     def solve_system(self, details, dt):
-        integrator_lib.euler_integration(details.dynamics(), dt)
+        integrator_lib.euler_integration(details.dynamics, dt)

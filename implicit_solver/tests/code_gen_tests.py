@@ -38,6 +38,10 @@ def add_values(v0 : Vertex, v1 : Vertex, other_value):
 def add_values_to_list(v0 : Vertex, v1 : Vertex, out_list):
     out_list.append(v0.x + v1.x)
 
+@generate.vectorize_block
+def get_num_elements(vertex, ref_counter):
+    ref_counter += vertex.blockInfo_size
+
 '''
 Tests for code generation
 '''
@@ -78,6 +82,12 @@ class Tests(unittest.TestCase):
         add_values_to_list(datablock0, datablock1, result_list)
         self.assertEqual(len(result_list), 15)
         self.assertEqual(result_list[0][0][0], 4.2)
+
+    def test_vectorized_block(self):
+        datablock = create_datablock(157)
+        counter = np.zeros(1, dtype = np.int32) # use array to pass value as reference
+        get_num_elements(datablock, counter)
+        self.assertEqual(counter[0], 157)
 
     def setUp(self):
         print(" CodeGeneration Test:", self._testMethodName)

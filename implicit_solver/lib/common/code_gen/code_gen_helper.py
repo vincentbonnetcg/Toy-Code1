@@ -11,11 +11,14 @@ class CodeGenOptions:
         self.parallel = options.get('parallel', False) # Unused
         self.debug = options.get('debug', False)
         self.fastmath = options.get('fastmath', False)
+        self.block = options.get('block', False)
 
     def __str__(self):
         result = 'njit ' + str(self.njit) + '\n'
         result += 'parallel ' + str(self.parallel) + '\n'
-        result += 'debug ' + str(self.debug)
+        result += 'debug ' + str(self.debug)+ '\n'
+        result += 'fastmath ' + str(self.fastmath)+ '\n'
+        result += 'block ' + str(self.block)
 
         return result
 
@@ -33,6 +36,19 @@ class CodeGenWriter:
         indent_str = ' ' * self.indent * self._indent_size
         self.code_lines.append(indent_str + code_line)
 
+    def add_lines(self, code_lines, obj_attrs_map, lambda_var_transform):
+        # generate a dictionarry to update the code
+        code_update = {}
+        for obj, attrs in obj_attrs_map.items():
+            for attr in attrs:
+                code_update[obj+'.'+attr] = lambda_var_transform(obj, attr)
+
+        # generate code
+        for code in code_lines:
+            for original_code, updated_code in code_update.items():
+                code = code.replace(original_code, updated_code)
+            self.append(code)
+
     def source(self):
         return '\n'.join(self.code_lines)
 
@@ -44,7 +60,6 @@ class CodeGenHelper:
         self.generated_function_source = ''
         # Arguments
         self.obj_attrs_map = {} # dictionnary to map object with all attributes
-        self.variable_remap = {} # dictionnary mapping 'object.attr' with 'object_attr'
         self.functions_args = [] # original function arguments
         self.functions_defaults = [] # original function defaults
         # Options
@@ -119,36 +134,36 @@ class CodeGenHelper:
         #  generate the Kernel function #
         writer.append('def kernel('+', '.join(inner_kernel_args) +'):')
         writer.indent += 1
-        # add variable to access block data
-        for obj, attrs in self.obj_attrs_map.items():
-            for attr in attrs:
-                variable_name = '_' + obj + '_' + attr
-                variable_accessor = obj +'_block[0][\'' + attr + '\']'
-                variable_code = variable_name + ' = ' + variable_accessor
-                writer.append(variable_code)
 
-        master_variable_name = inner_kernel_args[0] + '[0][\'blockInfo_size\']'
-        writer.append('_num_elements = ' + master_variable_name)
+        if self.options.block:
+            # add the code
+            transform_variable = lambda obj, attr: obj +'_block[0][\'' + attr + '\']'
+            writer.add_lines(code_lines[function_body_line:],
+                             self.obj_attrs_map,
+                             transform_variable)
+        else:
+            # add variable to access data
+            for obj, attrs in self.obj_attrs_map.items():
+                for attr in attrs:
+                    variable_name = '_' + obj + '_' + attr
+                    variable_accessor = obj +'_block[0][\'' + attr + '\']'
+                    variable_code = variable_name + ' = ' + variable_accessor
+                    writer.append(variable_code)
 
-        # generate the variable remap - TODO : can do better
-        self.variable_remap = {}
-        for obj, attrs in self.obj_attrs_map.items():
-            for attr in attrs:
-                original_name = obj + '.' + attr
-                variable_name = '_' + obj + '_' + attr
-                self.variable_remap[original_name] = variable_name
+            master_variable_name = inner_kernel_args[0] + '[0][\'blockInfo_size\']'
+            writer.append('_num_elements = ' + master_variable_name)
+            writer.append('for _i in range(_num_elements):')
+            writer.indent += 1
 
-        # loop over the elements (numpy array)
-        writer.append('for _i in range(_num_elements):')
-        writer.indent += 1
-        for code in code_lines[function_body_line:]:
-            for key, value in self.variable_remap.items():
-                code = code.replace(key, value+'[_i]')
+            # add the code
+            transform_variable = lambda obj, attr: '_' + obj + '_' + attr + '[_i]'
+            writer.add_lines(code_lines[function_body_line:],
+                             self.obj_attrs_map,
+                             transform_variable)
 
-            writer.append(code)
+            writer.indent -= 1
+
         writer.indent -= 1
-        writer.indent -= 1
-
         writer.append('\n')
         #  Generate code to loop over blocks #
         # loop over the blocks (list/tuple of numpy array)
@@ -198,15 +213,16 @@ class CodeGenHelper:
         self.functions_defaults = []
         recorded_params = []
 
-        for param_name in function_signature.parameters:
+        for param_id, param_name in enumerate(function_signature.parameters):
             param = function_signature.parameters[param_name]
             arg_name = param_name
             arg_default = ''
 
-            # An argument is considered as a datablock when associated to an annotation
+            # Two conditions
+            # An argument was considered a datablock when associated to an annotation
             # Annotation (node:Node, constraint:Constraint ...)
-            # it is not generic, but the code generation works with this assumption for now (december 2019)
-            if param.annotation is not inspect._empty:
+            # and only available for the first argument
+            if (param_id == 0) or (param.annotation is not inspect._empty):
                 # regular expression to check whether the argument has a format object.attr
                 param_attrs = re.findall(param_name+'[.][a-zA-Z0-9_]*', function_source)
                 for param_attr in param_attrs:

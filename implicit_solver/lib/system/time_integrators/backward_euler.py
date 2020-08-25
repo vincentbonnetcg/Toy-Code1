@@ -8,6 +8,7 @@ import scipy.sparse
 import scipy.sparse.linalg
 
 import lib.common as cm
+import lib.common.jit.block_utils as block_utils
 import lib.system.jit.integrator_lib as integrator_lib
 from lib.system.time_integrators import TimeIntegrator
 
@@ -36,7 +37,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         Compute external and constraint forces
         '''
         # Reset forces on dynamics
-        details.node.fill('f', 0.0)
+        integrator_lib.reset_forces(details.dynamics)
 
         # Compute constraint forces and jacobians
         for condition in scene.conditions:
@@ -47,16 +48,16 @@ class BackwardEulerIntegrator(TimeIntegrator):
             condition.compute_force_jacobians(details.bundle)
 
         # Add forces to dynamics
-        integrator_lib.apply_external_forces_to_nodes(details.dynamics(), scene.forces)
-        integrator_lib.apply_constraint_forces_to_nodes(details.conditions(), details.node)
+        integrator_lib.apply_external_forces_to_nodes(details.dynamics, scene.forces)
+        integrator_lib.apply_constraint_forces_to_nodes(details.constraints, details.node)
 
         # Set system index
-        system_index_counter = np.zeros(1) # should pass value as reference hence use an array
-        integrator_lib.set_system_index(details.dynamics(), system_index_counter)
-        integrator_lib.update_system_indices(details.conditions(), details.node)
+        system_index_counter = np.zeros(1, dtype = np.int32) # use array to pass value as reference
+        integrator_lib.set_system_index(details.dynamics, system_index_counter)
+        integrator_lib.update_system_indices(details.constraints, details.node)
 
         # Store number of nodes
-        self.num_nodes = details.node.compute_num_elements()
+        self.num_nodes = block_utils.compute_num_elements(details.node)
 
     @cm.timeit
     def assemble_system(self, details, dt):
@@ -66,7 +67,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         if (self.num_nodes == 0):
             return
 
-        self._assemble_A(details.bundle, dt)
+        self._assemble_A(details, dt)
         self._assemble_b(details, dt)
 
     @cm.timeit
@@ -92,7 +93,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         '''
         # create empty sparse matrix A
         num_rows = self.num_nodes
-        data, column_indices, row_indptr = integrator_lib.assemble_A(details,
+        data, column_indices, row_indptr = integrator_lib.assemble_A(details.bundle,
                                                     num_rows, dt,
                                                     integrator_lib.assemble_mass_matrix_to_A.function,
                                                     integrator_lib.assemble_constraint_forces_to_A.function)
@@ -109,12 +110,12 @@ class BackwardEulerIntegrator(TimeIntegrator):
         self.b = np.zeros((self.num_nodes, 2))
 
         # set (f0 * h)
-        integrator_lib.assemble_fo_h_to_b(details.dynamics(), dt, self.b)
+        integrator_lib.assemble_fo_h_to_b(details.dynamics, dt, self.b)
 
         # add (df/dx * v0 * h * h)
-        integrator_lib.assemble_dfdx_v0_h2_to_b(details.conditions(), details.node, dt, self.b)
+        integrator_lib.assemble_dfdx_v0_h2_to_b(details.constraints, details.node, dt, self.b)
 
     @cm.timeit
     def _advect(self, details, delta_v, dt):
-        integrator_lib.advect(details.dynamics(), delta_v, dt)
+        integrator_lib.advect(details.dynamics, delta_v, dt)
 

@@ -13,13 +13,13 @@ import lib.common.jit.block_utils as block_utils
 import lib.common.code_gen as generate
 
 def initialize_condition_from_aos(condition, array_of_struct, details):
-    data = details.block_from_datatype(condition.typename)
+    data = details.datablock_from_typename(condition.typename)
 
     # disable previous allocated blocks
     num_constraints = len(array_of_struct)
     condition.total_constraints = num_constraints
 
-    data.set_active(False, condition.block_handles)
+    block_utils.set_active(data.blocks, False, condition.block_handles)
     condition.block_handles = block_utils.empty_block_handles()
 
     # early exit if there is no constraints
@@ -62,13 +62,13 @@ def initialize_condition_from_aos(condition, array_of_struct, details):
 
 
 @generate.vectorize(njit=True)
-def appendKinematicCollision(node : Node, points, edges, triangles, edge_handles, triangle_handles, is_inside_func, closest_param_func):
+def appendKinematicCollision(node : Node, points, edges, triangles, is_inside_func, closest_param_func):
     result = algo.simplex_lib.IsInsideResult()
     result.isInside = False
-    is_inside_func(triangles, points, node.x, result, triangle_handles)
+    is_inside_func(triangles, points, node.x, result)
     if (result.isInside):
         closest_param = algo.simplex_lib.ClosestResult()
-        closest_param_func(edges, points, node.x, closest_param, edge_handles)
+        closest_param_func(edges, points, node.x, closest_param)
 
         if np.dot(closest_param.normal, node.v) < 0.0:
             pass
@@ -82,14 +82,12 @@ def appendKinematicCollision(node : Node, points, edges, triangles, edge_handles
 
 class KinematicCollisionCondition(Condition):
     '''
-    Creates collision constraint between one kinematic and one dynamic object
+    Creates collision constraint between a dynamic object and all kinematics
     '''
-    def __init__(self, dynamic, kinematic, stiffness, damping):
+    def __init__(self, dynamic, stiffness, damping):
         Condition.__init__(self, stiffness, damping, AnchorSpring)
         # data
         self.dynamic_handles = dynamic.block_handles
-        self.triangle_handles = kinematic.triangle_handles
-        self.edge_handles = kinematic.edge_handles
         # functions
         self.func.pre_compute = algo.anchor_spring_lib.pre_compute
         self.func.compute_rest = algo.anchor_spring_lib.compute_rest
@@ -114,18 +112,16 @@ class KinematicCollisionCondition(Condition):
                                  details.point,
                                  details.edge,
                                  details.triangle,
-                                 self.edge_handles,
-                                 self.triangle_handles,
                                  simplex_lib.is_inside.function,
                                  simplex_lib.get_closest_param.function,
                                  self.dynamic_handles)
         '''
 
         springs = []
-
-        data_x = details.node.flatten('x', self.dynamic_handles)
-        data_v = details.node.flatten('v', self.dynamic_handles)
-        data_node_id = details.node.flatten('ID', self.dynamic_handles)
+        db_nodes = details.db['node']
+        data_x = db_nodes.flatten('x', self.dynamic_handles)
+        data_v = db_nodes.flatten('v', self.dynamic_handles)
+        data_node_id = db_nodes.flatten('ID', self.dynamic_handles)
 
         result = algo.simplex_lib.IsInsideResult()
         for i in range(len(data_x)):
@@ -137,15 +133,13 @@ class KinematicCollisionCondition(Condition):
             algo.simplex_lib.is_inside(details.triangle,
                                        details.point,
                                        node_pos,
-                                       result,
-                                       self.triangle_handles)
+                                       result)
 
             if (result.isInside):
                 closest_param = algo.simplex_lib.ClosestResult()
                 algo.simplex_lib.get_closest_param(details.edge,
                                                    details.point, node_pos,
-                                                   closest_param,
-                                                   self.edge_handles)
+                                                   closest_param)
 
                 if (np.dot(closest_param.normal, node_vel) < 0.0):
                     # add spring
@@ -190,8 +184,8 @@ class KinematicAttachmentCondition(Condition):
         '''
         springs = []
 
-        data_x = details.node.flatten('x', self.dynamic_handles)
-        data_node_id = details.node.flatten('ID', self.dynamic_handles)
+        data_x = details.db['node'].flatten('x', self.dynamic_handles)
+        data_node_id = details.db['node'].flatten('ID', self.dynamic_handles)
 
         # Linear search => it will be inefficient for dynamic objects with many nodes
         distance2 = self.distance * self.distance
@@ -245,10 +239,10 @@ class DynamicAttachmentCondition(Condition):
         springs = []
         distance2 = self.distance * self.distance
 
-        data_x0 = details.node.flatten('x', self.dynamic0_handles)
-        data_node_id0 = details.node.flatten('ID', self.dynamic0_handles)
-        data_x1 = details.node.flatten('x', self.dynamic1_handles)
-        data_node_id1 = details.node.flatten('ID', self.dynamic1_handles)
+        data_x0 = details.db['node'].flatten('x', self.dynamic0_handles)
+        data_node_id0 = details.db['node'].flatten('ID', self.dynamic0_handles)
+        data_x1 = details.db['node'].flatten('x', self.dynamic1_handles)
+        data_node_id1 = details.db['node'].flatten('ID', self.dynamic1_handles)
 
         for i in range(len(data_x0)):
             for j in range(len(data_x1)):
