@@ -62,7 +62,7 @@ def assemble(dispatcher, render):
     edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = mesh_handle,
                                                            stiffness = 100.0, damping = 0.0)
 
-    dispatcher.run('add_kinematic_collision', dynamic = mesh_handle, stiffness = 10000.0, damping = 0.0)
+    dispatcher.run('add_kinematic_collision', stiffness = 10000.0, damping = 0.0)
 
     dispatcher.run('add_gravity', gravity = GRAVITY)
 

@@ -82,13 +82,10 @@ def appendKinematicCollision(node : Node, points, edges, triangles, is_inside_fu
 
 class KinematicCollisionCondition(Condition):
     '''
-    Creates collision constraint between a dynamic object and all kinematics
+    Creates collision constraint between dynamic nodes and all kinematics
     '''
-    def __init__(self, dynamic, stiffness, damping):
+    def __init__(self, stiffness, damping):
         Condition.__init__(self, stiffness, damping, AnchorSpring)
-        # data
-        self.dynamic_handles = dynamic.block_handles
-        # functions
         self.func.pre_compute = algo.anchor_spring_lib.pre_compute
         self.func.compute_rest = algo.anchor_spring_lib.compute_rest
         self.func.compute_function = None
@@ -113,15 +110,14 @@ class KinematicCollisionCondition(Condition):
                                  details.edge,
                                  details.triangle,
                                  simplex_lib.is_inside.function,
-                                 simplex_lib.get_closest_param.function,
-                                 self.dynamic_handles)
+                                 simplex_lib.get_closest_param.function)
         '''
 
         springs = []
         db_nodes = details.db['node']
-        data_x = db_nodes.flatten('x', self.dynamic_handles)
-        data_v = db_nodes.flatten('v', self.dynamic_handles)
-        data_node_id = db_nodes.flatten('ID', self.dynamic_handles)
+        data_x = db_nodes.flatten('x')
+        data_v = db_nodes.flatten('v')
+        data_node_id = db_nodes.flatten('ID')
 
         result = algo.simplex_lib.IsInsideResult()
         for i in range(len(data_x)):

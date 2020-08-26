@@ -1,5 +1,5 @@
 # Numerical Bric-a-Brac
-Numerics with Python and scientific computing packages (Numpy, SciPy, Numba, Matplotlib ...)
+Collections of common numerical techniques implemented with Python and its common computational packages (Numpy, SciPy, Numba, Matplotlib ...)
 
 Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.com/vincentbonnetcg/Neural-Bric-a-Brac)
 
@@ -7,10 +7,13 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
 **Description** Implicit Solver.
 
+Explore code generation of vectorized code for physics solver.
+
 - Time Integrator : Baraff and Witkin's 
 - Spring / Area / Bending / Collision Constraint
 - Numerical Differentiations
-- Server-Client (IPC) to communicate solver with other processes
+- Inter Process Communication (app <=> solver)
+- Early code generator for vectorized code
 
 ![Implicit Solver Beam](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/implicitSolver_cat.gif)
 
@@ -45,10 +48,6 @@ Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.
 ## . Skeletal Subspace Deformation
 **Folder** [skinning](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/skinning)<br>
 **Description** Skeletal Subspace Deformation
-
-- Linear Blend Skinning [1]
-- Dual Quaternion Skinning (WIP)
-- Pose‐Space deformation (WIP)
 
 ![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/linear_blend_skinning.gif)
 

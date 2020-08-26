@@ -47,10 +47,10 @@ Tests for code generation
 '''
 class Tests(unittest.TestCase):
 
-    def test_generated_function_with_numpy_input(self):
+    def test_generated_function_with_blocks_input(self):
         datablock0 = create_datablock()
         datablock1 = create_datablock()
-        add_values(datablock0, datablock1, 1.0)
+        add_values(datablock0.blocks, datablock1.blocks, 1.0)
         self.assertEqual(datablock0.block(0)['x'][0][0][0], 5.2)
         self.assertEqual(datablock0.block(0)['y'][0], 4.0)
 
