@@ -214,19 +214,19 @@ class DynamicAttachmentCondition(Condition):
     Creates attachment constraint between two dynamic objects
     '''
     def __init__(self, dynamic0, dynamic1, stiffness, damping, distance):
-       Condition.__init__(self, stiffness, damping, Spring)
-       self.distance = distance
-       # data
-       self.dynamic0_handles = dynamic0.block_handles
-       self.dynamic1_handles = dynamic1.block_handles
-       # functions
-       self.func.pre_compute = None
-       self.func.compute_rest = algo.spring_lib.compute_rest
-       self.func.compute_function = None
-       self.func.compute_gradients = None
-       self.func.compute_hessians = None
-       self.func.compute_forces = algo.spring_lib.compute_forces
-       self.func.compute_force_jacobians = algo.spring_lib.compute_force_jacobians
+        Condition.__init__(self, stiffness, damping, Spring)
+        self.distance = distance
+        # data
+        self.dynamic0_handles = dynamic0.block_handles
+        self.dynamic1_handles = dynamic1.block_handles
+        # functions
+        self.func.pre_compute = None
+        self.func.compute_rest = algo.spring_lib.compute_rest
+        self.func.compute_function = None
+        self.func.compute_gradients = None
+        self.func.compute_hessians = None
+        self.func.compute_forces = algo.spring_lib.compute_forces
+        self.func.compute_force_jacobians = algo.spring_lib.compute_force_jacobians
 
     def init_constraints(self, details):
         '''
@@ -266,31 +266,34 @@ class EdgeCondition(Condition):
     Replaces edges with Spring constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, stiffness, damping, Spring)
-       self.dynamics = dynamics.copy()
-       # functions
-       self.func.pre_compute = None
-       self.func.compute_rest = algo.spring_lib.compute_rest
-       self.func.compute_function = None
-       self.func.compute_gradients = None
-       self.func.compute_hessians = None
-       self.func.compute_forces = algo.spring_lib.compute_forces
-       self.func.compute_force_jacobians = algo.spring_lib.compute_force_jacobians
+        Condition.__init__(self, stiffness, damping, Spring)
+        # fetch the node IDs
+        self.node_ids = []
+        for dynamic in dynamics:
+            for vertex_index in dynamic.edge_ids:
+                node_ids = [dynamic.get_node_id(vertex_index[0]),
+                            dynamic.get_node_id(vertex_index[1])]
+                self.node_ids.append(node_ids)
+
+        self.node_ids = np.asarray(self.node_ids)
+        # functions
+        self.func.pre_compute = None
+        self.func.compute_rest = algo.spring_lib.compute_rest
+        self.func.compute_function = None
+        self.func.compute_gradients = None
+        self.func.compute_hessians = None
+        self.func.compute_forces = algo.spring_lib.compute_forces
+        self.func.compute_force_jacobians = algo.spring_lib.compute_force_jacobians
 
     def init_constraints(self, details):
         springs = []
-        for dynamic in self.dynamics:
-            for vertex_index in dynamic.edge_ids:
-                node_ids = [None, None]
-                node_ids[0] = dynamic.get_node_id(vertex_index[0])
-                node_ids[1] = dynamic.get_node_id(vertex_index[1])
-
-                # add spring
-                spring = Spring()
-                spring.node_IDs = np.copy(node_ids)
-                spring.stiffness = self.stiffness
-                spring.damping = self.damping
-                springs.append(spring)
+        for node_ids in self.node_ids:
+            # add spring
+            spring = Spring()
+            spring.node_IDs = node_ids
+            spring.stiffness = self.stiffness
+            spring.damping = self.damping
+            springs.append(spring)
 
         initialize_condition_from_aos(self, springs, details)
 
@@ -300,33 +303,35 @@ class AreaCondition(Condition):
     Replaces triangle with Area constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, stiffness, damping, Area)
-       self.dynamics = dynamics.copy()
-       # functions
-       self.func.pre_compute = None
-       self.func.compute_rest = algo.area_lib.compute_rest
-       self.func.compute_function = None
-       self.func.compute_gradients = None
-       self.func.compute_hessians = None
-       self.func.compute_forces = algo.area_lib.compute_forces
-       self.func.compute_force_jacobians = algo.area_lib.compute_force_jacobians
+        Condition.__init__(self, stiffness, damping, Area)
+        # fetch the node IDs
+        self.node_ids = []
+        for dynamic in dynamics:
+            for vertex_index in dynamic.face_ids:
+                node_ids = [dynamic.get_node_id(vertex_index[0]),
+                            dynamic.get_node_id(vertex_index[1]),
+                            dynamic.get_node_id(vertex_index[2])]
+                self.node_ids.append(node_ids)
+
+        self.node_ids = np.asarray(self.node_ids)
+        # functions
+        self.func.pre_compute = None
+        self.func.compute_rest = algo.area_lib.compute_rest
+        self.func.compute_function = None
+        self.func.compute_gradients = None
+        self.func.compute_hessians = None
+        self.func.compute_forces = algo.area_lib.compute_forces
+        self.func.compute_force_jacobians = algo.area_lib.compute_force_jacobians
 
     def init_constraints(self, details):
         constraints = []
-
-        for dynamic in self.dynamics:
-            for vertex_index in dynamic.face_ids:
-                node_ids = [None, None, None]
-                node_ids[0] = dynamic.get_node_id(vertex_index[0])
-                node_ids[1] = dynamic.get_node_id(vertex_index[1])
-                node_ids[2] = dynamic.get_node_id(vertex_index[2])
-
-                # add area constraint
-                constraint = Area()
-                constraint.node_IDs = np.copy(node_ids)
-                constraint.stiffness = self.stiffness
-                constraint.damping = self.damping
-                constraints.append(constraint)
+        for node_ids in self.node_ids:
+            # add area constraint
+            constraint = Area()
+            constraint.node_IDs = node_ids
+            constraint.stiffness = self.stiffness
+            constraint.damping = self.damping
+            constraints.append(constraint)
 
         initialize_condition_from_aos(self, constraints, details)
 
@@ -335,32 +340,31 @@ class WireBendingCondition(Condition):
     Creates Wire Bending constraints
     '''
     def __init__(self, dynamics, stiffness, damping):
-       Condition.__init__(self, stiffness, damping, Bending)
-       self.dynamics = dynamics.copy()
-       self.node_ids = []
-       for dynamic in self.dynamics:
-           # create a dictionnary of neighbour
-           vtx_neighbours = {}
-           for vtx_ids in dynamic.edge_ids:
-               vtx_neighbours.setdefault(vtx_ids[0], []).append(vtx_ids[1])
-               vtx_neighbours.setdefault(vtx_ids[1], []).append(vtx_ids[0])
-           # create the node_ids
-           for vtx_index, vtx_neighbour_index in vtx_neighbours.items():
-               if (len(vtx_neighbour_index) == 2):
-                        node_ids = [dynamic.get_node_id(vtx_neighbour_index[0]),
-                                    dynamic.get_node_id(vtx_index),
-                                    dynamic.get_node_id(vtx_neighbour_index[1])]
-                        self.node_ids.append(node_ids)
+        Condition.__init__(self, stiffness, damping, Bending)
+        self.node_ids = []
+        for dynamic in dynamics:
+            # create a dictionnary of neighbour
+            vtx_neighbours = {}
+            for vtx_ids in dynamic.edge_ids:
+                vtx_neighbours.setdefault(vtx_ids[0], []).append(vtx_ids[1])
+                vtx_neighbours.setdefault(vtx_ids[1], []).append(vtx_ids[0])
+            # create the node_ids
+            for vtx_index, vtx_neighbour_index in vtx_neighbours.items():
+                if (len(vtx_neighbour_index) == 2):
+                         node_ids = [dynamic.get_node_id(vtx_neighbour_index[0]),
+                                     dynamic.get_node_id(vtx_index),
+                                     dynamic.get_node_id(vtx_neighbour_index[1])]
+                         self.node_ids.append(node_ids)
 
-       self.node_ids = np.asarray(self.node_ids)
-       # functions
-       self.func.pre_compute = None
-       self.func.compute_rest = algo.bending_lib.compute_rest
-       self.func.compute_function = None
-       self.func.compute_gradients = None
-       self.func.compute_hessians = None
-       self.func.compute_forces = algo.bending_lib.compute_forces
-       self.func.compute_force_jacobians = algo.bending_lib.compute_force_jacobians
+        self.node_ids = np.asarray(self.node_ids)
+        # functions
+        self.func.pre_compute = None
+        self.func.compute_rest = algo.bending_lib.compute_rest
+        self.func.compute_function = None
+        self.func.compute_gradients = None
+        self.func.compute_hessians = None
+        self.func.compute_forces = algo.bending_lib.compute_forces
+        self.func.compute_force_jacobians = algo.bending_lib.compute_force_jacobians
 
     def init_constraints(self, details):
         constraints = []
@@ -368,7 +372,7 @@ class WireBendingCondition(Condition):
         for node_ids in self.node_ids:
             # add bending constraint
             constraint = Bending()
-            constraint.node_IDs = np.copy(node_ids)
+            constraint.node_IDs = node_ids
             constraint.stiffness = self.stiffness
             constraint.damping = self.damping
             constraints.append(constraint)

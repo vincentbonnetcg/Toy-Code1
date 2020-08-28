@@ -1,5 +1,5 @@
 # Numerical Bric-a-Brac
-Collections of common numerical techniques implemented with Python and its common computational packages (Numpy, SciPy, Numba, Matplotlib ...)
+Collections of numerical techniques implemented with Python and standard computational packages (Numpy, SciPy, Numba, Matplotlib ...)
 
 Numerical Bric-a-Brac for neural network => [Neural-Bric-a-Brac](https://github.com/vincentbonnetcg/Neural-Bric-a-Brac)
 

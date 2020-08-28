@@ -14,11 +14,12 @@ class CodeGenOptions:
         self.block = options.get('block', False)
 
     def __str__(self):
-        result = 'njit ' + str(self.njit) + '\n'
-        result += 'parallel ' + str(self.parallel) + '\n'
-        result += 'debug ' + str(self.debug)+ '\n'
-        result += 'fastmath ' + str(self.fastmath)+ '\n'
-        result += 'block ' + str(self.block)
+        result = (
+            f'njit {self.njit}, '
+            f'parallel {self.parallel}, '
+            f'debug {self.debug}, '
+            f'fastmath {self.fastmath}, '
+            f'block {self.block}')
 
         return result
 
@@ -72,13 +73,17 @@ class CodeGenHelper:
         '''
         Generate the source code of the function as a vectorized function
         '''
-        vectorized_function_name = 'vectorized_' + function.__name__
+        writer = CodeGenWriter()
+
+        #------------ #
+        # Preparation #
+        # ----------- #
+        self.generated_function_name = 'vectorized_' + function.__name__
 
         # get source code
         function_source = inspect.getsource(function)
         function_signature = inspect.signature(function)
         code_lines = function_source.splitlines()
-        writer = CodeGenWriter()
 
         # check arguments
         self.__prepare_arguments(function_source, function_signature)
@@ -89,7 +94,27 @@ class CodeGenHelper:
             if code[0:4] == 'def ':
                 function_body_line = line_id + 1
 
-        # generate
+        # create arguments for the main and kernel functions
+        vec_functions_interface = self.functions_args.copy() # arguments + defaults
+        inner_kernel_args = self.functions_args.copy() # inner function arguments
+        inner_kernel_call_args = self.functions_args.copy() # inner function call
+        first_argument = f'{self.functions_args[0]}_blocks'
+        for argId, arg in enumerate(self.functions_args):
+            if arg in self.obj_attrs_map:
+                vec_functions_interface[argId] += '_blocks'
+                inner_kernel_args[argId] += '_block'
+                inner_kernel_call_args[argId] = f'{vec_functions_interface[argId]}[_handle]'
+
+            if self.functions_defaults[argId]:
+                vec_functions_interface[argId] += '='+self.functions_defaults[argId]
+
+        vec_functions_interface.append('_block_handles=None')
+
+        # --------------- #
+        # Code Generation #
+        # --------------- #
+
+        # generate code for the numba decorator (njit)
         if self.options.njit:
             numba_arguments = ('parallel','fastmath', 'debug')
             numba_default_options = (False, False, False)
@@ -109,35 +134,16 @@ class CodeGenHelper:
             else:
                 writer.append('@numba.njit')
 
-        # create arguments for the vectorized function
-        vec_functions_args = self.functions_args.copy()
-        vec_functions_interface = self.functions_args.copy() # argument + defaults
-        for argId, arg in enumerate(vec_functions_args):
-            if arg in self.obj_attrs_map:
-                vec_functions_args[argId] += '_blocks'
-                vec_functions_interface[argId] += '_blocks'
-
-            if self.functions_defaults[argId]:
-                vec_functions_interface[argId] += '='+self.functions_defaults[argId]
-        vec_functions_interface.append('_block_handles=None')
-
-        # create arguments for the inner kernel
-        inner_kernel_args = self.functions_args.copy()
-        for argId, arg in enumerate(inner_kernel_args):
-            if arg in self.obj_attrs_map:
-                inner_kernel_args[argId] += '_block'
-
-        # replace function
-        writer.append('def '+vectorized_function_name+'('+ ', '.join(vec_functions_interface) + '):')
+        # generate code for function interface
+        writer.append(f'def {self.generated_function_name}('+ (', '.join(vec_functions_interface)) + '):')
         writer.indent += 1
 
-        #  generate the Kernel function #
+        # generate code for the kernel function
         writer.append('def kernel('+', '.join(inner_kernel_args) +'):')
         writer.indent += 1
-
         if self.options.block:
             # add the code
-            transform_variable = lambda obj, attr: obj +'_block[0][\'' + attr + '\']'
+            transform_variable = lambda obj, attr: f'{obj}_block[0][\'{attr}\']'
             writer.add_lines(code_lines[function_body_line:],
                              self.obj_attrs_map,
                              transform_variable)
@@ -145,18 +151,16 @@ class CodeGenHelper:
             # add variable to access data
             for obj, attrs in self.obj_attrs_map.items():
                 for attr in attrs:
-                    variable_name = '_' + obj + '_' + attr
-                    variable_accessor = obj +'_block[0][\'' + attr + '\']'
-                    variable_code = variable_name + ' = ' + variable_accessor
-                    writer.append(variable_code)
+                    variable_name =  f'_{obj}_{attr}'
+                    variable_accessor = f'{obj}_block[0][\'{attr}\']'
+                    writer.append(f'{variable_name} = {variable_accessor}')
 
-            master_variable_name = inner_kernel_args[0] + '[0][\'blockInfo_size\']'
-            writer.append('_num_elements = ' + master_variable_name)
+            writer.append(f'_num_elements = {inner_kernel_args[0]}[0][\'blockInfo_size\']')
             writer.append('for _i in range(_num_elements):')
             writer.indent += 1
 
             # add the code
-            transform_variable = lambda obj, attr: '_' + obj + '_' + attr + '[_i]'
+            transform_variable = lambda obj, attr: f'_{obj}_{attr}[_i]'
             writer.add_lines(code_lines[function_body_line:],
                              self.obj_attrs_map,
                              transform_variable)
@@ -165,46 +169,30 @@ class CodeGenHelper:
 
         writer.indent -= 1
         writer.append('\n')
-        #  Generate code to loop over blocks #
-        # loop over the blocks (list/tuple of numpy array)
+
+        # generate code to iterator over blocks and call the kernel
         writer.append('if _block_handles is None:' )
         writer.indent += 1
-        writer.append('_num_blocks = len(' + vec_functions_args[0]  + ')' )
+        writer.append(f'_num_blocks = len({first_argument})')
         writer.append('for _handle in range(_num_blocks):')
         writer.indent += 1
-        master_variable_name = vec_functions_args[0] + '[_handle][0][\'blockInfo_active\']'
-        writer.append('_active = ' + master_variable_name)
+        writer.append(f'_active = {first_argument}[_handle][0][\'blockInfo_active\']' )
         writer.append('if _active:')
         writer.indent += 1
-        # add kernel call
-        inner_kernel_call_args = vec_functions_args.copy()
-        for argId, arg in enumerate(self.functions_args):
-            if arg in self.obj_attrs_map:
-                inner_kernel_call_args[argId] = vec_functions_args[argId] + '[_handle]'
         writer.append('kernel('+', '.join(inner_kernel_call_args) +')')
-        writer.indent -= 1
-        writer.indent -= 1
-        writer.indent -= 1
+        writer.indent -= 3
         writer.append('else:')
         writer.indent += 1
         writer.append('_num_blocks = len(_block_handles)' )
         writer.append('for _i in range(_num_blocks):')
         writer.indent += 1
         writer.append('_handle = _block_handles[_i]')
-        master_variable_name = vec_functions_args[0] + '[_handle][0][\'blockInfo_active\']'
-        writer.append('_active = ' + master_variable_name)
+        writer.append(f'_active = {first_argument}[_handle][0][\'blockInfo_active\']' )
         writer.append('if _active:')
         writer.indent += 1
-        # add kernel call
-        inner_kernel_call_args = vec_functions_args.copy()
-        for argId, arg in enumerate(self.functions_args):
-            if arg in self.obj_attrs_map:
-                inner_kernel_call_args[argId] = vec_functions_args[argId] + '[_handle]'
         writer.append('kernel('+', '.join(inner_kernel_call_args) +')')
 
-
-        # Set generated function name and source
-        self.generated_function_name = vectorized_function_name
+        # generate the code
         self.generated_function_source = writer.source()
 
     def __prepare_arguments(self, function_source, function_signature):
@@ -215,11 +203,17 @@ class CodeGenHelper:
 
         for param_id, param_name in enumerate(function_signature.parameters):
             param = function_signature.parameters[param_name]
-            arg_name = param_name
+
+            # add argument name and default
             arg_default = ''
+            if param.default is not inspect._empty:
+                arg_default = str(param.default)
+
+            self.functions_args.append(param_name)
+            self.functions_defaults.append(arg_default)
 
             # Two conditions
-            # An argument was considered a datablock when associated to an annotation
+            # An argument is considered a datablock when associated to an annotation
             # Annotation (node:Node, constraint:Constraint ...)
             # and only available for the first argument
             if (param_id == 0) or (param.annotation is not inspect._empty):
@@ -236,15 +230,8 @@ class CodeGenHelper:
                     attrs.append(attr)
                     self.obj_attrs_map[obj] = attrs
 
-            # the code generator does a simple search/replace on the source code
-            # the attributes has to be sorted from longest to shortest
-            # example : {'spring': ['f', 'fv']} => {'spring': [fv', 'f']}
-            for obj, attrs in self.obj_attrs_map.items():
-                attrs.sort(key=len, reverse=True)
-
-            # An argument maintains its default values
-            if param.default is not inspect._empty:
-                arg_default = str(param.default)
-
-            self.functions_args.append(arg_name)
-            self.functions_defaults.append(arg_default)
+        # the code generator does a simple search/replace on the source code
+        # the attributes has to be sorted from longest to shortest
+        # example : {'spring': ['f', 'fv']} => {'spring': [fv', 'f']}
+        for obj, attrs in self.obj_attrs_map.items():
+            attrs.sort(key=len, reverse=True)
