@@ -19,7 +19,7 @@ def _compute_num_elements(block, ref_counter):
 
 @numba.njit
 def empty_block_handles():
-    return numba.typed.List.empty_list(numba.int32)
+    return numba.typed.List.empty_list(numba.int64)
 
 @numba.njit
 def empty_like_block(blocks):

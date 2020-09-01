@@ -31,10 +31,10 @@ def stage_init_wire_scene(client_name):
     # Initialize the remote solver with wire
     cmd_dispatcher = get_dispatcher(client_name)
 
-    cmd_dispatcher.run('set_context', context = context)
+    cmd_dispatcher.set_context(context = context)
     scene_examples.init_wire_example(cmd_dispatcher, g_render)
 
-    cmd_dispatcher.run('initialize')
+    cmd_dispatcher.initialize()
     g_render.show_current_frame(cmd_dispatcher, g_frame_id)
     print('')
 
@@ -43,7 +43,7 @@ def stage_simulate_frames(num_frames, client_name):
     cmd_dispatcher = get_dispatcher(client_name)
     for i in range(num_frames):
         g_frame_id += 1
-        cmd_dispatcher.run('solve_to_next_frame')
+        cmd_dispatcher.solve_to_next_frame()
         g_render.show_current_frame(cmd_dispatcher, g_frame_id)
         print('')
 
@@ -59,15 +59,12 @@ def stage_add_collider(client_name):
 
     rectangle_animator = lib.objects.Animator(func, context)
 
-    rectangle_handle = cmd_dispatcher.run('add_kinematic', shape = rectangle_shape,
-                                                          position = rectangle_position,
-                                                          rotation = rectangle_rotation,
-                                                          animator = rectangle_animator)
+    rectangle_handle = cmd_dispatcher.add_kinematic(shape = rectangle_shape,
+                                                    position = rectangle_position,
+                                                    rotation = rectangle_rotation,
+                                                    animator = rectangle_animator)
 
-    dynamic_handles = cmd_dispatcher.run('get_dynamic_handles')
-
-    cmd_dispatcher.run('add_kinematic_collision', dynamic = dynamic_handles[0], kinematic = rectangle_handle,
-                                               stiffness = 1000.0, damping = 0.0)
+    cmd_dispatcher.add_kinematic_collision(stiffness = 1000.0, damping = 0.0)
 
 
 def stage_close(client_name):

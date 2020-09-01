@@ -19,8 +19,8 @@ def assemble(dispatcher, render):
     '''
     Initalizes a scene with a wire attached to a kinematic object
     '''
-    dispatcher.run('reset')
-    context = dispatcher.run('get_context')
+    dispatcher.reset()
+    context = dispatcher.get_context()
     # wire shape
     wire_shape = logic.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
 
@@ -29,41 +29,34 @@ def assemble(dispatcher, render):
                                     WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
 
     # anchor shape and animation
-    moving_anchor_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
+    anchor_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
                                               WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
 
-    moving_anchor_position, moving_anchor_rotation = moving_anchor_shape.compute_best_transform()
+    anchor_position, anchor_rotation = anchor_shape.compute_best_transform()
     decay_rate = 0.5
-    func = lambda time: [[moving_anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
-                          moving_anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
-    moving_anchor_animator = objects.Animator(func, context)
+    func = lambda time: [[anchor_position[0] + math.sin(time * 10.0) * math.pow(1.0-decay_rate, time),
+                          anchor_position[1]], math.sin(time * 10.0) * 90.0 * math.pow(1.0-decay_rate, time)]
+    anchor_animator = objects.Animator(func, context)
 
-    # Populate scene with commands
-    wire_handle = dispatcher.run('add_dynamic', shape = wire_shape, node_mass = NODE_MASS)
-    collider_handle = dispatcher.run('add_kinematic', shape = collider_shape)
-
-    moving_anchor_handle = dispatcher.run('add_kinematic', shape = moving_anchor_shape,
-                                                          position = moving_anchor_position,
-                                                          rotation = moving_anchor_rotation,
-                                                          animator =moving_anchor_animator)
-
-    edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = wire_handle,
-                                                                   stiffness = 100.0, damping = 0.0)
-    dispatcher.run('add_wire_bending_constraint', dynamic= wire_handle,
-                                                   stiffness = 0.2, damping = 0.0)
-    dispatcher.run('add_kinematic_attachment', dynamic = wire_handle, kinematic = moving_anchor_handle,
+    # Populate scene
+    dispatcher.add_dynamic(shape = wire_shape, node_mass = NODE_MASS, name='wire')
+    dispatcher.add_kinematic(shape = collider_shape, name='collider')
+    dispatcher.add_kinematic(shape = anchor_shape, animator = anchor_animator, name='anchor')
+    dispatcher.add_edge_constraint(dynamic = 'wire', stiffness = 100.0, damping = 0.0, name='edge_constraint')
+    dispatcher.add_wire_bending_constraint(dynamic= 'wire', stiffness = 0.2, damping = 0.0)
+    dispatcher.add_kinematic_attachment(dynamic = 'wire', kinematic = 'anchor',
                                                stiffness = 100.0, damping = 0.0, distance = 0.1)
-    dispatcher.run('add_kinematic_collision', stiffness = 1000.0, damping = 0.0)
-    dispatcher.run('add_gravity', gravity = GRAVITY)
+    dispatcher.add_kinematic_collision(stiffness = 1000.0, damping = 0.0)
+    dispatcher.add_gravity(gravity = GRAVITY)
 
     # Set render preferences
-    dispatcher.run('set_render_prefs', obj = wire_handle,
-                                       prefs = common.meta_data_render(1.0, 'blue', 'solid'))
-    dispatcher.run('set_render_prefs', obj = edge_condition_handle,
-                                       prefs = common.meta_data_render(1.0, 'green', 'solid'))
-    dispatcher.run('set_render_prefs', obj = collider_handle,
-                                       prefs = common.meta_data_render(1.0, 'orange', 'solid', 0.8))
-    dispatcher.run('set_render_prefs', obj = moving_anchor_handle,
-                                       prefs = common.meta_data_render(1.0, 'orange', 'solid', 0.8))
+    orange_color = common.meta_data_render(1.0, 'orange', 'solid', 0.8)
+    blue_color = common.meta_data_render(1.0, 'blue', 'solid')
+    green_color = common.meta_data_render(1.0, 'green', 'solid')
+
+    dispatcher.set_render_prefs(obj = 'wire', prefs = blue_color)
+    dispatcher.set_render_prefs(obj = 'edge_constraint', prefs = green_color)
+    dispatcher.set_render_prefs(obj = 'collider', prefs = orange_color)
+    dispatcher.set_render_prefs(obj = 'anchor', prefs = orange_color)
 
     render.set_viewport_limit(-2.5, -2.5, 2.5, 2.5)

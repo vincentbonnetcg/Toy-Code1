@@ -73,7 +73,7 @@ class Solver:
         '''
         Initialize the scene
         '''
-        scene.init_kinematics(details, context.start_time)
+        scene.init_kinematics(details, context)
         scene.init_conditions(details)
 
     @cm.timeit
@@ -83,11 +83,11 @@ class Solver:
         '''
         self._pre_step(scene, details, context)
         self._step(scene, details, context)
-        self._post_step(scene, details, context)
+        self._post_step(details, context)
 
     @cm.timeit
     def _pre_step(self, scene : Scene, details : SolverDetails, context : SolverContext):
-        scene.update_kinematics(details, context.time, context.dt)
+        scene.update_kinematics(details, context)
         scene.update_conditions(details) # allocate dynamically new conditions
 
     @cm.timeit
@@ -97,5 +97,5 @@ class Solver:
         self.time_integrator.solve_system(details, context.dt)
 
     @cm.timeit
-    def _post_step(self, scene, details, context):
+    def _post_step(self, details, context):
         pass

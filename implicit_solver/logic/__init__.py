@@ -3,6 +3,7 @@ from logic.commands_lib import add_kinematic, add_dynamic, set_render_prefs
 from logic.commands_lib import initialize, solve_to_next_frame
 from logic.commands_lib import get_nodes_from_dynamic, get_shape_from_kinematic
 from logic.commands_lib import get_normals_from_kinematic, get_segments_from_constraint
+from logic.commands_lib import get_sparse_matrix_as_dense
 
 from logic.commands import add_wire_bending_constraint, add_edge_constraint
 from logic.commands import add_face_constraint, add_kinematic_attachment

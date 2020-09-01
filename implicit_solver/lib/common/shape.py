@@ -23,8 +23,12 @@ class Shape:
         position = np.average(self.vertex, axis=0)
         np.subtract(self.vertex, position, out=self.vertex)
         rotation = 0.0
-
         return position, rotation
+
+    def transform(self,position, rotation):
+        mat = math2D.rotation_matrix(rotation)
+        self.vertex = np.dot(self.vertex, mat)
+        self.vertex += np.asarray(position)
 
     def num_vertices(self):
         return len(self.vertex)

@@ -38,7 +38,7 @@ def fetch_mesh_data(geo):
 
     return pos_array, edge_array, triangle_array
 
-# from host_app.rpc.shape_io
+# from lib.common.shape_io
 def write_shape_to_npz_file(filename, pos, edge_vtx_ids, face_vtx_ids):
     np.savez(filename, positions = pos, edge_vertex_ids = edge_vtx_ids, face_vertex_ids = face_vtx_ids)
 

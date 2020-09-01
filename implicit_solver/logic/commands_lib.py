@@ -6,13 +6,14 @@
 import lib.objects as objects
 import lib.common as cm
 import lib.common.jit.data_accessor as db
+import numpy as np
 
 def set_render_prefs(obj, prefs):
     # Render preferences used by render.py
     obj.meta_data['render_prefs'] = prefs
 
-def add_kinematic(scene, details, shape, position = (0., 0.), rotation = 0., animator = None):
-    kinematic = objects.Kinematic(details, shape, position, rotation)
+def add_kinematic(scene, details, shape, animator = None):
+    kinematic = objects.Kinematic(details, shape)
     scene.add_kinematic(kinematic, animator)
     return kinematic
 
@@ -30,17 +31,14 @@ def solve_to_next_frame(scene, solver, details, context):
         context.time += context.dt
         solver.solve_step(scene, details, context)
 
-def get_nodes_from_dynamic(scene, index, details):
-    dynamic = scene.dynamics[index]
+def get_nodes_from_dynamic(dynamic, details):
     return details.db['node'].flatten('x', dynamic.block_handles)
 
-def get_shape_from_kinematic(scene, index, details):
-    kinematic = scene.kinematics[index]
+def get_shape_from_kinematic(kinematic, details):
     return kinematic.get_as_shape(details)
 
-def get_normals_from_kinematic(scene, index, details, normal_scale=0.2):
+def get_normals_from_kinematic(kinematic, details, normal_scale=0.2):
     segs = []
-    kinematic = scene.kinematics[index]
     normals = details.db['edge'].flatten('normal', kinematic.edge_handles)
     point_IDs = details.db['edge'].flatten('point_IDs', kinematic.edge_handles)
     num_normals = len(normals)
@@ -55,10 +53,9 @@ def get_normals_from_kinematic(scene, index, details, normal_scale=0.2):
 
     return segs
 
-def get_segments_from_constraint(scene, index, details):
+def get_segments_from_constraint(condition, details):
     segs = []
 
-    condition = scene.conditions[index]
     condition_data = details.datablock_from_typename(condition.typename)
 
     node_ids = condition_data.flatten('node_IDs', condition.block_handles)
@@ -73,3 +70,18 @@ def get_segments_from_constraint(scene, index, details):
             segs.append(points)
 
     return segs
+
+def get_sparse_matrix_as_dense(details, solver, as_binary=False):
+    if hasattr(solver.time_integrator, 'A'):
+        A = solver.time_integrator.A
+        if A is None:
+            return None
+
+        denseA = np.abs(A.toarray())
+        if as_binary:
+            denseA[:] = denseA[:]>0.0
+            return denseA
+
+        return denseA
+
+    return None

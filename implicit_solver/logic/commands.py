@@ -26,8 +26,8 @@ def add_kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, dist
     scene.add_condition(condition)
     return condition
 
-def add_dynamic_attachment(scene, dynamic0, dynamic1, stiffness, damping, distance) -> Condition:
-    condition = logic.DynamicAttachmentCondition(dynamic0, dynamic1, stiffness, damping, distance)
+def add_dynamic_attachment(scene, dynamic_0, dynamic_1, stiffness, damping, distance) -> Condition:
+    condition = logic.DynamicAttachmentCondition(dynamic_0, dynamic_1, stiffness, damping, distance)
     scene.add_condition(condition)
     return condition
 

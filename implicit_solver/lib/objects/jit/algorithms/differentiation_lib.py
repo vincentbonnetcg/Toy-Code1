@@ -11,7 +11,7 @@ import lib.common.jit.math_2d as math2D
 def forces_from_energy(x0, x1, x2, rest_value, stiffness, energy_func):
     forces = np.zeros(shape=(3, 2))
     STENCIL_SIZE = 1e-6
-    X = [math2D.copy(x0), math2D.copy(x1), math2D.copy(x2)] # TODO - slow
+    X = [math2D.copy(x0), math2D.copy(x1), math2D.copy(x2)]
     for force_id in range(3):
         for arg_id in range(2):
             tmp = X[force_id][arg_id]
@@ -39,6 +39,7 @@ def force_jacobians_from_energy(x0, x1, x2, rest_value, stiffness, energy_func):
     # df0dx0, df1dx1, df2dx2, df0dx1, df0dx2, df1dx2
     arg_indices = [[0,0],[1,1],[2,2],[0,1],[0,2],[1,2]] # argument indices
     el_indices = [[0,0],[0,1],[1,1]] # element indices
+    X = [math2D.copy(x0), math2D.copy(x1), math2D.copy(x2)]
     for arg_index in range(6):
 
         arg_ids = arg_indices[arg_index]
@@ -51,12 +52,15 @@ def force_jacobians_from_energy(x0, x1, x2, rest_value, stiffness, energy_func):
             #   3 4 5     =>   -t,0   0,0   t,0
             #   6 7 8          -t,-t  0,-t  t,-t
             for idx in range(9):
-                X = [math2D.copy(x0), math2D.copy(x1), math2D.copy(x2)] # TODO - slow
+                tmp0 = X[arg_ids[0]][0]
+                tmp1 = X[arg_ids[1]][1]
                 i = idx%3
                 j = int((idx-i)/3)
                 X[arg_ids[0]][0] += (i-1)*STENCIL_SIZE
                 X[arg_ids[1]][1] += (1-j)*STENCIL_SIZE
                 E[i,j] = energy_func(X, rest_value, stiffness)
+                X[arg_ids[0]][0] = tmp0
+                X[arg_ids[1]][1] = tmp1
 
             # compute second derivates of the energy
             ded00 = (E[0,1]+E[2,1]-(E[1,1]*2.0)) / STENCIL_SIZE**2
@@ -76,12 +80,15 @@ def force_jacobians_from_energy(x0, x1, x2, rest_value, stiffness, energy_func):
                 #  0  1            -t,t    t,t
                 #  2  3            -t,-t   t,-t
                 for idx in range(4):
-                    X = [math2D.copy(x0), math2D.copy(x1), math2D.copy(x2)] # TODO - slow
+                    tmp0 = X[arg_ids[0]][ii]
+                    tmp1 = X[arg_ids[1]][jj]
                     i = (idx%2)
                     j = int((idx-i)/2)
                     X[arg_ids[0]][ii] += (i*2-1)*STENCIL_SIZE
                     X[arg_ids[1]][jj] += (1-j*2)*STENCIL_SIZE
                     E[i,j] = energy_func(X, rest_value, stiffness)
+                    X[arg_ids[0]][ii] = tmp0
+                    X[arg_ids[1]][jj] = tmp1
                 # compute second derivate of the energy
                 dedij = (E[1,0]+E[0,1]-E[0,0]-E[1,1]) / (4.0 * STENCIL_SIZE**2)
                 # assemble the jacobian forces

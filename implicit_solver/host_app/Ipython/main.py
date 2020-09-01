@@ -21,8 +21,9 @@ USE_REMOTE_SERVER = False # run the program locally or connect to a server
 
 def get_command_dispatcher():
     if USE_REMOTE_SERVER:
-        cmd_dispatcher = rpc.Client("Spyder")
-        cmd_dispatcher.connect_to_server()
+        client = rpc.Client("Spyder")
+        client.connect_to_server()
+        cmd_dispatcher = client.get_dispatcher()
         return cmd_dispatcher
 
     cmd_dispatcher = rpc.CommandSolverDispatcher()
@@ -35,17 +36,17 @@ def main():
     profiler = common.Profiler()
 
     # Creates command dispatcher (local or remote)
-    cmd_dispatcher= get_command_dispatcher()
+    cmd_dispatcher = get_command_dispatcher()
 
     # Initialize dispatcher (context and scene)
-    cmd_dispatcher.run("set_context", time = START_TIME, frame_dt = FRAME_TIMESTEP,
+    cmd_dispatcher.set_context(time = START_TIME, frame_dt = FRAME_TIMESTEP,
                          num_substep = NUM_SUBSTEP, num_frames = NUM_FRAMES)
 
     #scenes.rabbit.assemble(cmd_dispatcher, render)
-    scenes.cat.assemble(cmd_dispatcher, render)
+    #scenes.cat.assemble(cmd_dispatcher, render)
     #scenes.multiwire.assemble(cmd_dispatcher, render)
     #scenes.beam.assemble(cmd_dispatcher, render)
-    #scenes.wire.assemble(cmd_dispatcher, render)
+    scenes.wire.assemble(cmd_dispatcher, render)
     #scenes.rabbit_cat.assemble(cmd_dispatcher, render)
 
     # Simulate frames
@@ -53,18 +54,14 @@ def main():
         profiler.clear_logs()
 
         if frame_id == 0:
-            cmd_dispatcher.run("initialize")
+            cmd_dispatcher.initialize()
         else:
-            cmd_dispatcher.run("solve_to_next_frame")
+            cmd_dispatcher.solve_to_next_frame()
 
         render.show_current_frame(cmd_dispatcher, frame_id)
         render.export_current_frame(str(frame_id).zfill(4) + " .png")
 
-        profiler.print_logs()
-
-    # Disconnect client from server
-    if USE_REMOTE_SERVER:
-        cmd_dispatcher.disconnect_from_server()
+        #profiler.print_logs()
 
 if __name__ == '__main__':
     main()

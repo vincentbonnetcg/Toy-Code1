@@ -77,3 +77,8 @@ class Condition:
     def compute_force_jacobians(self, details):
         self.__call_func(self.func.compute_force_jacobians, details)
 
+    def metadata(self):
+        meta_data = self.meta_data.copy()
+        meta_data['num_constraints'] = self.num_constraints()
+        meta_data['num_blocks'] = self.num_blocks()
+        return meta_data

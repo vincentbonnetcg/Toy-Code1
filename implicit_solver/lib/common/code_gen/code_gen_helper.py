@@ -93,6 +93,7 @@ class CodeGenHelper:
         for line_id, code in enumerate(code_lines):
             if code[0:4] == 'def ':
                 function_body_line = line_id + 1
+                break
 
         # create arguments for the main and kernel functions
         vec_functions_interface = self.functions_args.copy() # arguments + defaults
@@ -124,15 +125,12 @@ class CodeGenHelper:
 
             args = []
             for i in range(len(codegen_options)):
-                if numba_default_options[i] != codegen_options[i]:
-                    arg = numba_arguments[i]+'='+str(codegen_options[i])
-                    args.append(arg)
+                if numba_default_options[i] == codegen_options[i]:
+                    continue
+                args.append(f'{numba_arguments[i]}={codegen_options[i]}')
 
-            if len(args)>0:
-                arg = ','.join(args)
-                writer.append('@numba.njit('+arg+')')
-            else:
-                writer.append('@numba.njit')
+            writer.append('@numba.njit' if len(args)==0 else
+                          '@numba.njit({0})'.format(','.join(args)))
 
         # generate code for function interface
         writer.append(f'def {self.generated_function_name}('+ (', '.join(vec_functions_interface)) + '):')

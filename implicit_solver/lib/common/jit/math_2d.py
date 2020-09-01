@@ -117,3 +117,9 @@ def copy(v):
     v_copy[0] = v[0]
     v_copy[1] = v[1]
     return v_copy
+
+@numba.njit(inline='always')
+def rotation_matrix(rotation):
+    theta = np.radians(rotation)
+    c, s = np.cos(theta), np.sin(theta)
+    return np.array(((c, -s), (s, c)))

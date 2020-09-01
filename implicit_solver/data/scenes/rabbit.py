@@ -5,7 +5,7 @@
 import os
 import logic
 from . import common
-import host_app.rpc.shape_io as io_utils
+import lib.common.shape_io as io_utils
 
 NODE_MASS = 0.001 # in Kg
 
@@ -17,7 +17,7 @@ def assemble(dispatcher, render):
     Latest Maya/Houdini doesn't support Python 3.x hence cannot use client.py to send data
     '''
     file_path = 'rabbit.npz'
-    dispatcher.run('reset')
+    dispatcher.reset()
 
     # Load Data from file
     filename = os.path.join(common.get_resources_folder(),file_path)
@@ -25,59 +25,42 @@ def assemble(dispatcher, render):
 
     # Create collider 0
     anchor0_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=4.5, max_y=5.0)
-    anchor0_position, anchor_rotation = anchor0_shape.compute_best_transform()
-    anchor0_position[0] = -7
-    anchor0_position[1] = -13
-    anchor0_rotation = 30
+    anchor0_shape.compute_best_transform()
+    anchor0_shape.transform((-7,-13), 30)
 
     # Create collider 1
     anchor1_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
-    anchor1_position, anchor_rotation = anchor1_shape.compute_best_transform()
-    anchor1_position[0] = 13
-    anchor1_position[1] = -20
-    anchor1_rotation = -45
+    anchor1_shape.compute_best_transform()
+    anchor1_shape.transform((13,-20), -45)
 
     # Create collider 2
     anchor2_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
-    anchor2_position, anchor_rotation = anchor2_shape.compute_best_transform()
-    anchor2_position[0] = -5
-    anchor2_position[1] = -30
-    anchor2_rotation = 70
+    anchor2_shape.compute_best_transform()
+    anchor2_shape.transform((0,-30), 70)
 
     # Add objects to the solver
-    collider0_handle = dispatcher.run('add_kinematic', shape = anchor0_shape,
-                                                         position = anchor0_position,
-                                                         rotation = anchor0_rotation)
+    dispatcher.add_kinematic(shape = anchor0_shape, name = 'collider0')
+    dispatcher.add_kinematic(shape = anchor1_shape, name = 'collider1')
+    dispatcher.add_kinematic(shape = anchor2_shape, name = 'collider2')
+    dispatcher.add_dynamic(shape = shape, node_mass = NODE_MASS, name = 'rabbit')
 
-    collider1_handle = dispatcher.run('add_kinematic', shape = anchor1_shape,
-                                                         position = anchor1_position,
-                                                         rotation = anchor1_rotation)
+    dispatcher.add_edge_constraint(dynamic = 'rabbit', stiffness = 100.0,
+                                   damping = 0.0, name = 'rabbit_edge')
 
-    collider2_handle = dispatcher.run('add_kinematic', shape = anchor2_shape,
-                                                         position = anchor2_position,
-                                                         rotation = anchor2_rotation)
+    dispatcher.add_kinematic_collision(stiffness = 10000.0, damping = 0.0)
 
-    mesh_handle = dispatcher.run('add_dynamic', shape = shape, node_mass = NODE_MASS)
-
-    edge_condition_handle = dispatcher.run('add_edge_constraint', dynamic = mesh_handle,
-                                                           stiffness = 100.0, damping = 0.0)
-
-    dispatcher.run('add_kinematic_collision', stiffness = 10000.0, damping = 0.0)
-
-    dispatcher.run('add_gravity', gravity = GRAVITY)
+    dispatcher.add_gravity(gravity = GRAVITY)
 
     # Set render preferences
-    dispatcher.run('set_render_prefs', obj = mesh_handle,
-                                       prefs = common.meta_data_render(1.0, 'grey', 'solid'))
-    dispatcher.run('set_render_prefs', obj = edge_condition_handle,
-                                       prefs = common.meta_data_render(1.0, 'blue', 'solid'))
-    dispatcher.run('set_render_prefs', obj = collider0_handle,
-                                       prefs = common.meta_data_render(1.0, 'orange', 'solid', 0.8))
-    dispatcher.run('set_render_prefs', obj = collider1_handle,
-                                       prefs = common.meta_data_render(1.0, 'orange', 'solid', 0.8))
-    dispatcher.run('set_render_prefs', obj = collider2_handle,
-                                       prefs = common.meta_data_render(1.0, 'orange', 'solid', 0.8))
+    orange_color = common.meta_data_render(1.0, 'orange', 'solid', 0.8)
+    blue_color = common.meta_data_render(1.0, 'blue', 'solid')
+    grey_color = common.meta_data_render(1.0, 'grey', 'solid')
 
+    dispatcher.set_render_prefs(obj = 'rabbit', prefs = grey_color)
+    dispatcher.set_render_prefs(obj = 'rabbit_edge', prefs = blue_color)
+    dispatcher.set_render_prefs(obj = 'collider0', prefs = orange_color)
+    dispatcher.set_render_prefs(obj = 'collider1', prefs = orange_color)
+    dispatcher.set_render_prefs(obj = 'collider2', prefs = orange_color)
 
     render.set_viewport_limit(-35.0, -55.0, 35.0, -5.0)
 

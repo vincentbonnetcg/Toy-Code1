@@ -103,7 +103,7 @@ def set_bundle(bundle, block_id, value):
 
 '''
 Waiting for feature on numba => already requested
-see : https://github.com/numba/numba/issues/1469
+check : https://github.com/numba/numba/issues/1469
 @numba.njit
 def zero_shape_array(block_dtype):
     array = numba.typed.List()
@@ -113,6 +113,19 @@ def zero_shape_array(block_dtype):
     print(array[0]['field_0'])
     return array
 '''
+
+'''
+Need to test the literal_unroll with different data
+check : https://github.com/numba/numba/blob/master/numba/tests/test_record_dtype.py
+@numba.njit
+def test_literal_unroll(array):
+    fs = ('field_0', 'field_1')
+    for field in numba.literal_unroll(fs):
+        print(array[0][field])
+        #print(array[0].field_0)
+        #print(array[0].field_1)
+'''
+
 class Tests(unittest.TestCase):
 
     '''
@@ -120,6 +133,15 @@ class Tests(unittest.TestCase):
         block_dtype = get_block_dtype(block_size = 100)
         zero_shape_array(block_dtype)
     '''
+    '''
+    def test_literal_unroll(self):
+        block_dtype = get_block_dtype(block_size = 100)
+        block = create_block(block_dtype)
+        print('hasdkask')
+        test_literal_unroll(block)
+        self.assertEqual(True, True)
+    '''
+
     def test_value_as_reference(self):
         value = test_value_as_reference(np.ones(1), 10)
         self.assertEqual(value[0], 11.0)

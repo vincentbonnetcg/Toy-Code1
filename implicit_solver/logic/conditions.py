@@ -213,12 +213,12 @@ class DynamicAttachmentCondition(Condition):
     '''
     Creates attachment constraint between two dynamic objects
     '''
-    def __init__(self, dynamic0, dynamic1, stiffness, damping, distance):
+    def __init__(self, dynamic_0, dynamic_1, stiffness, damping, distance):
         Condition.__init__(self, stiffness, damping, Spring)
         self.distance = distance
         # data
-        self.dynamic0_handles = dynamic0.block_handles
-        self.dynamic1_handles = dynamic1.block_handles
+        self.dynamic0_handles = dynamic_0.block_handles
+        self.dynamic1_handles = dynamic_1.block_handles
         # functions
         self.func.pre_compute = None
         self.func.compute_rest = algo.spring_lib.compute_rest

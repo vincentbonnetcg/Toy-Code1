@@ -53,3 +53,9 @@ class Dynamic:
 
         return shape
 
+    def metadata(self):
+        meta_data = self.meta_data.copy()
+        meta_data['num_nodes'] = self.num_nodes()
+        meta_data['num_blocks'] = self.num_blocks()
+        return meta_data
+
