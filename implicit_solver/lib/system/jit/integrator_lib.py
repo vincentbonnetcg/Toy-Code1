@@ -2,11 +2,11 @@
 @author: Vincent Bonnet
 @description : Helper functions for time integrators
 """
-import numba # required by lib.common.code_gen
+import numba # required by core.code_gen
 import numpy as np
 
-import lib.common.jit.data_accessor as db
-import lib.common.code_gen as generate
+import core.jit.data_accessor as db
+import core.code_gen as generate
 import lib.system.jit.sparse_matrix_lib as sparse_lib
 from lib.objects.jit.data import Constraint, Node
 

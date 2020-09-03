@@ -5,7 +5,7 @@ useful to check the analytic differentiations
 """
 import numba
 import numpy as np
-import lib.common.jit.math_2d as math2D
+import core.jit.math_2d as math2D
 
 @numba.njit
 def forces_from_energy(x0, x1, x2, rest_value, stiffness, energy_func):

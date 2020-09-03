@@ -23,7 +23,7 @@ Datablock is a list of Blocks
 import numba
 import numpy as np
 import keyword
-import lib.common.jit.block_utils as block_utils
+import core.jit.block_utils as block_utils
 
 class DataBlock:
 

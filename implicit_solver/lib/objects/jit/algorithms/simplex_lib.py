@@ -7,9 +7,9 @@ import numpy as np
 import numba
 
 from lib.objects.jit.data import Point, Edge, Triangle
-import lib.common.code_gen as generate
-import lib.common.jit.data_accessor as db
-import lib.common.jit.math_2d as math2D
+import core.code_gen as generate
+import core.jit.data_accessor as db
+import core.jit.math_2d as math2D
 
 closestResultSpec = [('points', numba.int32[:,:]), # two points
                   ('t', numba.float32), # parametric value

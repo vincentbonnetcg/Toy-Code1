@@ -8,9 +8,9 @@ import numpy as np
 import numba
 
 from lib.objects.jit.data import Bending
-import lib.common.code_gen as generate
-import lib.common.jit.data_accessor as db
-import lib.common.jit.math_2d as math2D
+import core.code_gen as generate
+import core.jit.data_accessor as db
+import core.jit.math_2d as math2D
 from lib.objects.jit.algorithms.differentiation_lib import force_jacobians_from_energy
 
 @generate.vectorize

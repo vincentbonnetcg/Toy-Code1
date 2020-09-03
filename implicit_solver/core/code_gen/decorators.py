@@ -9,8 +9,8 @@ import functools
 import numpy
 import numba
 
-import lib.common as common
-import lib.common.code_gen.code_gen_helper as gen
+import core
+import core.code_gen.code_gen_helper as gen
 
 def generate_vectorize_function(function, options : gen.CodeGenOptions):
     '''
@@ -31,7 +31,7 @@ def convert_argument(arg):
     '''
     From DataBlock to DataBlock.blocks
     '''
-    if isinstance(arg, common.DataBlock):
+    if isinstance(arg, core.DataBlock):
         if isinstance(arg.blocks, numba.typed.List):
             return arg.blocks
         else:
@@ -52,7 +52,7 @@ def vectorize(function=None, local={} , **options):
         Returns whether the argument 'arg' is a datablock
         a list/tuple of numpy.void (array of complex datatypes) is also consider as a datablock
         '''
-        if isinstance(value, common.DataBlock):
+        if isinstance(value, core.DataBlock):
             return True
 
         if isinstance(value,numba.typed.List):
@@ -67,7 +67,7 @@ def vectorize(function=None, local={} , **options):
         From Book : Beazley, David, and Brian K. Jones. Python Cookbook: Recipes for Mastering Python 3. " O'Reilly Media, Inc.", 2013.
         In Section : 9.6. Defining a Decorator That Takes an Optional Argument
         '''
-        # Fetch numpy array from common.DataBlock
+        # Fetch numpy array from core.DataBlock
         arg_list = list(args)
         for arg_id , arg in enumerate(arg_list):
             arg_list[arg_id] = convert_argument(arg)

@@ -7,9 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.collections as collections
 
-import lib.common as cm
-
-import numpy as np
+import core
 
 class Render:
 
@@ -154,7 +152,7 @@ class Render:
         plt.imshow(dense_A, interpolation='none', cmap='binary')
         plt.show()
 
-    @cm.timeit
+    @core.timeit
     def show_current_frame(self, dispatcher, frame_id):
         '''
         Display the current frame
@@ -164,7 +162,7 @@ class Render:
         self.render_objects(dispatcher, frame_id)
         #self.render_sparse_matrix(dispatcher, frame_id)
 
-    @cm.timeit
+    @core.timeit
     def export_current_frame(self, filename):
         '''
         Export current frame into an image file

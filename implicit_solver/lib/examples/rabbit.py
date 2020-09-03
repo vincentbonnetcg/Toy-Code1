@@ -1,11 +1,11 @@
 """
 @author: Vincent Bonnet
-@description : example scene with a cat !
+@description : example scene with a rabbit !
 """
 import os
-import logic
 from . import common
-import lib.common.shape_io as io_utils
+import core.shape_io as io_utils
+import lib.logic as logic
 
 NODE_MASS = 0.001 # in Kg
 
@@ -16,7 +16,7 @@ def assemble(dispatcher, render):
     Initalizes a scene including a cat shape created by the Maya/mesh_converter.py
     Latest Maya/Houdini doesn't support Python 3.x hence cannot use client.py to send data
     '''
-    file_path = 'cat.npz'
+    file_path = 'rabbit.npz'
     dispatcher.reset()
 
     # Load Data from file
@@ -30,21 +30,22 @@ def assemble(dispatcher, render):
 
     # Create collider 1
     anchor1_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
-    anchor1_position, anchor_rotation = anchor1_shape.compute_best_transform()
+    anchor1_shape.compute_best_transform()
     anchor1_shape.transform((13,-20), -45)
 
     # Create collider 2
     anchor2_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
-    anchor2_position, anchor_rotation = anchor2_shape.compute_best_transform()
-    anchor2_shape.transform((0,-30), 45)
+    anchor2_shape.compute_best_transform()
+    anchor2_shape.transform((0,-30), 70)
 
     # Add objects to the solver
     dispatcher.add_kinematic(shape = anchor0_shape, name = 'collider0')
     dispatcher.add_kinematic(shape = anchor1_shape, name = 'collider1')
     dispatcher.add_kinematic(shape = anchor2_shape, name = 'collider2')
-    dispatcher.add_dynamic(shape = shape, node_mass = NODE_MASS, name = 'cat')
+    dispatcher.add_dynamic(shape = shape, node_mass = NODE_MASS, name = 'rabbit')
 
-    dispatcher.add_edge_constraint(dynamic = 'cat', stiffness = 100.0, damping = 0.0, name = 'cat_edge')
+    dispatcher.add_edge_constraint(dynamic = 'rabbit', stiffness = 100.0,
+                                   damping = 0.0, name = 'rabbit_edge')
 
     dispatcher.add_kinematic_collision(stiffness = 10000.0, damping = 0.0)
 
@@ -55,10 +56,11 @@ def assemble(dispatcher, render):
     blue_color = common.meta_data_render(1.0, 'blue', 'solid')
     grey_color = common.meta_data_render(1.0, 'grey', 'solid')
 
-    dispatcher.set_render_prefs(obj = 'cat', prefs = grey_color)
-    dispatcher.set_render_prefs(obj = 'cat_edge', prefs = blue_color)
+    dispatcher.set_render_prefs(obj = 'rabbit', prefs = grey_color)
+    dispatcher.set_render_prefs(obj = 'rabbit_edge', prefs = blue_color)
     dispatcher.set_render_prefs(obj = 'collider0', prefs = orange_color)
     dispatcher.set_render_prefs(obj = 'collider1', prefs = orange_color)
     dispatcher.set_render_prefs(obj = 'collider2', prefs = orange_color)
 
-    render.set_viewport_limit(-20.0, -40.0, 20.0, 0.0)
+    render.set_viewport_limit(-35.0, -55.0, 35.0, -5.0)
+

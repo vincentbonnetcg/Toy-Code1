@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import lib.common.jit.math_2d as math2D
+import core.jit.math_2d as math2D
 
 class Shape:
     '''

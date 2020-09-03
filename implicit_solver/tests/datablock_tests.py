@@ -4,9 +4,9 @@
 """
 
 import unittest
-import lib.common as common
 import numpy as np
-import lib.common.jit.block_utils as block_utils
+import core
+import core.jit.block_utils as block_utils
 
 '''
 Datablock Functions
@@ -18,7 +18,7 @@ class ComponentTest:
         self.field_1 = np.ones((2, 2), dtype = np.int64) * 0.5
 
 def create_datablock(num_elements, block_size = 100):
-    datablock = common.DataBlock(ComponentTest, block_size)
+    datablock = core.DataBlock(ComponentTest, block_size)
     datablock.initialize(num_elements)
     return datablock
 

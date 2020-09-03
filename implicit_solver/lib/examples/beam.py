@@ -2,9 +2,9 @@
 @author: Vincent Bonnet
 @description : example scene with single wire
 """
-import logic
 import math
 import lib.objects as objects
+import lib.logic as logic
 from . import common
 
 BEAM_POS = [-4.0, 0.0] # in meters

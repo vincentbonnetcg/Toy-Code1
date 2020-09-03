@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import lib.common.jit.data_accessor as db
+import core.jit.data_accessor as db
 
 class Node:
     def __init__(self):

@@ -7,9 +7,9 @@ import numpy as np
 import numba
 
 from lib.objects.jit.data import Spring
-import lib.common.code_gen as generate
-import lib.common.jit.data_accessor as db
-import lib.common.jit.math_2d as math2D
+import core.code_gen as generate
+import core.jit.data_accessor as db
+import core.jit.math_2d as math2D
 
 @generate.vectorize
 def compute_rest(spring : Spring, details):

@@ -7,8 +7,8 @@ import scipy
 import scipy.sparse
 import scipy.sparse.linalg
 
-import lib.common as cm
-import lib.common.jit.block_utils as block_utils
+import core
+import core.jit.block_utils as block_utils
 import lib.system.jit.integrator_lib as integrator_lib
 from lib.system.time_integrators import TimeIntegrator
 
@@ -31,7 +31,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         self.b = None
         self.num_nodes = 0
 
-    @cm.timeit
+    @core.timeit
     def prepare_system(self, scene, details, dt):
         '''
         Compute external and constraint forces
@@ -59,7 +59,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         # Store number of nodes
         self.num_nodes = block_utils.compute_num_elements(details.node)
 
-    @cm.timeit
+    @core.timeit
     def assemble_system(self, details, dt):
         '''
         Assemble the system (Ax=b) where x is the unknow change of velocity
@@ -70,7 +70,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         self._assemble_A(details, dt)
         self._assemble_b(details, dt)
 
-    @cm.timeit
+    @core.timeit
     def solve_system(self, details, dt):
         '''
         Solve the assembled linear system (Ax=b)
@@ -86,7 +86,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         # Advect
         self._advect(details, delta_v, dt)
 
-    @cm.timeit
+    @core.timeit
     def _assemble_A(self, details, dt):
         '''
         Assemble A = (M - (h * df/dv + h^2 * df/dx))
@@ -100,7 +100,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
 
         self.A = scipy.sparse.bsr_matrix((data, column_indices, row_indptr))
 
-    @cm.timeit
+    @core.timeit
     def _assemble_b(self, details, dt):
         '''
         Assemble b = h *( f0 + h * df/dx * v0)
@@ -115,7 +115,7 @@ class BackwardEulerIntegrator(TimeIntegrator):
         # add (df/dx * v0 * h * h)
         integrator_lib.assemble_dfdx_v0_h2_to_b(details.constraints, details.node, dt, self.b)
 
-    @cm.timeit
+    @core.timeit
     def _advect(self, details, delta_v, dt):
         integrator_lib.advect(details.dynamics, delta_v, dt)
 

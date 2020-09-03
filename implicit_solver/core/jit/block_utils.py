@@ -6,8 +6,8 @@
 import math
 import numba
 import numpy as np
-import lib.common.jit.data_accessor as db
-import lib.common.code_gen as generate
+import core.jit.data_accessor as db
+import core.code_gen as generate
 
 @generate.vectorize_block
 def set_active(block, active):

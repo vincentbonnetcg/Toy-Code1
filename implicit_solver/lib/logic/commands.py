@@ -3,29 +3,66 @@
 @description : commands to setup objects and run simulation
 """
 
-import lib.objects as objects
-import lib.common as cm
-import lib.common.jit.data_accessor as db
+import lib.logic as logic
+from lib.objects import Dynamic, Kinematic, Condition, Force
+from core import timeit
+import core.jit.data_accessor as db
 import numpy as np
+
+
+def add_wire_bending_constraint(scene, dynamic, stiffness, damping) -> Condition:
+    condition = logic.WireBendingCondition([dynamic], stiffness, damping)
+    scene.add_condition(condition)
+    return condition
+
+def add_edge_constraint(scene, dynamic, stiffness, damping) -> Condition:
+    condition = logic.EdgeCondition([dynamic], stiffness, damping)
+    scene.add_condition(condition)
+    return condition
+
+def add_face_constraint(scene, dynamic, stiffness, damping) -> Condition:
+    condition = logic.AreaCondition([dynamic], stiffness, damping)
+    scene.add_condition(condition)
+    return condition
+
+def add_kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance) -> Condition:
+    condition = logic.KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
+    scene.add_condition(condition)
+    return condition
+
+def add_dynamic_attachment(scene, dynamic_0, dynamic_1, stiffness, damping, distance) -> Condition:
+    condition = logic.DynamicAttachmentCondition(dynamic_0, dynamic_1, stiffness, damping, distance)
+    scene.add_condition(condition)
+    return condition
+
+def add_kinematic_collision(scene, stiffness, damping) -> Condition:
+    condition = logic.KinematicCollisionCondition(stiffness, damping)
+    scene.add_condition(condition)
+    return condition
+
+def add_gravity(scene, gravity) -> Force:
+    force = logic.Gravity(gravity)
+    scene.add_force(force)
+    return force
 
 def set_render_prefs(obj, prefs):
     # Render preferences used by render.py
     obj.meta_data['render_prefs'] = prefs
 
 def add_kinematic(scene, details, shape, animator = None):
-    kinematic = objects.Kinematic(details, shape)
+    kinematic = Kinematic(details, shape)
     scene.add_kinematic(kinematic, animator)
     return kinematic
 
 def add_dynamic(scene, details, shape, node_mass):
-    dynamic = objects.Dynamic(details, shape, node_mass)
+    dynamic = Dynamic(details, shape, node_mass)
     scene.add_dynamic(dynamic)
     return dynamic
 
 def initialize(scene, solver, details, context):
     solver.initialize(scene, details, context)
 
-@cm.timeit
+@timeit
 def solve_to_next_frame(scene, solver, details, context):
     for _ in range(context.num_substep):
         context.time += context.dt

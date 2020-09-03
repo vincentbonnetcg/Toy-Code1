@@ -3,9 +3,9 @@
 @description : Evaluation of Abstract Syntax Trees
 """
 
-import numba # required by lib.common.code_gen
-import lib.common.code_gen as generate
-import lib.common as common
+import numba # required by core.code_gen
+import core.code_gen as generate
+import core
 import numpy as np
 import unittest
 
@@ -22,7 +22,7 @@ class Container:
         self.data = datablock
 
 def create_datablock(num_elements=10):
-    datablock = common.DataBlock(Vertex, block_size = 100)
+    datablock = core.DataBlock(Vertex, block_size = 100)
     datablock.initialize(num_elements)
     return datablock
 

@@ -13,7 +13,7 @@ import sys
 parentdir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(parentdir)
 
-import host_app.rpc as rpc
+import lib
 from multiprocessing.managers import SyncManager
 from multiprocessing import Queue
 
@@ -35,7 +35,7 @@ JobQueueManager.register('get_result_queue', callable=function_result_queue)
 '''
  Global Dispatcher
 '''
-global_dispatcher = rpc.CommandSolverDispatcher();
+global_dispatcher = lib.CommandSolverDispatcher();
 
 def execute_server(print_log = True, port=8013, authkey='12345'):
     '''
@@ -71,7 +71,6 @@ def execute_server(print_log = True, port=8013, authkey='12345'):
             log = 'Command not recognized (SyntaxError)'
             result = "SyntaxError"
 
-        # Print Log
         if print_log:
             print(log)
 

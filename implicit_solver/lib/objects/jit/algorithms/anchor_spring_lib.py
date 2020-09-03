@@ -7,9 +7,9 @@ import numba
 
 from lib.objects.jit.data import AnchorSpring
 import lib.objects.jit.algorithms.spring_lib as spring_lib
-import lib.common.code_gen as generate
-import lib.common.jit.data_accessor as db
-import lib.common.jit.math_2d as math2D
+import core.code_gen as generate
+import core.jit.data_accessor as db
+import core.jit.math_2d as math2D
 
 @generate.vectorize
 def pre_compute(anchor_spring : AnchorSpring, details):

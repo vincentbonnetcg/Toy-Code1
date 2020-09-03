@@ -9,8 +9,8 @@ import numpy as np
 from lib.objects import Condition
 from lib.objects.jit.data import Node, AnchorSpring, Spring, Area, Bending
 import lib.objects.jit.algorithms as algo
-import lib.common.jit.block_utils as block_utils
-import lib.common.code_gen as generate
+import core.jit.block_utils as block_utils
+import core.code_gen as generate
 
 def initialize_condition_from_aos(condition, array_of_struct, details):
     data = details.datablock_from_typename(condition.typename)

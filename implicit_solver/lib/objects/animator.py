@@ -5,7 +5,7 @@
 import numpy as np
 import math
 import lib.objects.jit.algorithms.simplex_lib as simplex_lib
-import lib.common.jit.math_2d as math2D
+import core.jit.math_2d as math2D
 
 class Animator:
     '''

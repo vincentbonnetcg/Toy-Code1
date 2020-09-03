@@ -3,7 +3,7 @@
 @description : conditions create a list of constraints from a list of objects
 """
 
-import lib.common.jit.block_utils as block_utils
+import core.jit.block_utils as block_utils
 
 class Condition:
     class FunctionBundle:

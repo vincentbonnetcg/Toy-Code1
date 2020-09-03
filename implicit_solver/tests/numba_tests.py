@@ -6,7 +6,7 @@
 import numba
 import unittest
 import numpy as np
-import lib.common as common
+import core
 from collections import namedtuple
 
 class ComponentField:
@@ -20,7 +20,7 @@ class ComponentNode:
         self.v = np.zeros(2)
 
 def get_block_dtype(block_size = 100):
-    datablock = common.DataBlock(ComponentField, block_size)
+    datablock = core.DataBlock(ComponentField, block_size)
     return datablock.dtype_block
 
 @numba.njit
@@ -187,9 +187,9 @@ class Tests(unittest.TestCase):
 
     def test_named_tuple(self):
         block_size = 10
-        db0 = common.DataBlock(ComponentField, block_size)
-        db1 = common.DataBlock(ComponentNode, block_size)
-        db2 = common.DataBlock(ComponentNode, block_size)
+        db0 = core.DataBlock(ComponentField, block_size)
+        db1 = core.DataBlock(ComponentNode, block_size)
+        db2 = core.DataBlock(ComponentNode, block_size)
         db0.initialize(2000)
         db1.initialize(1500)
         db2.initialize(800)

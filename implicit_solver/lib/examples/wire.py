@@ -2,9 +2,9 @@
 @author: Vincent Bonnet
 @description : example scene with single wire
 """
-import logic
 import math
 import lib.objects as objects
+import lib.logic as logic
 from . import common
 
 WIRE_ROOT_POS = [0.0, 2.0] # in meters

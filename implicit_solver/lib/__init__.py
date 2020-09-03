@@ -2,4 +2,5 @@
 
 import lib.system
 import lib.objects
-import lib.common
+import lib.logic
+from lib.dispatcher import CommandSolverDispatcher

@@ -1,90 +1,32 @@
 """
 @author: Vincent Bonnet
-@description : Run command and bundle scene/solver/context together
+@description : command dispatcher for solver
 """
-
-# import for CommandDispatcher
-import functools
-import inspect
 
 # import for CommandSolverDispatcher
 import uuid
+
+from core import Details
 import lib.system as system
 import lib.system.time_integrators as integrator
-import lib.objects as lib_objects
-import logic
+from lib.objects import Dynamic, Kinematic, Condition, Force
+from lib.objects.jit.data import Node, Spring, AnchorSpring, Bending, Area
+from lib.objects.jit.data import Point, Edge, Triangle
+import lib.logic as logic
+import core
 
-class CommandDispatcher:
-    '''
-    Base class to developer command dispatcher
-    '''
-    def __init__(self):
-        # list of registered commands
-        self._commands = {}
-
-    def register_cmd(self, cmd, cmd_name = None):
-        if cmd_name is None:
-            cmd_name = cmd.__name__
-
-        if hasattr(self, cmd_name):
-            raise ValueError(f'in register_cmd() {cmd_name} already registered')
-
-        self._commands[cmd_name] = cmd
-        func = functools.partial(self.run, cmd_name)
-        setattr(self, cmd_name, func)
-
-    def run(self, command_name, **kwargs):
-        # use registered command
-        if command_name in self._commands:
-            function = self._commands[command_name]
-            function_signature = inspect.signature(function)
-
-            # user specified an object name
-            object_handle = None
-            if 'name' in kwargs:
-                object_handle = kwargs.pop('name')
-
-            # error if an argument is not matching the function signature
-            for args in kwargs:
-                if not args in function_signature.parameters:
-                    raise ValueError("The argument '" + args +
-                                     "' doesn't match the function signature from '"  + command_name + "'")
-
-            # prepare function arguments
-            function_args = {}
-            for param_name in function_signature.parameters:
-                #param_obj = function_signature.parameters[param_name]
-                param_value = self._convert_parameter(param_name, kwargs)
-                if param_value is not None:
-                    function_args[param_name] = param_value
-
-            # call function
-            function_result = function(**function_args)
-            return self._process_result(function_result, object_handle)
-
-        raise ValueError("The command  " + command_name + " is not recognized.'")
-
-    def _convert_parameter(self, parameter_name, kwargs):
-        # parameter provided by user
-        if parameter_name in kwargs:
-            return kwargs[parameter_name]
-        return None
-
-    def _process_result(self, result, object_handle=None):
-        return result
-
-
-class CommandSolverDispatcher(CommandDispatcher):
+class CommandSolverDispatcher(core.CommandDispatcher):
     '''
     Dispatch commands to manage objects (animators, conditions, dynamics, kinematics, forces)
     '''
     def __init__(self):
-        CommandDispatcher.__init__(self)
+        core.CommandDispatcher.__init__(self)
         # data
-        self._scene = system.Scene()
+        self._scene = None
+        self._details = None
+        self._reset()
         self._solver = system.Solver(integrator.BackwardEulerIntegrator())
         #self._solver = system.Solver(integrator.SymplecticEulerIntegrator())
-        self._details = system.SolverDetails()
         self._context = system.SolverContext()
         # map hash_value with objects (dynamic, kinematic, condition, force)
         self._object_dict = {}
@@ -123,16 +65,10 @@ class CommandSolverDispatcher(CommandDispatcher):
         if not object_handle:
             object_handle = str(uuid.uuid4())
 
-        if isinstance(obj, lib_objects.Dynamic):
-            self._object_dict[object_handle] = obj
-        elif isinstance(obj, lib_objects.Kinematic):
-            self._object_dict[object_handle] = obj
-        elif isinstance(obj, lib_objects.Condition):
-            self._object_dict[object_handle] = obj
-        elif isinstance(obj, lib_objects.Force):
+        if isinstance(obj, (Dynamic, Kinematic, Condition, Force)):
             self._object_dict[object_handle] = obj
         else:
-            assert False, '_add_object(...) only supports lib.Dynamic, lib.Kinematic, lib.Condition and lib.Force'
+            assert False, '_add_object(...) only supports Dynamic, Kinematic, Condition and Force'
 
         return object_handle
 
@@ -169,10 +105,7 @@ class CommandSolverDispatcher(CommandDispatcher):
 
     def _process_result(self, result, object_handle=None):
         # convert the result object
-        if isinstance(result, (lib_objects.Dynamic,
-                               lib_objects.Kinematic,
-                               lib_objects.Condition,
-                               lib_objects.Force)):
+        if isinstance(result, (Dynamic, Kinematic, Condition, Force)):
             # the object is already stored
             for k, v in self._object_dict.items():
                 if v == result:
@@ -214,5 +147,10 @@ class CommandSolverDispatcher(CommandDispatcher):
 
     def _reset(self):
         self._scene = system.Scene()
-        self._details = system.SolverDetails()
-
+        system_types = [Node, Area, Bending, Spring, AnchorSpring]
+        system_types += [Point, Edge, Triangle]
+        group_types = {'dynamics' : [Node],
+                       'constraints' : [Area, Bending, Spring, AnchorSpring],
+                       'geometries': [Point, Edge, Triangle],
+                       'bundle': system_types}
+        self._details = Details(system_types, group_types)

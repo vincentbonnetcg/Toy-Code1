@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-from lib.common import Shape
+from core import Shape
 
 class Kinematic:
     '''

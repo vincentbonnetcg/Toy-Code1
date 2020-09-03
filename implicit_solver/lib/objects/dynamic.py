@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import lib.common as common
+import core
 
 class Dynamic:
     '''
@@ -46,7 +46,7 @@ class Dynamic:
         num_vertices = self.num_nodes()
         num_edges = len(self.edge_ids)
         num_faces = len(self.face_ids)
-        shape = common.Shape(num_vertices, num_edges, num_faces)
+        shape = core.Shape(num_vertices, num_edges, num_faces)
         shape.vertex = details.db['node'].flatten('x', self.block_handles)
         shape.edge = np.copy(self.edge_ids)
         shape.face = np.copy(self.face_ids)

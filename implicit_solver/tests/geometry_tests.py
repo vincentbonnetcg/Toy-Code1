@@ -4,13 +4,13 @@
 """
 
 import unittest
-import lib.common as common
+import core
 
 '''
 Tests for geometry functions
 '''
 def createTriangulatedSquareShape():
-    shape = common.Shape(num_vertices=4, num_edges=5, num_faces=2)
+    shape = core.Shape(num_vertices=4, num_edges=5, num_faces=2)
     shape.vertex[:] = ((-1.0, -1.0),(-1.0, 1.0),(1.0, 1.0),(1.0, -1.0))
     shape.edge[:] = ((0, 1),(1,2),(2, 0),(2, 3),(3,0))
     shape.face[:] = ((0, 1, 2),(0, 2, 3))
