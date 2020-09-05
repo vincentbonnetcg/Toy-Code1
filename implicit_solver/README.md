@@ -1,11 +1,11 @@
 # Numerical Bric-a-Brac - Implicit Solver
 Implicit Solver written with Python and Numba
 
-- **lib** : framework and core libraries (scene, solver, base classes of shape, object, condition, ...)
+- **core** : data structures, code generation
+ 
+- **lib** : implicit solver implementation
 
-- **logic** : implementation of base classes from lib (shape, object, condition, ...)
-
-- **host_app** : bridge for Maya / Houdini / command line
+- **host_app** : bridge for Maya, Houdini, command line
 
 ![Implicit Solver Wire](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/implicitSolver_cat.gif)
 ![Implicit Solver Wire](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/implicitSolver_wire.gif)

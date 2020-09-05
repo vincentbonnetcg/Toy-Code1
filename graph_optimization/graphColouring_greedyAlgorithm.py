@@ -4,26 +4,23 @@
 """
 
 import numpy as np
-import networkx as nx
 import matplotlib.pyplot as plt
+import matplotlib.collections as collections
 
-'''
- Global Parameters
-'''
-NUM_NODES = 100
-NODE_SEARCH_RADIUS = 0.2
+def get_mesh(filename):
+    npzfile = np.load(filename)
+    vertices = npzfile['positions']
+    edge_ids = npzfile['edge_vertex_ids']
+    face_ids = npzfile['face_vertex_ids']
+    return vertices, edge_ids, face_ids
 
-def get_graph():
-    return nx.random_geometric_graph(NUM_NODES, NODE_SEARCH_RADIUS, seed=5)
+def compute_groups(mesh):
+    adjencies = get_adjacencies(mesh)
+    vertices = mesh[0]
+    num_vertices = len(vertices)
+    group_ids = [-1] * num_vertices
 
-def compute_groups(graph):
-    '''
-    greedy colouring algorithm
-    '''
-    nx.set_node_attributes(graph, -1, "group")
-    group_ids = nx.get_node_attributes(graph, "group")
-
-    for node, adjacencies in graph.adjacency():
+    for node, adjacencies in adjencies.items():
         # get group ids from adjacencies
         adjacency_groups = []
         for adj in adjacencies:
@@ -36,37 +33,70 @@ def compute_groups(graph):
 
         group_ids[node] = group_id
 
-    return group_ids
+    return np.asarray(group_ids)
 
-def show(graph):
-    num_nodes = graph.number_of_nodes()
-    colours = np.zeros(graph.number_of_nodes())
-    # colour from groups
-    group_ids = compute_groups(graph)
-    #group_ids = nx.coloring.greedy_color(graph) # to compare with own implementation
-    for i in range(num_nodes):
-        colours[i] = group_ids[i]
+def get_adjacencies(mesh):
+    adjacencies = {}
+    edge_ids = mesh[1]
+
+    for ids in edge_ids:
+        for i in range(2):
+            neighbors = adjacencies.get(ids[i], [])
+            neighbors.append(ids[(i+1)%2])
+            adjacencies[ids[i]] = neighbors
+
+    return adjacencies
+
+
+def show(mesh):
+    vertices = mesh[0]
+    face_ids = mesh[2]
+    group_ids = compute_groups(mesh)
 
     # display the graph
     # Only support up to 20 difference colours (see cmap=plt.cm.tab20)
     fig, ax = plt.subplots(figsize=(6,6))
     ax.axis('equal')
-
-    pos = nx.get_node_attributes(graph, "pos")
-    nx.draw_networkx_nodes(graph, pos, node_color=colours, cmap=plt.cm.tab20, node_size = 20, ax=ax)
-    nx.draw_networkx_edges(graph, pos, alpha=0.4, ax=ax)
+    min_range = np.min(vertices, axis=0)
+    max_range = np.max(vertices, axis=0)
+    ax.set_xlim(min_range[0], max_range[0])
+    ax.set_ylim(min_range[1], max_range[1])
 
     font = {'family': 'serif',
             'color':  'darkblue',
             'weight': 'normal',
             'size': 14 }
-    num_colours = np.max(list(group_ids.values()))
-    plt.title(('Greedy Coloring Algorithm (%d colours)'%num_colours), fontdict=font)
-    # plt.legend(bbox_to_anchor=(1, 1), loc=2)
+    num_groups = np.max(group_ids)
+    plt.title(('Greedy Coloring Algorithm (%d colors)'%num_groups), fontdict=font)
     plt.axis('off')
 
+    triangles = []
+    for face_id in face_ids:
+        v0 = vertices[face_id[0]]
+        v1 = vertices[face_id[1]]
+        v2 = vertices[face_id[2]]
+        triangles.append([v0, v1, v2])
+
+    # draw mesh
+    collec = collections.PolyCollection(triangles, facecolors='white',
+                                                    edgecolors='black',
+                                                    linewidths=0.1)
+    ax.add_collection(collec)
+
+    # draw nodes
+    colors = ['blue', 'red', 'yellow', 'green', 'orange', 'pink']
+    for group_id in range(num_groups):
+        node_indices, = np.where(group_ids == group_id)
+        if len(node_indices)==0:
+            continue
+
+        vtx = vertices[node_indices]
+        x, y = zip(*vtx)
+        ax.plot(x, y, '.', alpha=1.0, color=colors[group_id], markersize = 5.0)
+
+    plt.show()
 
 if __name__ == '__main__':
-    graph = get_graph()
-    show(graph)
-
+    vertices, edge_ids, face_ids = get_mesh('rabbit.npz')
+    mesh = (vertices, edge_ids, face_ids)
+    show(mesh)

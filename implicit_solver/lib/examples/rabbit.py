@@ -36,7 +36,7 @@ def assemble(dispatcher, render):
     # Create collider 2
     anchor2_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
     anchor2_shape.compute_best_transform()
-    anchor2_shape.transform((0,-30), 70)
+    anchor2_shape.transform((0,-35), -45)
 
     # Add objects to the solver
     dispatcher.add_kinematic(shape = anchor0_shape, name = 'collider0')
