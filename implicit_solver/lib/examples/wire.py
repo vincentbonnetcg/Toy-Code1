@@ -4,7 +4,7 @@
 """
 import math
 import lib.objects as objects
-import lib.logic as logic
+import lib.objects.logic as logic
 from . import common
 
 WIRE_ROOT_POS = [0.0, 2.0] # in meters

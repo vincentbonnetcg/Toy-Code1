@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import core.jit.data_accessor as db
+import core.jit.item_utils as item_utils
 
 class Constraint:
     def __init__(self, num_nodes : int):
@@ -14,7 +14,7 @@ class Constraint:
         self.damping = np.float64(0.0)
 
         # Node ids involved in the constraint
-        self.node_IDs = db.empty_data_ids(num_nodes)
+        self.node_IDs = item_utils.empty_data_ids(num_nodes)
 
         # system indices of the nodes
         self.systemIndices = np.zeros(num_nodes, dtype = np.int32)
@@ -33,7 +33,7 @@ class AnchorSpring(Constraint):
     def __init__(self):
         Constraint.__init__(self, num_nodes = 1)
         self.rest_length = np.float64(0.0)
-        self.kinematic_component_IDs = db.empty_data_ids(2) # Point ids
+        self.kinematic_component_IDs = item_utils.empty_data_ids(2) # Point ids
         self.kinematic_component_param = np.float64(0.0)
         self.kinematic_component_pos = np.zeros(2, dtype = np.float64)
 

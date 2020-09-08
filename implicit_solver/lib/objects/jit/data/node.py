@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-import core.jit.data_accessor as db
+import core.jit.item_utils as item_utils
 
 class Node:
     def __init__(self):
@@ -14,7 +14,7 @@ class Node:
         self.m = np.float64(0.0)
         self.im = np.float64(0.0)
         self.systemIndex = np.int32(0)
-        self.ID = db.empty_data_id()
+        self.ID = item_utils.empty_data_id()
 
     @staticmethod
     def name():

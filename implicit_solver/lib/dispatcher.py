@@ -12,7 +12,7 @@ import lib.system.time_integrators as integrator
 from lib.objects import Dynamic, Kinematic, Condition, Force
 from lib.objects.jit.data import Node, Spring, AnchorSpring, Bending, Area
 from lib.objects.jit.data import Point, Edge, Triangle
-import lib.logic as logic
+import lib.objects.logic as logic
 import core
 
 class CommandSolverDispatcher(core.CommandDispatcher):

@@ -5,7 +5,7 @@
 import os
 from . import common
 import core.shape_io as io_utils
-import lib.logic as logic
+import lib.objects.logic as logic
 
 NODE_MASS = 0.001 # in Kg
 

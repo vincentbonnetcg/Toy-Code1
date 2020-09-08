@@ -8,7 +8,7 @@ import numba
 
 from lib.objects.jit.data import Spring
 import core.code_gen as generate
-import core.jit.data_accessor as db
+import lib.objects.jit.algorithms.data_accessor as db
 import core.jit.math_2d as math2D
 
 @generate.vectorize

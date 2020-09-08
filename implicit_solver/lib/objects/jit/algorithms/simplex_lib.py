@@ -8,7 +8,8 @@ import numba
 
 from lib.objects.jit.data import Point, Edge, Triangle
 import core.code_gen as generate
-import core.jit.data_accessor as db
+import core.jit.item_utils as item_utils
+import lib.objects.jit.algorithms.data_accessor as db
 import core.jit.math_2d as math2D
 
 closestResultSpec = [('points', numba.int32[:,:]), # two points
@@ -19,7 +20,7 @@ closestResultSpec = [('points', numba.int32[:,:]), # two points
 @numba.experimental.jitclass(closestResultSpec)
 class ClosestResult(object):
     def __init__(self):
-        self.points = db.empty_data_ids(2)
+        self.points = item_utils.empty_data_ids(2)
         self.t = 0.0
         self.position = np.zeros(2, dtype=np.float64)
         self.normal = np.zeros(2, dtype=np.float64)

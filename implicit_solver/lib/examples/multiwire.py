@@ -5,7 +5,7 @@
 
 import lib.objects as objects
 from . import common
-import lib.logic as logic
+import lib.objects.logic as logic
 
 WIRE_ROOT_POS = [0.0, 2.0] # in meters
 WIRE_END_POS = [0.0, -2.0] # in meters

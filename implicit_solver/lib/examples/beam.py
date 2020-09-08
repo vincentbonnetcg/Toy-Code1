@@ -4,7 +4,7 @@
 """
 import math
 import lib.objects as objects
-import lib.logic as logic
+import lib.objects.logic as logic
 from . import common
 
 BEAM_POS = [-4.0, 0.0] # in meters

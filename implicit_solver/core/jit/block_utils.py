@@ -6,7 +6,7 @@
 import math
 import numba
 import numpy as np
-import core.jit.data_accessor as db
+import core.jit.item_utils as item_utils
 import core.code_gen as generate
 
 @generate.vectorize_block
@@ -55,9 +55,7 @@ def init_block_with_ID(block, block_size, block_handle):
     init_block(block, block_size, block_handle)
     data_ID = block[0]['ID']
     for index in range(block_size):
-        db.set_data_id(data_ID[index],
-                       block_handle,
-                       index)
+        item_utils.set_data_id(data_ID[index], block_handle,index)
 
 @numba.njit
 def append_blocks(blocks, reuse_inactive_block, num_elements, init_func = init_block):

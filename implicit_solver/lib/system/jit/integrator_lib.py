@@ -5,7 +5,7 @@
 import numba # required by core.code_gen
 import numpy as np
 
-import core.jit.data_accessor as db
+import lib.objects.jit.algorithms.data_accessor as db
 import core.code_gen as generate
 import lib.system.jit.sparse_matrix_lib as sparse_lib
 from lib.objects.jit.data import Constraint, Node
@@ -29,7 +29,7 @@ def set_system_index(node : Node, system_index_counter):
 def update_system_indices(constraint : Constraint, detail_nodes):
     num_nodes = len(constraint.node_IDs)
     for i in range(num_nodes):
-        si = db.systemIndex(detail_nodes, constraint.node_IDs[i])
+        si = db.system_index(detail_nodes, constraint.node_IDs[i])
         constraint.systemIndices[i] = si
 
 @generate.vectorize
