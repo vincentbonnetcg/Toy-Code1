@@ -5,7 +5,7 @@
 import os
 from . import common
 import core.shape_io as io_utils
-from lib.objects import RectangleShape
+from core import RectangleShape
 
 NODE_MASS = 0.001 # in Kg
 

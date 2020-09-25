@@ -4,7 +4,7 @@
 """
 import math
 import lib.objects as objects
-from lib.objects import WireShape, RectangleShape
+from core import WireShape, RectangleShape
 from . import common
 
 WIRE_ROOT_POS = [0.0, 2.0] # in meters

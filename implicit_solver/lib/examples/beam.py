@@ -4,7 +4,7 @@
 """
 import math
 import lib.objects as objects
-from lib.objects import BeamShape, WireShape, RectangleShape
+from core import BeamShape, WireShape, RectangleShape
 from . import common
 
 BEAM_POS = [-4.0, 0.0] # in meters

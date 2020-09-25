@@ -15,7 +15,7 @@ from lib.dispatcher import CommandSolverDispatcher
 START_TIME = 0
 FRAME_TIMESTEP = 1.0/24.0 # in seconds
 NUM_SUBSTEP = 12 # number of substep per frame
-NUM_FRAMES = 100  # number of simulated frame (doesn't include initial frame)
+NUM_FRAMES = 5  # number of simulated frame (doesn't include initial frame)
 RENDER_FOLDER_PATH = "" # specify a folder to export png files
 USE_REMOTE_SERVER = False # run the program locally or connect to a server
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif

@@ -5,7 +5,7 @@
 
 import lib.objects as objects
 from . import common
-from lib.objects import WireShape, RectangleShape
+from core import WireShape, RectangleShape
 
 WIRE_ROOT_POS = [0.0, 2.0] # in meters
 WIRE_END_POS = [0.0, -2.0] # in meters
