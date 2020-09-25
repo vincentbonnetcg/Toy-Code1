@@ -4,7 +4,7 @@
 """
 import math
 import lib.objects as objects
-import lib.objects.logic as logic
+from lib.objects import BeamShape, WireShape, RectangleShape
 from . import common
 
 BEAM_POS = [-4.0, 0.0] # in meters
@@ -24,23 +24,23 @@ def assemble(dispatcher, render):
     dispatcher.reset()
     context = dispatcher.get_context()
     # beam shape
-    beam_shape = logic.BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
+    beam_shape = BeamShape(BEAM_POS, BEAM_WIDTH, BEAM_HEIGHT, BEAM_CELL_X, BEAM_CELL_Y)
 
     # wire shape
     wire_start_pos = [BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT]
     wire_end_pos = [BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1] + BEAM_HEIGHT]
-    wire_shape = logic.WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
+    wire_shape = WireShape(wire_start_pos, wire_end_pos, BEAM_CELL_X * 8)
 
     # left anchor shape and animation
-    l_anchor_shape = logic.RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
-                                            BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
+    l_anchor_shape = RectangleShape(BEAM_POS[0] - 0.5, BEAM_POS[1],
+                                    BEAM_POS[0], BEAM_POS[1] + BEAM_HEIGHT)
     l_pos, l_rot = l_anchor_shape.compute_best_transform()
     func = lambda time: [[l_pos[0] + math.sin(2.0 * time) * 0.1, l_pos[1] + math.sin(time * 4.0)], l_rot]
     l_animator = objects.Animator(func, context)
 
     # right anchor shape and animation
-    r_anchor_shape = logic.RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
-                                             BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
+    r_anchor_shape = RectangleShape(BEAM_POS[0] + BEAM_WIDTH, BEAM_POS[1],
+                                    BEAM_POS[0] + BEAM_WIDTH + 0.5, BEAM_POS[1] + BEAM_HEIGHT)
     r_pos, r_rot = r_anchor_shape.compute_best_transform()
     func = lambda time: [[r_pos[0] + math.sin(2.0 * time) * -0.1, r_pos[1]], r_rot]
     r_animator = objects.Animator(func, context)

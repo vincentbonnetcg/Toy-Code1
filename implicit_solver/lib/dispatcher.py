@@ -12,7 +12,7 @@ import lib.system.time_integrators as integrator
 from lib.objects import Dynamic, Kinematic, Condition, Force
 from lib.objects.jit.data import Node, Spring, AnchorSpring, Bending, Area
 from lib.objects.jit.data import Point, Edge, Triangle
-import lib.objects.logic as logic
+import lib.objects.commands as cmd
 import core
 
 class CommandSolverDispatcher(core.CommandDispatcher):
@@ -40,23 +40,23 @@ class CommandSolverDispatcher(core.CommandDispatcher):
         self.register_cmd(self._get_metadata, 'get_metadata')
         self.register_cmd(self._get_commands, 'get_commands')
         self.register_cmd(self._reset, 'reset')
-        self.register_cmd(logic.initialize)
-        self.register_cmd(logic.add_dynamic)
-        self.register_cmd(logic.add_kinematic)
-        self.register_cmd(logic.solve_to_next_frame)
-        self.register_cmd(logic.get_nodes_from_dynamic)
-        self.register_cmd(logic.get_shape_from_kinematic)
-        self.register_cmd(logic.get_normals_from_kinematic)
-        self.register_cmd(logic.get_segments_from_constraint)
-        self.register_cmd(logic.set_render_prefs)
-        self.register_cmd(logic.add_gravity)
-        self.register_cmd(logic.add_edge_constraint)
-        self.register_cmd(logic.add_wire_bending_constraint)
-        self.register_cmd(logic.add_face_constraint)
-        self.register_cmd(logic.add_kinematic_attachment)
-        self.register_cmd(logic.add_kinematic_collision)
-        self.register_cmd(logic.add_dynamic_attachment)
-        self.register_cmd(logic.get_sparse_matrix_as_dense)
+        self.register_cmd(cmd.initialize)
+        self.register_cmd(cmd.add_dynamic)
+        self.register_cmd(cmd.add_kinematic)
+        self.register_cmd(cmd.solve_to_next_frame)
+        self.register_cmd(cmd.get_nodes_from_dynamic)
+        self.register_cmd(cmd.get_shape_from_kinematic)
+        self.register_cmd(cmd.get_normals_from_kinematic)
+        self.register_cmd(cmd.get_segments_from_constraint)
+        self.register_cmd(cmd.set_render_prefs)
+        self.register_cmd(cmd.add_gravity)
+        self.register_cmd(cmd.add_edge_constraint)
+        self.register_cmd(cmd.add_wire_bending_constraint)
+        self.register_cmd(cmd.add_face_constraint)
+        self.register_cmd(cmd.add_kinematic_attachment)
+        self.register_cmd(cmd.add_kinematic_collision)
+        self.register_cmd(cmd.add_dynamic_attachment)
+        self.register_cmd(cmd.get_sparse_matrix_as_dense)
 
     def _add_object(self, obj, object_handle=None):
         if object_handle in self._object_dict:

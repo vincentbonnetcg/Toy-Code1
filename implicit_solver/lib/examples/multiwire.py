@@ -5,7 +5,7 @@
 
 import lib.objects as objects
 from . import common
-import lib.objects.logic as logic
+from lib.objects import WireShape, RectangleShape
 
 WIRE_ROOT_POS = [0.0, 2.0] # in meters
 WIRE_END_POS = [0.0, -2.0] # in meters
@@ -30,11 +30,11 @@ def assemble(dispatcher, render):
     wire_shapes = []
     for i in range(6):
         x = -2.0 + (i * 0.25)
-        wire_shape = logic.WireShape([x, 1.5], [x, -1.5] , WIRE_NUM_SEGMENTS)
+        wire_shape = WireShape([x, 1.5], [x, -1.5] , WIRE_NUM_SEGMENTS)
         wire_shapes.append(wire_shape)
 
     # anchor shape and animation
-    anchor_shape = logic.RectangleShape(min_x = -2.0, min_y = 1.5,
+    anchor_shape = RectangleShape(min_x = -2.0, min_y = 1.5,
                                               max_x = 0.0, max_y =2.0)
     anchor_position, anchor_rotation = anchor_shape.compute_best_transform()
     func = lambda time: [[anchor_position[0] + time,
@@ -43,8 +43,8 @@ def assemble(dispatcher, render):
     anchor_animator = objects.Animator(func, context)
 
     # collider shape
-    collider_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
-                                       WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
+    collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3,
+                                    WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
     collider_position, collider_rotation = anchor_shape.compute_best_transform()
     collider_shape.transform(collider_position, 45.0)
 

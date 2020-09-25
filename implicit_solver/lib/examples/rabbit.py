@@ -5,7 +5,7 @@
 import os
 from . import common
 import core.shape_io as io_utils
-import lib.objects.logic as logic
+from lib.objects import RectangleShape
 
 NODE_MASS = 0.001 # in Kg
 
@@ -24,17 +24,17 @@ def assemble(dispatcher, render):
     shape = io_utils.create_shape_from_npz_file(filename)
 
     # Create collider 0
-    anchor0_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=4.5, max_y=5.0)
+    anchor0_shape = RectangleShape(min_x=-5.0, min_y=4.0, max_x=4.5, max_y=5.0)
     anchor0_shape.compute_best_transform()
     anchor0_shape.transform((-7,-13), 30)
 
     # Create collider 1
-    anchor1_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
+    anchor1_shape = RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
     anchor1_shape.compute_best_transform()
     anchor1_shape.transform((13,-20), -45)
 
     # Create collider 2
-    anchor2_shape = logic.RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
+    anchor2_shape = RectangleShape(min_x=-5.0, min_y=4.0, max_x=5.0, max_y=5.0)
     anchor2_shape.compute_best_transform()
     anchor2_shape.transform((0,-35), -45)
 

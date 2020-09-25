@@ -3,45 +3,47 @@
 @description : commands to setup objects and run simulation
 """
 
-import lib.objects.logic as logic
-from lib.objects import Dynamic, Kinematic
-from core import timeit
-import lib.objects.jit.algorithms.data_accessor as db
 import numpy as np
+from core import timeit
 
+from lib.objects import Dynamic, Kinematic, Gravity
+from lib.objects import WireBendingCondition, EdgeCondition, AreaCondition
+from lib.objects import KinematicAttachmentCondition, DynamicAttachmentCondition
+from lib.objects import KinematicCollisionCondition
+import lib.objects.jit.algorithms.data_accessor as db
 
 def add_wire_bending_constraint(scene, dynamic, stiffness, damping):
-    condition = logic.WireBendingCondition([dynamic], stiffness, damping)
+    condition = WireBendingCondition([dynamic], stiffness, damping)
     scene.add_condition(condition)
     return condition
 
 def add_edge_constraint(scene, dynamic, stiffness, damping):
-    condition = logic.EdgeCondition([dynamic], stiffness, damping)
+    condition = EdgeCondition([dynamic], stiffness, damping)
     scene.add_condition(condition)
     return condition
 
 def add_face_constraint(scene, dynamic, stiffness, damping):
-    condition = logic.AreaCondition([dynamic], stiffness, damping)
+    condition = AreaCondition([dynamic], stiffness, damping)
     scene.add_condition(condition)
     return condition
 
 def add_kinematic_attachment(scene, dynamic, kinematic, stiffness, damping, distance):
-    condition = logic.KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
+    condition = KinematicAttachmentCondition(dynamic, kinematic, stiffness, damping, distance)
     scene.add_condition(condition)
     return condition
 
 def add_dynamic_attachment(scene, dynamic_0, dynamic_1, stiffness, damping, distance):
-    condition = logic.DynamicAttachmentCondition(dynamic_0, dynamic_1, stiffness, damping, distance)
+    condition = DynamicAttachmentCondition(dynamic_0, dynamic_1, stiffness, damping, distance)
     scene.add_condition(condition)
     return condition
 
 def add_kinematic_collision(scene, stiffness, damping):
-    condition = logic.KinematicCollisionCondition(stiffness, damping)
+    condition = KinematicCollisionCondition(stiffness, damping)
     scene.add_condition(condition)
     return condition
 
 def add_gravity(scene, gravity):
-    force = logic.Gravity(gravity)
+    force = Gravity(gravity)
     scene.add_force(force)
     return force
 

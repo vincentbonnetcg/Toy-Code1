@@ -4,7 +4,7 @@
 """
 import math
 import lib.objects as objects
-import lib.objects.logic as logic
+from lib.objects import WireShape, RectangleShape
 from . import common
 
 WIRE_ROOT_POS = [0.0, 2.0] # in meters
@@ -22,15 +22,15 @@ def assemble(dispatcher, render):
     dispatcher.reset()
     context = dispatcher.get_context()
     # wire shape
-    wire_shape = logic.WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
+    wire_shape = WireShape(WIRE_ROOT_POS, WIRE_END_POS, WIRE_NUM_SEGMENTS)
 
     # collider shape
-    collider_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3.5,
+    collider_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 3.5,
                                     WIRE_ROOT_POS[0] + 0.5, WIRE_ROOT_POS[1] - 2)
 
     # anchor shape and animation
-    anchor_shape = logic.RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
-                                              WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
+    anchor_shape = RectangleShape(WIRE_ROOT_POS[0], WIRE_ROOT_POS[1] - 0.5,
+                                  WIRE_ROOT_POS[0] + 0.25, WIRE_ROOT_POS[1])
 
     anchor_position, anchor_rotation = anchor_shape.compute_best_transform()
     decay_rate = 0.5
