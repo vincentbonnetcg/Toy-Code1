@@ -80,11 +80,12 @@ Explore code generation of vectorized code for physics solver.
 
 [1] Buss, Samuel R. "Introduction to inverse kinematics with jacobian transpose, pseudoinverse and damped least squares methods." IEEE Journal of Robotics and Automation 17.1-19 (2004): 16.
 
-## . Dimensionality reduction (PCA)
+## . Dimensionality Reduction
 **File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/optimalTransformation_covarianceMatrix.py)<br>
-**Description** Optimal rigid transformation by using Principal Component Analysis (Eigen Decomposition)
+**Description** Optimal rigid transformation by using Principal Component Analysis (PCA)
 - Covariance matrix from point cloud
 - Best oriented bounding box
+- Eigen Decomposition and SVD Decomposition
 
 ![PCA](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation_covarianceMatrix.png)
 
