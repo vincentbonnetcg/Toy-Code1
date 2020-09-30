@@ -7,7 +7,7 @@ import math
 import numpy as np
 from numba import cuda
 from skimage import data, io, color, feature
-import skimage as skimage
+import skimage
 import matplotlib.pyplot as plt
 import img_utils
 

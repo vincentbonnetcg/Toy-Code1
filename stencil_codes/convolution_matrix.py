@@ -61,5 +61,6 @@ if __name__ == '__main__':
     embossKernel = np.array([[-2.0, -1.0, 0.0], [-1.0, 1.0, 1.0], [0.0, 1.0, 2.0]])
     '''
     # Execute
-    image_processing(image, [sobelYKernel, gaussianBlurKernel])
+    filters = [sobelYKernel, gaussianBlurKernel]
+    image_processing(image, filters)
 

@@ -136,3 +136,21 @@ Explore code generation of vectorized code for physics solver.
 
 ![Array_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_array.png)<br>
 
+## . Jupyter Notebooks
+
+moving some code into Jupyter Notebooks ! 
+
+<table>
+<thead>
+  <tr>
+	<th colspan="3"><a href="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/notebooks" target="_blank">Folder</a></th>
+  </tr>
+  <tr>
+	<th>Image Compression with SVD</th>
+    <th><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb" target="_blank">File</a></th>
+    <th><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></th>
+  </tr>
+
+</thead>
+
+ 

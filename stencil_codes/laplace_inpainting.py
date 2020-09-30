@@ -21,42 +21,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import skimage
 
-'''
- Global Parameters
-'''
-NUM_NODES = 128 # For GPU should be a multiplier of TPB
-JACOBI_ITERATIONS = 10000
-TPB = 16 # Thread per block
-GPU_SHARED_MEMORY_SIZE = TPB + 2 # +2 because the stencil requires -1 and +1
+JACOBI_ITERATIONS = 1000
+RATIO_OF_ZERO = 0.95 # 0. => original image , 1. < just zeros
 
-def create_domain(num_nodes=64):
-    '''
-    Returns domain nodes along x, y and grid values
-    The values come from an image
-    '''
-    # Convert image to greyscale numpy 2D-array
-    image = skimage.img_as_float(skimage.color.rgb2gray(skimage.data.chelsea())).astype(np.float32)
-    # Resize the image to (num_nodes, num_nodes) shape
-    image = skimage.transform.resize(image, output_shape=(num_nodes, num_nodes), anti_aliasing=True)
-    # Flip the image upside-down
-    image = np.flipud(image)
-    # Finally, turn the image into a single memory block to be used by Cuda
-    image = np.ascontiguousarray(image, dtype=np.float32)
-
-    return image
-
-def create_mask(num_nodes=64):
-    values = np.random.rand(num_nodes, num_nodes)
-    ratio_of_zero = 0.4 # 10 % dark area
-    values[values > ratio_of_zero] = 1.0
-    values[values <= ratio_of_zero] = 0.0
+def create_mask(shape):
+    values = np.random.rand(shape[0], shape[1])
+    values[values > RATIO_OF_ZERO] = 1.0
+    values[values <= RATIO_OF_ZERO] = 0.0
     values[0][:] = 1.0 # top row
     values[-1][:] = 1.0 # bottom row
     values[:,0] = 1.0 # left column
     values[:,-1] = 1.0 # right column
-    values[40:54, 40:50]= 0.0 # extra dark area for some reasons
-    values[80:95, 65:75]= 0.0 # extra dark area for no reason
-
     return values
 
 @numba.njit(parallel=True)
@@ -69,26 +44,32 @@ def numba_jacobi_solver_with_mask(x, next_x, mask_indices):
         j = mask_index[1]
         next_x[i][j] = (x[i-1][j] + x[i+1][j] + x[i][j-1] + x[i][j+1]) * 0.25
 
-def laplace_inpainting(domain, mask, num_iterations):
-    buffers = [domain, np.copy(domain)]
+def laplace_inpainting(image, mask_indices, num_iterations):
+    buffers = [image, np.copy(image)]
     for iteration in range(num_iterations):
         numba_jacobi_solver_with_mask(buffers[0], buffers[1], mask_indices)
         buffers[0], buffers[1] = buffers[1], buffers[0] # swap buffers
 
-    # show result
-    fig, ax = plt.subplots()
-    domain_points = np.linspace(0, 10, num=NUM_NODES, endpoint=True)
-    im = ax.pcolormesh(domain_points, domain_points, buffers[0], cmap="gist_gray", antialiased=True, shading="gouraud")
-    fig.colorbar(im)
-    #fig.savefig("test.png")
-
 if __name__ == '__main__':
-    # create domain
-    domain = create_domain(NUM_NODES)
-    mask_values = create_mask(NUM_NODES)
-    domain *= mask_values
-    mask_indices = np.argwhere(mask_values == 0)
-    laplace_inpainting(domain, mask_indices, JACOBI_ITERATIONS)
+    # load image
+    image = skimage.img_as_float(skimage.color.rgb2gray(skimage.data.chelsea()))
+    img = plt.imshow(image)
+    img.set_cmap('gray')
+    plt.title('Original image')
+    plt.show()
 
+    # remove data from image
+    mask = create_mask(image.shape)
+    image *= mask
+    img = plt.imshow(image)
+    img.set_cmap('gray')
+    plt.title('Missing data')
+    plt.show()
 
-
+    # recover image with laplace inpainting
+    mask_indices = np.argwhere(mask == 0)
+    laplace_inpainting(image, mask_indices, JACOBI_ITERATIONS)
+    img = plt.imshow(image)
+    img.set_cmap('gray')
+    plt.title('Laplace inpainting')
+    plt.show()

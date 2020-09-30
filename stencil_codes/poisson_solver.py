@@ -20,7 +20,6 @@ import math
 import numba
 import numpy as np
 import matplotlib.pyplot as plt
-import skimage
 
 NUM_NODES = 128 # For GPU should be a multiplier of TPB
 JACOBI_ITERATIONS = 10000
