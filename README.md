@@ -33,13 +33,13 @@ Explore code generation of vectorized code for physics solver.
 - Optimizer : Gradient Descent, Newton-Raphson, Quasi-Newton (BFGS) 
 - Line Search : Backtracking 
 
-![Gradient Descent](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization.png)
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations/img/optimization.png" alt="Gradient Descent" width="40%" height="40%">
 
 ## . Skeletal Subspace Deformation
 **Folder** [skinning](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/skinning)<br>
 **Description** Skeletal Subspace Deformation
 
-![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/linear_blend_skinning.gif)
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/linear_blend_skinning.gif" alt="Skeletal Subspace Deformation" width="40%" height="40%">
 
 ## Stencil Codes
 **Folder** [stencil_codes](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes)<br>
@@ -50,7 +50,7 @@ Explore code generation of vectorized code for physics solver.
 - Conway's game of life
 - Convolution matrix
 
-![Laplace_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_equation.png)
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_equation.png" alt="Laplace_Numba" width="40%" height="40%">
 
 ## . Inverse Kinematics
 **File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/inverseKinematics_withJacobian.py)<br>
@@ -58,7 +58,7 @@ Explore code generation of vectorized code for physics solver.
 - Assemble Numerical/Analytic Jacobian matrix (using central difference)
 - Solve system with Pseudo-Inverse or Damped Least Squares method
 
-![Inverse Kinematics](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/inverseKinematics_withJacobian.gif)
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/inverseKinematics_withJacobian.gif" alt="Inverse Kinematics" width="40%" height="40%">
 
 ## . Dimensionality Reduction
 **File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/optimalTransformation_covarianceMatrix.py)<br>
@@ -67,7 +67,7 @@ Explore code generation of vectorized code for physics solver.
 - Best oriented bounding box
 - Eigen Decomposition and SVD Decomposition
 
-![PCA](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation_covarianceMatrix.png)
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation_covarianceMatrix.png" alt="PCA" width="40%" height="40%">
 
 ## . Markov Chain - Authors names generator
 **File** [markovChain.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/markov_chain/markov_chain.py)<br>
@@ -81,7 +81,7 @@ Explore code generation of vectorized code for physics solver.
 - RBF Interpolation
 - Polynomial Regression
 
-![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png" alt="RBF" width="40%" height="40%">
 
 ## . Graph Optimization
 **File** [graph_optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graph_optimization)<br>
