@@ -127,37 +127,8 @@ Explore code generation of vectorized code for physics solver.
 
 ![Explicit Integrators](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/spring1D_integrator.png)
 
-## . Numba - Sandbox Test
+## .Jupyter Notebooks
 
-### Array Operations
+**Folder** [notebooks](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/notebooks)<br>
 
-**Folder** [performance](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/performance)<br>
-**Description** Evaluate simple 1D array operation with Numba
-
-![Array_Numba](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/performance_test_array.png)<br>
-
-## . Jupyter Notebooks
-
-moving some code into Jupyter Notebooks ! 
-
-<table>
-
-<thead>
-  <tr>
-	<th><a href="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/notebooks">Folder</a></th>
-  </tr>
-</thead>
-
-<thead>
-  <tr>
-	<th>Image Compression with SVD<br>aasd</th>
-  </tr>
-  <tr>
-    <th><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb">Open in GitHub</a> or
-    <a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></th>
-  </tr>
-</thead>
-
-
-</table>
- 
+slowly moving some code into Jupyter Notebooks !
