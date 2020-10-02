@@ -5,17 +5,11 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-from enum import IntEnum
 from dataclasses import dataclass
 
-'''
- Global Constants
-'''
 SPRING_STIFFNESS = 1.0  # Newtons per meters
 SPRING_DAMPING = 0.2   # Netwons per meters per second
 INITIAL_POSITION = 2.0 # particle initial position in meters
-INITIAL_VELOCITY = 0.0 # particle initial velocity in meters per second
 MASS = 1.0  # particle mass in kg
 
 # time constant
@@ -29,8 +23,8 @@ N = round((TIME_END - TIME_START) / DT)
 '''
 @dataclass
 class State:
-    x : float = 0.0 # position in Meters
-    v : float = 0.0 # velocity in Metres per second
+    x : float = INITIAL_POSITION
+    v : float = 0.0
 
 @dataclass
 class Derivative:
@@ -51,7 +45,7 @@ class Derivative:
 
 @dataclass
 class Particle:
-    mass : float = 1.0 # Kilograms
+    mass = 1.0
     state = State()
 
 '''
@@ -89,32 +83,20 @@ def derivate(state, mass):
     return result_derivate
 
 '''
- Integrators
-'''
-class Integrators(IntEnum):
-    EXPLICIT_EULER = 0
-    RK2 = 1
-    RK4 = 2
-    SEMI_IMPLICIT_EULER_V1 = 3
-    SEMI_IMPLICIT_EULER_V2 = 4
-    LEAP_FROG = 5
-    ANALYTIC = 6
-
-'''
  Integration Functions
 '''
-def forwardEulerStep(particle, time, dt):
+def forwardEuler(particle, time, dt):
     k = derivate(particle.state, particle.mass)
     particle.state = integrate(particle.state, k, DT)
 
-def RK2Step(particle, time, dt):
+def RK2(particle, time, dt):
     s1 = particle.state
     k1 = derivate(s1, particle.mass)
     s2 = integrate(s1, k1, DT * 0.5)
     k2 = derivate(s2, particle.mass)
     particle.state = integrate(particle.state, k2, DT)
 
-def RK4Step(particle, time, dt):
+def RK4(particle, time, dt):
     s1 = particle.state
     k1 = derivate(s1, particle.mass)
     s2 = integrate(s1, k1, DT * 0.5)
@@ -143,91 +125,47 @@ def leapFrog(particle, time, dt):
 def analyticSolution(particle, time, dt):
     if(SPRING_DAMPING==0.0):
         w = np.sqrt(SPRING_STIFFNESS/particle.mass)
-        particle.state.x = (INITIAL_POSITION * np.cos(w * time)) + (INITIAL_VELOCITY / w * np.sin(w * time));
+        particle.state.x = (INITIAL_POSITION * np.cos(w * time));
     else:
-        if (INITIAL_VELOCITY!=0.0):
-            print("no analytic solution with damping and initial velocity .. TODO")
-        else:
-            w0 = np.sqrt(SPRING_STIFFNESS/particle.mass)
-            y = SPRING_DAMPING / (2 * particle.mass)
-            w = np.sqrt(w0 * w0 - y * y)
-            a = np.exp(-1.0 * y * time)
-            particle.state.x = (INITIAL_POSITION * a * np.cos(w * time));
-
-'''
- Integrator Info
-'''
-integratorFunctions = [forwardEulerStep, # EXPLICIT_EULER
-                       RK2Step, # RK2
-                       RK4Step, # RK4
-                       semiImplicitEulerV1, # SEMI_IMPLICIT_EULER_V1
-                       semiImplicitEulerV2, # SEMI_IMPLICIT_EULER_V2
-                       leapFrog, # LEAP_FROG
-                       analyticSolution] # ANALYTIC
-
-integratorColours = ["xkcd:aqua", # EXPLICIT_EULER
-                     "xkcd:plum", # RK2
-                     "xkcd:teal", # RK4
-                     "xkcd:chartreuse", # SEMI_IMPLICIT_EULER_V1
-                     "xkcd:olive", # SEMI_IMPLICIT_EULER_V2
-                     "xkcd:green", # LEAP_FROG
-                     "xkcd:red"]  # ANALYTIC
-
-integratorNames = ["explicit euler", # EXPLICIT_EULER
-                   "rk2", # RK2
-                   "rk4", # RK4
-                   "semi implicit euler v1", # SEMI_IMPLICIT_EULER_V1
-                   "semi implicit euler v2", # SEMI_IMPLICIT_EULER_V2
-                   "leap frog", # LEAP_FROG
-                   "analytic"]  # ANALYTIC
-
-integratorDisplay = [True, # EXPLICIT_EULER
-                     True, # RK2
-                     True, # RK4
-                     True, # SEMI_IMPLICIT_EULER_V1
-                     True, # SEMI_IMPLICIT_EULER_V1
-                     True, # LEAP_FROG
-                     True] # ANALYTIC
+        w0 = np.sqrt(SPRING_STIFFNESS/particle.mass)
+        y = SPRING_DAMPING / (2 * particle.mass)
+        w = np.sqrt(w0 * w0 - y * y)
+        a = np.exp(-1.0 * y * time)
+        particle.state.x = (INITIAL_POSITION * a * np.cos(w * time));
 
 def main():
-        # Initialize Display
-    font = {'family': 'serif',
-            'color':  'darkred',
-            'weight': 'normal',
-            'size': 16,
-            }
-    mpl.style.use("seaborn")
-    plt.title('Single Damped Harmonic Oscillator', fontdict=font)
+    integrators = [(forwardEuler,"xkcd:aqua"),
+                   (RK2,"xkcd:plum"),
+                   (RK4,"xkcd:teal"),
+                   (semiImplicitEulerV1,"xkcd:chartreuse"),
+                   (semiImplicitEulerV2,"xkcd:olive"),
+                   (leapFrog,"xkcd:green"),
+                   (analyticSolution,"xkcd:red" )]
+
+    plt.title('Single Damped Harmonic Oscillator')
     plt.xlabel('time(t)')
     plt.ylabel('position(x)')
 
     # integrators Loop
-    for integrator in Integrators:
+    for integrator in integrators:
+        function = integrator[0]
+        plot_colour = integrator[1]
 
-        # initialize particle state
         particle = Particle();
-        particle.mass = 1.0
-        particle.state = State(INITIAL_POSITION, INITIAL_VELOCITY)
 
         # initialize time and positions samples
-        time_samples = np.zeros(N)
+        time_samples = np.zeros(N) # TODO : can be computer with linspace(...))
         position_samples = np.zeros(N)
 
         # simulation Loop
-        plot_colour = integratorColours[integrator]
         time = TIME_START
         for i in range(0,N):
-
             time_samples[i] = time
             position_samples[i] = particle.state.x
-
-            function = integratorFunctions[integrator]
             function(particle, time, DT)
-
             time += DT
 
-        if (integratorDisplay[integrator]):
-            plt.plot(time_samples, position_samples, color=plot_colour, label=integratorNames[integrator])
+        plt.plot(time_samples, position_samples, color=plot_colour, label=function.__name__)
 
     # display result
     plt.legend(bbox_to_anchor=(1, 1), loc=2)

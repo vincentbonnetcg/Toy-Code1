@@ -89,7 +89,7 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graph_optimization/img/graphColouring_greedyAlgorithm.png" alt="Colouring" width="40%" height="40%">
 
-## . Time Integration
+## . 1D Time Integration
 
 **File** [spring1D_integrator.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/spring1D_integrator.py)<br>
 **Description** Single one-dimensional damped spring to evaluate explicit integrators and compare with analytic solution.
