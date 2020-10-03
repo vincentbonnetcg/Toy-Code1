@@ -23,6 +23,13 @@ Explore code generation of vectorized code for physics solver.
 
 ![Monte Carlo Path Tracer](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer_preview.jpg)
 
+### . Neural Network
+**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
+**Description** Neural network study
+
+![Deep_Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/deep_deformation/img/deepdeformation.gif)
+
+
 ### . Multivariable Optimizations
 **File** [optimizations](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations)<br>
 **Description** Implementation of Gradient Descent and Newton's methods
@@ -62,7 +69,7 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation_covarianceMatrix.png" alt="PCA" width="40%" height="40%">
 
-**File** [svd_compression.py]https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb
+**File** [svd_compression.ipynb](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb)<br>
 **Description** Image compression with singular value decomposition 
 
 ### . Markov Chain - Authors names generator
