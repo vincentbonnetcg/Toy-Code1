@@ -73,9 +73,6 @@ def computeRBF_weights(points, kernel):
 
     return weights
 
-'''
- Evaluate the RBF
-'''
 def radialBasisFunction(points, rfbWeights, kernel, x):
     numSamples = np.size(points,0)
     result = 0.0
@@ -114,28 +111,25 @@ def drawRBF_1D(points, weights, kernel, referenceFunction, minRange, maxRange, s
     x, y = zip(*points)
     plt.plot(x, y, '.', color='red', label="Samples")
     # display
-    font = {'family': 'arial',
-            'color':  'darkblue',
-            'weight': 'normal',
-            'size': 16 }
-    plt.title('RBF Interpolation', fontdict=font)
+    plt.title('RBF Interpolation')
     plt.xlabel('x')
     plt.ylabel('f(x)')
     plt.legend(bbox_to_anchor=(1, 1), loc=2)
     plt.show()
 
-'''
- Execute
-'''
-# sample the 1D function and compute the RBF weights
-points = randomSampleFromFunction1D(FUNCTION_1D, MIN_RANGE, MAX_RANGE, NUM_SAMPLES)
-weights = computeRBF_weights(points, gaussianKernel)
 
-# display RBF
-drawRBF_1D(points, weights, gaussianKernel, FUNCTION_1D, MIN_RANGE,MAX_RANGE, 0.1)
+def main():
+    # sample the 1D function and compute the RBF weights
+    points = randomSampleFromFunction1D(FUNCTION_1D, MIN_RANGE, MAX_RANGE, NUM_SAMPLES)
+    weights = computeRBF_weights(points, gaussianKernel)
 
-# Debugging of the RBF kernels
-#drawFunction1D(gaussianKernel, -4.0, 4.0, 0.05)
-#drawFunction1D(inverseQuadraticKernel, -4.0, 4.0, 0.05)
-#drawFunction1D(inverseMultiQuadraticKernel, -4.0, 4.0, 0.05)
+    # display RBF
+    drawRBF_1D(points, weights, gaussianKernel, FUNCTION_1D, MIN_RANGE,MAX_RANGE, 0.1)
 
+    # Debugging of the RBF kernels
+    #drawFunction1D(gaussianKernel, -4.0, 4.0, 0.05)
+    #drawFunction1D(inverseQuadraticKernel, -4.0, 4.0, 0.05)
+    #drawFunction1D(inverseMultiQuadraticKernel, -4.0, 4.0, 0.05)
+
+if __name__ == '__main__':
+    main()

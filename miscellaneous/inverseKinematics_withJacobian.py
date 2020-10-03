@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-from render_helper import RenderHelper
+import matplotlib.pyplot as plt
 
 '''
  Global Constants
@@ -14,7 +14,7 @@ INITIAL_ANGLE_RANGE = 0.0 #  [-angle, angle] in degrees for initial segment angl
 INITIAL_SEGMENT_LENGTH = 1000.0 # length each segment
 TARGET_POS = (-500.0, 2000.0)
 
-DAMPING_CONSTANT = 1.0 # used when INVERSE_METHOD == 'damped_least_square'
+REGULARIZATION_TERM = 0.1
 NUM_ITERATIONS = 100
 MAX_STEP_SIZE = 100
 THRESHOLD = 1.0 # acceptable distance between the last vertex and target position
@@ -42,19 +42,6 @@ class Chain:
             positions.append(np.copy(totalPos))
 
         return positions
-
-class RenderChain(RenderHelper):
-    def __init__(self, min_x, max_x, min_y, max_y):
-        RenderHelper.__init__(self, min_x, max_x, min_y, max_y)
-
-    def draw(self, chain):
-        pos = chain.compute_positions()
-        x, y = zip(*pos)
-
-        # draw chain
-        self.ax.plot(x, y, "b-", markersize=2) # draw blue segments
-        self.ax.plot(x, y, 'go') # draw green points
-        self.ax.plot(TARGET_POS[0], TARGET_POS[1], 'ro') # draw red target
 
 '''
 # Jacobian Helper functions
@@ -104,17 +91,8 @@ def computeAnalyticJacobian(chain):
 '''
 Compute the Inverse of the Jacobians
 '''
-def computePseudoInverse(jacobian):
-    # pseudo-inverse from numpy to validate our implementation below
-    #return np.linalg.pinv(jacobian)
-
-    jacobiantInv = jacobian * jacobian.transpose()
-    jacobiantInv = np.linalg.inv(jacobiantInv)
-    return(jacobian.transpose() * jacobiantInv)
-
 def computeDampedLeastSquare(jacobian):
-    damping_matrix_constant = np.identity(2) * DAMPING_CONSTANT
-
+    damping_matrix_constant = np.identity(2) * REGULARIZATION_TERM
     jacobiantInv = jacobian * jacobian.transpose()
     jacobiantInv += damping_matrix_constant
     jacobiantInv = np.linalg.inv(jacobiantInv)
@@ -166,16 +144,32 @@ def hasReachTarget(chain):
         return True
     return False
 
+def show(chain):
+    pos = chain.compute_positions()
+    x, y = zip(*pos)
+    fig = plt.figure()
+    ax = plt.subplot()
+    min_x, max_x = -5000., 5000.
+    min_y, max_y = 0., 10500
+    #self.ax.axis('equal') # FIXME - causes problem
+    ax.autoscale(enable=False)
+    ratio = fig.get_size_inches()[0] / fig.get_size_inches()[1]
+    offset = ((max_x - min_x) * ratio - (max_y - min_y)) / 2
+    ax.set_xlim(min_x-offset, max_x+offset)
+    ax.set_ylim(min_y, max_y)
+    # draw chain
+    ax.plot(x, y, "b-", markersize=2) # draw blue segments
+    ax.plot(x, y, 'go') # draw green points
+    ax.plot(TARGET_POS[0], TARGET_POS[1], 'ro') # draw red target
+    plt.show()
+
 if __name__ == '__main__':
-    render = RenderChain(-5000., 5000., 0., 10500.)
     chain = Chain()
-    render.prepare_figure()
-    render.show_figure(chain)
-    # run inverse kinematic algorithm until convergence
+    show(chain)
     iterations = 1
     while iterations <= NUM_ITERATIONS and not hasReachTarget(chain):
         inverseKinematic(chain, computeAnalyticJacobian, computeDampedLeastSquare)
         print("IK : Iteration", iterations, "/", NUM_ITERATIONS )
-        render.prepare_figure()
-        render.show_figure(chain)
         iterations += 1
+        show(chain)
+

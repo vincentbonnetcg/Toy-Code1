@@ -6,9 +6,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-'''
- Global Parameters
-'''
 def FUNCTION_1D(x):
     return np.sin(x) * np.cos((x+1)*1.1) * 2
 MIN_RANGE = 0.0
@@ -16,9 +13,6 @@ MAX_RANGE = 10.0
 NUM_SAMPLES = 20
 POLYNOMIAL_DEGREE = 11
 
-'''
- Create random point from the polygon
-'''
 def random_sample_from_function_1D(function, min_range, max_range, num_samples):
     samples = np.zeros((num_samples, 2))
     samples_x = np.linspace(min_range, max_range, num_samples, endpoint=True)
@@ -31,7 +25,7 @@ def random_sample_from_function_1D(function, min_range, max_range, num_samples):
     return samples
 
 '''
- Drawing Method
+ Drawing Methods
 '''
 def draw_function_1D(ax, function, min_range, max_range, draw_step):
     t = np.linspace(min_range, max_range, int((max_range - min_range) / draw_step), endpoint=True)
@@ -73,37 +67,33 @@ def polynomial_regression_weights(samples, poly_degree):
     X = np.matrix(np.vander(sample_x, poly_degree, increasing=True))
 
     # Solve with the pseudo inverse
-    pseudo_inverse = X.transpose() * X
-    pseudo_inverse = np.linalg.inv(pseudo_inverse)
+    pseudo_inverse = np.linalg.inv(X.transpose() * X)
     pseudo_inverse = pseudo_inverse * X.transpose()
 
     b = np.matmul(pseudo_inverse, y)
 
     return b
 
-'''
- Execute
-'''
-fig, ax = plt.subplots()
-ax.grid()
-ax.axis('equal')
+def main():
+    fig, ax = plt.subplots()
+    ax.grid()
+    ax.axis('equal')
 
-samples = random_sample_from_function_1D(FUNCTION_1D, MIN_RANGE, MAX_RANGE, NUM_SAMPLES)
-draw_function_1D(ax, FUNCTION_1D, MIN_RANGE, MAX_RANGE, draw_step = 0.1)
-draw_samples(ax, samples)
+    samples = random_sample_from_function_1D(FUNCTION_1D, MIN_RANGE, MAX_RANGE, NUM_SAMPLES)
+    draw_function_1D(ax, FUNCTION_1D, MIN_RANGE, MAX_RANGE, draw_step = 0.1)
+    draw_samples(ax, samples)
 
-poly_weights = polynomial_regression_weights(samples, POLYNOMIAL_DEGREE)
+    poly_weights = polynomial_regression_weights(samples, POLYNOMIAL_DEGREE)
 
-sample_x, unused_y = zip(*samples)
-draw_poly_function(ax, poly_weights, MIN_RANGE, MAX_RANGE, draw_step = 0.1)
+    sample_x, unused_y = zip(*samples)
+    draw_poly_function(ax, poly_weights, MIN_RANGE, MAX_RANGE, draw_step = 0.1)
 
-# display
-font = {'family': 'arial',
-        'color':  'darkblue',
-        'weight': 'normal',
-        'size': 16 }
-plt.title('Polynomial Regression', fontdict=font)
-plt.xlabel('x')
-plt.ylabel('f(x)')
-plt.legend(bbox_to_anchor=(1, 1), loc=2)
-plt.show()
+    # display
+    plt.title('Polynomial Regression')
+    plt.xlabel('x')
+    plt.ylabel('f(x)')
+    plt.legend(bbox_to_anchor=(1, 1), loc=2)
+    plt.show()
+
+if __name__ == '__main__':
+    main()
