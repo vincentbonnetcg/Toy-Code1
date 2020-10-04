@@ -134,16 +134,12 @@ def main():
 
     # integrators Loop
     time_samples = np.linspace(TIME_START, TIME_END, num=N, endpoint=False)
+    position_samples = np.zeros(N)
     for integrator in integrators:
         function = integrator[0]
         plot_colour = integrator[1]
-
         particle = Particle();
 
-        # initialize time and positions samples
-        position_samples = np.zeros(N)
-
-        # simulation Loop
         for i in range(N):
             position_samples[i] = particle.state.x
             function(particle, time_samples[i], DT)
