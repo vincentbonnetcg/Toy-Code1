@@ -11,8 +11,6 @@ import skimage
 import matplotlib.pyplot as plt
 import img_utils
 
-RENDER_FOLDER = ""
-
 @cuda.jit
 def apply_cellular_automata_rules(image, imageResult):
     #x = cuda.threadIdx.x + (cuda.blockId x.x * cuda.blockDim.x)
@@ -37,13 +35,9 @@ def apply_cellular_automata_rules(image, imageResult):
         if numNeighbours == 3: # reproduction
             imageResult[x, y] = 1.0
 
-
 def conways_game_of_life(image, iterations):
     # Setup images
-    images = [None, None]
-    images[0] = image
-    images[0] = feature.canny(images[0], sigma=1)
-    images[1] = images[0].copy()
+    images = [image.copy(), image.copy()]
 
     # Setup blocks
     threadsPerBlock = (16, 16)
@@ -59,14 +53,11 @@ def conways_game_of_life(image, iterations):
         id1 = not id0 # buffer id to hold the result
         fig = plt.figure()
         io.imshow(images[id0])
-        if i > 10:
-            apply_cellular_automata_rules[blocksPerGrid, threadsPerBlock](images[int(id0)], images[int(id1)])
-        if (len(RENDER_FOLDER)):
-            filename = str(i).zfill(4) + " .png"
-            fig.savefig(RENDER_FOLDER + "/" + filename)
+        apply_cellular_automata_rules[blocksPerGrid, threadsPerBlock](images[int(id0)], images[int(id1)])
 
 if __name__ == '__main__':
     image = skimage.img_as_float(color.rgb2gray(data.chelsea())).astype(np.float32)
     image = img_utils.resize_image_and_keep_ratio(image, 128, 128)
+    image = feature.canny(image, sigma=1)
 
     conways_game_of_life(image, 50)

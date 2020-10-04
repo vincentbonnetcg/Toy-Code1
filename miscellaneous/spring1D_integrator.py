@@ -19,29 +19,17 @@ DT = 0.1         # in Second
 N = round((TIME_END - TIME_START) / DT)
 
 '''
- Helper Classes (State, Derivate, Particle)
+ Classes (State, Derivate, Particle)
 '''
 @dataclass
 class State:
-    x : float = INITIAL_POSITION
-    v : float = 0.0
+    x = INITIAL_POSITION # position
+    v = 0.0 # velocity
 
 @dataclass
 class Derivative:
-    dx : float = 0.0 # derivative of x - change in position
-    dv : float = 0.0 # derivative of v - change in velocity
-
-    def __add__(self, other):
-        result = Derivative();
-        result.dx = self.dx + other.dx
-        result.dv = self.dv + other.dv
-        return result
-
-    def __truediv__(self, other):
-        result = Derivative();
-        result.dx = self.dx / other
-        result.dv = self.dv / other
-        return result
+    dx = 0.0 # derivative of x
+    dv = 0.0 # derivative of v
 
 @dataclass
 class Particle:
@@ -49,8 +37,7 @@ class Particle:
     state = State()
 
 '''
- Helper Functions
- Derivative Functions
+  Helper Functions
 '''
 # internal spring force
 def acceleration(state, mass):
@@ -105,7 +92,10 @@ def RK4(particle, time, dt):
     k3 = derivate(s3, particle.mass)
     s4 = integrate(s1, k3, DT)
     k4 = derivate(s4, particle.mass)
-    particle.state = integrate(particle.state, k1 / 6 + k2 / 3 + k3 / 3 + k4 / 6 , DT)
+    k = Derivative()
+    k.dx = k1.dx / 6 + k2.dx / 3 + k3.dx / 3 + k4.dx / 6
+    k.dv = k1.dv / 6 + k2.dv / 3 + k3.dv / 3 + k4.dv / 6
+    particle.state = integrate(particle.state, k, DT)
 
 def semiImplicitEulerV1(particle, time, dt):
     particle.state.v += dv(particle.state, particle.mass) * DT
@@ -123,15 +113,11 @@ def leapFrog(particle, time, dt):
     particle.state.v += dv(particle.state, particle.mass) * DT
 
 def analyticSolution(particle, time, dt):
-    if(SPRING_DAMPING==0.0):
-        w = np.sqrt(SPRING_STIFFNESS/particle.mass)
-        particle.state.x = (INITIAL_POSITION * np.cos(w * time));
-    else:
-        w0 = np.sqrt(SPRING_STIFFNESS/particle.mass)
-        y = SPRING_DAMPING / (2 * particle.mass)
-        w = np.sqrt(w0 * w0 - y * y)
-        a = np.exp(-1.0 * y * time)
-        particle.state.x = (INITIAL_POSITION * a * np.cos(w * time));
+    w0 = np.sqrt(SPRING_STIFFNESS/particle.mass)
+    y = SPRING_DAMPING / (2 * particle.mass)
+    w = np.sqrt(w0 * w0 - y * y)
+    a = np.exp(-1.0 * y * time)
+    particle.state.x = (INITIAL_POSITION * a * np.cos(w * time));
 
 def main():
     integrators = [(forwardEuler,"xkcd:aqua"),
@@ -147,6 +133,7 @@ def main():
     plt.ylabel('position(x)')
 
     # integrators Loop
+    time_samples = np.linspace(TIME_START, TIME_END, num=N, endpoint=False)
     for integrator in integrators:
         function = integrator[0]
         plot_colour = integrator[1]
@@ -154,16 +141,12 @@ def main():
         particle = Particle();
 
         # initialize time and positions samples
-        time_samples = np.zeros(N) # TODO : can be computer with linspace(...))
         position_samples = np.zeros(N)
 
         # simulation Loop
-        time = TIME_START
-        for i in range(0,N):
-            time_samples[i] = time
+        for i in range(N):
             position_samples[i] = particle.state.x
-            function(particle, time, DT)
-            time += DT
+            function(particle, time_samples[i], DT)
 
         plt.plot(time_samples, position_samples, color=plot_colour, label=function.__name__)
 
