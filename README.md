@@ -69,7 +69,7 @@ Explore code generation of vectorized code for physics solver.
 **File** [svd_compression.ipynb](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb)<br>
 **Description** Image compression with singular value decomposition 
 
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/svd_compression.png" alt="SVD" height="200px">
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/svd_compression.png" alt="SVD" height="160px">
 
 ### . Markov Chain - Authors names generator
 **File** [markovChain.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/markov_chain/markov_chain.py)<br>
