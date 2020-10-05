@@ -53,21 +53,23 @@ Explore code generation of vectorized code for physics solver.
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_equation.png" alt="Laplace_Numba" height="200px">
 
 ### . Inverse Kinematics
-**File** [inverseKinematics_withJacobian.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/inverseKinematics_withJacobian.py)<br>
+**File** [inverseKinematics.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/inverseKinematics.py)<br>
 **Description** Implementation of inverse kinematics using pseudo-inverse of a jacobian matrix
 - Assemble Numerical/Analytic Jacobian matrix (using central difference)
 - Solve system with Pseudo-Inverse or Damped Least Squares method
 
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/inverseKinematics_withJacobian.gif" alt="Inverse Kinematics" height="200px">
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/inverseKinematics.gif" alt="Inverse Kinematics" height="200px">
 
 ### . Dimensionality Reduction
-**File** [optimalTransformation_covarianceMatrix.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/optimalTransformation_covarianceMatrix.py)<br>
+**File** [optimalTransformation.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/optimalTransformation.py)<br>
 **Description** Optimal rigid transformation by using Principal Component Analysis (PCA)
 
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation_covarianceMatrix.png" alt="PCA" height="200px">
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation.png" alt="PCA" height="200px">
 
 **File** [svd_compression.ipynb](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb)<br>
 **Description** Image compression with singular value decomposition 
+
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/svd_compression.png" alt="SVD" height="200px">
 
 ### . Markov Chain - Authors names generator
 **File** [markovChain.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/markov_chain/markov_chain.py)<br>

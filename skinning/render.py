@@ -13,14 +13,11 @@ def draw(mesh, skeleton, weights_map, displacement, frame_id, render_folder_path
     Drawing function to display the mesh and skeleton
     '''
     fig = plt.figure()
-    font = {'color':  'darkblue',
-                 'weight': 'normal',
-                 'size': 18}
     ax = fig.add_subplot(111)
     ax.axis('equal')
     ax.set_xlim(-16, 16)
     ax.set_ylim(-16, 16)
-    plt.title('Linear Skinning', fontdict = font)
+    plt.title('Linear Skinning')
 
     colors_template = [mcolors.to_rgba(c)
           for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]

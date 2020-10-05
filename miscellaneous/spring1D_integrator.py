@@ -74,43 +74,43 @@ def derivate(state, mass):
 '''
 def forwardEuler(particle, time, dt):
     k = derivate(particle.state, particle.mass)
-    particle.state = integrate(particle.state, k, DT)
+    particle.state = integrate(particle.state, k, dt)
 
 def RK2(particle, time, dt):
     s1 = particle.state
     k1 = derivate(s1, particle.mass)
-    s2 = integrate(s1, k1, DT * 0.5)
+    s2 = integrate(s1, k1, dt * 0.5)
     k2 = derivate(s2, particle.mass)
-    particle.state = integrate(particle.state, k2, DT)
+    particle.state = integrate(particle.state, k2, dt)
 
 def RK4(particle, time, dt):
     s1 = particle.state
     k1 = derivate(s1, particle.mass)
-    s2 = integrate(s1, k1, DT * 0.5)
+    s2 = integrate(s1, k1, dt * 0.5)
     k2 = derivate(s2, particle.mass)
-    s3 = integrate(s1, k2, DT * 0.5)
+    s3 = integrate(s1, k2, dt * 0.5)
     k3 = derivate(s3, particle.mass)
-    s4 = integrate(s1, k3, DT)
+    s4 = integrate(s1, k3, dt)
     k4 = derivate(s4, particle.mass)
     k = Derivative()
     k.dx = k1.dx / 6 + k2.dx / 3 + k3.dx / 3 + k4.dx / 6
     k.dv = k1.dv / 6 + k2.dv / 3 + k3.dv / 3 + k4.dv / 6
-    particle.state = integrate(particle.state, k, DT)
+    particle.state = integrate(particle.state, k, dt)
 
 def semiImplicitEulerV1(particle, time, dt):
-    particle.state.v += dv(particle.state, particle.mass) * DT
-    particle.state.x += dx(particle.state) * DT
+    particle.state.v += dv(particle.state, particle.mass) * dt
+    particle.state.x += dx(particle.state) * dt
 
 def semiImplicitEulerV2(particle, time, dt):
-    particle.state.x += dx(particle.state) * DT
-    particle.state.v += dv(particle.state, particle.mass) * DT
+    particle.state.x += dx(particle.state) * dt
+    particle.state.v += dv(particle.state, particle.mass) * dt
 
 def leapFrog(particle, time, dt):
     if (time == TIME_START):
         # compute the velocity at half step which will cause the velocity to be half-step ahead of position
-        particle.state.v += dv(particle.state, particle.mass) * DT * 0.5
-    particle.state.x += particle.state.v * DT
-    particle.state.v += dv(particle.state, particle.mass) * DT
+        particle.state.v += dv(particle.state, particle.mass) * dt * 0.5
+    particle.state.x += particle.state.v * dt
+    particle.state.v += dv(particle.state, particle.mass) * dt
 
 def analyticSolution(particle, time, dt):
     w0 = np.sqrt(SPRING_STIFFNESS/particle.mass)

@@ -54,7 +54,7 @@ x :  dx/da0     dx/da1     dx/da2
 y :  dy/da0     dy/da1     dy/da2
 '''
 #  Use central difference to approximate the differentiation
-def computeNumericalJacobian(chain):
+def numericalJacobian(chain):
     jacobian = np.zeros(shape=(2,chain.numSegments))
     angleDt = 0.01
     for i in range(chain.numSegments):
@@ -71,7 +71,7 @@ def computeNumericalJacobian(chain):
         chain.angles[i] = keepAngle
     return np.matrix(jacobian)
 
-def computeAnalyticJacobian(chain):
+def analyticJacobian(chain):
     positions = chain.compute_positions()
     jacobian = np.zeros(shape=(2,chain.numSegments))
     for i in range(chain.numSegments):
@@ -91,7 +91,7 @@ def computeAnalyticJacobian(chain):
 '''
 Compute the Inverse of the Jacobians
 '''
-def computeDampedLeastSquare(jacobian):
+def dampedLeastSquare(jacobian):
     damping_matrix_constant = np.identity(2) * REGULARIZATION_TERM
     jacobiantInv = jacobian * jacobian.transpose()
     jacobiantInv += damping_matrix_constant
@@ -99,7 +99,7 @@ def computeDampedLeastSquare(jacobian):
     return(jacobian.transpose() * jacobiantInv)
 
 
-def print_singluar_values(matrix):
+def printSingluarValues(matrix):
     '''
     Singular values analysis (for debugging)
     Print the singular values to indicate whether the matrix inversion is stable
@@ -113,7 +113,7 @@ def print_singluar_values(matrix):
     print(singular_values)
 
 
-def inverseKinematic(chain, jacobian_method, inverse_methd):
+def inverseKinematic(chain):
     '''
     Solve inverse kinematic problem
     '''
@@ -124,11 +124,11 @@ def inverseKinematic(chain, jacobian_method, inverse_methd):
         vec /= vecNorm
         vec *= MAX_STEP_SIZE
 
-    jacobian = jacobian_method(chain)
-    pseudoInverse = inverse_methd(jacobian)
+    jacobian = analyticJacobian(chain)
+    pseudoInverse = dampedLeastSquare(jacobian)
 
     # Debugging
-    #print_singluar_values(pseudoInverse)
+    #printSingluarValues(pseudoInverse)
 
     deltaAngles = np.matmul(pseudoInverse, np.reshape(vec, (2,1)))
     for i in range(chain.numSegments):
@@ -151,7 +151,7 @@ def show(chain):
     ax = plt.subplot()
     min_x, max_x = -5000., 5000.
     min_y, max_y = 0., 10500
-    #self.ax.axis('equal') # FIXME - causes problem
+    #ax.axis('equal') # FIXME - causes problem
     ax.autoscale(enable=False)
     ratio = fig.get_size_inches()[0] / fig.get_size_inches()[1]
     offset = ((max_x - min_x) * ratio - (max_y - min_y)) / 2
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     show(chain)
     iterations = 1
     while iterations <= NUM_ITERATIONS and not hasReachTarget(chain):
-        inverseKinematic(chain, computeAnalyticJacobian, computeDampedLeastSquare)
+        inverseKinematic(chain)
         print("IK : Iteration", iterations, "/", NUM_ITERATIONS )
         iterations += 1
         show(chain)

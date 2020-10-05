@@ -4,6 +4,10 @@
 Using eigen decomposition or svd decomposition
 """
 
+# TODO - add SVD decompostion
+# TODO - speed up covarience matrix with X^TX
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches

@@ -39,11 +39,8 @@ RENDER_FOLDER_PATH = "" # specify a folder to export png files
 # Used command  "magick -loop 0 -delay 4 *.png out.gif"  to convert from png to animated gif
 
 def linear_blend_skinning():
-    '''
-    Linear blend skinning main (or Smooth skinning)
-    '''
     mesh = geometry.create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
-    skeleton = hierarchy.create_skeleton_with_2_bones()
+    skeleton = hierarchy.create_skeleton_with_4_bones()
 
     linear_blend_skinning = LinearBlendSkinning(mesh, skeleton)
     linear_blend_skinning.attach_mesh(max_influences = BIDDING_MAX_INFLUENCES, kernel_func = KERNEL_FUNCTION)
@@ -54,12 +51,9 @@ def linear_blend_skinning():
         render.draw(mesh, skeleton, linear_blend_skinning.weights_map, None, frame_id, RENDER_FOLDER_PATH)
 
 def pose_based_deformation():
-    '''
-    PSD main
-    '''
     smooth_mesh = geometry.create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
     rigid_mesh = geometry.create_beam_mesh(BEAM_MIN_X, BEAM_MIN_Y, BEAM_MAX_X, BEAM_MAX_Y, BEAM_CELL_X, BEAM_CELL_Y)
-    skeleton = hierarchy.create_skeleton_with_2_bones()
+    skeleton = hierarchy.create_skeleton_with_4_bones()
     pose_deformers = PoseSpaceDeformer()
 
     # Training Part
@@ -85,12 +79,6 @@ def pose_based_deformation():
         last_displacement = pose_deformers.displacements[-1]
         render.draw(rigid_mesh, skeleton, smooth_skinning.weights_map, last_displacement, frame_id, RENDER_FOLDER_PATH)
 
-def main():
-    '''
-    Main
-    '''
-    pose_based_deformation();
-
 if __name__ == '__main__':
-    main()
+    pose_based_deformation();
 
