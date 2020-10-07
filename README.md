@@ -55,8 +55,7 @@ Explore code generation of vectorized code for physics solver.
 ### . Inverse Kinematics
 **File** [inverseKinematics.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/inverseKinematics.py)<br>
 **Description** Implementation of inverse kinematics using pseudo-inverse of a jacobian matrix
-- Assemble Numerical/Analytic Jacobian matrix (using central difference)
-- Solve system with Pseudo-Inverse or Damped Least Squares method
+- Pseudo-Inverse with regularization term (Damped Least Squares method)
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/inverseKinematics.gif" alt="Inverse Kinematics" height="200px">
 
