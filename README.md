@@ -27,7 +27,7 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/deep_deformation/img/deepdeformation.gif" alt="Deep_Deformation" height="200px">
 
-**File** [conv_net](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations)<br>
+**File** [conv_net](https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_with_keras.ipynb)<br>
 **Description** Simple ConvNet implementation with Keras
 
 <a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_with_keras.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
