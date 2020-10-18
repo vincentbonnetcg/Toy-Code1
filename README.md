@@ -27,6 +27,13 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/deep_deformation/img/deepdeformation.gif" alt="Deep_Deformation" height="200px">
 
+**File** [conv_net](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations)<br>
+**Description** Simple ConvNet implementation with Keras
+
+<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_with_keras.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
+
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/cifar10.png" alt="CIFAR_10" height="160px">
+
 ### . Multivariable Optimizations
 **File** [optimizations](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations)<br>
 **Description** Implementation of Gradient Descent and Newton's methods
@@ -67,6 +74,8 @@ Explore code generation of vectorized code for physics solver.
 
 **File** [svd_compression.ipynb](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb)<br>
 **Description** Image compression with singular value decomposition 
+
+<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/svd_compression.png" alt="SVD" height="160px">
 
