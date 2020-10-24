@@ -1,5 +1,5 @@
 # Numerical Bric-a-Brac
-Collections of numerical techniques implemented with Python and standard computational packages (Numpy, SciPy, Numba, Matplotlib ...)
+Collections of numerical techniques with Python and standard computational packages (Numpy, SciPy, Numba, Matplotlib ...).
 
 ### . Implicit Solver
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
@@ -21,18 +21,21 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer_preview.jpg" alt="Monte Carlo Path Tracer" height="200px">
 
+### . ConvNet
+**File** [conv_net](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_with_keras.ipynb)<br>
+**Description** Simple ConvNet implementation with Keras
+
+<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_with_keras.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
+
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/cifar10.png" alt="CIFAR_10" height="160px">
+
+
 ### . Neural Network
 **Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
 **Description** Neural network study
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/deep_deformation/img/deepdeformation.gif" alt="Deep_Deformation" height="200px">
 
-**File** [conv_net](https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_with_keras.ipynb)<br>
-**Description** Simple ConvNet implementation with Keras
-
-<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_with_keras.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
-
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/cifar10.png" alt="CIFAR_10" height="160px">
 
 ### . Multivariable Optimizations
 **File** [optimizations](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/optimizations)<br>

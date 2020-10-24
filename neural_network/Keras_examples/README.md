@@ -2,15 +2,6 @@
 
 Evaluation of Keras with some examples
 
-## . Convolution Neural Network
-
-**File** [convolution_nn.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/Keras_examples/convolution_nn.py)<br>
-**Description** Convolution NN
-
-Convolution Neural Network on the MNIST dataset
-
-![CNN_MNIST](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/nn_mnist.png)
-
 ## . Auto-Encoder
 **File** [auto_encoder.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/Keras_examples/autoencoder.py)<br>
 **Description** Auto-Encoder

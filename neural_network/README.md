@@ -12,7 +12,7 @@ Neural Network Study (Python, Numpy and Keras)
 
 ### . Keras Tests
 **Folder** [kera_examples](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/Keras_examples/)<br>
-**Description** Kera Examples to study different architectures (CNN, AE, VAE) 
+**Description** Kera Examples to study different architectures (AE, VAE) 
 
 ![VariationalAutoEncoder](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/img/variational_auto_encoder.png)
 
