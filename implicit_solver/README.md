@@ -5,7 +5,7 @@ Implicit Solver written with Python and Numba
  
 - **lib** : implicit solver implementation
 
-- **host_app** : bridge for Maya, Houdini, command line
+- **host_app** : bridge for Houdini and IPython
 
 ![Implicit Solver Wire](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/implicitSolver_cat.gif)
 ![Implicit Solver Wire](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/implicit_solver/img/implicitSolver_wire.gif)

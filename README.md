@@ -60,7 +60,7 @@ Explore code generation of vectorized code for physics solver.
 - Conway's game of life
 - Convolution matrix
 
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_equation.png" alt="Laplace_Numba" height="200px">
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_inpainting.png" alt="Laplace_inpainting" height="200px">
 
 ### . Inverse Kinematics
 **File** [inverseKinematics.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/inverseKinematics.py)<br>

@@ -4,7 +4,6 @@ Host_app folder contains the following :
 
 - **Ipython** : standalone application
 - **houdini** : python script to export Houdini mesh data
-- **maya** : python script to export Maya mesh data(deprecated)
 - **rpc** : Remote procedure call
 
 
