@@ -14,7 +14,7 @@ def create_beam_mesh(min_x, min_y, max_x, max_y, cell_x, cell_y):
         |0 .. 1 .. 2  .. 3
     '''
     num_vertices = (cell_x + 1) * (cell_y + 1)
-    vertex_buffer = np.zeros((num_vertices,2))
+    vertices = np.zeros((num_vertices,2))
 
     # Set Points
     vertex_id = 0
@@ -23,7 +23,7 @@ def create_beam_mesh(min_x, min_y, max_x, max_y, cell_x, cell_y):
 
     for j in range(cell_y+1):
         for i in range(cell_x+1):
-            vertex_buffer[vertex_id] = (axisx[i], axisy[j])
+            vertices[vertex_id] = (axisx[i], axisy[j])
             vertex_id += 1
 
     # Set Edge Indices
@@ -41,23 +41,23 @@ def create_beam_mesh(min_x, min_y, max_x, max_y, cell_x, cell_y):
         ids = [cell_to_ids(i, cell_y), cell_to_ids(i+1, cell_y)]
         edge_indices.append(ids)
 
-    index_buffer = np.array(edge_indices, dtype=int)
+    indices = np.array(edge_indices, dtype=int)
 
-    return Mesh(vertex_buffer, index_buffer)
+    return Mesh(vertices, indices)
 
 class Mesh:
     '''
     Mesh contains a vertex buffer, index buffer and weights map for binding
     '''
-    def __init__(self, vertex_buffer, index_buffer):
-        self.vertex_buffer = np.asarray(vertex_buffer)
-        self.index_buffer = np.asarray(index_buffer)
+    def __init__(self, vertices, indices):
+        self.vertices = vertices
+        self.indices = indices
 
     def get_boundary_segments(self):
         segments = []
 
-        for vertex_ids in self.index_buffer:
-            segments.append([self.vertex_buffer[vertex_ids[0]],
-                             self.vertex_buffer[vertex_ids[1]]])
+        for vertex_ids in self.indices:
+            segments.append([self.vertices[vertex_ids[0]],
+                             self.vertices[vertex_ids[1]]])
 
         return segments

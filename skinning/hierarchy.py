@@ -3,8 +3,6 @@
 @description : Skeleton and Bone class
 """
 
-# TODO - see bone_children[0] : add support for multiple children per bone
-
 import numpy as np
 
 def create_skeleton_with_4_bones():
