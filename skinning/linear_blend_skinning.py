@@ -24,32 +24,32 @@ class LinearBlendSkinning:
         self.skeleton = skeleton
         self.num_vertices = len(self.mesh.vertices)
         self.num_bones = len(self.skeleton.bones)
-        self.weights = np.zeros((self.num_bones, self.num_vertices))
+        self.weights = None
+        self.bone_ids = None
+        self.num_influences = 0
         self.local_homogenous_vertices = None
         self.local_inv_homogeneous_transforms = None
 
     def attach_mesh(self, max_influences, kernel_func):
-        num_bones = len(self.skeleton.bones)
         bone_segments = self.skeleton.get_bone_segments()
+        self.num_influences = min(self.num_bones, max_influences)
 
-        # Compute weights per bone per vertices (weights map) from kernel function
+        self.weights = np.zeros((self.num_vertices, self.num_influences))
+        self.bone_ids = np.zeros((self.num_vertices, self.num_influences), dtype=int)
+
+        # Compute weights per vertices per bones
         for vertex_id, vertex in enumerate(self.mesh.vertices):
+            bone_weights = np.zeros(self.num_bones)
             for bone_id, bone_seg in enumerate (bone_segments):
                 distance = distance_from_segment(vertex, bone_seg[0], bone_seg[1])
-                self.weights[bone_id][vertex_id] = kernel_func(distance)
-
-        # Updates the weights map by limiting ...
-        # the number of influences from the n closest vertices
-        num_influences = min(num_bones, max_influences)
-        for vertex_id, vertex in enumerate(self.mesh.vertices):
-            bone_weights = self.weights[:, vertex_id]
+                bone_weights[bone_id] = kernel_func(distance)
 
             weigths_sorted_index = np.argsort(bone_weights)
-            for vtx_id in range(num_bones - num_influences):
-                bone_weights[weigths_sorted_index[vtx_id]] = 0.0
+            self.bone_ids[vertex_id] = weigths_sorted_index[-1:-(self.num_influences+1):-1]
+            for influence_id, bone_id in enumerate(self.bone_ids[vertex_id]):
+                self.weights[vertex_id, influence_id] = bone_weights[bone_id]
 
-            bone_weights /= np.sum(bone_weights)
-            self.weights[:, vertex_id] = bone_weights
+            self.weights[vertex_id] /= np.sum(self.weights[vertex_id])
 
         # Store the local inverse homogeneous transform and local homogeneous vector
         self.local_inv_homogeneous_transforms = np.zeros((self.num_bones,3,3))
@@ -68,7 +68,7 @@ class LinearBlendSkinning:
     def update_mesh(self):
         ws_homogenous_vtx = self.local_to_world(self.local_homogenous_vertices)
         for vertex_id, vertex in enumerate(ws_homogenous_vtx):
-            self.mesh.vertices[vertex_id][0:2] = vertex[0:2]
+            self.mesh.vertices[vertex_id] = vertex[0:2]
 
     def local_to_world(self, local_homogenous_vertices):
         '''
@@ -82,8 +82,9 @@ class LinearBlendSkinning:
         for vertex_id, local_homogenous_vertex in enumerate(local_homogenous_vertices):
             # Compute total transform matrix
             total_transform.fill(0.0)
-            for bone_id, bone_transform in enumerate(bone_transforms):
-                weight = self.weights[bone_id][vertex_id]
+            for influence_id in range(self.num_influences):
+                bone_id = self.bone_ids[vertex_id, influence_id]
+                weight = self.weights[vertex_id, influence_id]
                 invT0 = self.local_inv_homogeneous_transforms[bone_id]
                 T = (bone_transforms[bone_id])
                 total_transform += np.matmul(T * weight, invT0)
@@ -108,7 +109,7 @@ class LinearBlendSkinning:
             # Compute total transform matrix
             total_transform.fill(0.0)
             for bone_id, bone_transform in enumerate(bone_transforms):
-                weight = self.weights[bone_id][vertex_id]
+                weight = self.weights[vertex_id, bone_id]
                 invT0 = self.local_inv_homogeneous_transforms[bone_id]
                 T = (bone_transforms[bone_id])
                 total_transform += np.matmul(T * weight, invT0)

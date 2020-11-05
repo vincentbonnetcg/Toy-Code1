@@ -26,14 +26,14 @@ def draw(mesh, skeleton, weights, displacement, frame_id, render_folder_path = "
     x, y = zip(*mesh.vertices)
     point_colors = np.ones((len(mesh.vertices), 4))
 
-    num_bones = len(skeleton.bones)
     num_vertices = len(mesh.vertices)
+    num_influences = weights.shape[1]
     for vertex_id in range(num_vertices):
         point_color = np.zeros(3)
 
-        for bone_id in range(num_bones):
-            weight = weights[bone_id][vertex_id]
-            point_color += colors_template[bone_id][0:3] * weight
+        for influence_id in range(num_influences):
+            weight = weights[vertex_id, influence_id]
+            point_color += colors_template[influence_id][0:3] * weight
 
         point_colors[vertex_id][0:3] = point_color
 
