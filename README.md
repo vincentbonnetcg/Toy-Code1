@@ -22,16 +22,16 @@ Explore code generation of vectorized code for physics solver.
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer_preview.jpg" alt="Monte Carlo Path Tracer" height="200px">
 
 ### . ConvNet
-**File** [conv_net](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_intro.ipynb)<br>
+**File** [conv_net](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/computer_vision/image_classification_intro.ipynb)<br>
 **Description** Simple ConvNet implementation with Keras
 
-<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_intro.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
+<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/computer_vision/image_classification_intro.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
 
 
-**File** [res_net](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_ResNet.ipynb)<br>
+**File** [res_net](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/computer_vision/image_classification_ResNet.ipynb)<br>
 **Description** Simple ResNet implementation with Keras
 
-<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_classification_ResNet.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
+<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/computer_vision/image_classification_ResNet.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
 
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/cifar10.png" alt="CIFAR_10" height="160px">
@@ -82,10 +82,10 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation.png" alt="PCA" height="200px">
 
-**File** [svd_compression.ipynb](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb)<br>
+**File** [svd_compression.ipynb](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/digital_image_processing/image_compression_with_svd.ipynb)<br>
 **Description** Image compression with singular value decomposition 
 
-<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/image_compression_with_svd.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
+<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/digital_image_processing/image_compression_with_svd.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/svd_compression.png" alt="SVD" height="160px">
 
