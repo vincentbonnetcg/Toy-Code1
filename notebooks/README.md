@@ -25,4 +25,7 @@ Simple linear regression
 <a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/1_simple_linear_regression.ipynb">Open in GitHub</a> or
 <a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/1_simple_linear_regression.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
 
+Polynomial regression
 
+<a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/2_polynomial_regression.ipynb">Open in GitHub</a> or
+<a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/2_polynomial_regression.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
