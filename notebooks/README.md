@@ -2,7 +2,7 @@
 
 Trying out jupyter-notebooks !
  
-### . Marchine Learning
+### . Machine Learning
 Simple linear regression
 
 <a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/1_simple_linear_regression.ipynb">Open in GitHub</a> or
