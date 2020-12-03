@@ -9,7 +9,7 @@ import hou
 BASE_SKINNING_INPUT_ID = 0
 SMOOTH_SKINNING_INPUT_ID = 1
 
-def get_bone_infos(sop_name, bone_names):
+def get_bone_data(sop_name, bone_names):
     # sop_name : name of the sop network containing the bones
     # bone_names : name of the node representing the bone
     attributes = ['rx', 'ry', 'rz', 'length']
@@ -19,6 +19,15 @@ def get_bone_infos(sop_name, bone_names):
             result[i,j] = hou.evalParm(sop_name+bone_name+'/'+attr)
 
     return result
+
+def get_bone_parents(sop_name, bone_names):
+    parents = []
+    for bone_name in bone_names:
+        node = hou.node(sop_name+bone_name)
+        parentName = node.inputs()[0].name()
+        parents.append(parentName)
+
+    return parents
 
 def get_points(input_id):
     node = hou.pwd()
@@ -53,13 +62,22 @@ def export_data_from_current_frame(working_dir, sop_name, bone_names):
     clip_name = hou.parm(sop_name+'/'+anim_type).evalAsString()
     clip_name = clip_name.replace('.bclip','')
 
-    # Get data
-    bone = get_bone_infos(sop_name, bone_names)
+    # Export skeleton hierarchy
+    # TODO : This hierarchy doesn't change per frame so we only to write it once
+    skeleton_path = os.path.join(working_dir, 'dataset', 'skeleton.txt')
+    if not os.path.exists(skeleton_path):
+        parent_names = get_bone_parents(sop_name, bone_names)
+        with open(skeleton_path, 'w') as file_handler:
+            for i, bone_name in enumerate(bone_names):
+                file_handler.write(bone_name + ',' + parent_names[i])
+                file_handler.write('\n')
+
+    # Export bone and geometry dataset
+    bone = get_bone_data(sop_name, bone_names)
     base_skinning = get_points(BASE_SKINNING_INPUT_ID)
     smooth_skinning = get_points(SMOOTH_SKINNING_INPUT_ID)
 
     clip_path = os.path.join(working_dir, 'dataset', clip_name+'.npz')
-
     bones, base_skinnings, smooth_skinnings = None, None, None
     if not os.path.exists(clip_path):
         bone_shape = ([max_frames] + list(bone.shape))

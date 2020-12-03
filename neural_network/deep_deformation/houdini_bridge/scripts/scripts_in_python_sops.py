@@ -17,7 +17,6 @@ reload(gen)
 dataset_dir = os.path.dirname(working_dir)
 
 bone_names = ['LowerBack_To_Spine', 'Spine_To_Spine1']
-'''
 bone_names += ['LeftShoulder_To_LeftArm', 'LeftArm_To_LeftForeArm', 
                'LeftForeArm_To_LeftHand', 'LeftFingerBase_To_LeftHandIndex1']
 bone_names += ['RightShoulder_To_RightArm', 'RightArm_To_RightForeArm', 
@@ -27,7 +26,6 @@ bone_names += ['LHipJoint_To_LeftUpLeg', 'LeftUpLeg_To_LeftLeg','LeftLeg_To_Left
                'LeftFoot_To_LeftToeBase', 'LeftToeBase_To_LeftToeBaseEnd']
 bone_names += ['RHipJoint_To_RightUpLeg', 'RightUpLeg_To_RightLeg','RightLeg_To_RightFoot',
                'RightFoot_To_RightToeBase', 'RightToeBase_To_RightToeBaseEnd']
-'''
 gen.prepare_dataset_dir(dataset_dir)
 gen.export_data_from_current_frame(dataset_dir, '/obj/mocapbiped3/', bone_names)
 
