@@ -27,7 +27,7 @@ def read_dataset_from_current_frame(working_dir, sop_name, prediction=False):
             smooth_skinnings = npzfile['predicted_smooths']
         else:
             smooth_skinnings = npzfile['smooths']
-            #smooth_skinnings = npzfile['bases'] # TODO - rename smooth_skinnings
+            #smooth_skinnings = npzfile['bases']
 
         #bone = bones[frame_id-1]
         #base_skinning = base_skinnings[frame_id-1]

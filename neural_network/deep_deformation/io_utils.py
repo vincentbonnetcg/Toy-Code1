@@ -1,16 +1,21 @@
 """
 @author: Vincent Bonnet
-@description : Implementation of the deep deformation paper
+@description : Manage read/write for the various files/folder
 """
-
-from keras.layers import Input, Dense
-from keras.models import Model
-import keras
 import numpy as np
 import os
 
+DATASET_FOLDER = 'dataset'
+PREDICTION_FOLDER = 'prediction'
+
+def get_dataset_folder():
+    return os.path.join(os.path.dirname(__file__), DATASET_FOLDER)
+
+def get_prediction_folder():
+    return os.path.join(os.path.dirname(__file__), PREDICTION_FOLDER)
+
 def load_single_dataset(dataset_file):
-    dataset_folder = os.path.join(os.path.dirname(__file__), 'dataset')
+    dataset_folder = get_dataset_folder()
     file_path = os.path.join(dataset_folder, dataset_file)
 
     if not os.path.exists(file_path):
@@ -67,7 +72,7 @@ def load_dataset(dataset_file, test_ratio = 0.1):
 
 
 def write_predicted_dataset(dataset_file, predicted_offsets, example_ids):
-    predict_folder = os.path.join(os.path.dirname(__file__), 'prediction')
+    predict_folder = get_prediction_folder()
     if not os.path.exists(predict_folder):
         os.makedirs(predict_folder)
 
@@ -102,19 +107,5 @@ def write_predicted_dataset(dataset_file, predicted_offsets, example_ids):
                           'predicted_smooths' : predicted}
         np.savez(file_path, **out_attributes)
 
-def get_model(in_shape, out_shape):
-    # Create NN model
-    input_layer = Input(shape=(in_shape,))
-    layer_0 = Dense(units=32, activation='tanh', name='HiddenLayer0')(input_layer)
-    layer_1 = Dense(units=128, activation='tanh', name='HiddenLayer1')(layer_0)
-    layer_2 = Dense(units=out_shape, activation='tanh', name='HiddenLayer2')(layer_1)
-    model = Model(input_layer, layer_2)
-
-    optimizer = keras.optimizers.Adam(learning_rate=0.005, beta_1=0.9, beta_2=0.999, amsgrad=False)
-    loss = keras.losses.mean_squared_error
-    model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
-    #model.summary()
-
-    return model
 
 
