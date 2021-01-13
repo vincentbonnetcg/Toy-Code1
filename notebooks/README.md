@@ -2,7 +2,7 @@
 
 Trying out jupyter-notebooks !
 
-### . Machine Learning
+### . Machine Learning - Supervised
 
 <table>
 <tbody>
@@ -23,6 +23,19 @@ Trying out jupyter-notebooks !
   </tr>
 </tbody>
 </table>
+
+### . Machine Learning - Unsupervised
+
+<table>
+<tbody>
+  <tr>
+    <td>K-means clustering</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning_unsupervised/k_means_clustering.ipynb">Open in GitHub</a></td>
+    <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning_unsupervised/k_means_clustering.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
+  </tr>
+</tbody>
+</table>
+
 
 ### . Convolutional Neural Network
 
