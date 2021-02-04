@@ -1,6 +1,17 @@
 # Numerical Bric-a-Brac
 Collections of numerical techniques with Python and standard computational packages (Numpy, SciPy, Numba, Matplotlib ...).
 
+
+### .Jupyter Notebooks
+
+**Folder** [notebooks](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/notebooks)<br>
+
+Slowly creating Jupyter Notebooks (include Google Colab links)
+
+- Machine Learning (supervise/unsupervised)
+- Convolutional Neural Network (CNNs)
+- Digital Image Processing
+
 ### . Implicit Solver
 **Folder** [implicit_solver](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/implicit_solver)<br>
 **Description** Implicit Solver.
@@ -117,8 +128,3 @@ Includes Explicit Euler, RK2, RK4, Semi-Implicit Euler (Euler-Cromer), Leap Frog
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/spring1D_integrator.png" alt="Explicit Integrators" height="200px">
 
-### .Jupyter Notebooks
-
-**Folder** [notebooks](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/notebooks)<br>
-
-slowly moving some code into Jupyter Notebooks !
