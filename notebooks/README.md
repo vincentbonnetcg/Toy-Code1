@@ -21,6 +21,18 @@ Trying out jupyter-notebooks !
     <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/3_logistic_regression.ipynb">Open in GitHub</a></td>
     <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/3_logistic_regression.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
   </tr>
+  <tr>
+    <td>Multiclass Classification</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/4_multiclass_classifiation.ipynb">Open in GitHub</a></td>
+    <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/4_multiclass_classifiation.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
+  </tr>
+  <tr>
+    <td>SVM</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/5_support_vector_machine.ipynb">Open in GitHub</a></td>
+    <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/5_support_vector_machine.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
+  </tr>
+
+
 </tbody>
 </table>
 

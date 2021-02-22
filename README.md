@@ -6,6 +6,8 @@ Collections of numerical techniques with Python and standard computational packa
 
 **Folder** [notebooks](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/notebooks)<br>
 
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/jupyterlab.jpg" alt="jupyterlab" height="160px">
+
 Slowly creating Jupyter Notebooks (include Google Colab links)
 
 - Machine Learning (supervise/unsupervised)
