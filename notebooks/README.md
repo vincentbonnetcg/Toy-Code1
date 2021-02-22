@@ -2,6 +2,8 @@
 
 Trying out jupyter-notebooks !
 
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/jupyterlab.jpg" alt="jupyterlab" height="160px">
+
 ### . Machine Learning - Supervised
 
 <table>
