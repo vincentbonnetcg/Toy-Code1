@@ -29,7 +29,7 @@ Trying out jupyter-notebooks !
     <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/4_multiclass_classifiation.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
   </tr>
   <tr>
-    <td>SVM</td>
+    <td>Support Vector Machine</td>
     <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/5_support_vector_machine.ipynb">Open in GitHub</a></td>
     <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/machine_learning/5_support_vector_machine.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
   </tr>
@@ -37,6 +37,7 @@ Trying out jupyter-notebooks !
 
 </tbody>
 </table>
+
 
 ### . Machine Learning - Unsupervised
 
@@ -49,6 +50,25 @@ Trying out jupyter-notebooks !
   </tr>
 </tbody>
 </table>
+
+
+### . Generative Neural Network
+
+<table>
+<tbody>
+  <tr>
+    <td>Variational Autoencoder (VAE) </td>
+    <td>-</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>Generative Adversarial Network (GAN)</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/generative_model/cnn_gan.ipynb">Open in GitHub</a></td>
+    <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/generative_model/cnn_gan.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
+  </tr>
+</tbody>
+</table>
+
 
 
 ### . Convolutional Neural Network

@@ -8,7 +8,7 @@ Collections of numerical techniques with Python and standard computational packa
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/jupyterlab.jpg" alt="jupyterlab" height="160px">
 
-Slowly creating Jupyter Notebooks (include Google Colab links)
+Jupyter and Google Colab Notebooks
 
 - Machine Learning (supervise/unsupervised)
 - Convolutional Neural Network (CNNs)
@@ -34,7 +34,7 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer_preview.jpg" alt="Monte Carlo Path Tracer" height="200px">
 
-### . ConvNet
+### . Convolutional Neural Network
 **File** [conv_net](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/computer_vision/image_classification_intro.ipynb)<br>
 **Description** Simple ConvNet implementation with Keras
 
@@ -50,7 +50,7 @@ Explore code generation of vectorized code for physics solver.
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/cifar10.png" alt="CIFAR_10" height="160px">
 
 
-### . Neural Network
+### . Neural Networks
 **Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
 **Description** Neural network study
 
