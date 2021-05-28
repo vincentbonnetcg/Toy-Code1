@@ -2,7 +2,6 @@
 SSD (Skeletal Subspace Deformation) Algorithms written in Python
 
 - Linear Blend Skinning [1]
-- Dual Quaternion Skinning (WIP) [4]
 - Pose‐Space deformation (WIP)[3]
 
 ![Skeletal Subspace Deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/linear_blend_skinning.gif)
@@ -20,3 +19,7 @@ SSD (Skeletal Subspace Deformation) Algorithms written in Python
 [5] Bickel, Bernd, Manuel Lang, Mario Botsch, Miguel A. Otaduy, and Markus Gross. "Pose-space animation and transfer of facial details." In Proceedings of the 2008 ACM SIGGRAPH/Eurographics Symposium on Computer Animation, pp. 57-66. Eurographics Association, 2008.
 
 [6] MANCEWICZ, Joe, DERKSEN, Matt L., RIJPKEMA, Hans, et al. Delta Mush: smoothing deformations while preserving detail. In : Proceedings of the Fourth Symposium on Digital Production. ACM, 2014. p. 7-11.
+
+[7] Loper, Matthew, Naureen Mahmood, Javier Romero, Gerard Pons-Moll, and Michael J. Black. "SMPL: A skinned multi-person linear model." ACM transactions on graphics (TOG) 34, no. 6 (2015): 1-16.
+
+[8] Le, Binh Huy, and Jessica K. Hodgins. "Real-time skeletal skinning with optimized centers of rotation." ACM Transactions on Graphics (TOG) 35, no. 4 (2016): 1-10.
