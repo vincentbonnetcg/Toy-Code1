@@ -150,10 +150,17 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/svd_compression.png" alt="SVD" height="160px">
 
-## Markov Chain - Authors names generator
-**File** [markovChain.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/markov_chain/markov_chain.py)<br>
-**Description** Generate authors names by using Markov Chain
-- Use the Collection of Poems from Poetry Foundation to generate probability matrix
+## Dynamic Programming - Study
+<table>
+<tbody>
+  <tr>
+    <td>Dynamic Programming Examples</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/dynamic_programming.ipynb">Open in GitHub</a></td>
+    <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/dynamic_programming.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
+  </tr>
+</tbody>
+</table>
+
 
 ## Interpolation and Regression
 **Folder** [interpolation_regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/interpolation_regression)<br>
@@ -178,3 +185,7 @@ Includes Explicit Euler, RK2, RK4, Semi-Implicit Euler (Euler-Cromer), Leap Frog
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/spring1D_integrator.png" alt="Explicit Integrators" height="200px">
 
+## Markov Chain - Authors names generator
+**File** [markovChain.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/markov_chain/markov_chain.py)<br>
+**Description** Generate authors names by using Markov Chain
+- Use the Collection of Poems from Poetry Foundation to generate probability matrix
