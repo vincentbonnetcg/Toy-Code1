@@ -133,13 +133,6 @@ Explore code generation of vectorized code for physics solver.
     <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/optimalTransformation.py">Open in GitHub</a></td>
     <td>-</td>
   </tr>
-</tbody>
-</table>
-
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation.png" alt="PCA" height="200px">
-
-<table>
-<tbody>
   <tr>
     <td>Image compression with SVD</td>
     <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/digital_image_processing/image_compression_with_svd.ipynb">Open in GitHub</a></td>
@@ -148,9 +141,9 @@ Explore code generation of vectorized code for physics solver.
 </tbody>
 </table>
 
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/svd_compression.png" alt="SVD" height="160px">
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/optimalTransformation.png" alt="PCA" height="200px">
 
-## Dynamic Programming - Study
+## Dynamic Programming
 <table>
 <tbody>
   <tr>
@@ -161,6 +154,25 @@ Explore code generation of vectorized code for physics solver.
 </tbody>
 </table>
 
+## Graph Theory
+
+<table>
+<tbody>
+  <tr>
+    <td>Graph colouring</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graph_optimization/graphColouring_greedyAlgorithm.py">Open in GitHub</a></td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>Dijkstra's algorithm</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/dijkstra.ipynb">Open in GitHub</a></td>
+    <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/dijkstra.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
+  </tr>
+</tbody>
+</table>
+
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graph_optimization/img/graphColouring_greedyAlgorithm.png" alt="Colouring" height="200px">
+
 
 ## Interpolation and Regression
 **Folder** [interpolation_regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/interpolation_regression)<br>
@@ -170,12 +182,6 @@ Explore code generation of vectorized code for physics solver.
 - Polynomial Regression
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png" alt="RBF" height="200px">
-
-## Graph Optimization
-**File** [graph_optimization](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graph_optimization)<br>
-**Description** Greedy colouring algorithm
-
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graph_optimization/img/graphColouring_greedyAlgorithm.png" alt="Colouring" height="200px">
 
 ## 1D Time Integration
 
