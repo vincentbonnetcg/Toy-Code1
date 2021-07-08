@@ -65,8 +65,8 @@ Explore code generation of vectorized code for physics solver.
 
 
 ## Deep Deformation
-**Description** WIP of the Fast and deep deformation approximations - I will find time to finish it, no sure when ...
-**Folder** [deep_deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/deep_deformation)<br>
+**Description** WIP of the Fast and deep deformation approximations - I will find time to finish it, no sure when ...<br>
+**Folder** [deep_deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/deep_deformation)
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/deep_deformation/img/deepdeformation.gif" alt="Deep_Deformation" height="200px">
 
