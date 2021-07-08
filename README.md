@@ -21,7 +21,10 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/path_tracing/output/montecarlo_pathtracer_preview.jpg" alt="Monte Carlo Path Tracer" height="200px">
 
-## Convolutional Neural Network
+## ConvNet
+
+**Description** Examples of convolution neural network architectures.
+
 <table>
 <tbody>
   <tr>
@@ -39,10 +42,31 @@ Explore code generation of vectorized code for physics solver.
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/img/cifar10.png" alt="CIFAR_10" height="160px">
 
+## Generative Network
 
-## Neural Networks
-**Folder** [neural_network](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network)<br>
-**Description** Neural network study
+**Description** Examples of generative neural network architectures.
+
+<table>
+<tbody>
+  <tr>
+    <td>Autoencoder</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/generative_models/autoencoder.py">Open in GitHub</a></td>
+    <td>...</td>
+  </tr>
+  <tr>
+    <td>Simple ResNet implementation with Keras</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/generative_models/variational_autoencoder.py">Open in GitHub</a></td>
+    <td>...</td>
+  </tr>
+</tbody>
+</table>
+
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/generative_models/img/fashion_mnist_autoencoder.png" alt="Autoencoder" height="200px">
+
+
+## Deep Deformation
+**Description** WIP of the Fast and deep deformation approximations - I will find time to finish it, no sure when ...
+**Folder** [deep_deformation](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/deep_deformation)<br>
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/neural_network/deep_deformation/img/deepdeformation.gif" alt="Deep_Deformation" height="200px">
 

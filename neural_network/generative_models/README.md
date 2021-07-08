@@ -1,6 +1,6 @@
-# . Keras Examples
+# . Generative Models 
 
-Evaluation of Keras with some examples
+Generative models using neural networks.
 
 ## . Auto-Encoder
 **File** [auto_encoder.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/Keras_examples/autoencoder.py)<br>
