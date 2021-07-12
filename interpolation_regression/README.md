@@ -2,10 +2,10 @@
 Interpolation and regression algorithms
 
 ## . RBF Interpolation
-**File** [scatteredDataInterpolation_radialBasisFunction.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/interpolation_regression/scatteredDataInterpolation_radialBasisFunction.py)<br>
+**File** [radialBasisFunction.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/interpolation_regression/radialBasisFunction.py)<br>
 **Description** Interpolation of a 1D function with Radial Basis Functions
 
-![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png)
+![RBF](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/radialBasisFunction.png)
 
 [1] Powell, Michael JD. "Radial basis functions for multivariable interpolation: a review." Algorithms for approximation (1987).
 

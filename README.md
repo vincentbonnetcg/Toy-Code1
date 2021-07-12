@@ -54,7 +54,7 @@ Explore code generation of vectorized code for physics solver.
     <td>...</td>
   </tr>
   <tr>
-    <td>Simple ResNet implementation with Keras</td>
+    <td>Variational autoencoder</td>
     <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/neural_network/generative_models/variational_autoencoder.py">Open in GitHub</a></td>
     <td>...</td>
   </tr>
@@ -209,8 +209,23 @@ Explore code generation of vectorized code for physics solver.
 **Folder** [interpolation_regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/interpolation_regression)<br>
 **Description** Interpolation and regression algorithms
 
-- RBF Interpolation
-- Polynomial Regression
+
+
+<table>
+<tbody>
+  <tr>
+    <td>RBF Interpolation</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/interpolation_regression/radialBasisFunction.py">Open in GitHub</a></td>
+    <td>...</td>
+  </tr>
+  <tr>
+    <td>Polynomial Regression</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/interpolation_regression/polynomialRegression.py">Open in GitHub</a></td>
+    <td>...</td>
+  </tr>
+</tbody>
+</table>
+
 
 <img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png" alt="RBF" height="200px">
 
