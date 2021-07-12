@@ -183,6 +183,11 @@ Explore code generation of vectorized code for physics solver.
 <table>
 <tbody>
   <tr>
+    <td>Graph matrix</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/graph_matrix.ipynb">Open in GitHub</a></td>
+    <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/graph_matrix.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
+  </tr>
+  <tr>
     <td>Graph colouring</td>
     <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/graph_optimization/graphColouring_greedyAlgorithm.py">Open in GitHub</a></td>
     <td>-</td>
@@ -192,6 +197,8 @@ Explore code generation of vectorized code for physics solver.
     <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/dijkstra.ipynb">Open in GitHub</a></td>
     <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/dijkstra.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
   </tr>
+
+
 </tbody>
 </table>
 
