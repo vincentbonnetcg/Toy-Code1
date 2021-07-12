@@ -135,11 +135,34 @@ Explore code generation of vectorized code for physics solver.
 **Folder** [stencil_codes](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes)<br>
 **Description** Evaluate stencil codes with Numba (CPU/GPU)
 
-- Poisson Solver, Laplace Inpainting
-- Conway's game of life
-- Convolution matrix
 
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_inpainting.png" alt="Laplace_inpainting" height="200px">
+<table>
+<tbody>
+  <tr>
+    <td>Poisson Solver</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/poisson_solver.py">Open in GitHub</a></td>
+    <td>...</td>
+  </tr>
+  <tr>
+    <td>Laplace Inpainting</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/laplace_inpainting.py">Open in GitHub</a></td>
+    <td>...</td>
+  </tr>
+  <tr>
+    <td>Conway's game of life</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/game_of_life.py">Open in GitHub</a></td>
+    <td>...</td>
+  </tr>
+  <tr>
+    <td>Convolution matrix</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/convolution_matrix.py">Open in GitHub</a></td>
+    <td>...</td>
+  </tr>
+</tbody>
+</table>
+
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/stencil_codes/img/numba_laplace_equation.png" alt="Laplace_equation" height="200px">
+
 
 ## Inverse Kinematics
 **File** [inverseKinematics.py](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/miscellaneous/inverseKinematics.py)<br>
@@ -209,8 +232,6 @@ Explore code generation of vectorized code for physics solver.
 **Folder** [interpolation_regression](https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/tree/master/interpolation_regression)<br>
 **Description** Interpolation and regression algorithms
 
-
-
 <table>
 <tbody>
   <tr>
@@ -227,7 +248,7 @@ Explore code generation of vectorized code for physics solver.
 </table>
 
 
-<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/scatteredDataInterpolation_radialBasisFunction.png" alt="RBF" height="200px">
+<img src="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/img/radialBasisFunction.png" alt="RBF" height="200px">
 
 ## 1D Time Integration
 
