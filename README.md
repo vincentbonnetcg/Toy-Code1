@@ -220,6 +220,11 @@ Explore code generation of vectorized code for physics solver.
     <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/dijkstra.ipynb">Open in GitHub</a></td>
     <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/dijkstra.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
   </tr>
+  <tr>
+    <td>Spectral graph theory - TODO</td>
+    <td><a href ="https://github.com/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/spectral_graph_theory.ipynb">Open in GitHub</a></td>
+    <td><a href="https://colab.research.google.com/github/vincentbonnetcg/Numerical-Bric-a-Brac/blob/master/notebooks/graph_theory/spectral_graph_theory.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a></td>
+  </tr>
 
 
 </tbody>
